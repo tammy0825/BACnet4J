@@ -23,10 +23,13 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.transport;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.ResponseConsumer;
 import com.serotonin.bacnet4j.ServiceFuture;
@@ -41,21 +44,24 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
+    static final Logger LOG = LoggerFactory.getLogger(ServiceFutureImpl.class);
+
     private AcknowledgementService ack;
     private AckAPDU fail;
     private BACnetException ex;
+    private volatile boolean success;
     private volatile boolean done;
-    
-    private long timeout; //Timeout to wait before giving up
 
-    public ServiceFutureImpl(){
-    	this(0);
+    private final long timeout; //Timeout to wait before giving up
+
+    public ServiceFutureImpl() {
+        this(0);
     }
-    
-    public ServiceFutureImpl(long timeout){
-    	this.timeout = timeout;
+
+    public ServiceFutureImpl(final long timeout) {
+        this.timeout = timeout;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public synchronized <T extends AcknowledgementService> T get() throws BACnetException {
@@ -65,11 +71,13 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
             return (T) ack;
         }
 
+        LOG.info("Waiting {} before timeout", timeout);
         ThreadUtils.wait(this, timeout);
+        LOG.info("Done waiting");
 
-        if(ex == null && ack == null && fail == null)
-        	ex = new BACnetException("Timeout waiting for response.");
-        
+        if (ex == null && !success && fail == null)
+            ex = new BACnetException("Timeout waiting for response.");
+
         if (ex != null)
             throw ex;
 
@@ -86,19 +94,20 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
     }
 
     @Override
-    public synchronized void success(AcknowledgementService ack) {
+    public synchronized void success(final AcknowledgementService ack) {
         this.ack = ack;
+        success = true;
         complete();
     }
 
     @Override
-    public synchronized void fail(AckAPDU ack) {
+    public synchronized void fail(final AckAPDU ack) {
         fail = ack;
         complete();
     }
 
     @Override
-    public synchronized void ex(BACnetException e) {
+    public synchronized void ex(final BACnetException e) {
         ex = e;
         complete();
     }
