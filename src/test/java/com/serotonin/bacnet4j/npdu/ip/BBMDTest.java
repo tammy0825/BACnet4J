@@ -86,7 +86,7 @@ public class BBMDTest {
         allSockets.clear();
     }
 
-    //    @Test
+    @Test
     public void noBBMD() throws Exception {
         // Send some broadcasts
         ld11.ld.sendLocalBroadcast(ld11.ld.getIAm());
@@ -106,13 +106,13 @@ public class BBMDTest {
         assertEquals(2, ld33.iamCount()); // WhoIs
     }
 
-    //    @Test
+    @Test
     public void bdt() throws Exception {
         // Write a BDT
         configurer.send(packet(1, "7F000101BAC0FFFFFFFF" + "7F000201BAC0FFFFFFFF", ld11));
 
         // Get the response
-        DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
+        final DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
         configurer.receive(response);
         assertPacketEquals("810000060000", response);
 
@@ -124,9 +124,9 @@ public class BBMDTest {
         assertPacketEquals("810300187F000101BAC0FFFFFFFF7F000201BAC0FFFFFFFF", response);
     }
 
-    //    @Test
+    @Test
     public void fdt() throws Exception {
-        InetSocketAddress target = ld11.network.getLocalBindAddress();
+        final InetSocketAddress target = ld11.network.getLocalBindAddress();
 
         // PART 1
         // Write FD registrations
@@ -139,7 +139,7 @@ public class BBMDTest {
         configurer.send(packet(6, "", ld11));
 
         // Get the response
-        DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
+        final DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
         configurer.receive(response);
         assertPacketEquals("810700227F009701BAC0000300207F009801BAC0001E003B7F009901BAC0012C0149", response);
 
@@ -147,7 +147,7 @@ public class BBMDTest {
         // Delete a registration
         fd153.network.unregisterAsForeignDevice();
 
-        // Delete again. NOTE: this should return a NAK, but there is currently no facility to check. There will 
+        // Delete again. NOTE: this should return a NAK, but there is currently no facility to check. There will
         // instead be an error written to the log.
         fd153.network.unregisterAsForeignDevice();
         Thread.sleep(100);
@@ -159,27 +159,26 @@ public class BBMDTest {
         configurer.receive(response);
         assertPacketEquals("810700187F009701BAC0000300207F009801BAC0001E003B", response);
 
-        if (true) { // TODO turn this test on
-            // PART 4
-            // Manually register a foreign device.
-            fd153.network.getSocket().send(packet(5, "0001", target));
-            Thread.sleep(100);
+        // PART 4
+        // Manually register a foreign device.
+        fd153.network.getSocket().send(packet(5, "0001", target));
+        Thread.sleep(100);
 
-            // Verify that it is there
-            configurer.send(packet(6, "", ld11));
-            configurer.receive(response);
-            assertPacketEquals("810700227F009701BAC0000300207F009801BAC0001E003B7F009901BAC00001001E", response);
+        // Verify that it is there
+        configurer.send(packet(6, "", ld11));
+        configurer.receive(response);
+        assertPacketEquals("810700227F009701BAC0000300207F009801BAC0001E003B7F009901BAC00001001E", response);
 
-            // Wait for the manual entry to expire.
-            Thread.sleep(42000); // The TTL was 1s, plus 30s grace, and the expiry thread runs every 10s.
+        // Wait for the manual entry to expire.
+        System.out.println("Waiting for the manual entry to expire");
+        Thread.sleep(42000); // The TTL was 1s, plus 30s grace, and the expiry thread runs every 10s.
 
-            // Read registrations again
-            configurer.send(packet(6, "", ld11));
+        // Read registrations again
+        configurer.send(packet(6, "", ld11));
 
-            // Get the response
-            configurer.receive(response);
-            assertPacketEquals("810700187F009701BAC0000300147F009801BAC0001E002F", response);
-        }
+        // Get the response
+        configurer.receive(response);
+        assertPacketEquals("810700187F009701BAC0000300147F009801BAC0001E002F", response);
     }
 
     @Test
@@ -191,7 +190,7 @@ public class BBMDTest {
         payload += "7F000301BAC0FFFFFF00"; // 127.0.3.1
         configurer.send(packet(1, payload, ld11));
 
-        DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
+        final DatagramPacket response = new DatagramPacket(new byte[1024], 1024);
         configurer.receive(response);
         assertPacketEquals("810000060000", response);
 
@@ -409,36 +408,35 @@ public class BBMDTest {
         fd153.reset();
     }
 
-    private void assertPacketEquals(String expected, DatagramPacket packet) {
-        byte[] exp = new ByteQueue(expected).popAll();
+    private static void assertPacketEquals(final String expected, final DatagramPacket packet) {
+        final byte[] exp = new ByteQueue(expected).popAll();
         assertEquals(exp.length, packet.getLength());
-        byte[] actual = packet.getData();
+        final byte[] actual = packet.getData();
         for (int i = 0; i < exp.length; i++)
             assertEquals("Byte mismatch at index " + i + ": expected " + Integer.toHexString(exp[i] & 0xFF)
                     + " but got " + Integer.toHexString(actual[i] & 0xFF), exp[i], actual[i]);
     }
 
-    private DatagramPacket packet(int function, String payload, LDInfo dest) throws SocketException {
+    private static DatagramPacket packet(final int function, final String payload, final LDInfo dest) {
         return packet(function, payload, dest.network.getLocalBindAddress());
     }
 
-    private DatagramPacket packet(int function, String payload, InetSocketAddress dest) throws SocketException {
-        ByteQueue queue = new ByteQueue();
+    private static DatagramPacket packet(final int function, final String payload, final InetSocketAddress dest) {
+        final ByteQueue queue = new ByteQueue();
         queue.push(0x81); // Type
         queue.push(function); // Function
         queue.pushU2B(4 + payload.length() / 2); // Length
         queue.push(payload);
-        byte[] data = queue.popAll();
+        final byte[] data = queue.popAll();
         return new DatagramPacket(data, data.length, dest);
     }
 
-    private LDInfo createLocalDevice(int subnet, int addr) throws Exception {
+    private LDInfo createLocalDevice(final int subnet, final int addr) throws Exception {
         final LDInfo info = new LDInfo();
 
-        info.network = new IpNetworkBuilder().localBindAddress("127.0." + subnet + "." + addr) //
-                .broadcastIp("127.0." + subnet + ".255") //
-                .subnetMask("255.255.255.0") //
-                .localNetworkNumber(1) //
+        info.network = new IpNetworkBuilder().withLocalBindAddress("127.0." + subnet + "." + addr) //
+                .withSubnetMask("255.255.255.0") //
+                .withLocalNetworkNumber(1) //
                 .build();
 
         info.ld = new LocalDevice(subnet * 10 + addr, new DefaultTransport(info.network));
@@ -448,7 +446,7 @@ public class BBMDTest {
 
         info.ld.getEventHandler().addListener(new DeviceEventAdapter() {
             @Override
-            public void iAmReceived(RemoteDevice d) {
+            public void iAmReceived(final RemoteDevice d) {
                 info.iamCount.increment();
             }
         });
@@ -458,25 +456,25 @@ public class BBMDTest {
         return info;
     }
 
-    Broadcaster createBroadcaster(int subnet) throws IOException {
-        String ip = "127.0." + subnet + ".255";
-        DatagramSocket s = new DatagramSocket(IpNetwork.DEFAULT_PORT, InetAddress.getByName(ip));
+    Broadcaster createBroadcaster(final int subnet) throws IOException {
+        final String ip = "127.0." + subnet + ".255";
+        final DatagramSocket s = new DatagramSocket(IpNetwork.DEFAULT_PORT, InetAddress.getByName(ip));
 
         // Find all of the sockets on the same virtual subnet.
-        List<DatagramSocket> to = new ArrayList<DatagramSocket>();
-        for (DatagramSocket dev : allSockets) {
+        final List<DatagramSocket> to = new ArrayList<>();
+        for (final DatagramSocket dev : allSockets) {
             if (dev.getLocalAddress().getAddress()[2] == subnet)
                 to.add(dev);
         }
 
-        Broadcaster br = new Broadcaster(ip, s, to);
-        Thread t = new Thread(br, "Broadcaster " + subnet);
+        final Broadcaster br = new Broadcaster(ip, s, to);
+        final Thread t = new Thread(br, "Broadcaster " + subnet);
         //        t.setDaemon(true);
         t.start();
         return br;
     }
 
-    List<DatagramSocket> allSockets = new ArrayList<DatagramSocket>();
+    List<DatagramSocket> allSockets = new ArrayList<>();
 
     class LDInfo {
         LocalDevice ld;
@@ -484,7 +482,7 @@ public class BBMDTest {
         MutableInt iamCount;
 
         void reset() {
-            ld.getRemoteDevices().clear();
+            ld.clearRemoteDevices();
             iamCount.setValue(0);
         }
 
@@ -503,7 +501,7 @@ public class BBMDTest {
         final List<DatagramSocket> forwardTo;
         Thread thread;
 
-        public Broadcaster(String ip, DatagramSocket listenAt, List<DatagramSocket> forwardTo) {
+        public Broadcaster(final String ip, final DatagramSocket listenAt, final List<DatagramSocket> forwardTo) {
             this.ip = ip;
             this.listenAt = listenAt;
             this.forwardTo = forwardTo;
@@ -513,7 +511,7 @@ public class BBMDTest {
         public void run() {
             thread = Thread.currentThread();
 
-            DatagramPacket p = new DatagramPacket(new byte[1024], 1024);
+            final DatagramPacket p = new DatagramPacket(new byte[1024], 1024);
 
             while (true) {
                 try {
@@ -521,7 +519,7 @@ public class BBMDTest {
 
                     // Determine where this came from.
                     DatagramSocket from = null;
-                    for (DatagramSocket s : allSockets) {
+                    for (final DatagramSocket s : allSockets) {
                         if (s.getLocalAddress().equals(p.getAddress())) {
                             from = s;
                             break;
@@ -532,21 +530,19 @@ public class BBMDTest {
                         System.out.println("Can't find from socket for address" + p.getAddress());
                     else {
                         // Use that socket to send to individual addresses.
-                        for (DatagramSocket to : forwardTo) {
-                            DatagramPacket fwd = new DatagramPacket(p.getData(), p.getLength(),
+                        for (final DatagramSocket to : forwardTo) {
+                            final DatagramPacket fwd = new DatagramPacket(p.getData(), p.getLength(),
                                     to.getLocalSocketAddress());
                             from.send(fwd);
                         }
                     }
-                }
-                catch (SocketException e) {
+                } catch (final SocketException e) {
                     if ("Socket closed".equalsIgnoreCase(e.getMessage()))
                         break;
 
                     // ignore
                     e.printStackTrace();
-                }
-                catch (IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -554,7 +550,8 @@ public class BBMDTest {
 
         public void close() throws Exception {
             listenAt.close();
-            thread.join();
+            if (thread != null)
+                thread.join();
         }
     }
 }

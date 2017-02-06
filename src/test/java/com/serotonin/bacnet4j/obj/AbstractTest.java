@@ -31,9 +31,9 @@ abstract public class AbstractTest {
         Thread.sleep(100);
 
         // Get d1 as a remote object.
-        rd1 = d2.getRemoteDevice(1);
+        rd1 = d2.getRemoteDevice(1).get();
         DiscoveryUtils.getExtendedDeviceInformation(d2, rd1);
-        rd2 = d1.getRemoteDevice(2);
+        rd2 = d1.getRemoteDevice(2).get();
         DiscoveryUtils.getExtendedDeviceInformation(d1, rd2);
 
         before();

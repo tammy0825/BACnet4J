@@ -1,11 +1,15 @@
 package com.serotonin.bacnet4j;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
@@ -40,27 +44,29 @@ import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 /**
  * Primarily this is a test of the DefaultTransport, but also tests aspects of Network and LocalDevice.
- * 
+ *
  * @author Matthew
  */
 public class MessagingTest {
+    static final Logger LOG = LoggerFactory.getLogger(MessagingTest.class);
+
     @Test
     public void networkTest() throws Exception {
-        TestNetwork network1 = new TestNetwork(1, 200);
-        LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
+        final TestNetwork network1 = new TestNetwork(1, 200);
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
 
-        final MutableObject<RemoteDevice> o = new MutableObject<RemoteDevice>();
+        final MutableObject<RemoteDevice> o = new MutableObject<>();
         d1.getEventHandler().addListener(new DeviceEventAdapter() {
             @Override
-            public void iAmReceived(RemoteDevice d) {
+            public void iAmReceived(final RemoteDevice d) {
                 o.setValue(d);
             }
         });
         d1.initialize();
 
-        Address a2 = new Address(new byte[] { 2 });
-        TestNetwork network2 = new TestNetwork(a2, 200);
-        LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
+        final Address a2 = new Address(new byte[] { 2 });
+        final TestNetwork network2 = new TestNetwork(a2, 200);
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
         d2.initialize();
 
         d1.sendLocalBroadcast(new WhoIsRequest());
@@ -70,56 +76,58 @@ public class MessagingTest {
         d1.terminate();
         d2.terminate();
 
-        Assert.assertNotNull(o.getValue());
-        Assert.assertEquals(a2, o.getValue().getAddress());
+        assertNotNull(o.getValue());
+        assertEquals(a2, o.getValue().getAddress());
     }
 
     @Test
     public void readRequest() throws Exception {
         // Create the first local device.
-        TestNetwork network1 = new TestNetwork(1, 200);
-        LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 200)));
         d1.initialize();
 
         // Create the second local device.
-        Address a2 = new Address(new byte[] { 2 });
-        TestNetwork network2 = new TestNetwork(a2, 200);
-        LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
-        ObjectIdentifier av0 = new ObjectIdentifier(ObjectType.analogValue, 0);
+        final LocalDevice d2 = new LocalDevice(2,
+                new DefaultTransport(new TestNetwork(new Address(new byte[] { 2 }), 200)));
         d2.addObject(createAnalogValue(0));
         d2.initialize();
 
+        d1.sendGlobalBroadcast(d1.getIAm());
+        d2.sendGlobalBroadcast(d2.getIAm());
+
         // Create the remote proxy for device 2.
-        RemoteDevice r2 = new RemoteDevice(2, a2);
-        r2.setSegmentationSupported(Segmentation.segmentedBoth);
-        ServicesSupported ss = new ServicesSupported();
+        final RemoteDevice r2 = d1.getRemoteDevice(2).get();
+
+        //        final RemoteDevice r2 = new RemoteDevice(2, a2);
+        r2.setDeviceProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+        final ServicesSupported ss = new ServicesSupported();
         ss.setAll(true);
-        r2.setServicesSupported(ss);
-        r2.setMaxAPDULengthAccepted(MaxApduLength.UP_TO_1476.getMaxLength());
+        r2.setDeviceProperty(PropertyIdentifier.protocolServicesSupported, ss);
+        r2.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, MaxApduLength.UP_TO_1476.getMaxLength());
 
         // Send an object list request from the first to the second.
-        List<ReadAccessSpecification> specs = new ArrayList<ReadAccessSpecification>();
-        specs.add(new ReadAccessSpecification(new ObjectIdentifier(ObjectType.device, 2), PropertyIdentifier.objectList));
-        ServiceFuture future = d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<ReadAccessSpecification>(
-                specs)));
-        ReadPropertyMultipleAck ack = future.get();
+        final List<ReadAccessSpecification> specs = new ArrayList<>();
+        specs.add(
+                new ReadAccessSpecification(new ObjectIdentifier(ObjectType.device, 2), PropertyIdentifier.objectList));
+        final ServiceFuture future = d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<>(specs)));
+        final ReadPropertyMultipleAck ack = future.get();
 
-        Assert.assertEquals(1, ack.getListOfReadAccessResults().getCount());
-        ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
-        Assert.assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
-        Assert.assertEquals(1, readResult.getListOfResults().getCount());
-        Result result = readResult.getListOfResults().get(1);
-        Assert.assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
+        assertEquals(1, ack.getListOfReadAccessResults().getCount());
+        final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
+        assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
+        assertEquals(1, readResult.getListOfResults().getCount());
+        final Result result = readResult.getListOfResults().get(1);
+        assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
-        SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
-        Assert.assertEquals(2, idList.getCount());
-        Assert.assertEquals(d2.getConfiguration().getId(), idList.get(1));
-        Assert.assertEquals(av0, idList.get(2));
+        final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
+        assertEquals(2, idList.getCount());
+        assertEquals(d2.getConfiguration().getId(), idList.get(1));
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), idList.get(2));
 
         // Send the same request, but with a null consumer.
-        d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<ReadAccessSpecification>(specs)), null);
+        d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<>(specs)), null);
         // Give the request a moment to complete.
-        ThreadUtils.sleep(200);
+        ThreadUtils.sleep(40);
 
         d1.terminate();
         d2.terminate();
@@ -128,48 +136,47 @@ public class MessagingTest {
     @Test
     public void segmentedResponse() throws Exception {
         // Create the first local device.
-        TestNetwork network1 = new TestNetwork(1, 200);
-        LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 200)));
         d1.initialize();
 
         // Create the second local device.
-        Address a2 = new Address(new byte[] { 2 });
-        TestNetwork network2 = new TestNetwork(a2, 200);
-        LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 200)));
         for (int i = 0; i < 1000; i++)
             d2.addObject(createAnalogValue(i));
-
         d2.initialize();
 
+        d1.sendGlobalBroadcast(d1.getIAm());
+        d2.sendGlobalBroadcast(d2.getIAm());
+
         // Create the remote proxy for device 2.
-        RemoteDevice r2 = new RemoteDevice(2, a2);
-        r2.setSegmentationSupported(Segmentation.segmentedBoth);
-        ServicesSupported ss = new ServicesSupported();
+        final RemoteDevice r2 = d1.getRemoteDevice(2).get();
+        r2.setDeviceProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+        final ServicesSupported ss = new ServicesSupported();
         ss.setAll(true);
-        r2.setServicesSupported(ss);
-        r2.setMaxAPDULengthAccepted(MaxApduLength.UP_TO_1476.getMaxLength());
+        r2.setDeviceProperty(PropertyIdentifier.protocolServicesSupported, ss);
+        r2.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, MaxApduLength.UP_TO_1476.getMaxLength());
 
         // Send an object list request from the first to the second.
-        List<ReadAccessSpecification> specs = new ArrayList<ReadAccessSpecification>();
-        specs.add(new ReadAccessSpecification(new ObjectIdentifier(ObjectType.device, 2), PropertyIdentifier.objectList));
-        ServiceFuture future = d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<ReadAccessSpecification>(
-                specs)));
-        ReadPropertyMultipleAck ack = future.get();
+        final List<ReadAccessSpecification> specs = new ArrayList<>();
+        specs.add(
+                new ReadAccessSpecification(new ObjectIdentifier(ObjectType.device, 2), PropertyIdentifier.objectList));
+        final ServiceFuture future = d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<>(specs)));
+        final ReadPropertyMultipleAck ack = future.get();
 
-        Assert.assertEquals(1, ack.getListOfReadAccessResults().getCount());
-        ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
-        Assert.assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
-        Assert.assertEquals(1, readResult.getListOfResults().getCount());
-        Result result = readResult.getListOfResults().get(1);
-        Assert.assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
+        assertEquals(1, ack.getListOfReadAccessResults().getCount());
+        final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
+        assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
+        assertEquals(1, readResult.getListOfResults().getCount());
+        final Result result = readResult.getListOfResults().get(1);
+        assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
-        SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
-        Assert.assertEquals(1001, idList.getCount());
-        Assert.assertEquals(d2.getConfiguration().getId(), idList.get(1));
+        final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
+        assertEquals(1001, idList.getCount());
+        assertEquals(d2.getConfiguration().getId(), idList.get(1));
         //        Assert.assertEquals(av0, idList.get(2));
 
         // Send the same request, but with a null consumer.
-        d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<ReadAccessSpecification>(specs)), null);
+        d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<>(specs)), null);
         // Give the request a moment to complete.
         ThreadUtils.sleep(200);
 
@@ -180,36 +187,36 @@ public class MessagingTest {
     @Test
     public void writeRequest() throws Exception {
         // Create the first local device.
-        TestNetwork network1 = new TestNetwork(1, 20);
-        LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 20)));
         d1.initialize();
 
         // Create the second local device.
-        Address a2 = new Address(new byte[] { 2 });
-        TestNetwork network2 = new TestNetwork(a2, 30);
-        LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
-        ObjectIdentifier av0 = new ObjectIdentifier(ObjectType.analogValue, 0);
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 30)));
+        final ObjectIdentifier av0 = new ObjectIdentifier(ObjectType.analogValue, 0);
         d2.addObject(createAnalogValue(0));
         d2.initialize();
 
+        d1.sendGlobalBroadcast(d1.getIAm());
+        d2.sendGlobalBroadcast(d2.getIAm());
+
         // Create the remote proxy for device 2.
-        RemoteDevice r2 = new RemoteDevice(2, a2);
-        r2.setSegmentationSupported(Segmentation.segmentedBoth);
-        ServicesSupported ss = new ServicesSupported();
+        final RemoteDevice r2 = d1.getRemoteDevice(2).get();
+        r2.setDeviceProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+        final ServicesSupported ss = new ServicesSupported();
         ss.setAll(true);
-        r2.setServicesSupported(ss);
-        r2.setMaxAPDULengthAccepted(MaxApduLength.UP_TO_1476.getMaxLength());
+        r2.setDeviceProperty(PropertyIdentifier.protocolServicesSupported, ss);
+        r2.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, MaxApduLength.UP_TO_1476.getMaxLength());
 
         // Send a write request from the first to the second.
         d1.send(r2, new WritePropertyRequest(av0, PropertyIdentifier.presentValue, null, new Real(3.14F), null));
 
-        ServiceFuture future = d1.send(r2, new ReadPropertyRequest(av0, PropertyIdentifier.presentValue));
-        ReadPropertyAck ack = future.get();
+        final ServiceFuture future = d1.send(r2, new ReadPropertyRequest(av0, PropertyIdentifier.presentValue));
+        final ReadPropertyAck ack = future.get();
 
-        Assert.assertEquals(av0, ack.getEventObjectIdentifier());
-        Assert.assertEquals(null, ack.getPropertyArrayIndex());
-        Assert.assertEquals(PropertyIdentifier.presentValue, ack.getPropertyIdentifier());
-        Assert.assertEquals(new Real(3.14F), ack.getValue());
+        assertEquals(av0, ack.getEventObjectIdentifier());
+        assertEquals(null, ack.getPropertyArrayIndex());
+        assertEquals(PropertyIdentifier.presentValue, ack.getPropertyIdentifier());
+        assertEquals(new Real(3.14F), ack.getValue());
 
         // Send the same request, but with a null consumer.
         d1.send(r2, new ReadPropertyRequest(av0, PropertyIdentifier.presentValue), null);
@@ -223,54 +230,58 @@ public class MessagingTest {
     @Test
     public void segmentedRequest() throws Exception {
         // Create the first local device.
-        TestNetwork network1 = new TestNetwork(1, 20);
-        LocalDevice d1 = new LocalDevice(1, new DefaultTransport(network1));
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 20)));
         d1.initialize();
 
         // Create the second local device.
-        Address a2 = new Address(new byte[] { 2 });
-        TestNetwork network2 = new TestNetwork(a2, 25);
-        LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 25)));
         for (int i = 0; i < 1000; i++)
             d2.addObject(createAnalogValue(i));
         d2.initialize();
 
-        // Create the remote proxy for device 2.
-        RemoteDevice r2 = new RemoteDevice(2, a2);
-        r2.setSegmentationSupported(Segmentation.segmentedBoth);
-        ServicesSupported ss = new ServicesSupported();
-        ss.setAll(true);
-        r2.setServicesSupported(ss);
-        r2.setMaxAPDULengthAccepted(MaxApduLength.UP_TO_1476.getMaxLength());
+        d1.sendGlobalBroadcast(d1.getIAm());
+        d2.sendGlobalBroadcast(d2.getIAm());
 
-        List<PropertyValue> propertyValues = new ArrayList<PropertyValue>();
+        // Create the remote proxy for device 2.
+        final RemoteDevice r2 = d1.getRemoteDevice(2).get();
+        r2.setDeviceProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+        final ServicesSupported ss = new ServicesSupported();
+        ss.setAll(true);
+        r2.setDeviceProperty(PropertyIdentifier.protocolServicesSupported, ss);
+        r2.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, MaxApduLength.UP_TO_1476.getMaxLength());
+
+        // Create a write multiple request
+        final List<PropertyValue> propertyValues = new ArrayList<>();
         propertyValues.add(new PropertyValue(PropertyIdentifier.presentValue, new Real(2.28F)));
         propertyValues.add(new PropertyValue(PropertyIdentifier.units, EngineeringUnits.btus));
-        List<WriteAccessSpecification> specs = new ArrayList<WriteAccessSpecification>();
+        final List<WriteAccessSpecification> specs = new ArrayList<>();
         for (int i = 0; i < 1000; i++)
             specs.add(new WriteAccessSpecification(new ObjectIdentifier(ObjectType.analogValue, i),
-                    new SequenceOf<PropertyValue>(propertyValues)));
-        d1.send(r2, new WritePropertyMultipleRequest(new SequenceOf<WriteAccessSpecification>(specs))).get();
+                    new SequenceOf<>(propertyValues)));
+
+        // Send the request and wait for the response.
+        d1.send(r2, new WritePropertyMultipleRequest(new SequenceOf<>(specs))).get();
 
         // Send the same request, but with a null consumer.
-        d1.send(r2, new WritePropertyMultipleRequest(new SequenceOf<WriteAccessSpecification>(specs)), null);
+        d1.send(r2, new WritePropertyMultipleRequest(new SequenceOf<>(specs)), null);
         // Give the request a moment to complete.
         ThreadUtils.sleep(200);
 
-        ReadPropertyAck ack = d1.send(r2,
+        // Read one of the just-written values and verify.
+        final ReadPropertyAck ack = d1.send(r2,
                 new ReadPropertyRequest(new ObjectIdentifier(ObjectType.analogValue, 567), PropertyIdentifier.units))
                 .get();
 
-        Assert.assertEquals(new ObjectIdentifier(ObjectType.analogValue, 567), ack.getEventObjectIdentifier());
-        Assert.assertEquals(null, ack.getPropertyArrayIndex());
-        Assert.assertEquals(PropertyIdentifier.units, ack.getPropertyIdentifier());
-        Assert.assertEquals(EngineeringUnits.btus, ack.getValue());
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 567), ack.getEventObjectIdentifier());
+        assertEquals(null, ack.getPropertyArrayIndex());
+        assertEquals(PropertyIdentifier.units, ack.getPropertyIdentifier());
+        assertEquals(EngineeringUnits.btus, ack.getValue());
 
         d1.terminate();
         d2.terminate();
     }
 
-    private BACnetObject createAnalogValue(int id) {
+    private static BACnetObject createAnalogValue(final int id) {
         return new BACnetObject(ObjectType.analogValue, id) //
                 .writeProperty(PropertyIdentifier.presentValue, new Real(3.14F)) //
                 .writeProperty(PropertyIdentifier.units, EngineeringUnits.noUnits) //
