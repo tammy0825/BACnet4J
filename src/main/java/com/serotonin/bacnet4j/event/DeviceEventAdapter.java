@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.event;
@@ -51,18 +51,18 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 /**
  * A default class for easy implementation of the DeviceEventListener interface. Instead of having to implement all of
  * the defined methods, listener classes can override this and only implement the desired methods.
- * 
+ *
  * @author Matthew Lohbihler
  */
 public class DeviceEventAdapter implements DeviceEventListener {
     @Override
-    public void listenerException(Throwable e) {
+    public void listenerException(final Throwable e) {
         // Override as required
         e.printStackTrace();
     }
 
     @Override
-    public boolean allowPropertyWrite(final Address from, BACnetObject obj, PropertyValue pv) {
+    public boolean allowPropertyWrite(final Address from, final BACnetObject obj, final PropertyValue pv) {
         return true;
     }
 
@@ -83,23 +83,23 @@ public class DeviceEventAdapter implements DeviceEventListener {
 
     @Override
     public void covNotificationReceived(final UnsignedInteger subscriberProcessIdentifier,
-            final RemoteDevice initiatingDevice, final ObjectIdentifier monitoredObjectIdentifier,
+            final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier monitoredObjectIdentifier,
             final UnsignedInteger timeRemaining, final SequenceOf<PropertyValue> listOfValues) {
         // Override as required
     }
 
     @Override
-    public void eventNotificationReceived(final UnsignedInteger processIdentifier, final RemoteDevice initiatingDevice,
-            final ObjectIdentifier eventObjectIdentifier, final TimeStamp timeStamp,
-            final UnsignedInteger notificationClass, final UnsignedInteger priority, final EventType eventType,
-            final CharacterString messageText, final NotifyType notifyType,
+    public void eventNotificationReceived(final UnsignedInteger processIdentifier,
+            final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier eventObjectIdentifier,
+            final TimeStamp timeStamp, final UnsignedInteger notificationClass, final UnsignedInteger priority,
+            final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
             final com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, final EventState fromState,
             final EventState toState, final NotificationParameters eventValues) {
         // Override as required
     }
 
     @Override
-    public void textMessageReceived(final RemoteDevice textMessageSourceDevice, final Choice messageClass,
+    public void textMessageReceived(final ObjectIdentifier textMessageSourceDevice, final Choice messageClass,
             final MessagePriority messagePriority, final CharacterString message) {
         // Override as required
     }
