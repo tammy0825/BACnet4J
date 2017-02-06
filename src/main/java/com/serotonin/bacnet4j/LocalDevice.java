@@ -23,20 +23,34 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
+import java.util.Random;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.serotonin.bacnet4j.cache.CachePolicies;
+import com.serotonin.bacnet4j.cache.RemoteEntityCache;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
+import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.event.DeviceEventHandler;
 import com.serotonin.bacnet4j.event.ExceptionDispatcher;
 import com.serotonin.bacnet4j.exception.BACnetException;
@@ -45,19 +59,18 @@ import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
-import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
-import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
-import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
+import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.SequenceDefinition;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
+import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -79,25 +92,65 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
-import com.serotonin.bacnet4j.util.RequestUtils;
-import com.serotonin.bacnet4j.util.sero.Utils;
+import com.serotonin.bacnet4j.util.RemoteDeviceDiscoverer;
+import com.serotonin.bacnet4j.util.RemoteDeviceDiscovererCallback;
+import com.serotonin.bacnet4j.util.RemoteDeviceFinder;
+import com.serotonin.bacnet4j.util.RemoteDeviceFinder.RemoteDeviceFuture;
+
+import lohbihler.scheduler.ScheduledExecutorServiceVariablePool;
 
 /**
  * Enhancements:
  * - default character string encoding
- * - BIBBs (B-OWS) (services to implement) - AE-N-A - AE-ACK-A -
- * AE-INFO-A - AE-ESUM-A - SCHED-A - T-VMT-A - T-ATR-A - DM-DDB-A,B - DM-DOB-A,B - DM-DCC-A - DM-TS-A - DM-UTC-A -
- * DM-RD-A - DM-BR-A - NM-CE-A
- * 
- * @author mlohbihler
+ * - better handling of choice objects
+ * - BIBBs (B-OWS) (services to implement)
+ * - AE-N-A
+ * - AE-ACK-A
+ * - AE-INFO-A
+ * - AE-ESUM-A
+ * - SCHED-A
+ * - T-VMT-A
+ * - T-ATR-A
+ * - DM-DDB-A,B
+ * - DM-DOB-A,B
+ * - DM-DCC-A
+ * - DM-TS-A
+ * - DM-UTC-A
+ * - DM-RD-A
+ * - DM-BR-A
+ * - NM-CE-A
  */
 public class LocalDevice {
+    static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
     private static final int VENDOR_ID = 236; // Serotonin Software
 
     private final Transport transport;
+
+    /**
+     * The device objects configuration, i.e. it's list of properties.
+     */
     private final BACnetObject configuration;
-    private final List<BACnetObject> localObjects = new CopyOnWriteArrayList<BACnetObject>();
-    private final List<RemoteDevice> remoteDevices = new CopyOnWriteArrayList<RemoteDevice>();
+
+    /**
+     * The other objects contained by this device.
+     */
+    private final List<BACnetObject> localObjects = new CopyOnWriteArrayList<>();
+
+    /**
+     * The policies used for caching of devices, objects, and properties.
+     */
+    private final CachePolicies cachePolicies = new CachePolicies();
+
+    /**
+     * A collection of known peer devices on the network.
+     */
+    private final RemoteEntityCache<Integer, RemoteDevice> remoteDeviceCache;
+
+    /**
+     * The clock used for all timing, except for Object.wait and Thread.sleep calls.
+     */
+    private Clock clock = Clock.systemUTC();
+
     private boolean initialized;
 
     /**
@@ -109,16 +162,14 @@ public class LocalDevice {
     private final DeviceEventHandler eventHandler = new DeviceEventHandler();
     private final ExceptionDispatcher exceptionDispatcher = new ExceptionDispatcher();
 
-    private final Timer timer;
+    private ScheduledExecutorService timer;
 
-    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceRequestResolutions = new HashMap<VendorServiceKey, SequenceDefinition>();
-    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResultResolutions = new HashMap<VendorServiceKey, SequenceDefinition>();
+    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceRequestResolutions = new HashMap<>();
+    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResultResolutions = new HashMap<>();
 
-    public LocalDevice(int deviceId, Transport transport) {
+    public LocalDevice(final int deviceId, final Transport transport) {
         this.transport = transport;
         transport.setLocalDevice(this);
-
-        timer = new Timer("BACnet4J maintenance timer");
 
         configuration = new BACnetObject(ObjectType.device, deviceId, "Device " + deviceId);
         configuration.setLocalDevice(this);
@@ -136,12 +187,12 @@ public class LocalDevice {
         configuration.writeProperty(PropertyIdentifier.deviceAddressBinding, new SequenceOf<AddressBinding>());
         configuration.writeProperty(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
 
-        SequenceOf<ObjectIdentifier> objectList = new SequenceOf<ObjectIdentifier>();
+        final SequenceOf<ObjectIdentifier> objectList = new SequenceOf<>();
         objectList.add(configuration.getId());
         configuration.writeProperty(PropertyIdentifier.objectList, objectList);
 
         // Set up the supported services indicators. Remove lines as services get implemented.
-        ServicesSupported servicesSupported = new ServicesSupported();
+        final ServicesSupported servicesSupported = new ServicesSupported();
         servicesSupported.setAcknowledgeAlarm(true);
         servicesSupported.setConfirmedCovNotification(true);
         servicesSupported.setConfirmedEventNotification(true);
@@ -183,19 +234,29 @@ public class LocalDevice {
         configuration.writeProperty(PropertyIdentifier.protocolServicesSupported, servicesSupported);
 
         // Set up the object types supported.
-        ObjectTypesSupported objectTypesSupported = new ObjectTypesSupported();
+        final ObjectTypesSupported objectTypesSupported = new ObjectTypesSupported();
         objectTypesSupported.setAll(true);
         configuration.writeProperty(PropertyIdentifier.protocolObjectTypesSupported, objectTypesSupported);
 
         // Set some other required values to defaults
-        configuration.writeProperty(PropertyIdentifier.objectName, new CharacterString("BACnet device"));
+        configuration.writeProperty(PropertyIdentifier.objectName, new CharacterString("BACnet4J device"));
         configuration.writeProperty(PropertyIdentifier.systemStatus, DeviceStatus.operational);
         configuration.writeProperty(PropertyIdentifier.modelName, new CharacterString("BACnet4J"));
         configuration.writeProperty(PropertyIdentifier.firmwareRevision, new CharacterString("not set"));
-        configuration.writeProperty(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("1.0.1"));
+        configuration.writeProperty(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("4.0.0"));
         configuration.writeProperty(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
-        configuration.writeProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(0));
+        configuration.writeProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(14));
         configuration.writeProperty(PropertyIdentifier.databaseRevision, new UnsignedInteger(0));
+
+        remoteDeviceCache = new RemoteEntityCache<>(this);
+    }
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    public void setClock(final Clock clock) {
+        this.clock = clock;
     }
 
     public Network getNetwork() {
@@ -204,6 +265,10 @@ public class LocalDevice {
 
     public NetworkIdentifier getNetworkIdentifier() {
         return transport.getNetworkIdentifier();
+    }
+
+    public CachePolicies getCachePolicies() {
+        return cachePolicies;
     }
 
     /**
@@ -220,17 +285,63 @@ public class LocalDevice {
         return transport.getBytesIn();
     }
 
-    public Timer getTimer() {
-        return timer;
-    }
-
-    public synchronized void initialize() throws Exception {
+    public synchronized LocalDevice initialize() throws Exception {
+        timer = new ScheduledExecutorServiceVariablePool(clock);
         transport.initialize();
         initialized = true;
+
+        // If the device id is uninitialized, try to find an available number to use.
+        if (configuration.getInstanceId() == ObjectIdentifier.UNINITIALIZED) {
+            final int attempts = 10;
+            final int rangeSize = 20;
+
+            final Random random = new Random();
+            int remaining = attempts;
+            while (attempts > 0) {
+                final int from = random.nextInt(ObjectIdentifier.UNINITIALIZED - rangeSize);
+                final List<Integer> idList = IntStream.range(from, from + rangeSize).boxed()
+                        .collect(Collectors.toList());
+
+                final DeviceEventAdapter listener = new DeviceEventAdapter() {
+                    @Override
+                    public void iAmReceived(final RemoteDevice d) {
+                        LOG.info("Device id {} is not available", d.getInstanceNumber());
+                        idList.remove(new Integer(d.getInstanceNumber()));
+                    }
+                };
+
+                getEventHandler().addListener(listener);
+                sendGlobalBroadcast(new WhoIsRequest(from, from + rangeSize - 1));
+
+                LOG.info("Waiting for incoming IAms");
+                Thread.sleep(10000);
+                getEventHandler().removeListener(listener);
+
+                if (!idList.isEmpty()) {
+                    LOG.info("Found {} ids that are still available. Choosing {}", idList.size(), idList.get(0));
+                    configuration.writePropertyInternal(PropertyIdentifier.objectIdentifier,
+                            new ObjectIdentifier(ObjectType.device, idList.get(0)));
+                    break;
+                }
+
+                remaining--;
+            }
+
+            if (remaining == 0)
+                throw new Exception("Could not find an available device id after " + attempts + " attempts");
+        }
+
+        return this;
     }
 
     public synchronized void terminate() {
-        timer.cancel();
+        timer.shutdown();
+        try {
+            if (!timer.awaitTermination(10, TimeUnit.SECONDS))
+                LOG.warn("BACnet4J timer did not shutdown within 10 seconds");
+        } catch (final InterruptedException e) {
+            LOG.warn("Interrupted while waiting for shutdown of executors", e);
+        }
         transport.terminate();
         initialized = false;
     }
@@ -251,26 +362,74 @@ public class LocalDevice {
         return exceptionDispatcher;
     }
 
-    //
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Executors
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Schedules the given command for later execution.
+     */
+    public ScheduledFuture<?> schedule(final Runnable command, final long period, final TimeUnit unit) {
+        return timer.schedule(command, period, unit);
+    }
+
+    /**
+     * Schedules the given command for later execution.
+     */
+    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period,
+            final TimeUnit unit) {
+        return timer.scheduleAtFixedRate(command, initialDelay, period, unit);
+    }
+
+    /**
+     * Schedules the given command for later execution.
+     */
+    public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay,
+            final TimeUnit unit) {
+        return timer.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+    }
+
+    /**
+     * Submits the given task for immediate execution.
+     */
+    public Future<?> submit(final Runnable task) {
+        return timer.submit(task);
+    }
+
+    /**
+     * Submits the given task for immediate execution.
+     */
+    public void execute(final Runnable task) {
+        timer.execute(task);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Device configuration.
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         if (password == null)
-            password = "";
-        this.password = password;
+            this.password = "";
+        else
+            this.password = password;
     }
 
-    //
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Local object management
-    //
-    public BACnetObject getObjectRequired(ObjectIdentifier id) throws BACnetServiceException {
-        BACnetObject o = getObject(id);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public BACnetObject getObjectRequired(final ObjectIdentifier id) throws BACnetServiceException {
+        final BACnetObject o = getObject(id);
         if (o == null)
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.unknownObject);
         return o;
@@ -280,33 +439,33 @@ public class LocalDevice {
         return localObjects;
     }
 
-    public BACnetObject getObject(ObjectIdentifier id) {
+    public BACnetObject getObject(final ObjectIdentifier id) {
         if (id.getObjectType().intValue() == ObjectType.device.intValue()) {
             // Check if we need to look into the local device.
             if (id.getInstanceNumber() == 0x3FFFFF || id.getInstanceNumber() == configuration.getInstanceId())
                 return configuration;
         }
 
-        for (BACnetObject obj : localObjects) {
+        for (final BACnetObject obj : localObjects) {
             if (obj.getId().equals(id))
                 return obj;
         }
         return null;
     }
 
-    public BACnetObject getObject(String name) {
+    public BACnetObject getObject(final String name) {
         // Check if we need to look into the local device.
         if (name.equals(configuration.getObjectName()))
             return configuration;
 
-        for (BACnetObject obj : localObjects) {
+        for (final BACnetObject obj : localObjects) {
             if (name.equals(obj.getObjectName()))
                 return obj;
         }
         return null;
     }
 
-    public void addObject(BACnetObject obj) throws BACnetServiceException {
+    public void addObject(final BACnetObject obj) throws BACnetServiceException {
         if (getObject(obj.getId()) != null)
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.objectIdentifierAlreadyExists);
         if (getObject(obj.getObjectName()) != null)
@@ -322,16 +481,16 @@ public class LocalDevice {
         obj.addedToDevice();
     }
 
-    public ObjectIdentifier getNextInstanceObjectIdentifier(ObjectType objectType) {
+    public ObjectIdentifier getNextInstanceObjectIdentifier(final ObjectType objectType) {
         return new ObjectIdentifier(objectType, getNextInstanceObjectNumber(objectType));
     }
 
-    public int getNextInstanceObjectNumber(ObjectType objectType) {
+    public int getNextInstanceObjectNumber(final ObjectType objectType) {
         // Make a list of existing ids.
-        List<Integer> ids = new ArrayList<Integer>();
-        int type = objectType.intValue();
+        final List<Integer> ids = new ArrayList<>();
+        final int type = objectType.intValue();
         ObjectIdentifier id;
-        for (BACnetObject obj : localObjects) {
+        for (final BACnetObject obj : localObjects) {
             id = obj.getId();
             if (id.getObjectType().intValue() == type)
                 ids.add(id.getInstanceNumber());
@@ -350,8 +509,8 @@ public class LocalDevice {
         return i;
     }
 
-    public void removeObject(ObjectIdentifier id) throws BACnetServiceException {
-        BACnetObject obj = getObject(id);
+    public void removeObject(final ObjectIdentifier id) throws BACnetServiceException {
+        final BACnetObject obj = getObject(id);
         if (obj != null) {
             localObjects.remove(obj);
 
@@ -360,8 +519,7 @@ public class LocalDevice {
 
             // Notify the object that it was removed.
             obj.removedFromDevice();
-        }
-        else
+        } else
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.unknownObject);
     }
 
@@ -369,8 +527,7 @@ public class LocalDevice {
     private SequenceOf<ObjectIdentifier> getObjectList() {
         try {
             return (SequenceOf<ObjectIdentifier>) configuration.getProperty(PropertyIdentifier.objectList);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
         }
@@ -380,57 +537,333 @@ public class LocalDevice {
         return (ServicesSupported) getConfiguration().getProperty(PropertyIdentifier.protocolServicesSupported);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Remote device management
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns the cached remote device, or null if not found.
+     *
+     * @param instanceNumber
+     * @return the remote device or null if not found.
+     */
+    public RemoteDevice getCachedRemoteDevice(final int instanceNumber) {
+        return remoteDeviceCache.getCachedEntity(instanceNumber);
+    }
+
+    public RemoteDevice getCachedRemoteDevice(final Address address) {
+        return remoteDeviceCache.getCachedEntity((rd) -> rd.getAddress().equals(address));
+    }
+
+    public RemoteDevice removeCachedRemoteDevice(final int instanceNumber) {
+        return remoteDeviceCache.removeEntity(instanceNumber);
+    }
+
+    /**
+     * Returns a future to get the remote device for the given instanceNumber. If a cached instance is found the future
+     * will be set immediately. Otherwise, a finder will be used to try to find it. If this is successful the device
+     * will be cached.
+     *
+     * The benefits of this method are:
+     * 1) It will cache the remote device if it is found.
+     * 2) It returns a cancelable future.
+     *
+     * If multiple threads are likely to request a remote device reference around the same time, it may be better to
+     * use the blocking method below.
+     *
+     * @param instanceNumber
+     * @return the remote device future
+     */
+    public RemoteDeviceFuture getRemoteDevice(final int instanceNumber) {
+        return new RemoteDeviceFuture() {
+            private RemoteDevice remoteDevice;
+            private RemoteDeviceFuture future;
+
+            {
+                // Check for a cached instance
+                final RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+
+                if (rd != null) {
+                    LOG.debug("Found a cached device: {}", instanceNumber);
+                    remoteDevice = rd;
+                } else {
+                    LOG.debug("Creating a new future to get device: {}", instanceNumber);
+                    future = RemoteDeviceFinder.findDevice(LocalDevice.this, instanceNumber);
+                }
+            }
+
+            @Override
+            public RemoteDevice get(final long timeoutMillis) throws BACnetException, CancellationException {
+                if (remoteDevice != null)
+                    return remoteDevice;
+
+                final RemoteDevice rd = future.get(timeoutMillis);
+
+                // Cache the device.
+                remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+
+                return rd;
+            }
+
+            @Override
+            public void cancel() {
+                if (future != null)
+                    future.cancel();
+            }
+        };
+    }
+
+    /**
+     * Returns the remote device for the given instanceNumber using the default timeout. If a cached instance is not
+     * found the finder will be used to try and find it. A timeout exception is thrown if it can't be found.
+     *
+     * @param instanceNumber
+     * @return the remote device
+     * @throws BACnetException
+     *             if anything goes wrong, including timeout.
+     */
+    public RemoteDevice getRemoteDeviceBlocking(final int instanceNumber) throws BACnetException {
+        return getRemoteDeviceBlocking(instanceNumber, 0);
+    }
+
+    /**
+     * A list of existing futures for each device. Multiple threads may want the same device,
+     * and so we also them all to wait on the same future. This has timeout implications since
+     * the timeout will be based upon the first thread that made the request, meaning that
+     * subsequent threads may experience a shorter timeout than requested.
+     */
+    private final Map<Integer, RemoteDeviceFuture> futures = new HashMap<>();
+
+    /**
+     * Returns the remote device for the given instanceNumber. If a cached instance is not found the finder will be used
+     * to try and find it. A timeout exception is thrown if it can't be found.
+     *
+     * The benefits of this method are:
+     * 1) It will cache the remote device if it is found.
+     * 2) Multiple threads that request the same remote device around the same time will be joined on the same request
+     *
+     * If you require the ability to cancel a request, use the non-blocking method above.
+     *
+     * @param instanceNumber
+     * @return the remote device
+     * @throws BACnetException
+     *             if anything goes wrong, including timeout.
+     */
+    public RemoteDevice getRemoteDeviceBlocking(final int instanceNumber, final long timeoutMillis)
+            throws BACnetException {
+        // Check for a cached instance
+        RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+
+        if (rd == null) {
+            RemoteDeviceFuture future;
+            synchronized (futures) {
+                // Check if there is an existing future for the device.
+                future = futures.get(instanceNumber);
+                if (future == null) {
+                    LOG.debug("Creating a new future to get device: {}", instanceNumber);
+                    // Create a request to get a fresh copy.
+                    future = RemoteDeviceFinder.findDevice(this, instanceNumber);
+                    futures.put(instanceNumber, future);
+                } else {
+                    LOG.debug("Using existing future: {}", instanceNumber);
+                }
+            }
+
+            // Wait for the device.
+            LOG.debug("Waiting on future: {}", instanceNumber);
+            if (timeoutMillis == 0)
+                rd = future.get();
+            else
+                rd = future.get(timeoutMillis);
+
+            LOG.debug("Future completed: {}", instanceNumber);
+
+            // Multiple threads can wait on a single future, and only one thread need run the following code.
+            synchronized (future) {
+                if (futures.containsKey(instanceNumber)) {
+                    LOG.debug("Doing futures cleanup: {}", instanceNumber);
+
+                    // Remove the future.
+                    futures.remove(instanceNumber);
+
+                    // Cache the device.
+                    remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                }
+            }
+        }
+
+        return rd;
+    }
+
+    public RemoteDeviceDiscoverer startRemoteDeviceDiscovery() {
+        return startRemoteDeviceDiscovery(null);
+    }
+
+    /**
+     * Creates and starts a remote device discovery. Discovered devices are added to the cache as they are found. The
+     * returned discoverer must be stopped by the caller.
+     *
+     * @param callback
+     *            optional client callback
+     * @return the discoverer, which must be stopped by the caller
+     */
+    public RemoteDeviceDiscoverer startRemoteDeviceDiscovery(final RemoteDeviceDiscovererCallback callback) {
+        final RemoteDeviceDiscovererCallback cachingCallback = (d) -> {
+            // Cache the device.
+            remoteDeviceCache.putEntity(d.getInstanceNumber(), d, cachePolicies.getDevicePolicy(d.getInstanceNumber()));
+
+            // Call the given callback
+            if (callback != null)
+                callback.foundRemoteDevice(d);
+        };
+
+        final RemoteDeviceDiscoverer discoverer = new RemoteDeviceDiscoverer(this, cachingCallback);
+        discoverer.start();
+
+        return discoverer;
+    }
+
+    /**
+     * Updates the remote device with the given number with the given address, but only if the
+     * remote device is cached. Otherwise, nothing happens.
+     *
+     * @param instanceNumber
+     * @param address
+     * @return
+     */
+    public void updateRemoteDevice(final int instanceNumber, final Address address) {
+        if (address == null)
+            throw new NullPointerException("addr cannot be null");
+        final RemoteDevice d = remoteDeviceCache.getCachedEntity(instanceNumber);
+        if (d != null) {
+            d.setAddress(address);
+        }
+    }
+
+    /**
+     * Clears the cache of remote devices.
+     */
+    public void clearRemoteDevices() {
+        remoteDeviceCache.clear();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Cached property management
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //
+    // Get properties
+
+    public <T extends Encodable> T getCachedRemoteProperty(final int did, final ObjectIdentifier oid,
+            final PropertyIdentifier pid) {
+        return getCachedRemoteProperty(did, oid, pid, null);
+    }
+
+    public <T extends Encodable> T getCachedRemoteProperty(final int did, final ObjectIdentifier oid,
+            final PropertyIdentifier pid, final UnsignedInteger pin) {
+        final RemoteDevice rd = getCachedRemoteDevice(did);
+        if (rd == null)
+            return null;
+        return rd.getObjectProperty(oid, pid, pin);
+    }
+
+    //
+    // Set properties
+
+    public void setCachedRemoteProperty(final int did, final ObjectIdentifier oid, final PropertyIdentifier pid,
+            final Encodable value) {
+        setCachedRemoteProperty(did, oid, pid, null, value);
+    }
+
+    public void setCachedRemoteProperty(final int did, final ObjectIdentifier oid, final PropertyIdentifier pid,
+            final UnsignedInteger pin, final Encodable value) {
+        if (value instanceof BACnetError) {
+            final BACnetError e = (BACnetError) value;
+            if (ErrorClass.device.equals(e.getErrorClass())) {
+                // Don't cache devices if the error is about the device. In fact, delete the cached device.
+                remoteDeviceCache.removeEntity(did);
+                return;
+            }
+        }
+
+        final RemoteDevice rd = getCachedRemoteDevice(did);
+        if (rd != null) {
+            rd.setObjectProperty(oid, pid, pin, value);
+        }
+    }
+
+    //
+    // Remove properties
+
+    public <T extends Encodable> T removeCachedRemoteProperty(final int did, final ObjectIdentifier oid,
+            final PropertyIdentifier pid) {
+        return removeCachedRemoteProperty(did, oid, pid, null);
+    }
+
+    public <T extends Encodable> T removeCachedRemoteProperty(final int did, final ObjectIdentifier oid,
+            final PropertyIdentifier pid, final UnsignedInteger pin) {
+        final RemoteDevice rd = getCachedRemoteDevice(did);
+        if (rd == null)
+            return null;
+        return rd.removeObjectProperty(oid, pid, pin);
+    }
+
     //
     //
     // Message sending
     //
-    public ServiceFuture send(RemoteDevice d, ConfirmedRequestService serviceRequest) {
+    public ServiceFuture send(final RemoteDevice d, final ConfirmedRequestService serviceRequest) {
         //        validateSupportedService(d, serviceRequest);
         return transport.send(d.getAddress(), d.getMaxAPDULengthAccepted(), d.getSegmentationSupported(),
                 serviceRequest);
     }
 
-    public ServiceFuture send(Address address, ConfirmedRequestService serviceRequest) {
-        RemoteDevice d = getRemoteDevice(address);
-        if (d == null)
+    public ServiceFuture send(final Address address, final ConfirmedRequestService serviceRequest) {
+        final RemoteDevice d = getCachedRemoteDevice(address);
+        if (d == null) {
             // Just use some hopeful defaults.
-            return transport.send(address, MaxApduLength.UP_TO_50.getMaxLength(), Segmentation.noSegmentation,
+            return transport.send(address, MaxApduLength.UP_TO_50.getMaxLengthInt(), Segmentation.noSegmentation,
                     serviceRequest);
+        }
         return send(d, serviceRequest);
     }
 
-    public <T extends AcknowledgementService> void send(RemoteDevice d, ConfirmedRequestService serviceRequest,
-            ResponseConsumer consumer) {
+    public void send(final RemoteDevice d, final ConfirmedRequestService serviceRequest,
+            final ResponseConsumer consumer) {
         //        validateSupportedService(d, serviceRequest);
         transport.send(d.getAddress(), d.getMaxAPDULengthAccepted(), d.getSegmentationSupported(), serviceRequest,
                 consumer);
     }
 
-    public <T extends AcknowledgementService> void send(Address address, ConfirmedRequestService serviceRequest,
-            ResponseConsumer consumer) {
-        RemoteDevice d = getRemoteDevice(address);
-        if (d == null)
+    public void send(final Address address, final ConfirmedRequestService serviceRequest,
+            final ResponseConsumer consumer) {
+        final RemoteDevice d = getCachedRemoteDevice(address);
+        if (d == null) {
             // Just use some hopeful defaults.
-            transport.send(address, MaxApduLength.UP_TO_50.getMaxLength(), Segmentation.noSegmentation, serviceRequest,
-                    consumer);
-        else
-            send(d, serviceRequest, consumer);
+            transport.send(address, MaxApduLength.UP_TO_50.getMaxLengthInt(), Segmentation.noSegmentation,
+                    serviceRequest, consumer);
+        }
+        send(d, serviceRequest, consumer);
     }
 
-    public void send(Address address, UnconfirmedRequestService serviceRequest) {
+    public void send(final Address address, final UnconfirmedRequestService serviceRequest) {
         transport.send(address, serviceRequest, false);
     }
 
-    public void sendLocalBroadcast(UnconfirmedRequestService serviceRequest) {
-        Address bcast = transport.getLocalBroadcastAddress();
+    public void sendLocalBroadcast(final UnconfirmedRequestService serviceRequest) {
+        final Address bcast = transport.getLocalBroadcastAddress();
         transport.send(bcast, serviceRequest, true);
     }
 
-    public void sendGlobalBroadcast(UnconfirmedRequestService serviceRequest) {
+    public void sendGlobalBroadcast(final UnconfirmedRequestService serviceRequest) {
         transport.send(Address.GLOBAL, serviceRequest, true);
     }
 
-    public void sendBroadcast(Address address, UnconfirmedRequestService serviceRequest) {
+    public void sendBroadcast(final Address address, final UnconfirmedRequestService serviceRequest) {
         transport.send(address, serviceRequest, true);
     }
 
@@ -443,83 +876,30 @@ public class LocalDevice {
     //        }
     //    }
 
-    //
-    //
-    // Remote device management
-    //
-    public RemoteDevice getRemoteDevice(int instanceId) throws BACnetException {
-        RemoteDevice d = getRemoteDeviceImpl(instanceId);
-        if (d == null)
-            throw new BACnetException("Unknown device: instance id=" + instanceId);
-        return d;
-    }
-
-    public RemoteDevice getRemoteDeviceCreate(int instanceId, Address address) {
-        RemoteDevice d = getRemoteDeviceImpl(instanceId);
-        if (d == null) {
-            if (address == null)
-                throw new NullPointerException("addr cannot be null");
-            d = new RemoteDevice(instanceId, address);
-            remoteDevices.add(d);
-        }
-        else
-            d.setAddress(address);
-        return d;
-    }
-
-    public void addRemoteDevice(RemoteDevice d) {
-        remoteDevices.add(d);
-    }
-
-    public RemoteDevice getRemoteDeviceImpl(int instanceId) {
-        for (RemoteDevice d : remoteDevices) {
-            if (d.getInstanceNumber() == instanceId)
-                return d;
-        }
-        return null;
-    }
-
-    public List<RemoteDevice> getRemoteDevices() {
-        return remoteDevices;
-    }
-
-    public RemoteDevice getRemoteDevice(Address address) {
-        for (RemoteDevice d : remoteDevices) {
-            if (d.getAddress().equals(address))
-                return d;
-        }
-        return null;
-    }
-
-    public RemoteDevice getRemoteDeviceByUserData(Object userData) {
-        for (RemoteDevice d : remoteDevices) {
-            if (Utils.equals(userData, d.getUserData()))
-                return d;
-        }
-        return null;
-    }
-
-    //
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Intrinsic events
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @SuppressWarnings("unchecked")
-    public List<BACnetException> sendIntrinsicEvent(ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp,
-            int notificationClassId, EventType eventType, CharacterString messageText, NotifyType notifyType,
-            EventState fromState, EventState toState, NotificationParameters eventValues) throws BACnetException {
+    public List<BACnetException> sendIntrinsicEvent(final ObjectIdentifier eventObjectIdentifier,
+            final TimeStamp timeStamp, final int notificationClassId, final EventType eventType,
+            final CharacterString messageText, final NotifyType notifyType, final EventState fromState,
+            final EventState toState, final NotificationParameters eventValues) throws BACnetException {
 
         // Try to find a notification class with the given id in the local objects.
         BACnetObject nc = null;
-        for (BACnetObject obj : localObjects) {
+        for (final BACnetObject obj : localObjects) {
             if (ObjectType.notificationClass.equals(obj.getId().getObjectType())) {
                 try {
-                    UnsignedInteger ncId = (UnsignedInteger) obj.getProperty(PropertyIdentifier.notificationClass);
+                    final UnsignedInteger ncId = (UnsignedInteger) obj
+                            .getProperty(PropertyIdentifier.notificationClass);
                     if (ncId != null && ncId.intValue() == notificationClassId) {
                         nc = obj;
                         break;
                     }
-                }
-                catch (BACnetServiceException e) {
+                } catch (final BACnetServiceException e) {
                     // Should never happen, so wrap in a RTE
                     throw new RuntimeException(e);
                 }
@@ -539,7 +919,7 @@ public class LocalDevice {
                     ((EventTransitionBits) nc.getPropertyRequired(PropertyIdentifier.ackRequired)).contains(toState));
 
             // Determine which priority value to use based upon the toState.
-            SequenceOf<UnsignedInteger> priorities = (SequenceOf<UnsignedInteger>) nc
+            final SequenceOf<UnsignedInteger> priorities = (SequenceOf<UnsignedInteger>) nc
                     .getPropertyRequired(PropertyIdentifier.priority);
             if (toState.equals(EventState.normal))
                 priority = priorities.get(3);
@@ -548,45 +928,42 @@ public class LocalDevice {
             else
                 // everything else is offnormal
                 priority = priorities.get(1);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             // Should never happen, so wrap in a RTE
             throw new RuntimeException(e);
         }
 
         // Send the message to the destinations that are interested in it, while recording any exceptions in the result
         // list
-        List<BACnetException> sendExceptions = new ArrayList<BACnetException>();
-        for (Destination destination : recipientList) {
+        final List<BACnetException> sendExceptions = new ArrayList<>();
+        for (final Destination destination : recipientList) {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
                 if (destination.getIssueConfirmedNotifications().booleanValue()) {
-                    RemoteDevice remoteDevice = null;
-                    if (destination.getRecipient().isAddress())
-                        remoteDevice = getRemoteDevice(destination.getRecipient().getAddress());
-                    else
-                        remoteDevice = getRemoteDevice(destination.getRecipient().getDevice().getInstanceNumber());
+                    final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(
+                            destination.getProcessIdentifier(), configuration.getId(), eventObjectIdentifier, timeStamp,
+                            new UnsignedInteger(notificationClassId), priority, eventType, messageText, notifyType,
+                            ackRequired, fromState, toState, eventValues);
 
-                    if (remoteDevice != null) {
-                        ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(
-                                destination.getProcessIdentifier(), configuration.getId(), eventObjectIdentifier,
-                                timeStamp, new UnsignedInteger(notificationClassId), priority, eventType, messageText,
-                                notifyType, ackRequired, fromState, toState, eventValues);
+                    if (destination.getRecipient().isAddress()) {
+                        send(destination.getRecipient().getAddress(), req);
+                    } else {
+                        final RemoteDevice remoteDevice = getRemoteDevice(
+                                destination.getRecipient().getDevice().getInstanceNumber()).get();
                         send(remoteDevice, req);
                     }
-                }
-                else {
+                } else {
                     Address address = null;
                     if (destination.getRecipient().isAddress())
                         address = destination.getRecipient().getAddress();
                     else {
-                        RemoteDevice remoteDevice = getRemoteDevice(
-                                destination.getRecipient().getDevice().getInstanceNumber());
+                        final RemoteDevice remoteDevice = getRemoteDevice(
+                                destination.getRecipient().getDevice().getInstanceNumber()).get();
                         if (remoteDevice != null)
                             address = remoteDevice.getAddress();
                     }
 
                     if (address != null) {
-                        UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(
+                        final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(
                                 destination.getProcessIdentifier(), configuration.getId(), eventObjectIdentifier,
                                 timeStamp, new UnsignedInteger(notificationClassId), priority, eventType, messageText,
                                 notifyType, ackRequired, fromState, toState, eventValues);
@@ -599,10 +976,12 @@ public class LocalDevice {
         return sendExceptions;
     }
 
-    //
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public Address[] getAllLocalAddresses() {
         return transport.getNetwork().getAllLocalAddresses();
     }
@@ -613,48 +992,10 @@ public class LocalDevice {
                     (UnsignedInteger) configuration.getProperty(PropertyIdentifier.maxApduLengthAccepted),
                     (Segmentation) configuration.getProperty(PropertyIdentifier.segmentationSupported),
                     (Unsigned16) configuration.getProperty(PropertyIdentifier.vendorIdentifier));
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
         }
-    }
-
-    //
-    //
-    // Manual device discovery
-    //
-    public RemoteDevice findRemoteDevice(Address address, int deviceId) throws BACnetException {
-        RemoteDevice d = getRemoteDeviceImpl(deviceId);
-
-        if (d == null) {
-            ObjectIdentifier deviceOid = new ObjectIdentifier(ObjectType.device, deviceId);
-            ReadPropertyRequest req = new ReadPropertyRequest(deviceOid, PropertyIdentifier.maxApduLengthAccepted);
-            ReadPropertyAck ack = (ReadPropertyAck) transport
-                    .send(address, MaxApduLength.UP_TO_50.getMaxLength(), Segmentation.noSegmentation, req).get();
-
-            // If we got this far, then we got a response. Now get the other required properties.
-            d = new RemoteDevice(deviceOid.getInstanceNumber(), address);
-            d.setMaxAPDULengthAccepted(((UnsignedInteger) ack.getValue()).intValue());
-            d.setSegmentationSupported(Segmentation.noSegmentation);
-
-            Map<PropertyIdentifier, Encodable> map = RequestUtils.getProperties(this, d, null,
-                    PropertyIdentifier.segmentationSupported, PropertyIdentifier.vendorIdentifier,
-                    PropertyIdentifier.protocolServicesSupported);
-            d.setSegmentationSupported((Segmentation) map.get(PropertyIdentifier.segmentationSupported));
-            d.setVendorId(((Unsigned16) map.get(PropertyIdentifier.vendorIdentifier)).intValue());
-            d.setServicesSupported((ServicesSupported) map.get(PropertyIdentifier.protocolServicesSupported));
-
-            addRemoteDevice(d);
-        }
-        else if (d.getServicesSupported() == null) {
-            // Ensure the device has services supported.
-            Map<PropertyIdentifier, Encodable> map = RequestUtils.getProperties(this, d, null,
-                    PropertyIdentifier.protocolServicesSupported);
-            d.setServicesSupported((ServicesSupported) map.get(PropertyIdentifier.protocolServicesSupported));
-        }
-
-        return d;
     }
 
     @Override
