@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -34,18 +34,19 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 
 /**
  * Mixins allow different objects to share functionality that is otherwise common between them. Functionality that is
  * specific to a given object type should still be coded into the class for the type itself.
- * 
+ *
  * @author Matthew
  */
 public class AbstractMixin {
     private final BACnetObject bo;
 
-    public AbstractMixin(BACnetObject bo) {
+    public AbstractMixin(final BACnetObject bo) {
         this.bo = bo;
     }
 
@@ -57,11 +58,21 @@ public class AbstractMixin {
         return bo.properties;
     }
 
-    protected final void writePropertyImpl(PropertyIdentifier pid, Encodable value) {
-        bo.writePropertyImpl(pid, value);
+    // Adds the property to the properties map, and updates the property list as required.
+    protected final void addProperty(final PropertyIdentifier pid, final Encodable value, final boolean overwrite) {
+        if (overwrite || !properties().containsKey(pid)) {
+            properties().put(pid, value);
+            final SequenceOf<PropertyIdentifier> propList = get(PropertyIdentifier.propertyList);
+            if (!propList.contains(pid))
+                propList.add(pid);
+        }
     }
 
-    protected final <T extends Encodable> T get(PropertyIdentifier pid) {
+    protected final void writePropertyImpl(final PropertyIdentifier pid, final Encodable value) {
+        bo.writePropertyInternal(pid, value);
+    }
+
+    protected final <T extends Encodable> T get(final PropertyIdentifier pid) {
         return bo.get(pid);
     }
 
@@ -75,32 +86,32 @@ public class AbstractMixin {
     //
     /**
      * Allow the mixin a chance to perform actions before the property is read.
-     * 
+     *
      * @param pid
      */
-    protected void beforeReadProperty(PropertyIdentifier pid) {
+    protected void beforeReadProperty(final PropertyIdentifier pid) {
         // no op
     }
 
     /**
      * Allow the mixin to override the property validation.
-     * 
+     *
      * @param value
      * @return true of the validation was handled, false otherwise.
      * @throws BACnetServiceException
      */
-    protected boolean validateProperty(PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
         return false;
     }
 
     /**
      * Allow the mixin to override the property write.
-     * 
+     *
      * @param value
      * @return true of the write was handled, false otherwise.
      * @throws BACnetServiceException
      */
-    protected boolean writeProperty(PropertyValue value) throws BACnetServiceException {
+    protected boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
         return false;
     }
 
@@ -109,7 +120,8 @@ public class AbstractMixin {
      * @param oldValue
      * @param newValue
      */
-    protected void afterWriteProperty(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+    protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
         // no op
     }
 }
