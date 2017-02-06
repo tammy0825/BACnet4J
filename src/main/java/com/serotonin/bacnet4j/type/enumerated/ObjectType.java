@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -33,6 +33,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ObjectType extends Enumerated {
     private static final long serialVersionUID = 5428575132396799009L;
+
     public static final ObjectType analogInput = new ObjectType(0);
     public static final ObjectType analogOutput = new ObjectType(1);
     public static final ObjectType analogValue = new ObjectType(2);
@@ -59,28 +60,56 @@ public class ObjectType extends Enumerated {
     public static final ObjectType accumulator = new ObjectType(23);
     public static final ObjectType pulseConverter = new ObjectType(24);
     public static final ObjectType eventLog = new ObjectType(25);
+    public static final ObjectType globalGroup = new ObjectType(26);
     public static final ObjectType trendLogMultiple = new ObjectType(27);
     public static final ObjectType loadControl = new ObjectType(28);
     public static final ObjectType structuredView = new ObjectType(29);
     public static final ObjectType accessDoor = new ObjectType(30);
+    public static final ObjectType accessCredential = new ObjectType(32);
+    public static final ObjectType accessPoint = new ObjectType(33);
+    public static final ObjectType accessRights = new ObjectType(34);
+    public static final ObjectType accessUser = new ObjectType(35);
+    public static final ObjectType accessZone = new ObjectType(36);
+    public static final ObjectType credentialDataInput = new ObjectType(37);
+    public static final ObjectType networkSecurity = new ObjectType(38);
+    public static final ObjectType bitstringValue = new ObjectType(39);
+    public static final ObjectType characterstringValue = new ObjectType(40);
+    public static final ObjectType datePatternValue = new ObjectType(41);
+    public static final ObjectType dateValue = new ObjectType(42);
+    public static final ObjectType datetimePatternValue = new ObjectType(43);
+    public static final ObjectType datetimeValue = new ObjectType(44);
+    public static final ObjectType integerValue = new ObjectType(45);
+    public static final ObjectType largeAnalogValue = new ObjectType(46);
+    public static final ObjectType octetstringValue = new ObjectType(47);
+    public static final ObjectType positiveIntegerValue = new ObjectType(48);
+    public static final ObjectType timePatternValue = new ObjectType(49);
+    public static final ObjectType timeValue = new ObjectType(50);
+    public static final ObjectType notificationForwarder = new ObjectType(51);
+    public static final ObjectType alertEnrollment = new ObjectType(52);
+    public static final ObjectType channel = new ObjectType(53);
+    public static final ObjectType lightingOutput = new ObjectType(54);
 
     public static final ObjectType[] ALL = { analogInput, analogOutput, analogValue, binaryInput, binaryOutput,
             binaryValue, calendar, command, device, eventEnrollment, file, group, loop, multiStateInput,
             multiStateOutput, notificationClass, program, schedule, averaging, multiStateValue, trendLog,
-            lifeSafetyPoint, lifeSafetyZone, accumulator, pulseConverter, eventLog, trendLogMultiple, loadControl,
-            structuredView, accessDoor, };
+            lifeSafetyPoint, lifeSafetyZone, accumulator, pulseConverter, eventLog, globalGroup, trendLogMultiple,
+            loadControl, structuredView, accessDoor, accessCredential, accessPoint, accessRights, accessUser,
+            accessZone, credentialDataInput, networkSecurity, bitstringValue, characterstringValue, datePatternValue,
+            dateValue, datetimePatternValue, datetimeValue, integerValue, largeAnalogValue, octetstringValue,
+            positiveIntegerValue, timePatternValue, timeValue, notificationForwarder, alertEnrollment, channel,
+            lightingOutput, };
 
-    public ObjectType(int value) {
+    public ObjectType(final int value) {
         super(value);
     }
 
-    public ObjectType(ByteQueue queue) {
+    public ObjectType(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == analogInput.intValue())
             return "Analog Input";
         if (type == analogOutput.intValue())
@@ -133,6 +162,8 @@ public class ObjectType extends Enumerated {
             return "Pulse Converter";
         if (type == eventLog.intValue())
             return "Event Log";
+        if (type == globalGroup.intValue())
+            return "Global Group";
         if (type == trendLogMultiple.intValue())
             return "Trend Log Multiple";
         if (type == loadControl.intValue())
@@ -141,6 +172,52 @@ public class ObjectType extends Enumerated {
             return "Structured View";
         if (type == accessDoor.intValue())
             return "Access Door";
+        if (type == accessCredential.intValue())
+            return "Access Credential";
+        if (type == accessPoint.intValue())
+            return "Access Point";
+        if (type == accessRights.intValue())
+            return "Access Rights";
+        if (type == accessUser.intValue())
+            return "Access User";
+        if (type == accessZone.intValue())
+            return "Access Zone";
+        if (type == credentialDataInput.intValue())
+            return "Credential Data Input";
+        if (type == networkSecurity.intValue())
+            return "Network Security";
+        if (type == bitstringValue.intValue())
+            return "Bitstring Value";
+        if (type == characterstringValue.intValue())
+            return "Characterstring Value";
+        if (type == datePatternValue.intValue())
+            return "Date Pattern Value";
+        if (type == dateValue.intValue())
+            return "Date Value";
+        if (type == datetimePatternValue.intValue())
+            return "Datetime Pattern Value";
+        if (type == datetimeValue.intValue())
+            return "Datetime Value";
+        if (type == integerValue.intValue())
+            return "Integer Value";
+        if (type == largeAnalogValue.intValue())
+            return "Large Analog Value";
+        if (type == octetstringValue.intValue())
+            return "Octetstring Value";
+        if (type == positiveIntegerValue.intValue())
+            return "Positive Integer Value";
+        if (type == timePatternValue.intValue())
+            return "Time Pattern Value";
+        if (type == timeValue.intValue())
+            return "Time Value";
+        if (type == notificationForwarder.intValue())
+            return "Notification Forwarder";
+        if (type == alertEnrollment.intValue())
+            return "Alert Enrollment";
+        if (type == channel.intValue())
+            return "Channel";
+        if (type == lightingOutput.intValue())
+            return "Lighting Output";
         return "Vendor Specific (" + type + ")";
     }
 }
