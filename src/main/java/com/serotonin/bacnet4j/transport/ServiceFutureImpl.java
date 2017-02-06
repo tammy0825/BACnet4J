@@ -28,9 +28,6 @@
  */
 package com.serotonin.bacnet4j.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.serotonin.bacnet4j.ResponseConsumer;
 import com.serotonin.bacnet4j.ServiceFuture;
 import com.serotonin.bacnet4j.apdu.Abort;
@@ -38,14 +35,13 @@ import com.serotonin.bacnet4j.apdu.AckAPDU;
 import com.serotonin.bacnet4j.apdu.Reject;
 import com.serotonin.bacnet4j.exception.AbortAPDUException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.exception.RejectAPDUException;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
-    static final Logger LOG = LoggerFactory.getLogger(ServiceFutureImpl.class);
-
     private AcknowledgementService ack;
     private AckAPDU fail;
     private BACnetException ex;
@@ -74,7 +70,7 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
         ThreadUtils.wait(this, timeout);
 
         if (ex == null && !success && fail == null)
-            ex = new BACnetException("Timeout waiting for response.");
+            throw new BACnetTimeoutException("Timeout waiting for response.");
 
         if (ex != null)
             throw ex;
