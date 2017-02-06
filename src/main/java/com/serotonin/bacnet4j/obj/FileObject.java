@@ -65,14 +65,14 @@ public class FileObject extends BACnetObject {
 
         updateProperties();
 
-        writePropertyImpl(PropertyIdentifier.fileAccessMethod, fileAccessMethod);
+        writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccessMethod);
     }
 
     public void updateProperties() {
         // NOTE: This is only a snapshot. Property read methods need to be overridden to report real time values.
-        writePropertyImpl(PropertyIdentifier.fileSize, new UnsignedInteger(new BigInteger(Long.toString(length()))));
-        writePropertyImpl(PropertyIdentifier.modificationDate, new DateTime(file.lastModified()));
-        writePropertyImpl(PropertyIdentifier.readOnly, new Boolean(!file.canWrite()));
+        writePropertyInternal(PropertyIdentifier.fileSize, new UnsignedInteger(new BigInteger(Long.toString(length()))));
+        writePropertyInternal(PropertyIdentifier.modificationDate, new DateTime(file.lastModified()));
+        writePropertyInternal(PropertyIdentifier.readOnly, new Boolean(!file.canWrite()));
     }
 
     public long length() {

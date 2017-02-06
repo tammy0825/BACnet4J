@@ -58,16 +58,16 @@ public class NotificationClassObject extends BACnetObject {
         this(instanceNumber, name, new BACnetArray<UnsignedInteger>(new UnsignedInteger(toOffnormalPriority),
                 new UnsignedInteger(toFaultPriority), new UnsignedInteger(toNormalPriority)), ackRequired);
 
-        writePropertyImpl(PropertyIdentifier.recipientList, new SequenceOf<Destination>());
+        writePropertyInternal(PropertyIdentifier.recipientList, new SequenceOf<Destination>());
     }
 
     public NotificationClassObject(int instanceNumber, String name, BACnetArray<UnsignedInteger> priority,
             EventTransitionBits ackRequired) {
         super(ObjectType.notificationClass, instanceNumber, name);
 
-        writePropertyImpl(PropertyIdentifier.notificationClass, new UnsignedInteger(instanceNumber));
-        writePropertyImpl(PropertyIdentifier.priority, priority);
-        writePropertyImpl(PropertyIdentifier.ackRequired, ackRequired);
+        writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(instanceNumber));
+        writePropertyInternal(PropertyIdentifier.priority, priority);
+        writePropertyInternal(PropertyIdentifier.ackRequired, ackRequired);
     }
 
     public void addEventListener(NotificationClassListener l) {

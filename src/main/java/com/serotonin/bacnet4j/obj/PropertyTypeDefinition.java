@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -38,15 +38,15 @@ public class PropertyTypeDefinition {
     private final ObjectType objectType;
     private final PropertyIdentifier propertyIdentifier;
     private final Class<? extends Encodable> clazz;
-    private final boolean sequence;
+    private final boolean sequenceOf;
     private final boolean required;
 
-    PropertyTypeDefinition(ObjectType objectType, PropertyIdentifier propertyIdentifier,
-            Class<? extends Encodable> clazz, boolean sequence, boolean required) {
+    PropertyTypeDefinition(final ObjectType objectType, final PropertyIdentifier propertyIdentifier,
+            final Class<? extends Encodable> clazz, final boolean sequenceOf, final boolean required) {
         this.objectType = objectType;
         this.propertyIdentifier = propertyIdentifier;
         this.clazz = clazz;
-        this.sequence = sequence;
+        this.sequenceOf = sequenceOf;
         this.required = required;
     }
 
@@ -62,8 +62,8 @@ public class PropertyTypeDefinition {
         return clazz;
     }
 
-    public boolean isSequence() {
-        return sequence;
+    public boolean isSequenceOf() {
+        return sequenceOf;
     }
 
     public boolean isRequired() {

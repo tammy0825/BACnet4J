@@ -49,27 +49,27 @@ public class BinaryValueObject extends BACnetObject {
     public BinaryValueObject(int instanceNumber, String name, BinaryPV presentValue, boolean outOfService) {
         super(ObjectType.binaryValue, instanceNumber, name);
 
-        writePropertyImpl(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyImpl(PropertyIdentifier.outOfService, new Boolean(outOfService));
-        writePropertyImpl(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
+        writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
+        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this));
 
-        writePropertyImpl(PropertyIdentifier.presentValue, presentValue);
+        writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
     }
 
     public void supportIntrinsicReporting(int timeDelay, int notificationClass, BinaryPV alarmValue,
             EventTransitionBits eventEnable, NotifyType notifyType, int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
-        writePropertyImpl(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
-        writePropertyImpl(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
-        writePropertyImpl(PropertyIdentifier.alarmValue, alarmValue);
-        writePropertyImpl(PropertyIdentifier.eventEnable, eventEnable);
-        writePropertyImpl(PropertyIdentifier.notifyType, notifyType);
-        writePropertyImpl(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
+        writePropertyInternal(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
+        writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
+        writePropertyInternal(PropertyIdentifier.alarmValue, alarmValue);
+        writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
+        writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
+        writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
 
         ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValue);

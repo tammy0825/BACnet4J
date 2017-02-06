@@ -43,10 +43,10 @@ public class BinaryOutputObject extends BACnetObject {
             Polarity polarity, BinaryPV relinquishDefault) {
         super(ObjectType.binaryOutput, instanceNumber, name);
 
-        writePropertyImpl(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyImpl(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
+        writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
+        writePropertyInternal(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
                 outOfService));
-        writePropertyImpl(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
+        writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
@@ -54,8 +54,8 @@ public class BinaryOutputObject extends BACnetObject {
 
         supportCommandable(relinquishDefault);
 
-        writePropertyImpl(PropertyIdentifier.presentValue, presentValue);
-        writePropertyImpl(PropertyIdentifier.polarity, polarity);
+        writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
+        writePropertyInternal(PropertyIdentifier.polarity, polarity);
     }
 
     public void supportCovReporting() {

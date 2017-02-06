@@ -51,12 +51,12 @@ public class AnalogValueObject extends BACnetObject {
             boolean outOfService) {
         super(ObjectType.analogValue, instanceNumber, name);
 
-        writePropertyImpl(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyImpl(PropertyIdentifier.presentValue, new Real(presentValue));
-        writePropertyImpl(PropertyIdentifier.units, units);
-        writePropertyImpl(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
+        writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
+        writePropertyInternal(PropertyIdentifier.presentValue, new Real(presentValue));
+        writePropertyInternal(PropertyIdentifier.units, units);
+        writePropertyInternal(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
                 outOfService));
-        writePropertyImpl(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
+        writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
@@ -69,15 +69,15 @@ public class AnalogValueObject extends BACnetObject {
 
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
-        writePropertyImpl(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
-        writePropertyImpl(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
-        writePropertyImpl(PropertyIdentifier.highLimit, new Real(highLimit));
-        writePropertyImpl(PropertyIdentifier.lowLimit, new Real(lowLimit));
-        writePropertyImpl(PropertyIdentifier.deadband, new Real(deadband));
-        writePropertyImpl(PropertyIdentifier.limitEnable, limitEnable);
-        writePropertyImpl(PropertyIdentifier.eventEnable, eventEnable);
-        writePropertyImpl(PropertyIdentifier.notifyType, notifyType);
-        writePropertyImpl(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
+        writePropertyInternal(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
+        writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
+        writePropertyInternal(PropertyIdentifier.highLimit, new Real(highLimit));
+        writePropertyInternal(PropertyIdentifier.lowLimit, new Real(lowLimit));
+        writePropertyInternal(PropertyIdentifier.deadband, new Real(deadband));
+        writePropertyInternal(PropertyIdentifier.limitEnable, limitEnable);
+        writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
+        writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
+        writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(this),

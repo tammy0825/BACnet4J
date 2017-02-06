@@ -55,7 +55,7 @@ public class BinaryValueTest extends AbstractTest {
         assertEquals("goAheadSetThis", name.getValue());
 
         // Ensure that the name can be changed locally.
-        bv.writePropertyImpl(objectName, new CharacterString("nowThis"));
+        bv.writePropertyInternal(objectName, new CharacterString("nowThis"));
         name = RequestUtils.getProperty(d2, rd1, bv.getId(), objectName);
         assertEquals("nowThis", name.getValue());
     }
@@ -114,7 +114,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // When overridden, the present value is not settable
         bv.setOverridden(true);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
@@ -126,7 +126,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // ... even when it is out of service.
         bv.setOverridden(true);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
@@ -138,7 +138,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // When not overridden, the present value is not settable while not out of service.
         bv.setOverridden(false);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
@@ -150,7 +150,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // ... but it is when the object is out of service.
         bv.setOverridden(false);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
         pv = RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue);
         assertEquals(BinaryPV.active, pv);
@@ -167,7 +167,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // When overridden, the present value is not settable
         bv.setOverridden(true);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
@@ -179,7 +179,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // ... even when it is out of service.
         bv.setOverridden(true);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
@@ -191,7 +191,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // When not overridden, the present value is writable while not out of service.
         bv.setOverridden(false);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(true));
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
         pv = RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue);
         assertEquals(BinaryPV.active, pv);
@@ -199,7 +199,7 @@ public class BinaryValueTest extends AbstractTest {
 
         // When not overridden and in service, the present value is commandable
         bv.setOverridden(false);
-        bv.writePropertyImpl(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
+        bv.writePropertyInternal(outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(false));
 
         // Set a value at priority 16.
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.inactive);

@@ -44,9 +44,9 @@ public class BinaryOutputTest extends AbstractTest {
 
     @Test
     public void annexI() throws Exception {
-        obj.writePropertyImpl(PropertyIdentifier.minimumOnTime, new UnsignedInteger(1)); // 2 seconds
-        obj.writePropertyImpl(PropertyIdentifier.minimumOffTime, new UnsignedInteger(2)); // 4 seconds
-        obj.writePropertyImpl(PropertyIdentifier.outOfService, new Boolean(false));
+        obj.writePropertyInternal(PropertyIdentifier.minimumOnTime, new UnsignedInteger(1)); // 2 seconds
+        obj.writePropertyInternal(PropertyIdentifier.minimumOffTime, new UnsignedInteger(2)); // 4 seconds
+        obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
 
         PriorityArray pa = obj.getProperty(priorityArray);
 
