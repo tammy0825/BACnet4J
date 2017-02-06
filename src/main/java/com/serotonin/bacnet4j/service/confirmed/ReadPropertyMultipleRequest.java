@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -59,7 +59,7 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
 
     private final SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs;
 
-    public ReadPropertyMultipleRequest(SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs) {
+    public ReadPropertyMultipleRequest(final SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs) {
         this.listOfReadAccessSpecs = listOfReadAccessSpecs;
     }
 
@@ -69,50 +69,61 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, listOfReadAccessSpecs);
     }
 
-    ReadPropertyMultipleRequest(ByteQueue queue) throws BACnetException {
+    ReadPropertyMultipleRequest(final ByteQueue queue) throws BACnetException {
         listOfReadAccessSpecs = readSequenceOf(queue, ReadAccessSpecification.class);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         BACnetObject obj;
         ObjectIdentifier oid;
-        List<ReadAccessResult> readAccessResults = new ArrayList<ReadAccessResult>();
+        final List<ReadAccessResult> readAccessResults = new ArrayList<>();
         List<Result> results;
 
         try {
-            for (ReadAccessSpecification req : listOfReadAccessSpecs) {
-                results = new ArrayList<Result>();
+            for (final ReadAccessSpecification req : listOfReadAccessSpecs) {
+                results = new ArrayList<>();
                 oid = req.getObjectIdentifier();
                 obj = localDevice.getObjectRequired(oid);
 
-                for (PropertyReference propRef : req.getListOfPropertyReferences())
+                for (final PropertyReference propRef : req.getListOfPropertyReferences())
                     addProperty(obj, results, propRef.getPropertyIdentifier(), propRef.getPropertyArrayIndex());
 
-                readAccessResults.add(new ReadAccessResult(oid, new SequenceOf<Result>(results)));
+                readAccessResults.add(new ReadAccessResult(oid, new SequenceOf<>(results)));
             }
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
 
-        return new ReadPropertyMultipleAck(new SequenceOf<ReadAccessResult>(readAccessResults));
+        return new ReadPropertyMultipleAck(new SequenceOf<>(readAccessResults));
+    }
+
+    public SequenceOf<ReadAccessSpecification> getListOfReadAccessSpecs() {
+        return listOfReadAccessSpecs;
+    }
+
+    public int getNumberOfProperties() {
+        int sum = 0;
+        for (final ReadAccessSpecification spec : listOfReadAccessSpecs) {
+            sum += spec.getNumberOfProperties();
+        }
+        return sum;
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfReadAccessSpecs == null) ? 0 : listOfReadAccessSpecs.hashCode());
+        result = PRIME * result + (listOfReadAccessSpecs == null ? 0 : listOfReadAccessSpecs.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -123,8 +134,7 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
         if (listOfReadAccessSpecs == null) {
             if (other.listOfReadAccessSpecs != null)
                 return false;
-        }
-        else if (!listOfReadAccessSpecs.equals(other.listOfReadAccessSpecs))
+        } else if (!listOfReadAccessSpecs.equals(other.listOfReadAccessSpecs))
             return false;
         return true;
     }
@@ -134,27 +144,25 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
         return "ReadPropertyMultipleRequest [listOfReadAccessSpecs=" + listOfReadAccessSpecs + "]";
     }
 
-    private void addProperty(BACnetObject obj, List<Result> results, PropertyIdentifier pid, UnsignedInteger pin) {
+    private void addProperty(final BACnetObject obj, final List<Result> results, final PropertyIdentifier pid,
+            final UnsignedInteger pin) {
         if (pid.intValue() == PropertyIdentifier.all.intValue()) {
-            for (PropertyTypeDefinition def : ObjectProperties.getPropertyTypeDefinitions(obj.getId().getObjectType()))
+            for (final PropertyTypeDefinition def : ObjectProperties
+                    .getPropertyTypeDefinitions(obj.getId().getObjectType()))
                 addProperty(obj, results, def.getPropertyIdentifier(), pin);
-        }
-        else if (pid.intValue() == PropertyIdentifier.required.intValue()) {
-            for (PropertyTypeDefinition def : ObjectProperties.getRequiredPropertyTypeDefinitions(obj.getId()
-                    .getObjectType()))
+        } else if (pid.intValue() == PropertyIdentifier.required.intValue()) {
+            for (final PropertyTypeDefinition def : ObjectProperties
+                    .getRequiredPropertyTypeDefinitions(obj.getId().getObjectType()))
                 addProperty(obj, results, def.getPropertyIdentifier(), pin);
-        }
-        else if (pid.intValue() == PropertyIdentifier.optional.intValue()) {
-            for (PropertyTypeDefinition def : ObjectProperties.getOptionalPropertyTypeDefinitions(obj.getId()
-                    .getObjectType()))
+        } else if (pid.intValue() == PropertyIdentifier.optional.intValue()) {
+            for (final PropertyTypeDefinition def : ObjectProperties
+                    .getOptionalPropertyTypeDefinitions(obj.getId().getObjectType()))
                 addProperty(obj, results, def.getPropertyIdentifier(), pin);
-        }
-        else {
+        } else {
             // Get the specified property.
             try {
                 results.add(new Result(pid, pin, obj.getPropertyRequired(pid, pin)));
-            }
-            catch (BACnetServiceException e) {
+            } catch (final BACnetServiceException e) {
                 results.add(new Result(pid, pin, new BACnetError(e.getErrorClass(), e.getErrorCode())));
             }
         }
