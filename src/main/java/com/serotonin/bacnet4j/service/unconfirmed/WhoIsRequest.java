@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -47,7 +47,12 @@ public class WhoIsRequest extends UnconfirmedRequestService {
         // no op
     }
 
-    public WhoIsRequest(UnsignedInteger deviceInstanceRangeLowLimit, UnsignedInteger deviceInstanceRangeHighLimit) {
+    public WhoIsRequest(final int deviceInstanceRangeLowLimit, final int deviceInstanceRangeHighLimit) {
+        this(new UnsignedInteger(deviceInstanceRangeLowLimit), new UnsignedInteger(deviceInstanceRangeHighLimit));
+    }
+
+    public WhoIsRequest(final UnsignedInteger deviceInstanceRangeLowLimit,
+            final UnsignedInteger deviceInstanceRangeHighLimit) {
         this.deviceInstanceRangeLowLimit = deviceInstanceRangeLowLimit;
         this.deviceInstanceRangeHighLimit = deviceInstanceRangeHighLimit;
     }
@@ -58,8 +63,8 @@ public class WhoIsRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) throws BACnetException {
-        BACnetObject local = localDevice.getConfiguration();
+    public void handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final BACnetObject local = localDevice.getConfiguration();
 
         // Check if we're in the device id range.
         if (deviceInstanceRangeLowLimit != null && local.getInstanceId() < deviceInstanceRangeLowLimit.intValue())
@@ -69,17 +74,17 @@ public class WhoIsRequest extends UnconfirmedRequestService {
             return;
 
         // Return the result in a i am message.
-        IAmRequest iam = localDevice.getIAm();
+        final IAmRequest iam = localDevice.getIAm();
         localDevice.sendGlobalBroadcast(iam);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         writeOptional(queue, deviceInstanceRangeLowLimit, 0);
         writeOptional(queue, deviceInstanceRangeHighLimit, 1);
     }
 
-    WhoIsRequest(ByteQueue queue) throws BACnetException {
+    WhoIsRequest(final ByteQueue queue) throws BACnetException {
         deviceInstanceRangeLowLimit = readOptional(queue, UnsignedInteger.class, 0);
         deviceInstanceRangeHighLimit = readOptional(queue, UnsignedInteger.class, 1);
     }
@@ -88,14 +93,13 @@ public class WhoIsRequest extends UnconfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result
-                + ((deviceInstanceRangeHighLimit == null) ? 0 : deviceInstanceRangeHighLimit.hashCode());
-        result = PRIME * result + ((deviceInstanceRangeLowLimit == null) ? 0 : deviceInstanceRangeLowLimit.hashCode());
+        result = PRIME * result + (deviceInstanceRangeHighLimit == null ? 0 : deviceInstanceRangeHighLimit.hashCode());
+        result = PRIME * result + (deviceInstanceRangeLowLimit == null ? 0 : deviceInstanceRangeLowLimit.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -106,14 +110,12 @@ public class WhoIsRequest extends UnconfirmedRequestService {
         if (deviceInstanceRangeHighLimit == null) {
             if (other.deviceInstanceRangeHighLimit != null)
                 return false;
-        }
-        else if (!deviceInstanceRangeHighLimit.equals(other.deviceInstanceRangeHighLimit))
+        } else if (!deviceInstanceRangeHighLimit.equals(other.deviceInstanceRangeHighLimit))
             return false;
         if (deviceInstanceRangeLowLimit == null) {
             if (other.deviceInstanceRangeLowLimit != null)
                 return false;
-        }
-        else if (!deviceInstanceRangeLowLimit.equals(other.deviceInstanceRangeLowLimit))
+        } else if (!deviceInstanceRangeLowLimit.equals(other.deviceInstanceRangeLowLimit))
             return false;
         return true;
     }
