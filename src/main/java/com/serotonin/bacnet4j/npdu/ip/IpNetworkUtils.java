@@ -23,154 +23,179 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.ip;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.serotonin.bacnet4j.base.BACnetUtils;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.IpAddressUtils;
 
 public class IpNetworkUtils {
     public static OctetString toOctetString(String dottedString) {
         dottedString = dottedString.trim();
-        int colon = dottedString.indexOf(":");
+        final int colon = dottedString.indexOf(":");
         if (colon == -1)
             throw new IllegalArgumentException("Dotted string missing port number. Expected x.x.x.x:port");
 
-        byte[] ip = BACnetUtils.dottedStringToBytes(dottedString.substring(0, colon));
-        int port = Integer.parseInt(dottedString.substring(colon + 1));
+        final byte[] ip = BACnetUtils.dottedStringToBytes(dottedString.substring(0, colon));
+        final int port = Integer.parseInt(dottedString.substring(colon + 1));
         return toOctetString(ip, port);
     }
 
-    public static OctetString toOctetString(byte[] ipAddress, int port) {
+    public static OctetString toOctetString(final byte[] ipAddress, final int port) {
         return new OctetString(toBytes(ipAddress, port));
     }
 
-    public static OctetString toOctetString(String dotted, int port) {
+    public static OctetString toOctetString(final String dotted, final int port) {
         return toOctetString(BACnetUtils.dottedStringToBytes(dotted), port);
     }
 
-    public static OctetString toOctetString(ByteQueue queue) {
-        byte[] b = new byte[6];
+    public static OctetString toOctetString(final ByteQueue queue) {
+        final byte[] b = new byte[6];
         queue.pop(b);
         return new OctetString(b);
     }
 
-    public static OctetString toOctetString(InetSocketAddress addr) {
+    public static OctetString toOctetString(final InetSocketAddress addr) {
         return toOctetString(addr.getAddress().getAddress(), addr.getPort());
     }
 
-    private static byte[] toBytes(byte[] ipAddress, int port) {
+    private static byte[] toBytes(final byte[] ipAddress, final int port) {
         if (ipAddress.length != 4)
             throw new IllegalArgumentException("IP address must have 4 parts, not " + ipAddress.length);
 
-        byte[] b = new byte[6];
+        final byte[] b = new byte[6];
         System.arraycopy(ipAddress, 0, b, 0, ipAddress.length);
         b[ipAddress.length] = (byte) (port >> 8);
         b[ipAddress.length + 1] = (byte) port;
         return b;
     }
 
-    public static InetAddress getInetAddress(OctetString mac) {
+    public static InetAddress getInetAddress(final OctetString mac) {
         try {
             return InetAddress.getByAddress(getIpBytes(mac));
-        }
-        catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static InetSocketAddress getInetSocketAddress(OctetString mac) {
+    public static InetSocketAddress getInetSocketAddress(final OctetString mac) {
         return InetAddrCache.get(getInetAddress(mac), getPort(mac));
     }
 
-    public static int getPort(OctetString mac) {
+    public static int getPort(final OctetString mac) {
         if (mac.getLength() != 6)
             throw new IllegalArgumentException("Not an I/P mac");
-        return ((mac.getBytes()[4] & 0xff) << 8) | (mac.getBytes()[5] & 0xff);
+        return (mac.getBytes()[4] & 0xff) << 8 | mac.getBytes()[5] & 0xff;
     }
 
-    public static String toIpString(OctetString mac) {
+    public static String toIpString(final OctetString mac) {
         return IpAddressUtils.toIpString(getIpBytes(mac));
     }
 
-    public static String toIpPortString(OctetString mac) {
+    public static String toIpPortString(final OctetString mac) {
         return toIpString(mac) + ":" + getPort(mac);
     }
 
-    public static byte[] getIpBytes(OctetString mac) {
+    public static byte[] getIpBytes(final OctetString mac) {
         if (mac.getLength() != 6)
             throw new IllegalArgumentException("Not an I/P mac");
-        byte[] b = new byte[4];
+        final byte[] b = new byte[4];
         System.arraycopy(mac.getBytes(), 0, b, 0, 4);
         return b;
     }
 
-    public static String toString(OctetString mac) {
+    public static String toString(final OctetString mac) {
         return toIpPortString(mac);
     }
 
-    public static Address toAddress(byte[] ipAddress, int port) {
+    public static Address toAddress(final byte[] ipAddress, final int port) {
         return toAddress(Address.LOCAL_NETWORK, ipAddress, port);
     }
 
     /**
      * Convenience constructor for IP addresses remote to this network.
-     * 
+     *
      * @param network
      * @param ipAddress
      * @param port
      */
-    public static Address toAddress(int networkNumber, byte[] ipAddress, int port) {
-        byte[] ipMacAddress = new byte[ipAddress.length + 2];
+    public static Address toAddress(final int networkNumber, final byte[] ipAddress, final int port) {
+        final byte[] ipMacAddress = new byte[ipAddress.length + 2];
         System.arraycopy(ipAddress, 0, ipMacAddress, 0, ipAddress.length);
         ipMacAddress[ipAddress.length] = (byte) (port >> 8);
         ipMacAddress[ipAddress.length + 1] = (byte) port;
         return new Address(networkNumber, new OctetString(ipMacAddress));
     }
 
-    public static Address toAddress(String host, int port) {
+    public static Address toAddress(final String host, final int port) {
         return toAddress(Address.LOCAL_NETWORK, host, port);
     }
 
-    public static Address toAddress(int networkNumber, String host, int port) {
+    public static Address toAddress(final int networkNumber, final String host, final int port) {
         return toAddress(networkNumber, InetAddrCache.get(host, port));
     }
 
-    public static Address toAddress(InetSocketAddress addr) {
+    public static Address toAddress(final InetSocketAddress addr) {
         return toAddress(Address.LOCAL_NETWORK, addr.getAddress().getAddress(), addr.getPort());
     }
 
-    public static Address toAddress(int networkNumber, InetSocketAddress addr) {
+    public static Address toAddress(final int networkNumber, final InetSocketAddress addr) {
         return toAddress(networkNumber, addr.getAddress().getAddress(), addr.getPort());
     }
 
-    public static List<InetAddress> getLocalInetAddresses() {
+    public static List<InterfaceAddress> getLocalInterfaceAddresses() {
         try {
-            List<InetAddress> result = new ArrayList<InetAddress>();
-            for (NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-                for (InetAddress addr : Collections.list(iface.getInetAddresses())) {
-                    if (!addr.isLoopbackAddress() && addr.isSiteLocalAddress())
+            final List<InterfaceAddress> result = new ArrayList<>();
+            for (final NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                for (final InterfaceAddress addr : iface.getInterfaceAddresses()) {
+                    if (!addr.getAddress().isLoopbackAddress() && addr.getAddress().isSiteLocalAddress())
                         result.add(addr);
                 }
             }
             return result;
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
         }
+    }
+
+    public static long bytesToLong(final byte[] ba) {
+        return (ba[0] & 0xffL) << 24 | (ba[1] & 0xffL) << 16 | (ba[2] & 0xffL) << 8 | ba[3] & 0xffL;
+    }
+
+    public static long createSubmask(final int length) {
+        long l = 0;
+        int shift = 31;
+        for (int i = 0; i < length; i++) {
+            l |= 1L << shift--;
+        }
+        return l;
+    }
+
+    public static long toBroadcast(final long ipaddr, final long subnet) {
+        return 0xFFFFFFFFL ^ subnet | ipaddr;
+    }
+
+    public static String toIpAddrString(final long addr) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(addr >> 24 & 0xFF).append('.');
+        sb.append(addr >> 16 & 0xFF).append('.');
+        sb.append(addr >> 8 & 0xFF).append('.');
+        sb.append(addr & 0xFF);
+        return sb.toString();
     }
 }
