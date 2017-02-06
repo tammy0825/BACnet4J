@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -40,55 +40,55 @@ public class BACnetArray<E extends Encodable> extends SequenceOf<E> {
     private static final long serialVersionUID = 7930010486564820089L;
 
     @SuppressWarnings("unchecked")
-    public BACnetArray(int size) {
+    public BACnetArray(final int size) {
         super((List<E>) nullList(size));
     }
 
-    private static final <T extends Encodable> List<T> nullList(int size) {
-        List<T> list = new ArrayList<T>();
+    private static final <T extends Encodable> List<T> nullList(final int size) {
+        final List<T> list = new ArrayList<>();
         for (int i = 0; i < size; i++)
             list.add(null);
         return list;
     }
 
-    public BACnetArray(E... values) {
+    public BACnetArray(final E... values) {
         super(values);
     }
 
-    public BACnetArray(List<E> values) {
+    public BACnetArray(final List<E> values) {
         super(values);
     }
 
-    public BACnetArray(BACnetArray<E> that) {
+    public BACnetArray(final BACnetArray<E> that) {
         super(that.values);
     }
 
-    public BACnetArray(ByteQueue queue, Class<E> clazz, int contextId) throws BACnetException {
+    public BACnetArray(final ByteQueue queue, final Class<E> clazz, final int contextId) throws BACnetException {
         super(queue, clazz, contextId);
     }
 
     @Override
-    public void set(int indexBase1, E value) {
+    public void set(final int indexBase1, final E value) {
         values.set(indexBase1 - 1, value);
     }
 
     @Override
-    public void add(E value) {
+    public void add(final E value) {
         throw new BACnetRuntimeException("Illegal operation");
     }
 
     @Override
-    public void remove(int indexBase1) {
+    public Encodable remove(final int indexBase1) {
         throw new BACnetRuntimeException("Illegal operation");
     }
 
     @Override
-    public void remove(E value) {
+    public void remove(final E value) {
         throw new BACnetRuntimeException("Illegal operation");
     }
 
     @Override
-    public void removeAll(E value) {
+    public void removeAll(final E value) {
         throw new BACnetRuntimeException("Illegal operation");
     }
 }
