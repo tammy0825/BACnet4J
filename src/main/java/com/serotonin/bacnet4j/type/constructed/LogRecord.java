@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -46,7 +46,7 @@ public class LogRecord extends BaseType {
     private static final long serialVersionUID = -158114439196293884L;
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(LogStatus.class);
         classes.add(Boolean.class);
         classes.add(Real.class);
@@ -64,63 +64,64 @@ public class LogRecord extends BaseType {
     private Choice choice;
     private final StatusFlags statusFlags;
 
-    private LogRecord(DateTime timestamp, StatusFlags statusFlags) {
+    private LogRecord(final DateTime timestamp, final StatusFlags statusFlags) {
         this.timestamp = timestamp;
         this.statusFlags = statusFlags;
     }
 
-    public LogRecord(DateTime timestamp, LogStatus datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final LogStatus datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(0, datum);
     }
 
-    public LogRecord(DateTime timestamp, Boolean datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final Boolean datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(1, datum);
     }
 
-    public LogRecord(DateTime timestamp, boolean timeChange, Real datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final boolean timeChange, final Real datum,
+            final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(timeChange ? 9 : 2, datum);
     }
 
-    public LogRecord(DateTime timestamp, Enumerated datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final Enumerated datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(3, datum);
     }
 
-    public LogRecord(DateTime timestamp, UnsignedInteger datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final UnsignedInteger datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(4, datum);
     }
 
-    public LogRecord(DateTime timestamp, SignedInteger datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final SignedInteger datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(5, datum);
     }
 
-    public LogRecord(DateTime timestamp, BitString datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final BitString datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(6, datum);
     }
 
-    public LogRecord(DateTime timestamp, Null datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final Null datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(7, datum);
     }
 
-    public LogRecord(DateTime timestamp, BACnetError datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final BACnetError datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(8, datum);
     }
 
-    public LogRecord(DateTime timestamp, Encodable datum, StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final Encodable datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
         choice = new Choice(10, datum);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timestamp, 0);
         write(queue, choice, 1);
         writeOptional(queue, statusFlags, 2);
@@ -182,7 +183,7 @@ public class LogRecord extends BaseType {
         return choice.getContextId();
     }
 
-    public LogRecord(ByteQueue queue) throws BACnetException {
+    public LogRecord(final ByteQueue queue) throws BACnetException {
         timestamp = read(queue, DateTime.class, 0);
         choice = new Choice(queue, classes, 1);
         statusFlags = readOptional(queue, StatusFlags.class, 2);
@@ -192,14 +193,14 @@ public class LogRecord extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((choice == null) ? 0 : choice.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
-        result = PRIME * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = PRIME * result + (choice == null ? 0 : choice.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (timestamp == null ? 0 : timestamp.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -210,20 +211,17 @@ public class LogRecord extends BaseType {
         if (choice == null) {
             if (other.choice != null)
                 return false;
-        }
-        else if (!choice.equals(other.choice))
+        } else if (!choice.equals(other.choice))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         if (timestamp == null) {
             if (other.timestamp != null)
                 return false;
-        }
-        else if (!timestamp.equals(other.timestamp))
+        } else if (!timestamp.equals(other.timestamp))
             return false;
         return true;
     }

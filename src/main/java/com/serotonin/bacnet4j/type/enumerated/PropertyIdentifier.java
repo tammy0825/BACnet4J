@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -33,6 +33,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PropertyIdentifier extends Enumerated {
     private static final long serialVersionUID = 7289026444729646422L;
+
     public static final PropertyIdentifier ackedTransitions = new PropertyIdentifier(0);
     public static final PropertyIdentifier ackRequired = new PropertyIdentifier(1);
     public static final PropertyIdentifier action = new PropertyIdentifier(2);
@@ -413,10 +414,10 @@ public class PropertyIdentifier extends Enumerated {
             backupFailureTimeout, configurationFiles, databaseRevision, directReading, lastRestoreTime,
             maintenanceRequired, memberOf, mode, operationExpected, setting, silenced, trackingValue, zoneMembers,
             lifeSafetyAlarmValues, maxSegmentsAccepted, profileName, autoSlaveDiscovery, manualSlaveAddressBinding,
-            slaveAddressBinding, slaveProxyEnable, lastNotifyRecord, scheduleDefault, acceptedModes, adjustValue,
-            count, countBeforeChange, countChangeTime, covPeriod, inputReference, limitMonitoringInterval,
-            loggingObject, loggingRecord, prescale, pulseRate, scale, scaleFactor, updateTime, valueBeforeChange,
-            valueSet, valueChangeTime, alignIntervals, intervalOffset, lastRestartReason, loggingType,
+            slaveAddressBinding, slaveProxyEnable, lastNotifyRecord, scheduleDefault, acceptedModes, adjustValue, count,
+            countBeforeChange, countChangeTime, covPeriod, inputReference, limitMonitoringInterval, loggingObject,
+            loggingRecord, prescale, pulseRate, scale, scaleFactor, updateTime, valueBeforeChange, valueSet,
+            valueChangeTime, alignIntervals, intervalOffset, lastRestartReason, loggingType,
             restartNotificationRecipients, timeOfDeviceRestart, timeSynchronizationInterval, trigger,
             utcTimeSynchronizationRecipients, nodeSubtype, nodeType, structuredObjectList, subordinateAnnotations,
             subordinateList, actualShedLevel, dutyWindow, expectedShedLevel, fullDutyBaseline, requestedShedLevel,
@@ -427,18 +428,17 @@ public class PropertyIdentifier extends Enumerated {
             accompaniment, accompanimentTime, activationTime, activeAuthenticationPolicy, assignedAccessRights,
             authenticationFactors, authenticationPolicyList, authenticationPolicyNames, authenticationStatus,
             authorizationMode, belongsTo, credentialDisable, credentialStatus, credentials, credentialsInZone,
-            daysRemaining, entryPoints, exitPoints, expiryTime, extendedTimeEnable, failedAttemptEvents,
-            failedAttempts, failedAttemptsTime, lastAccessEvent, lastAccessPoint, lastCredentialAdded,
-            lastCredentialAddedTime, lastCredentialRemoved, lastCredentialRemovedTime, lastUseTime, lockout,
-            lockoutRelinquishTime, maxFailedAttempts, members, musterPoint, negativeAccessRules,
-            numberOfAuthenticationPolicies, occupancyCount, occupancyCountAdjust, occupancyCountEnable,
-            occupancyLowerLimit, occupancyLowerLimitEnforced, occupancyState, occupancyUpperLimit,
-            occupancyUpperLimitEnforced, passbackMode, passbackTimeout, positiveAccessRules, reasonForDisable,
-            supportedFormats, supportedFormatClasses, threatAuthority, threatLevel, traceFlag,
-            transactionNotificationClass, userExternalIdentifier, userInformationReference, userName, userType,
-            usesRemaining, zoneFrom, zoneTo, accessEventTag, globalIdentifier, verificationTime,
-            baseDeviceSecurityPolicy, distributionKeyRevision, doNotHide, keySets, lastKeyServer,
-            networkAccessSecurityPolicies, packetReorderTime, securityPduTimeout, securityTimeWindow,
+            daysRemaining, entryPoints, exitPoints, expiryTime, extendedTimeEnable, failedAttemptEvents, failedAttempts,
+            failedAttemptsTime, lastAccessEvent, lastAccessPoint, lastCredentialAdded, lastCredentialAddedTime,
+            lastCredentialRemoved, lastCredentialRemovedTime, lastUseTime, lockout, lockoutRelinquishTime,
+            maxFailedAttempts, members, musterPoint, negativeAccessRules, numberOfAuthenticationPolicies,
+            occupancyCount, occupancyCountAdjust, occupancyCountEnable, occupancyLowerLimit,
+            occupancyLowerLimitEnforced, occupancyState, occupancyUpperLimit, occupancyUpperLimitEnforced, passbackMode,
+            passbackTimeout, positiveAccessRules, reasonForDisable, supportedFormats, supportedFormatClasses,
+            threatAuthority, threatLevel, traceFlag, transactionNotificationClass, userExternalIdentifier,
+            userInformationReference, userName, userType, usesRemaining, zoneFrom, zoneTo, accessEventTag,
+            globalIdentifier, verificationTime, baseDeviceSecurityPolicy, distributionKeyRevision, doNotHide, keySets,
+            lastKeyServer, networkAccessSecurityPolicies, packetReorderTime, securityPduTimeout, securityTimeWindow,
             supportedSecurityAlgorithms, updateKeySetTimeout, backupAndRestoreState, backupPreparationTime,
             restoreCompletionTime, restorePreparationTime, bitMask, bitText, isUtc, groupMembers, groupMemberNames,
             memberStatusFlags, requestedUpdateInterval, covuPeriod, covuRecipients, eventMessageTexts,
@@ -452,17 +452,17 @@ public class PropertyIdentifier extends Enumerated {
 
     };
 
-    public PropertyIdentifier(int value) {
+    public PropertyIdentifier(final int value) {
         super(value);
     }
 
-    public PropertyIdentifier(ByteQueue queue) {
+    public PropertyIdentifier(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == ackedTransitions.intValue())
             return "ackedTransitions";
         if (type == ackRequired.intValue())

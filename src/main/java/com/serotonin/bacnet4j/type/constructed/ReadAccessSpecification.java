@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -41,17 +41,17 @@ public class ReadAccessSpecification extends BaseType {
     private final ObjectIdentifier objectIdentifier;
     private final SequenceOf<PropertyReference> listOfPropertyReferences;
 
-    public ReadAccessSpecification(ObjectIdentifier objectIdentifier,
-            SequenceOf<PropertyReference> listOfPropertyReferences) {
+    public ReadAccessSpecification(final ObjectIdentifier objectIdentifier,
+            final SequenceOf<PropertyReference> listOfPropertyReferences) {
         this.objectIdentifier = objectIdentifier;
         this.listOfPropertyReferences = listOfPropertyReferences;
     }
 
-    public ReadAccessSpecification(ObjectIdentifier objectIdentifier, PropertyIdentifier pid) {
+    public ReadAccessSpecification(final ObjectIdentifier objectIdentifier, final PropertyIdentifier pid) {
         this.objectIdentifier = objectIdentifier;
-        List<PropertyReference> refs = new ArrayList<PropertyReference>(1);
+        final List<PropertyReference> refs = new ArrayList<>(1);
         refs.add(new PropertyReference(pid, null));
-        this.listOfPropertyReferences = new SequenceOf<PropertyReference>(refs);
+        this.listOfPropertyReferences = new SequenceOf<>(refs);
     }
 
     public SequenceOf<PropertyReference> getListOfPropertyReferences() {
@@ -63,27 +63,31 @@ public class ReadAccessSpecification extends BaseType {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, listOfPropertyReferences, 1);
     }
 
-    public ReadAccessSpecification(ByteQueue queue) throws BACnetException {
+    public ReadAccessSpecification(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         listOfPropertyReferences = readSequenceOf(queue, PropertyReference.class, 1);
+    }
+
+    public int getNumberOfProperties() {
+        return listOfPropertyReferences.getCount();
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfPropertyReferences == null) ? 0 : listOfPropertyReferences.hashCode());
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (listOfPropertyReferences == null ? 0 : listOfPropertyReferences.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -94,14 +98,12 @@ public class ReadAccessSpecification extends BaseType {
         if (listOfPropertyReferences == null) {
             if (other.listOfPropertyReferences != null)
                 return false;
-        }
-        else if (!listOfPropertyReferences.equals(other.listOfPropertyReferences))
+        } else if (!listOfPropertyReferences.equals(other.listOfPropertyReferences))
             return false;
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         return true;
     }

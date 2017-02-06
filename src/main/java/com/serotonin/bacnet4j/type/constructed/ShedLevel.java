@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -44,7 +44,7 @@ public class ShedLevel extends BaseType {
     private static final long serialVersionUID = 8550443800962401306L;
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(UnsignedInteger.class);
         classes.add(UnsignedInteger.class);
         classes.add(Real.class);
@@ -52,19 +52,19 @@ public class ShedLevel extends BaseType {
 
     private final Choice choice;
 
-    public ShedLevel(UnsignedInteger datum, boolean percent) {
+    public ShedLevel(final UnsignedInteger datum, final boolean percent) {
         if (percent)
             choice = new Choice(0, datum);
         else
             choice = new Choice(1, datum);
     }
 
-    public ShedLevel(Real amount) {
+    public ShedLevel(final Real amount) {
         choice = new Choice(2, amount);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, choice);
     }
 
@@ -84,7 +84,7 @@ public class ShedLevel extends BaseType {
         return choice.getContextId();
     }
 
-    public ShedLevel(ByteQueue queue) throws BACnetException {
+    public ShedLevel(final ByteQueue queue) throws BACnetException {
         choice = new Choice(queue, classes);
     }
 
@@ -92,12 +92,12 @@ public class ShedLevel extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((choice == null) ? 0 : choice.hashCode());
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -108,8 +108,7 @@ public class ShedLevel extends BaseType {
         if (choice == null) {
             if (other.choice != null)
                 return false;
-        }
-        else if (!choice.equals(other.choice))
+        } else if (!choice.equals(other.choice))
             return false;
         return true;
     }

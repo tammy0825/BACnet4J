@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -55,27 +55,27 @@ public class AuthenticationFactorType extends Enumerated {
     public static final AuthenticationFactorType chuid = new AuthenticationFactorType(18);
     public static final AuthenticationFactorType chuidFull = new AuthenticationFactorType(19);
     public static final AuthenticationFactorType guid = new AuthenticationFactorType(20);
-    public static final AuthenticationFactorType cbeffA = new AuthenticationFactorType(22);
-    public static final AuthenticationFactorType cbeffB = new AuthenticationFactorType(23);
-    public static final AuthenticationFactorType cbeffC = new AuthenticationFactorType(24);
-    public static final AuthenticationFactorType userPassword = new AuthenticationFactorType(25);
+    public static final AuthenticationFactorType cbeffA = new AuthenticationFactorType(21);
+    public static final AuthenticationFactorType cbeffB = new AuthenticationFactorType(22);
+    public static final AuthenticationFactorType cbeffC = new AuthenticationFactorType(23);
+    public static final AuthenticationFactorType userPassword = new AuthenticationFactorType(24);
 
     public static final AuthenticationFactorType[] ALL = { undefined, error, custom, simpleNumber16, simpleNumber32,
             simpleNumber56, simpleAlphaNumeric, abaTrack2, wiegand26, wiegand37, wiegand37Facility, facility16Card32,
-            facility32Card32, fascN, fascNBcd, fascNLarge, fascNLargeBcd, gsa75, chuid, chuidFull, guid, cbeffA,
-            cbeffB, cbeffC, userPassword, };
+            facility32Card32, fascN, fascNBcd, fascNLarge, fascNLargeBcd, gsa75, chuid, chuidFull, guid, cbeffA, cbeffB,
+            cbeffC, userPassword, };
 
-    public AuthenticationFactorType(int value) {
+    public AuthenticationFactorType(final int value) {
         super(value);
     }
 
-    public AuthenticationFactorType(ByteQueue queue) {
+    public AuthenticationFactorType(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == undefined.intValue())
             return "undefined";
         if (type == error.intValue())

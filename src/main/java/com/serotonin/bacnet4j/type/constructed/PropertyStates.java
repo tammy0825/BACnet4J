@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -79,7 +79,7 @@ public class PropertyStates extends BaseType {
     private static final long serialVersionUID = 1112998027203005048L;
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(Boolean.class); // 0
         classes.add(BinaryPV.class); // 1
         classes.add(EventType.class); // 2
@@ -125,7 +125,7 @@ public class PropertyStates extends BaseType {
 
     private final Choice state;
 
-    public PropertyStates(Encodable state) {
+    public PropertyStates(final Encodable state) {
         int type = -1;
         for (int i = 0; i < classes.size(); i++) {
             if (classes.get(i) == state.getClass()) {
@@ -150,11 +150,11 @@ public class PropertyStates extends BaseType {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, state);
     }
 
-    public PropertyStates(ByteQueue queue) throws BACnetException {
+    public PropertyStates(final ByteQueue queue) throws BACnetException {
         state = new Choice(queue, classes);
     }
 
@@ -167,24 +167,23 @@ public class PropertyStates extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        result = prime * result + (state == null ? 0 : state.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PropertyStates other = (PropertyStates) obj;
+        final PropertyStates other = (PropertyStates) obj;
         if (state == null) {
             if (other.state != null)
                 return false;
-        }
-        else if (!state.equals(other.state))
+        } else if (!state.equals(other.state))
             return false;
         return true;
     }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -177,35 +177,35 @@ public class ErrorCode extends Enumerated {
             characterSetNotSupported, invalidArrayIndex, covSubscriptionFailed, notCovProperty,
             optionalFunctionalityNotSupported, invalidConfigurationData, datatypeNotSupported, duplicateName,
             duplicateObjectId, propertyIsNotAnArray, abortBufferOverflow, abortInvalidApduInThisState,
-            abortPreemptedByHigherPriorityTask, abortSegmentationNotSupported, abortProprietary, abortOther,
-            invalidTag, networkDown, rejectBufferOverflow, rejectInconsistentParameters,
-            rejectInvalidParameterDataType, rejectInvalidTag, rejectMissingRequiredParameter,
-            rejectParameterOutOfRange, rejectTooManyArguments, rejectUndefinedEnumeration, rejectUnrecognizedService,
-            rejectProprietary, rejectOther, unknownDevice, unknownRoute, valueNotInitialized, invalidEventState,
-            noAlarmConfigured, logBufferFull, loggedValuePurged, noPropertySpecified, notConfiguredForTriggeredLogging,
-            unknownSubscription, parameterOutOfRange, listElementNotFound, busy, communicationDisabled, success,
-            accessDenied, badDestinationAddress, badDestinationDeviceId, badSignature, badSourceAddress, badTimestamp,
-            cannotUseKey, cannotVerifyMessageId, correctKeyRevision, destinationDeviceIdRequired, duplicateMessage,
-            encryptionNotConfigured, encryptionRequired, incorrectKey, invalidKeyData, keyUpdateInProgress,
-            malformedMessage, notKeyServer, securityNotConfigured, sourceSecurityRequired, tooManyKeys,
-            unknownAuthenticationType, unknownKey, unknownKeyRevision, unknownSourceMessage, notRouterToDnet,
-            routerBusy, unknownNetworkMessage, messageTooLong, securityError, addressingError, writeBdtFailed,
-            readBdtFailed, registerForeignDeviceFailed, readFdtFailed, deleteFdtEntryFailed, distributeBroadcastFailed,
-            unknownFileSize, abortApduTooLong, abortApplicationExceededReplyTime, abortOutOfResources, abortTsmTimeout,
-            abortWindowSizeOutOfRange, fileFull, inconsistentConfiguration, inconsistentObjectType, internalError,
-            notConfigured, outOfMemory, valueTooLong, abortInsufficientSecurity, abortSecurityError, };
+            abortPreemptedByHigherPriorityTask, abortSegmentationNotSupported, abortProprietary, abortOther, invalidTag,
+            networkDown, rejectBufferOverflow, rejectInconsistentParameters, rejectInvalidParameterDataType,
+            rejectInvalidTag, rejectMissingRequiredParameter, rejectParameterOutOfRange, rejectTooManyArguments,
+            rejectUndefinedEnumeration, rejectUnrecognizedService, rejectProprietary, rejectOther, unknownDevice,
+            unknownRoute, valueNotInitialized, invalidEventState, noAlarmConfigured, logBufferFull, loggedValuePurged,
+            noPropertySpecified, notConfiguredForTriggeredLogging, unknownSubscription, parameterOutOfRange,
+            listElementNotFound, busy, communicationDisabled, success, accessDenied, badDestinationAddress,
+            badDestinationDeviceId, badSignature, badSourceAddress, badTimestamp, cannotUseKey, cannotVerifyMessageId,
+            correctKeyRevision, destinationDeviceIdRequired, duplicateMessage, encryptionNotConfigured,
+            encryptionRequired, incorrectKey, invalidKeyData, keyUpdateInProgress, malformedMessage, notKeyServer,
+            securityNotConfigured, sourceSecurityRequired, tooManyKeys, unknownAuthenticationType, unknownKey,
+            unknownKeyRevision, unknownSourceMessage, notRouterToDnet, routerBusy, unknownNetworkMessage,
+            messageTooLong, securityError, addressingError, writeBdtFailed, readBdtFailed, registerForeignDeviceFailed,
+            readFdtFailed, deleteFdtEntryFailed, distributeBroadcastFailed, unknownFileSize, abortApduTooLong,
+            abortApplicationExceededReplyTime, abortOutOfResources, abortTsmTimeout, abortWindowSizeOutOfRange,
+            fileFull, inconsistentConfiguration, inconsistentObjectType, internalError, notConfigured, outOfMemory,
+            valueTooLong, abortInsufficientSecurity, abortSecurityError, };
 
-    public ErrorCode(int value) {
+    public ErrorCode(final int value) {
         super(value);
     }
 
-    public ErrorCode(ByteQueue queue) {
+    public ErrorCode(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == other.intValue())
             return "other";
         if (type == configurationInProgress.intValue())

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -38,16 +38,17 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadAccessResult extends BaseType {
     private static final long serialVersionUID = -5046824677263394587L;
+
     private final ObjectIdentifier objectIdentifier;
     private final SequenceOf<Result> listOfResults;
 
-    public ReadAccessResult(ObjectIdentifier objectIdentifier, SequenceOf<Result> listOfResults) {
+    public ReadAccessResult(final ObjectIdentifier objectIdentifier, final SequenceOf<Result> listOfResults) {
         this.objectIdentifier = objectIdentifier;
         this.listOfResults = listOfResults;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         writeOptional(queue, listOfResults, 1);
     }
@@ -65,13 +66,12 @@ public class ReadAccessResult extends BaseType {
         return objectIdentifier;
     }
 
-    public ReadAccessResult(ByteQueue queue) throws BACnetException {
+    public ReadAccessResult(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         try {
             ThreadLocalObjectTypeStack.set(objectIdentifier.getObjectType());
             listOfResults = readOptionalSequenceOf(queue, Result.class, 1);
-        }
-        finally {
+        } finally {
             ThreadLocalObjectTypeStack.remove();
         }
     }
@@ -82,13 +82,15 @@ public class ReadAccessResult extends BaseType {
         private final UnsignedInteger propertyArrayIndex;
         private Choice readResult;
 
-        public Result(PropertyIdentifier propertyIdentifier, UnsignedInteger propertyArrayIndex, Encodable readResult) {
+        public Result(final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex,
+                final Encodable readResult) {
             this.propertyIdentifier = propertyIdentifier;
             this.propertyArrayIndex = propertyArrayIndex;
             this.readResult = new Choice(4, readResult);
         }
 
-        public Result(PropertyIdentifier propertyIdentifier, UnsignedInteger propertyArrayIndex, BACnetError readResult) {
+        public Result(final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex,
+                final BACnetError readResult) {
             this.propertyIdentifier = propertyIdentifier;
             this.propertyArrayIndex = propertyArrayIndex;
             this.readResult = new Choice(5, readResult);
@@ -117,7 +119,7 @@ public class ReadAccessResult extends BaseType {
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             write(queue, propertyIdentifier, 2);
             writeOptional(queue, propertyArrayIndex, 3);
             if (readResult.getContextId() == 4)
@@ -126,10 +128,10 @@ public class ReadAccessResult extends BaseType {
                 write(queue, readResult.getDatum(), 5);
         }
 
-        public Result(ByteQueue queue) throws BACnetException {
+        public Result(final ByteQueue queue) throws BACnetException {
             propertyIdentifier = read(queue, PropertyIdentifier.class, 2);
             propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 3);
-            int contextId = peekTagNumber(queue);
+            final int contextId = peekTagNumber(queue);
             if (contextId == 4)
                 readResult = new Choice(4, readEncodable(queue, ThreadLocalObjectTypeStack.get(), propertyIdentifier,
                         propertyArrayIndex, 4));
@@ -141,14 +143,14 @@ public class ReadAccessResult extends BaseType {
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
-            result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-            result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
-            result = PRIME * result + ((readResult == null) ? 0 : readResult.hashCode());
+            result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+            result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
+            result = PRIME * result + (readResult == null ? 0 : readResult.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -159,20 +161,17 @@ public class ReadAccessResult extends BaseType {
             if (propertyArrayIndex == null) {
                 if (other.propertyArrayIndex != null)
                     return false;
-            }
-            else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+            } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
                 return false;
             if (propertyIdentifier == null) {
                 if (other.propertyIdentifier != null)
                     return false;
-            }
-            else if (!propertyIdentifier.equals(other.propertyIdentifier))
+            } else if (!propertyIdentifier.equals(other.propertyIdentifier))
                 return false;
             if (readResult == null) {
                 if (other.readResult != null)
                     return false;
-            }
-            else if (!readResult.equals(other.readResult))
+            } else if (!readResult.equals(other.readResult))
                 return false;
             return true;
         }
@@ -182,13 +181,13 @@ public class ReadAccessResult extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfResults == null) ? 0 : listOfResults.hashCode());
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (listOfResults == null ? 0 : listOfResults.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -199,14 +198,12 @@ public class ReadAccessResult extends BaseType {
         if (listOfResults == null) {
             if (other.listOfResults != null)
                 return false;
-        }
-        else if (!listOfResults.equals(other.listOfResults))
+        } else if (!listOfResults.equals(other.listOfResults))
             return false;
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         return true;
     }

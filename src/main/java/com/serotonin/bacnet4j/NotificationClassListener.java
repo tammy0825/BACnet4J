@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j;
@@ -39,15 +39,15 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 /**
- * An internal (proprietary) mechanism for listening internal for event/alarm notifications via intrinsic
+ * An internal (proprietary) mechanism for listening internally for event/alarm notifications via intrinsic
  * reporting. To use, implement this interface and add as a listener within a NotificationClassObject.
- * 
+ *
  * @author Matthew
  */
 public interface NotificationClassListener {
     /**
-     * Calls to this method are made in internal threads that should not be blocked. If blocking is required it is the
-     * user code's responsibility to spawn a new thread in which to do so.
+     * Calls to this method are made in internal threads that should not be blocked. If blocking is required, methods
+     * such as LocalDevice.submit and LocalDevice.execute can be used to run code asynchronously.
      */
     void event(ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp, UnsignedInteger notificationClass,
             UnsignedInteger priority, EventType eventType, CharacterString messageText, NotifyType notifyType,

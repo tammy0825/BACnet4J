@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.enums;
@@ -38,7 +38,7 @@ public enum DayOfWeek {
 
     private int id;
 
-    DayOfWeek(int id) {
+    DayOfWeek(final int id) {
         this.id = id;
     }
 
@@ -50,7 +50,7 @@ public enum DayOfWeek {
         return this != UNSPECIFIED;
     }
 
-    public static DayOfWeek forCalendarDow(int calendarDow) {
+    public static DayOfWeek forCalendarDow(final int calendarDow) {
         switch (calendarDow) {
         case Calendar.MONDAY:
             return MONDAY;
@@ -66,11 +66,12 @@ public enum DayOfWeek {
             return SATURDAY;
         case Calendar.SUNDAY:
             return SUNDAY;
+        default:
+            throw new RuntimeException("Can't get day of week for calendar value: " + calendarDow);
         }
-        throw new RuntimeException("Can't get day of week for calendar value: " + calendarDow);
     }
 
-    public static DayOfWeek valueOf(int id) {
+    public static DayOfWeek valueOf(final int id) {
         if (id == MONDAY.id)
             return MONDAY;
         if (id == TUESDAY.id)
@@ -88,17 +89,17 @@ public enum DayOfWeek {
         return UNSPECIFIED;
     }
 
-    public static DayOfWeek forDate(Date date) {
-        GregorianCalendar gc = date.calculateGC();
-        int calendarDow = gc.get(Calendar.DAY_OF_WEEK);
+    public static DayOfWeek forDate(final Date date) {
+        final GregorianCalendar gc = date.calculateGC();
+        final int calendarDow = gc.get(Calendar.DAY_OF_WEEK);
         return forCalendarDow(calendarDow);
     }
 
-    public boolean matches(Date date) {
+    public boolean matches(final Date date) {
         if (this == DayOfWeek.UNSPECIFIED)
             return true;
 
-        DayOfWeek thatDow = date.getDayOfWeek();
+        final DayOfWeek thatDow = date.getDayOfWeek();
 
         // Tolerate the day of week of the given date being unspecified.
         if (thatDow.isSpecific())

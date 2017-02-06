@@ -23,11 +23,12 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.type.notificationParameters.AccessEvent;
 import com.serotonin.bacnet4j.type.notificationParameters.BufferReady;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfBitString;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfCharacterString;
@@ -60,8 +61,7 @@ public class EventType extends Enumerated {
     public static final EventType extended = new EventType(Extended.TYPE_ID);
     public static final EventType bufferReady = new EventType(BufferReady.TYPE_ID);
     public static final EventType unsignedRange = new EventType(UnsignedRange.TYPE_ID);
-    public static final EventType accessEvent = new EventType(
-            com.serotonin.bacnet4j.type.notificationParameters.AccessEvent.TYPE_ID);
+    public static final EventType accessEvent = new EventType(AccessEvent.TYPE_ID);
     public static final EventType doubleOutOfRange = new EventType(DoubleOutOfRange.TYPE_ID);
     public static final EventType signedOutOfRange = new EventType(SignedOutOfRange.TYPE_ID);
     public static final EventType unsignedOutOfRange = new EventType(UnsignedOutOfRange.TYPE_ID);
@@ -75,11 +75,11 @@ public class EventType extends Enumerated {
             doubleOutOfRange, signedOutOfRange, unsignedOutOfRange, changeOfCharacterstring, changeOfStatusFlags,
             changeOfReliability, none, };
 
-    public EventType(int value) {
+    public EventType(final int value) {
         super(value);
     }
 
-    public EventType(ByteQueue queue) {
+    public EventType(final ByteQueue queue) {
         super(queue);
     }
 }

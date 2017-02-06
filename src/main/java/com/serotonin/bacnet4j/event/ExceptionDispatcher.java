@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.event;
@@ -35,18 +35,18 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ExceptionDispatcher {
-    private final List<ExceptionListener> listeners = new CopyOnWriteArrayList<ExceptionListener>();
+    private final List<ExceptionListener> listeners = new CopyOnWriteArrayList<>();
     private final ExceptionListener defaultExceptionListener = new DefaultExceptionListener();
 
     public ExceptionDispatcher() {
         listeners.add(defaultExceptionListener);
     }
 
-    public void addListener(ExceptionListener l) {
+    public void addListener(final ExceptionListener l) {
         listeners.add(l);
     }
 
-    public void removeListener(ExceptionListener l) {
+    public void removeListener(final ExceptionListener l) {
         listeners.remove(l);
     }
 
@@ -54,18 +54,19 @@ public class ExceptionDispatcher {
         listeners.remove(defaultExceptionListener);
     }
 
-    public void fireUnimplementedVendorService(UnsignedInteger vendorId, UnsignedInteger serviceNumber, ByteQueue queue) {
-        for (ExceptionListener l : listeners)
+    public void fireUnimplementedVendorService(final UnsignedInteger vendorId, final UnsignedInteger serviceNumber,
+            final ByteQueue queue) {
+        for (final ExceptionListener l : listeners)
             l.unimplementedVendorService(vendorId, serviceNumber, queue);
     }
 
-    public void fireReceivedException(Exception e) {
-        for (ExceptionListener l : listeners)
+    public void fireReceivedException(final Exception e) {
+        for (final ExceptionListener l : listeners)
             l.receivedException(e);
     }
 
-    public void fireReceivedThrowable(Throwable t) {
-        for (ExceptionListener l : listeners)
+    public void fireReceivedThrowable(final Throwable t) {
+        for (final ExceptionListener l : listeners)
             l.receivedThrowable(t);
     }
 }

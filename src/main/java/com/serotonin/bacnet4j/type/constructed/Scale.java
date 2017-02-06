@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -44,25 +44,25 @@ public class Scale extends BaseType {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(Real.class);
         classes.add(SignedInteger.class);
     }
 
-    public Scale(Real scale) {
+    public Scale(final Real scale) {
         this.scale = new Choice(0, scale);
     }
 
-    public Scale(SignedInteger scale) {
+    public Scale(final SignedInteger scale) {
         this.scale = new Choice(1, scale);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, scale);
     }
 
-    public Scale(ByteQueue queue) throws BACnetException {
+    public Scale(final ByteQueue queue) throws BACnetException {
         scale = new Choice(queue, classes);
     }
 
@@ -82,12 +82,12 @@ public class Scale extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((scale == null) ? 0 : scale.hashCode());
+        result = PRIME * result + (scale == null ? 0 : scale.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -98,8 +98,7 @@ public class Scale extends BaseType {
         if (scale == null) {
             if (other.scale != null)
                 return false;
-        }
-        else if (!scale.equals(other.scale))
+        } else if (!scale.equals(other.scale))
             return false;
         return true;
     }

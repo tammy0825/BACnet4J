@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -42,7 +42,8 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 abstract public class ConfirmedRequestService extends Service {
     private static final long serialVersionUID = -7443765811741238314L;
 
-    public static void checkConfirmedRequestService(ServicesSupported services, byte type) throws BACnetErrorException {
+    public static void checkConfirmedRequestService(final ServicesSupported services, final byte type)
+            throws BACnetErrorException {
         if (type == AcknowledgeAlarmRequest.TYPE_ID && services.isAcknowledgeAlarm()) // 0
             return;
         if (type == ConfirmedCovNotificationRequest.TYPE_ID && services.isConfirmedCovNotification()) // 1
@@ -101,7 +102,7 @@ abstract public class ConfirmedRequestService extends Service {
         throw new BACnetErrorException(ErrorClass.device, ErrorCode.operationalProblem);
     }
 
-    public static ConfirmedRequestService createConfirmedRequestService(byte type, ByteQueue queue)
+    public static ConfirmedRequestService createConfirmedRequestService(final byte type, final ByteQueue queue)
             throws BACnetException {
 
         if (type == AcknowledgeAlarmRequest.TYPE_ID) // 0

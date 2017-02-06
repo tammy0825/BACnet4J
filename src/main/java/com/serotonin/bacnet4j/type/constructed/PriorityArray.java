@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -45,12 +45,12 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
         ensureLength();
     }
 
-    public PriorityArray(List<PriorityValue> priorityValues) {
+    public PriorityArray(final List<PriorityValue> priorityValues) {
         super(priorityValues);
         ensureLength();
     }
 
-    public PriorityArray(ByteQueue queue, int contextId) throws BACnetException {
+    public PriorityArray(final ByteQueue queue, final int contextId) throws BACnetException {
         super(queue, PriorityValue.class, contextId);
         ensureLength();
     }
@@ -62,13 +62,13 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
             super.remove(getCount());
     }
 
-    public PriorityArray put(int indexBase1, Encodable value) {
+    public PriorityArray put(final int indexBase1, final Encodable value) {
         set(indexBase1, new PriorityValue(value));
         return this;
     }
 
     @Override
-    public void set(int indexBase1, PriorityValue value) {
+    public void set(final int indexBase1, PriorityValue value) {
         if (indexBase1 < 1 || indexBase1 > LENGTH)
             throw new RuntimeException("Invalid priority value");
         if (value == null)
@@ -77,33 +77,33 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
     }
 
     @Override
-    public void add(PriorityValue value) {
+    public void add(final PriorityValue value) {
         throw new RuntimeException("Use set method instead");
     }
 
     @Override
-    public void remove(int indexBase1) {
+    public Encodable remove(final int indexBase1) {
         throw new RuntimeException("Use set method instead");
     }
 
     @Override
-    public void remove(PriorityValue value) {
+    public void remove(final PriorityValue value) {
         throw new RuntimeException("Use set method instead");
     }
 
     @Override
-    public void removeAll(PriorityValue value) {
+    public void removeAll(final PriorityValue value) {
         throw new RuntimeException("Use set method instead");
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("PriorityArray[");
 
         boolean first = true;
         for (int i = 1; i < LENGTH + 1; i++) {
-            Encodable e = get(i).getValue();
+            final Encodable e = get(i).getValue();
             if (!(e instanceof Null)) {
                 if (first)
                     first = false;

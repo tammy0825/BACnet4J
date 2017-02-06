@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -38,12 +38,12 @@ public class Null extends Primitive {
         // no op
     }
 
-    public Null(ByteQueue queue) {
+    public Null(final ByteQueue queue) {
         readTag(queue);
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         // no op
     }
 
@@ -58,7 +58,12 @@ public class Null extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public int hashCode() {
+        return 0;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

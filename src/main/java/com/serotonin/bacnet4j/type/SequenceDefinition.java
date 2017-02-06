@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type;
@@ -37,13 +37,13 @@ public class SequenceDefinition implements Serializable {
 
     private final List<ElementSpecification> elements;
 
-    public SequenceDefinition(ElementSpecification... specs) {
-        elements = new ArrayList<ElementSpecification>();
-        for (ElementSpecification spec : specs)
+    public SequenceDefinition(final ElementSpecification... specs) {
+        elements = new ArrayList<>();
+        for (final ElementSpecification spec : specs)
             elements.add(spec);
     }
 
-    public SequenceDefinition(List<ElementSpecification> elements) {
+    public SequenceDefinition(final List<ElementSpecification> elements) {
         this.elements = elements;
     }
 
@@ -58,7 +58,8 @@ public class SequenceDefinition implements Serializable {
         private final boolean sequenceOf;
         private final boolean optional;
 
-        public ElementSpecification(String id, Class<? extends Encodable> clazz, boolean sequenceOf, boolean optional) {
+        public ElementSpecification(final String id, final Class<? extends Encodable> clazz, final boolean sequenceOf,
+                final boolean optional) {
             this.id = id;
             this.clazz = clazz;
             this.contextId = -1;
@@ -66,8 +67,8 @@ public class SequenceDefinition implements Serializable {
             this.optional = optional;
         }
 
-        public ElementSpecification(String id, Class<? extends Encodable> clazz, int contextId, boolean sequenceOf,
-                boolean optional) {
+        public ElementSpecification(final String id, final Class<? extends Encodable> clazz, final int contextId,
+                final boolean sequenceOf, final boolean optional) {
             this.id = id;
             this.clazz = clazz;
             this.contextId = contextId;

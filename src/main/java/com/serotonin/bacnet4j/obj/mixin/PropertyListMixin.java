@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin;
@@ -46,24 +46,24 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 
 public class PropertyListMixin extends AbstractMixin {
-    public PropertyListMixin(BACnetObject bo) {
+    public PropertyListMixin(final BACnetObject bo) {
         super(bo);
     }
 
     @Override
-    public boolean writeProperty(PropertyValue value) throws BACnetServiceException {
+    public boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
         if (propertyList.equals(value.getPropertyIdentifier()))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         return false;
     }
 
     public void update() {
-        List<PropertyIdentifier> pids = new ArrayList<PropertyIdentifier>();
-        for (PropertyIdentifier p : properties().keySet()) {
+        final List<PropertyIdentifier> pids = new ArrayList<>();
+        for (final PropertyIdentifier p : properties().keySet()) {
             if (!p.isOneOf(objectName, objectType, objectIdentifier, propertyList))
                 pids.add(p);
         }
 
-        writePropertyImpl(propertyList, new SequenceOf<PropertyIdentifier>(pids));
+        writePropertyImpl(propertyList, new SequenceOf<>(pids));
     }
 }

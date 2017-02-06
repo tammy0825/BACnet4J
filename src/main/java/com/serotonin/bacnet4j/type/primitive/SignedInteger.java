@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -32,6 +32,9 @@ import java.math.BigInteger;
 
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
+/**
+ * Represents the INTERGER type
+ */
 public class SignedInteger extends Primitive {
     private static final long serialVersionUID = 3344404709705407437L;
 
@@ -40,15 +43,15 @@ public class SignedInteger extends Primitive {
     private int smallValue;
     private BigInteger bigValue;
 
-    public SignedInteger(int value) {
+    public SignedInteger(final int value) {
         smallValue = value;
     }
 
-    public SignedInteger(long value) {
+    public SignedInteger(final long value) {
         bigValue = BigInteger.valueOf(value);
     }
 
-    public SignedInteger(BigInteger value) {
+    public SignedInteger(final BigInteger value) {
         bigValue = value;
     }
 
@@ -73,13 +76,13 @@ public class SignedInteger extends Primitive {
     //
     // Reading and writing
     //
-    public SignedInteger(ByteQueue queue) {
+    public SignedInteger(final ByteQueue queue) {
         // Read the data length value.
-        int length = (int) readTag(queue);
+        final int length = (int) readTag(queue);
 
-        byte[] bytes = new byte[length];
+        final byte[] bytes = new byte[length];
         queue.pop(bytes);
-        BigInteger bi = new BigInteger(bytes);
+        final BigInteger bi = new BigInteger(bytes);
 
         if (length < 5)
             smallValue = bi.intValue();
@@ -88,13 +91,12 @@ public class SignedInteger extends Primitive {
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         if (bigValue == null) {
             long length = getLength();
             while (length > 0)
-                queue.push(smallValue >> (--length * 8));
-        }
-        else
+                queue.push(smallValue >> --length * 8);
+        } else
             queue.push(bigValue.toByteArray());
     }
 
@@ -124,13 +126,13 @@ public class SignedInteger extends Primitive {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((bigValue == null) ? 0 : bigValue.hashCode());
+        result = PRIME * result + (bigValue == null ? 0 : bigValue.hashCode());
         result = PRIME * result + smallValue;
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

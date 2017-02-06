@@ -1,10 +1,11 @@
 /*
- * =============================================import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.enumerated.LightingOperation;
-import com.serotonin.bacnet4j.type.primitive.Real;
-import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
-import com.serotonin.bacnet4j.util.sero.ByteQueue;
- modify
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -22,7 +23,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -43,8 +44,8 @@ public class LightingCommand extends BaseType {
     private final UnsignedInteger fadeTime;
     private final UnsignedInteger priority;
 
-    public LightingCommand(LightingOperation operation, Real targetLevel, Real rampRate, Real stepIncrement,
-            UnsignedInteger fadeTime, UnsignedInteger priority) {
+    public LightingCommand(final LightingOperation operation, final Real targetLevel, final Real rampRate,
+            final Real stepIncrement, final UnsignedInteger fadeTime, final UnsignedInteger priority) {
         this.operation = operation;
         this.targetLevel = targetLevel;
         this.rampRate = rampRate;
@@ -54,7 +55,7 @@ public class LightingCommand extends BaseType {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, operation, 0);
         write(queue, targetLevel, 1);
         write(queue, rampRate, 2);
@@ -63,7 +64,7 @@ public class LightingCommand extends BaseType {
         writeOptional(queue, priority, 5);
     }
 
-    public LightingCommand(ByteQueue queue) throws BACnetException {
+    public LightingCommand(final ByteQueue queue) throws BACnetException {
         operation = read(queue, LightingOperation.class, 0);
         targetLevel = read(queue, Real.class, 1);
         rampRate = read(queue, Real.class, 2);
@@ -106,59 +107,53 @@ public class LightingCommand extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((fadeTime == null) ? 0 : fadeTime.hashCode());
-        result = prime * result + ((operation == null) ? 0 : operation.hashCode());
-        result = prime * result + ((priority == null) ? 0 : priority.hashCode());
-        result = prime * result + ((rampRate == null) ? 0 : rampRate.hashCode());
-        result = prime * result + ((stepIncrement == null) ? 0 : stepIncrement.hashCode());
-        result = prime * result + ((targetLevel == null) ? 0 : targetLevel.hashCode());
+        result = prime * result + (fadeTime == null ? 0 : fadeTime.hashCode());
+        result = prime * result + (operation == null ? 0 : operation.hashCode());
+        result = prime * result + (priority == null ? 0 : priority.hashCode());
+        result = prime * result + (rampRate == null ? 0 : rampRate.hashCode());
+        result = prime * result + (stepIncrement == null ? 0 : stepIncrement.hashCode());
+        result = prime * result + (targetLevel == null ? 0 : targetLevel.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        LightingCommand other = (LightingCommand) obj;
+        final LightingCommand other = (LightingCommand) obj;
         if (fadeTime == null) {
             if (other.fadeTime != null)
                 return false;
-        }
-        else if (!fadeTime.equals(other.fadeTime))
+        } else if (!fadeTime.equals(other.fadeTime))
             return false;
         if (operation == null) {
             if (other.operation != null)
                 return false;
-        }
-        else if (!operation.equals(other.operation))
+        } else if (!operation.equals(other.operation))
             return false;
         if (priority == null) {
             if (other.priority != null)
                 return false;
-        }
-        else if (!priority.equals(other.priority))
+        } else if (!priority.equals(other.priority))
             return false;
         if (rampRate == null) {
             if (other.rampRate != null)
                 return false;
-        }
-        else if (!rampRate.equals(other.rampRate))
+        } else if (!rampRate.equals(other.rampRate))
             return false;
         if (stepIncrement == null) {
             if (other.stepIncrement != null)
                 return false;
-        }
-        else if (!stepIncrement.equals(other.stepIncrement))
+        } else if (!stepIncrement.equals(other.stepIncrement))
             return false;
         if (targetLevel == null) {
             if (other.targetLevel != null)
                 return false;
-        }
-        else if (!targetLevel.equals(other.targetLevel))
+        } else if (!targetLevel.equals(other.targetLevel))
             return false;
         return true;
     }

@@ -71,9 +71,7 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
             return (T) ack;
         }
 
-        LOG.info("Waiting {} before timeout", timeout);
         ThreadUtils.wait(this, timeout);
-        LOG.info("Done waiting");
 
         if (ex == null && !success && fail == null)
             ex = new BACnetException("Timeout waiting for response.");

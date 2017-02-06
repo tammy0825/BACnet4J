@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -44,7 +44,7 @@ public class EventLogRecord extends BaseType {
     private static final long serialVersionUID = 7506599418976133752L;
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(LogStatus.class);
         classes.add(ConfirmedEventNotificationRequest.class);
         classes.add(Real.class);
@@ -53,23 +53,23 @@ public class EventLogRecord extends BaseType {
     private final DateTime timestamp;
     private final Choice choice;
 
-    public EventLogRecord(DateTime timestamp, LogStatus datum) {
+    public EventLogRecord(final DateTime timestamp, final LogStatus datum) {
         this.timestamp = timestamp;
         choice = new Choice(0, datum);
     }
 
-    public EventLogRecord(DateTime timestamp, ConfirmedEventNotificationRequest datum) {
+    public EventLogRecord(final DateTime timestamp, final ConfirmedEventNotificationRequest datum) {
         this.timestamp = timestamp;
         choice = new Choice(1, datum);
     }
 
-    public EventLogRecord(DateTime timestamp, Real datum) {
+    public EventLogRecord(final DateTime timestamp, final Real datum) {
         this.timestamp = timestamp;
         choice = new Choice(2, datum);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timestamp, 0);
         write(queue, choice, 1);
     }
@@ -94,7 +94,7 @@ public class EventLogRecord extends BaseType {
         return choice.getContextId();
     }
 
-    public EventLogRecord(ByteQueue queue) throws BACnetException {
+    public EventLogRecord(final ByteQueue queue) throws BACnetException {
         timestamp = read(queue, DateTime.class, 0);
         choice = new Choice(queue, classes, 1);
     }
@@ -103,13 +103,13 @@ public class EventLogRecord extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((choice == null) ? 0 : choice.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
+        result = prime * result + (timestamp == null ? 0 : timestamp.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -120,14 +120,12 @@ public class EventLogRecord extends BaseType {
         if (choice == null) {
             if (other.choice != null)
                 return false;
-        }
-        else if (!choice.equals(other.choice))
+        } else if (!choice.equals(other.choice))
             return false;
         if (timestamp == null) {
             if (other.timestamp != null)
                 return false;
-        }
-        else if (!timestamp.equals(other.timestamp))
+        } else if (!timestamp.equals(other.timestamp))
             return false;
         return true;
     }
