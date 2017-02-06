@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.test;
@@ -45,28 +45,45 @@ import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
+/**
+ * A network that is useful for unit tests as it simulates a BACnet network within
+ * a single process. The static <code>instances</code> field keeps track of all of
+ * the currently available networks,
+ */
 public class TestNetwork extends Network implements Runnable {
     public static final OctetString BROADCAST = new OctetString(new byte[0]);
 
-    private static Map<Address, TestNetwork> instances = new ConcurrentHashMap<Address, TestNetwork>();
+    private static Map<Address, TestNetwork> instances = new ConcurrentHashMap<>();
 
     private final Address address;
     private final int sendDelay;
+    private int timeout = 6000;
+    private int segTimeout = 1000;
 
     private volatile boolean running = true;
     private Thread thread;
 
-    private final Queue<SendData> queue = new ConcurrentLinkedQueue<SendData>();
+    private final Queue<SendData> queue = new ConcurrentLinkedQueue<>();
     private long bytesOut;
     private long bytesIn;
 
-    public TestNetwork(int address, int sendDelay) {
+    public TestNetwork(final int address, final int sendDelay) {
         this(new Address(new byte[] { (byte) address }), sendDelay);
     }
 
-    public TestNetwork(Address address, int sendDelay) {
+    public TestNetwork(final Address address, final int sendDelay) {
         this.address = address;
         this.sendDelay = sendDelay;
+    }
+
+    public TestNetwork withTimeout(final int timeout) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    public TestNetwork withSegTimeout(final int segTimeout) {
+        this.segTimeout = segTimeout;
+        return this;
     }
 
     @Override
@@ -90,13 +107,12 @@ public class TestNetwork extends Network implements Runnable {
     }
 
     @Override
-    public void initialize(Transport transport) throws Exception {
+    public void initialize(final Transport transport) throws Exception {
         super.initialize(transport);
 
-        // Set the timeout/retries settings in the transport to something debugger friendly.
-        transport.setTimeout(1000 * 60); // one minute
+        transport.setTimeout(timeout);
         transport.setRetries(0); // no retries, there's no network here after all
-        transport.setSegTimeout(1000 * 10); // 10 seconds.
+        transport.setSegTimeout(segTimeout);
 
         thread = new Thread(this, "BACnet4J test network");
         thread.start();
@@ -125,9 +141,9 @@ public class TestNetwork extends Network implements Runnable {
     }
 
     @Override
-    protected void sendNPDU(Address recipient, OctetString router, ByteQueue npdu, boolean broadcast,
-            boolean expectsReply) throws BACnetException {
-        SendData d = new SendData();
+    protected void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
+            final boolean broadcast, final boolean expectsReply) throws BACnetException {
+        final SendData d = new SendData();
         d.recipient = recipient;
         d.data = npdu.popAll();
 
@@ -138,7 +154,7 @@ public class TestNetwork extends Network implements Runnable {
     @Override
     public void run() {
         while (running) {
-            SendData d = queue.poll();
+            final SendData d = queue.poll();
 
             if (d == null)
                 ThreadUtils.waitSync(queue, 20);
@@ -147,11 +163,10 @@ public class TestNetwork extends Network implements Runnable {
                 ThreadUtils.sleep(sendDelay);
 
                 if (d.recipient.equals(getLocalBroadcastAddress()) || d.recipient.equals(Address.GLOBAL)) {
-                    for (TestNetwork network : instances.values())
+                    for (final TestNetwork network : instances.values())
                         receive(network, d.data);
-                }
-                else {
-                    TestNetwork network = instances.get(d.recipient);
+                } else {
+                    final TestNetwork network = instances.get(d.recipient);
                     if (network != null)
                         receive(network, d.data);
                 }
@@ -159,12 +174,12 @@ public class TestNetwork extends Network implements Runnable {
         }
     }
 
-    private void receive(TestNetwork network, byte[] data) {
+    private void receive(final TestNetwork network, final byte[] data) {
         network.handleIncomingData(new ByteQueue(data), address.getMacAddress());
     }
 
     @Override
-    protected NPDU handleIncomingDataImpl(ByteQueue queue, OctetString linkService)
+    protected NPDU handleIncomingDataImpl(final ByteQueue queue, final OctetString linkService)
             throws MessageValidationException {
         return parseNpduData(queue, linkService);
     }
