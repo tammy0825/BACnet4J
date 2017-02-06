@@ -58,22 +58,22 @@ public class MultistateValueObject extends BACnetObject {
         if (numberOfStates < 1)
             throw new BACnetRuntimeException("numberOfStates cannot be less than 1");
 
-        writePropertyImpl(PropertyIdentifier.eventState, EventState.normal);
+        writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writeProperty(PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
-        writePropertyImpl(PropertyIdentifier.outOfService, new Boolean(true));
-        writePropertyImpl(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
+        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this));
         addMixin(new MultistateMixin(this));
 
-        writePropertyImpl(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
+        writePropertyInternal(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
         if (stateText != null)
             writeProperty(PropertyIdentifier.stateText, stateText);
         writeProperty(PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
         if (!outOfService)
-            writePropertyImpl(PropertyIdentifier.outOfService, new Boolean(outOfService));
+            writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
     }
 
     public void supportIntrinsicReporting(int timeDelay, int notificationClass,
@@ -81,14 +81,14 @@ public class MultistateValueObject extends BACnetObject {
             EventTransitionBits eventEnable, NotifyType notifyType, int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
-        writePropertyImpl(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
-        writePropertyImpl(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
-        writePropertyImpl(PropertyIdentifier.alarmValues, alarmValues);
+        writePropertyInternal(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
+        writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
+        writePropertyInternal(PropertyIdentifier.alarmValues, alarmValues);
         if (faultValues != null)
-            writePropertyImpl(PropertyIdentifier.faultValues, faultValues);
-        writePropertyImpl(PropertyIdentifier.eventEnable, eventEnable);
-        writePropertyImpl(PropertyIdentifier.notifyType, notifyType);
-        writePropertyImpl(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
+            writePropertyInternal(PropertyIdentifier.faultValues, faultValues);
+        writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
+        writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
+        writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
 
         // Now add the mixin.
         ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
