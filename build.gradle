@@ -1,9 +1,10 @@
 apply plugin: 'java'
+apply plugin: "jacoco"
 
-sourceCompatibility = JavaVersion.VERSION_1_6
-targetCompatibility = JavaVersion.VERSION_1_6
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
-version = '3.2.4'
+version = '4.0.0'
 
 jar {
     manifest {
@@ -17,12 +18,14 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
-    compile group: 'org.scream3r', name: 'jssc', version: '2.8.0'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    compile ':sero-scheduler:1.+'
+    compile 'org.apache.commons:commons-lang3:+'
+    compile 'org.scream3r:jssc:2.8.0'
+    compile 'org.slf4j:slf4j-api:+'
     
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.12'
+    testCompile 'junit:junit:4.+'
+    testCompile 'org.mockito:mockito-core:+'
+    testCompile 'org.slf4j:slf4j-simple:+'
 }
 
 uploadArchives {
@@ -33,7 +36,10 @@ uploadArchives {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(group: 'build', type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
+}
+
+task jacoco(group: 'verification', dependsOn: jacocoTestReport) {
 }
