@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -36,9 +36,11 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
+import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.DiscoveryUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class IAmRequest extends UnconfirmedRequestService {
@@ -52,8 +54,8 @@ public class IAmRequest extends UnconfirmedRequestService {
     private final Segmentation segmentationSupported;
     private final UnsignedInteger vendorId;
 
-    public IAmRequest(ObjectIdentifier iamDeviceIdentifier, UnsignedInteger maxAPDULengthAccepted,
-            Segmentation segmentationSupported, UnsignedInteger vendorId) {
+    public IAmRequest(final ObjectIdentifier iamDeviceIdentifier, final UnsignedInteger maxAPDULengthAccepted,
+            final Segmentation segmentationSupported, final UnsignedInteger vendorId) {
         this.iAmDeviceIdentifier = iamDeviceIdentifier;
         this.maxAPDULengthAccepted = maxAPDULengthAccepted;
         this.segmentationSupported = segmentationSupported;
@@ -66,44 +68,60 @@ public class IAmRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) {
+    public void handle(final LocalDevice localDevice, final Address from) {
         if (!ObjectType.device.equals(iAmDeviceIdentifier.getObjectType())) {
-            LOG.warn("Received IAm from an object that is not a device.");
+            LOG.warn("Received IAm from an object that is not a device from {}", from);
             return;
         }
 
         // Make sure we're not hearing from ourselves.
-        int myDoi = localDevice.getConfiguration().getInstanceId();
-        int remoteDoi = iAmDeviceIdentifier.getInstanceNumber();
+        final int myDoi = localDevice.getConfiguration().getInstanceId();
+        final int remoteDoi = iAmDeviceIdentifier.getInstanceNumber();
         if (remoteDoi == myDoi) {
             // Get my bacnet address and compare the addresses
-            for (Address addr : localDevice.getAllLocalAddresses()) {
+            for (final Address addr : localDevice.getAllLocalAddresses()) {
                 if (addr.getMacAddress().equals(from.getMacAddress()))
                     // This is a local address, so ignore.
                     return;
             }
-            LOG.warn("Another instance with my device instance ID found!");
+            LOG.warn("Another instance with my device instance ID found at {}", from);
+
         }
 
-        // Register the device in the list of known devices.
-        RemoteDevice d = localDevice.getRemoteDeviceCreate(remoteDoi, from);
-        d.setMaxAPDULengthAccepted(maxAPDULengthAccepted.intValue());
-        d.setSegmentationSupported(segmentationSupported);
-        d.setVendorId(vendorId.intValue());
+        localDevice.updateRemoteDevice(remoteDoi, from);
 
-        // Fire the appropriate event.
-        localDevice.getEventHandler().fireIAmReceived(d);
+        final RemoteDevice d = localDevice.getCachedRemoteDevice(remoteDoi);
+        if (d == null) {
+            // Populate the object with discovered values, but do so in a different thread.
+            localDevice.execute(() -> {
+                try {
+                    final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
+                    rd.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
+                    rd.setDeviceProperty(PropertyIdentifier.segmentationSupported, segmentationSupported);
+                    rd.setDeviceProperty(PropertyIdentifier.vendorIdentifier, vendorId);
+                    DiscoveryUtils.getExtendedDeviceInformation(localDevice, rd);
+                    localDevice.getEventHandler().fireIAmReceived(rd);
+                } catch (final BACnetException e) {
+                    LOG.warn("Error while discovering extended device information", e);
+                }
+            });
+        } else {
+            d.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
+            d.setDeviceProperty(PropertyIdentifier.segmentationSupported, segmentationSupported);
+            d.setDeviceProperty(PropertyIdentifier.vendorIdentifier, vendorId);
+            localDevice.getEventHandler().fireIAmReceived(d);
+        }
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, iAmDeviceIdentifier);
         write(queue, maxAPDULengthAccepted);
         write(queue, segmentationSupported);
         write(queue, vendorId);
     }
 
-    IAmRequest(ByteQueue queue) throws BACnetException {
+    IAmRequest(final ByteQueue queue) throws BACnetException {
         iAmDeviceIdentifier = read(queue, ObjectIdentifier.class);
         maxAPDULengthAccepted = read(queue, UnsignedInteger.class);
         segmentationSupported = read(queue, Segmentation.class);
@@ -114,15 +132,15 @@ public class IAmRequest extends UnconfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((iAmDeviceIdentifier == null) ? 0 : iAmDeviceIdentifier.hashCode());
-        result = PRIME * result + ((maxAPDULengthAccepted == null) ? 0 : maxAPDULengthAccepted.hashCode());
-        result = PRIME * result + ((segmentationSupported == null) ? 0 : segmentationSupported.hashCode());
-        result = PRIME * result + ((vendorId == null) ? 0 : vendorId.hashCode());
+        result = PRIME * result + (iAmDeviceIdentifier == null ? 0 : iAmDeviceIdentifier.hashCode());
+        result = PRIME * result + (maxAPDULengthAccepted == null ? 0 : maxAPDULengthAccepted.hashCode());
+        result = PRIME * result + (segmentationSupported == null ? 0 : segmentationSupported.hashCode());
+        result = PRIME * result + (vendorId == null ? 0 : vendorId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -133,26 +151,22 @@ public class IAmRequest extends UnconfirmedRequestService {
         if (iAmDeviceIdentifier == null) {
             if (other.iAmDeviceIdentifier != null)
                 return false;
-        }
-        else if (!iAmDeviceIdentifier.equals(other.iAmDeviceIdentifier))
+        } else if (!iAmDeviceIdentifier.equals(other.iAmDeviceIdentifier))
             return false;
         if (maxAPDULengthAccepted == null) {
             if (other.maxAPDULengthAccepted != null)
                 return false;
-        }
-        else if (!maxAPDULengthAccepted.equals(other.maxAPDULengthAccepted))
+        } else if (!maxAPDULengthAccepted.equals(other.maxAPDULengthAccepted))
             return false;
         if (segmentationSupported == null) {
             if (other.segmentationSupported != null)
                 return false;
-        }
-        else if (!segmentationSupported.equals(other.segmentationSupported))
+        } else if (!segmentationSupported.equals(other.segmentationSupported))
             return false;
         if (vendorId == null) {
             if (other.vendorId != null)
                 return false;
-        }
-        else if (!vendorId.equals(other.vendorId))
+        } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
     }
