@@ -23,196 +23,268 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import com.serotonin.bacnet4j.cache.RemoteEntityCache;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
+import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RemoteDevice implements Serializable {
     private static final long serialVersionUID = 6338537708566242078L;
-    private final int instanceNumber;
+
+    private final LocalDevice localDevice;
+    private final ObjectIdentifier deviceOid;
     private Address address;
-    private int maxAPDULengthAccepted;
-    private Segmentation segmentationSupported;
-    private int vendorId;
-    private String vendorName;
-    private String name;
-    private String modelName;
-    private UnsignedInteger protocolVersion;
-    private UnsignedInteger protocolRevision;
-    private ServicesSupported servicesSupported;
-    private final Map<ObjectIdentifier, RemoteObject> objects = new HashMap<ObjectIdentifier, RemoteObject>();
     private Object userData;
     private int maxReadMultipleReferences = -1;
+    private final RemoteEntityCache<ObjectIdentifier, RemoteObject> remoteObjectCache;
 
-    public RemoteDevice(int instanceNumber, Address address) {
-        this.instanceNumber = instanceNumber;
+    public RemoteDevice(final LocalDevice localDevice, final int instanceNumber) {
+        this.localDevice = localDevice;
+
+        // Create the remote cache.
+        remoteObjectCache = new RemoteEntityCache<>(localDevice);
+
+        // Create a device object to represent itself in the object cache
+        this.deviceOid = new ObjectIdentifier(ObjectType.device, instanceNumber);
+        remoteObjectCache.putEntity(deviceOid, new RemoteObject(localDevice, deviceOid),
+                localDevice.getCachePolicies().getObjectPolicy(instanceNumber, deviceOid));
+    }
+
+    public RemoteDevice(final LocalDevice localDevice, final int instanceNumber, final Address address) {
+        this(localDevice, instanceNumber);
         this.address = address;
     }
 
+    /**
+     * Add properties that are in in 'that' if they are not already in 'this'.
+     *
+     * @param that
+     */
+    //    public void merge(final RemoteDevice that) {
+    //        synchronized (objects) {
+    //            for (final Map.Entry<ObjectIdentifier, RemoteObject> e : that.objects.entrySet()) {
+    //                if (e.getValue() != null) {
+    //                    final RemoteObject o = objects.get(e.getKey());
+    //                    if (o == null) {
+    //                        objects.put(e.getKey(), e.getValue());
+    //                    } else {
+    //                        o.merge(e.getValue());
+    //                    }
+    //                }
+    //            }
+    //        }
+    //
+    //        if (userData != null)
+    //            userData = that.userData;
+    //        if (maxReadMultipleReferences != -1)
+    //            maxReadMultipleReferences = that.maxReadMultipleReferences;
+    //    }
+
+    public int getInstanceNumber() {
+        return deviceOid.getInstanceNumber();
+    }
+
     public ObjectIdentifier getObjectIdentifier() {
-        return new ObjectIdentifier(ObjectType.device, instanceNumber);
+        return deviceOid;
     }
 
-    @Override
-    public String toString() {
-        return "RemoteDevice(instanceNumber=" + instanceNumber + ", address=" + address + ")";
+    public void setObject(final RemoteObject remoteObject) {
+        remoteObjectCache.putEntity(remoteObject.getObjectIdentifier(), remoteObject, //
+                localDevice.getCachePolicies().getObjectPolicy( //
+                        deviceOid.getInstanceNumber(), //
+                        remoteObject.getObjectIdentifier()));
     }
 
-    public String toExtendedString() {
-        return "RemoteDevice(instanceNumber=" + instanceNumber + ", address=" + address + ", maxAPDULengthAccepted="
-                + maxAPDULengthAccepted + ", segmentationSupported=" + segmentationSupported + ", vendorId=" + vendorId
-                + ", vendorName=" + vendorName + ", name=" + name + ", servicesSupported=" + servicesSupported
-                + ", objects=" + objects + ")";
+    public RemoteObject getObject(final ObjectIdentifier oid) {
+        return remoteObjectCache.getCachedEntity(oid);
     }
 
-    public void setObject(RemoteObject o) {
-        objects.put(o.getObjectIdentifier(), o);
+    //
+    // Get properties
+    //
+    public <T extends Encodable> T getDeviceProperty(final PropertyIdentifier pid) {
+        return getObjectProperty(deviceOid, pid, null);
     }
 
-    public RemoteObject getObject(ObjectIdentifier oid) {
-        return objects.get(oid);
+    public <T extends Encodable> T getDeviceProperty(final PropertyIdentifier pid, final UnsignedInteger pin) {
+        return getObjectProperty(deviceOid, pid, pin);
     }
 
-    public List<RemoteObject> getObjects() {
-        return new ArrayList<RemoteObject>(objects.values());
+    public <T extends Encodable> T getObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid) {
+        return getObjectProperty(oid, pid, null);
     }
 
-    public void clearObjects() {
-        objects.clear();
+    public <T extends Encodable> T getObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid,
+            final UnsignedInteger pin) {
+        final RemoteObject ro = getObject(oid);
+        if (ro == null)
+            return null;
+        return ro.getProperty(pid, pin);
+    }
+
+    //
+    // Set properties
+    //
+
+    public void setDeviceProperty(final PropertyIdentifier pid, final Encodable value) {
+        setObjectProperty(deviceOid, pid, null, value);
+    }
+
+    public void setDeviceProperty(final PropertyIdentifier pid, final UnsignedInteger pin, final Encodable value) {
+        setObjectProperty(deviceOid, pid, pin, value);
+    }
+
+    public void setObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid, final Encodable value) {
+        setObjectProperty(oid, pid, null, value);
+    }
+
+    public void setObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid, final UnsignedInteger pin,
+            final Encodable value) {
+        if (value instanceof BACnetError) {
+            final BACnetError e = (BACnetError) value;
+            if (ErrorClass.object.equals(e.getErrorClass())) {
+                // Don't create objects if the error is about the object. In fact, delete the cached object.
+                remoteObjectCache.removeEntity(oid);
+                return;
+            }
+        }
+
+        synchronized (remoteObjectCache) {
+            RemoteObject ro = remoteObjectCache.getCachedEntity(oid);
+            if (ro == null) {
+                ro = new RemoteObject(localDevice, oid);
+                remoteObjectCache.putEntity(oid, ro,
+                        localDevice.getCachePolicies().getObjectPolicy(deviceOid.getInstanceNumber(), oid));
+            }
+            ro.setProperty(pid, pin, value,
+                    localDevice.getCachePolicies().getPropertyPolicy(deviceOid.getInstanceNumber(), oid, pid));
+        }
+    }
+
+    //
+    // Remove properties
+    //
+
+    public <T extends Encodable> T removeDeviceProperty(final PropertyIdentifier pid) {
+        return removeObjectProperty(deviceOid, pid, null);
+    }
+
+    public <T extends Encodable> T removeDeviceProperty(final PropertyIdentifier pid, final UnsignedInteger pin) {
+        return removeObjectProperty(deviceOid, pid, pin);
+    }
+
+    public <T extends Encodable> T removeObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid) {
+        return removeObjectProperty(oid, pid, null);
+    }
+
+    public <T extends Encodable> T removeObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid,
+            final UnsignedInteger pin) {
+        final RemoteObject ro = remoteObjectCache.getCachedEntity(oid);
+        if (ro == null)
+            return null;
+        return ro.removeProperty(pid, pin);
     }
 
     public Address getAddress() {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(final Address address) {
         this.address = address;
     }
 
     public int getMaxAPDULengthAccepted() {
-        return maxAPDULengthAccepted;
-    }
-
-    public void setMaxAPDULengthAccepted(int maxAPDULengthAccepted) {
-        this.maxAPDULengthAccepted = maxAPDULengthAccepted;
+        return ((UnsignedInteger) getDeviceProperty(PropertyIdentifier.maxApduLengthAccepted)).intValue();
     }
 
     public Segmentation getSegmentationSupported() {
-        return segmentationSupported;
+        return (Segmentation) getDeviceProperty(PropertyIdentifier.segmentationSupported);
     }
 
-    public void setSegmentationSupported(Segmentation segmentationSupported) {
-        this.segmentationSupported = segmentationSupported;
-    }
-
-    public int getVendorId() {
-        return vendorId;
-    }
-
-    public void setVendorId(int vendorId) {
-        this.vendorId = vendorId;
+    public int getVendorIdentifier() {
+        return ((UnsignedInteger) getDeviceProperty(PropertyIdentifier.vendorIdentifier)).intValue();
     }
 
     public String getVendorName() {
-        return vendorName;
-    }
-
-    public void setVendorName(String vendorName) {
-        this.vendorName = vendorName;
-    }
-
-    public int getInstanceNumber() {
-        return instanceNumber;
+        return ((CharacterString) getDeviceProperty(PropertyIdentifier.vendorName)).getValue();
     }
 
     public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return ((CharacterString) getDeviceProperty(PropertyIdentifier.objectName)).getValue();
     }
 
     public String getModelName() {
-        return modelName;
-    }
-
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-
-    public UnsignedInteger getProtocolVersion() {
-        return protocolVersion;
-    }
-
-    public void setProtocolVersion(UnsignedInteger protocolVersion) {
-        this.protocolVersion = protocolVersion;
-    }
-
-    public UnsignedInteger getProtocolRevision() {
-        return protocolRevision;
-    }
-
-    public void setProtocolRevision(UnsignedInteger protocolRevision) {
-        this.protocolRevision = protocolRevision;
+        return ((CharacterString) getDeviceProperty(PropertyIdentifier.modelName)).getValue();
     }
 
     public ServicesSupported getServicesSupported() {
-        return servicesSupported;
+        return (ServicesSupported) getDeviceProperty(PropertyIdentifier.protocolServicesSupported);
     }
 
-    public void setServicesSupported(ServicesSupported servicesSupported) {
-        this.servicesSupported = servicesSupported;
+    @Override
+    public String toString() {
+        return "RemoteDevice(instanceNumber=" + getInstanceNumber() + ", address=" + address + ")";
+    }
+
+    public String toExtendedString() {
+        return "RemoteDevice(instanceNumber=" + getInstanceNumber() + ", address=" + address
+                + ", maxAPDULengthAccepted=" + getMaxAPDULengthAccepted() + ", segmentationSupported="
+                + getSegmentationSupported() + ", vendorId=" + getVendorIdentifier() + ", vendorName=" + getVendorName()
+                + ", name=" + getName() + ", servicesSupported=" + getServicesSupported() + ")";
     }
 
     public Object getUserData() {
         return userData;
     }
 
-    public void setUserData(Object userData) {
+    public void setUserData(final Object userData) {
         this.userData = userData;
     }
 
-    public void setMaxReadMultipleReferences(int maxReadMultipleReferences) {
+    public void setMaxReadMultipleReferences(final int maxReadMultipleReferences) {
         this.maxReadMultipleReferences = maxReadMultipleReferences;
     }
 
     public int getMaxReadMultipleReferences() {
         if (maxReadMultipleReferences == -1)
-            maxReadMultipleReferences = segmentationSupported.hasTransmitSegmentation() ? 200 : 20;
+            maxReadMultipleReferences = getSegmentationSupported().hasTransmitSegmentation() ? 200 : 20;
         return maxReadMultipleReferences;
     }
 
-    public void reduceMaxReadMultipleReferences() {
-        if (getMaxReadMultipleReferences() > 1)
-            maxReadMultipleReferences = (int) (getMaxReadMultipleReferences() * 0.75);
+    public void reduceMaxReadMultipleReferences(final int from) {
+        int current = getMaxReadMultipleReferences();
+        if (current > from)
+            current = from;
+        if (current > 1) {
+            maxReadMultipleReferences = (int) (current * 0.75);
+        }
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((address == null) ? 0 : address.hashCode());
-        result = prime * result + instanceNumber;
+        result = prime * result + (deviceOid == null ? 0 : deviceOid.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -220,13 +292,10 @@ public class RemoteDevice implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         final RemoteDevice other = (RemoteDevice) obj;
-        if (address == null) {
-            if (other.address != null)
+        if (deviceOid == null) {
+            if (other.deviceOid != null)
                 return false;
-        }
-        else if (!address.equals(other.address))
-            return false;
-        if (instanceNumber != other.instanceNumber)
+        } else if (!deviceOid.equals(other.deviceOid))
             return false;
         return true;
     }
