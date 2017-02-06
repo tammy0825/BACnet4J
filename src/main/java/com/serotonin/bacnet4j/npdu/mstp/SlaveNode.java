@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.mstp;
@@ -48,18 +48,19 @@ public class SlaveNode extends MstpNode {
     private long replyDeadline;
     private Frame replyFrame;
 
-    public SlaveNode(SerialPortWrapper wrapper, byte thisStation) throws IllegalArgumentException {
+    public SlaveNode(final SerialPortWrapper wrapper, final byte thisStation) throws IllegalArgumentException {
         super(wrapper, thisStation);
         validate();
     }
 
-    public SlaveNode(InputStream in, OutputStream out, byte thisStation) throws IllegalArgumentException {
+    public SlaveNode(final InputStream in, final OutputStream out, final byte thisStation)
+            throws IllegalArgumentException {
         super(in, out, thisStation);
         validate();
     }
 
     private void validate() {
-        int is = thisStation & 0xff;
+        final int is = thisStation & 0xff;
         if (is > 254)
             throw new IllegalArgumentException("thisStation cannot be greater than 254");
 
@@ -67,7 +68,7 @@ public class SlaveNode extends MstpNode {
     }
 
     @Override
-    public void setReplyFrame(FrameType type, byte destination, byte[] data) {
+    public void setReplyFrame(final FrameType type, final byte destination, final byte[] data) {
         synchronized (this) {
             if (state == SlaveNodeState.answerDataRequest)
                 // If there is still time to reply immediately...
@@ -97,22 +98,19 @@ public class SlaveNode extends MstpNode {
                 LOG.debug("Received invalid frame: " + receivedInvalidFrame);
             receivedInvalidFrame = null;
             activity = true;
-        }
-        else if (receivedValidFrame) {
-            FrameType type = frame.getFrameType();
+        } else if (receivedValidFrame) {
+            final FrameType type = frame.getFrameType();
 
             if (type == null) {
                 // ReceivedUnwantedFrame
                 if (LOG.isDebugEnabled())
                     LOG.debug("Unknown frame type");
-            }
-            else if (frame.broadcast()
+            } else if (frame.broadcast()
                     && type.oneOf(FrameType.token, FrameType.bacnetDataExpectingReply, FrameType.testRequest)) {
                 // ReceivedUnwantedFrame
                 if (LOG.isDebugEnabled())
                     LOG.debug("Frame type should not be broadcast: " + type);
-            }
-            else if (type.oneOf(FrameType.pollForMaster))
+            } else if (type.oneOf(FrameType.pollForMaster))
                 // ReceivedUnwantedFrame
                 ; // It happens
             else if (type.oneOf(FrameType.token, FrameType.pollForMaster, FrameType.replyToPollForMaster,
@@ -120,14 +118,12 @@ public class SlaveNode extends MstpNode {
                 // ReceivedUnwantedFrame
                 if (LOG.isDebugEnabled())
                     LOG.debug("Received unwanted frame type: " + type);
-            }
-            else if (frame.forStationOrBroadcast(thisStation)
+            } else if (frame.forStationOrBroadcast(thisStation)
                     && type.oneOf(FrameType.bacnetDataNotExpectingReply, FrameType.testResponse)) {
                 // ReceivedDataNoReply
                 //                debug("idle:ReceivedDataNoReply");
                 receivedDataNoReply(frame);
-            }
-            else if (frame.forStation(thisStation)
+            } else if (frame.forStation(thisStation)
                     && type.oneOf(FrameType.bacnetDataExpectingReply, FrameType.testRequest)) {
                 // ReceivedDataNeedingReply
                 //                debug("idle:ReceivedDataNeedingReply");
@@ -155,8 +151,7 @@ public class SlaveNode extends MstpNode {
                 replyFrame = null;
                 state = SlaveNodeState.idle;
                 activity = true;
-            }
-            else if (replyDeadline >= timeSource.currentTimeMillis()) {
+            } else if (replyDeadline >= clock.millis()) {
                 // CannotReply
                 //                debug("answerDataRequest:CannotReply");
                 if (LOG.isDebugEnabled())

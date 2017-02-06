@@ -23,10 +23,12 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.transport;
+
+import java.time.Clock;
 
 import com.serotonin.bacnet4j.ResponseConsumer;
 import com.serotonin.bacnet4j.apdu.APDU;
@@ -36,6 +38,8 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class UnackedMessageContext {
     private long deadline;
     private int attemptsLeft;
+
+    private final Clock clock;
 
     // The response consumer, for confirmed requests
     private final ResponseConsumer consumer;
@@ -53,18 +57,20 @@ public class UnackedMessageContext {
     private byte[] segBuf;
     private int lastIdSent;
 
-    public UnackedMessageContext(int timeout, int retries, ResponseConsumer consumer) {
+    public UnackedMessageContext(final Clock clock, final int timeout, final int retries,
+            final ResponseConsumer consumer) {
+        this.clock = clock;
         reset(timeout, retries);
         this.consumer = consumer;
     }
 
-    public void retry(int timeout) {
-        this.deadline = System.currentTimeMillis() + timeout;
+    public void retry(final int timeout) {
+        this.deadline = clock.millis() + timeout;
         attemptsLeft--;
     }
 
-    public void reset(int timeout, int retries) {
-        this.deadline = System.currentTimeMillis() + timeout;
+    public void reset(final int timeout, final int retries) {
+        this.deadline = clock.millis() + timeout;
         this.attemptsLeft = retries;
     }
 
@@ -84,7 +90,7 @@ public class UnackedMessageContext {
         return originalApdu;
     }
 
-    public void setOriginalApdu(APDU originalApdu) {
+    public void setOriginalApdu(final APDU originalApdu) {
         this.originalApdu = originalApdu;
     }
 
@@ -92,7 +98,7 @@ public class UnackedMessageContext {
         return segmentWindow;
     }
 
-    public void setSegmentWindow(SegmentWindow segmentWindow) {
+    public void setSegmentWindow(final SegmentWindow segmentWindow) {
         this.segmentWindow = segmentWindow;
     }
 
@@ -100,11 +106,11 @@ public class UnackedMessageContext {
         return segmentedMessage;
     }
 
-    public void setSegmentedMessage(Segmentable segmentedResponse) {
+    public void setSegmentedMessage(final Segmentable segmentedResponse) {
         this.segmentedMessage = segmentedResponse;
     }
 
-    public boolean isExpired(long now) {
+    public boolean isExpired(final long now) {
         return deadline < now;
     }
 
@@ -112,7 +118,7 @@ public class UnackedMessageContext {
         return segmentTemplate;
     }
 
-    public void setSegmentTemplate(Segmentable segmentTemplate) {
+    public void setSegmentTemplate(final Segmentable segmentTemplate) {
         this.segmentTemplate = segmentTemplate;
     }
 
@@ -120,16 +126,16 @@ public class UnackedMessageContext {
         return serviceData;
     }
 
-    public void setServiceData(ByteQueue serviceData) {
+    public void setServiceData(final ByteQueue serviceData) {
         this.serviceData = serviceData;
     }
 
-    public void setSegBuf(byte[] segBuf) {
+    public void setSegBuf(final byte[] segBuf) {
         this.segBuf = segBuf;
     }
 
     public ByteQueue getNextSegment() {
-        int count = serviceData.pop(segBuf);
+        final int count = serviceData.pop(segBuf);
         return new ByteQueue(segBuf, 0, count);
     }
 
@@ -137,7 +143,7 @@ public class UnackedMessageContext {
         return lastIdSent;
     }
 
-    public void setLastIdSent(int lastIdSent) {
+    public void setLastIdSent(final int lastIdSent) {
         this.lastIdSent = lastIdSent;
     }
 }

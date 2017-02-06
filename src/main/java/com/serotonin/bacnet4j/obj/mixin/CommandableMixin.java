@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin;
@@ -35,7 +35,8 @@ import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.presentV
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.priorityArray;
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.relinquishDefault;
 
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +63,9 @@ public class CommandableMixin extends AbstractMixin {
     private boolean commandable;
 
     // Runtime
-    private TimerTask minOnOffTimerTask;
+    private ScheduledFuture<?> minOnOffTimerTask;
 
-    public CommandableMixin(BACnetObject bo) {
+    public CommandableMixin(final BACnetObject bo) {
         super(bo);
     }
 
@@ -72,7 +73,7 @@ public class CommandableMixin extends AbstractMixin {
         return overridden;
     }
 
-    public void setOverridden(boolean overridden) {
+    public void setOverridden(final boolean overridden) {
         this.overridden = overridden;
     }
 
@@ -80,23 +81,21 @@ public class CommandableMixin extends AbstractMixin {
         return commandable;
     }
 
-    public void setCommandable(Encodable relqDefault) {
+    public void setCommandable(final Encodable relqDefault) {
         commandable = true;
 
         // If the object does not have a priority array and relinquish default, add them
-        if (!properties().containsKey(priorityArray))
-            properties().put(priorityArray, new PriorityArray());
-        if (!properties().containsKey(relinquishDefault))
-            properties().put(relinquishDefault, relqDefault);
+        addProperty(priorityArray, new PriorityArray(), false);
+        addProperty(relinquishDefault, relqDefault, false);
     }
 
     @Override
-    synchronized protected boolean validateProperty(PropertyValue value) throws BACnetServiceException {
+    synchronized protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
         if (presentValue.equals(value.getPropertyIdentifier())) {
             if (overridden)
                 return false;
 
-            Boolean oos = get(outOfService);
+            final Boolean oos = get(outOfService);
             if (oos.booleanValue())
                 return false;
 
@@ -108,7 +107,7 @@ public class CommandableMixin extends AbstractMixin {
     }
 
     @Override
-    synchronized protected boolean writeProperty(PropertyValue value) throws BACnetServiceException {
+    synchronized protected boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
         if (presentValue.equals(value.getPropertyIdentifier())) {
             if (overridden)
                 // Never allow a write if the object is overridden.
@@ -120,7 +119,7 @@ public class CommandableMixin extends AbstractMixin {
             }
 
             // Not commandable.
-            Boolean oos = get(outOfService);
+            final Boolean oos = get(outOfService);
             if (oos.booleanValue()) {
                 // Writable while the object is out of service.
                 writePropertyImpl(presentValue, value.getValue());
@@ -128,7 +127,7 @@ public class CommandableMixin extends AbstractMixin {
             }
 
             // Not writable while the object is in service and not commandable.
-            // ?? Is this correct, or should this be configurably allowable? 
+            // ?? Is this correct, or should this be configurably allowable?
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         }
 
@@ -136,13 +135,14 @@ public class CommandableMixin extends AbstractMixin {
     }
 
     @Override
-    synchronized protected void afterWriteProperty(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+    synchronized protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
         if (relinquishDefault.equals(pid))
             // The relinquish default was changed. Ensure that the present value gets updated if necessary.
             updatePresentValue(null);
     }
 
-    private void command(Encodable value, UnsignedInteger priority) throws BACnetServiceException {
+    private void command(final Encodable value, final UnsignedInteger priority) throws BACnetServiceException {
         int pri = 16;
         if (priority != null)
             pri = priority.intValue();
@@ -155,17 +155,17 @@ public class CommandableMixin extends AbstractMixin {
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Set the value in the priority array.
-        PriorityArray priArr = get(priorityArray);
+        final PriorityArray priArr = get(priorityArray);
         priArr.set(pri, new PriorityValue(value));
 
         // If a non-null value is written above level 6 while min time is in effect, it overwrites the current min time.
         if (pri < 6 && !(value instanceof Null)) {
             if (minOnOffTimerTask != null) {
                 // Cancel the task only if the present value changes.
-                Encodable pv = get(presentValue);
+                final Encodable pv = get(presentValue);
                 if (!value.equals(pv)) {
                     LOG.debug("Cancelling timer due to different value at higher priority");
-                    minOnOffTimerTask.cancel();
+                    minOnOffTimerTask.cancel(false);
                     minOnOffTimerTask = null;
                     priArr.set(6, new PriorityValue(new Null()));
                 }
@@ -180,46 +180,47 @@ public class CommandableMixin extends AbstractMixin {
             priorityArray = get(PropertyIdentifier.priorityArray);
 
         // Update the present value.
-        Encodable newValue = calculatePresentValue(priorityArray);
+        final Encodable newValue = calculatePresentValue(priorityArray);
 
         // Minimum on/off time
-        UnsignedInteger minOff = get(minimumOffTime);
-        UnsignedInteger minOn = get(minimumOnTime);
+        final UnsignedInteger minOff = get(minimumOffTime);
+        final UnsignedInteger minOn = get(minimumOnTime);
         if (minOff != null && minOn != null) {
             // If a timer task exists, there is no action to take.
             if (minOnOffTimerTask == null) {
-                Encodable oldValue = get(presentValue);
+                final Encodable oldValue = get(presentValue);
                 if (!newValue.equals(oldValue)) {
                     // Change of state.
                     priorityArray.set(6, new PriorityValue(newValue));
-                    minOnOffTimerTask = new MinOnOffTimerTask();
 
                     int time;
                     if (BinaryPV.inactive.equals(newValue)) {
                         time = minOff.intValue();
                         LOG.debug("Starting min off timer: {}s", time);
-                    }
-                    else {
+                    } else {
                         time = minOn.intValue();
                         LOG.debug("Starting min on timer: {}s", time);
                     }
-                    time *= 1000;
 
-                    getLocalDevice().getTimer().schedule(minOnOffTimerTask, time);
+                    minOnOffTimerTask = getLocalDevice().schedule(() -> {
+                        // Min time has elapsed.
+                        LOG.debug("Min off/on timer has expired");
+                        minOnOffCompleted();
+                    }, time, TimeUnit.SECONDS);
                 }
             }
 
             //  to the high priority while minimum time is in effect, that time shall be observed before any change of state
-            //        is made as a result of a value at a lower priority.        
+            //        is made as a result of a value at a lower priority.
         }
 
         writePropertyImpl(presentValue, newValue);
     }
 
-    private Encodable calculatePresentValue(PriorityArray priorityArray) {
+    private Encodable calculatePresentValue(final PriorityArray priorityArray) {
         // Update the present value.
         PriorityValue topValue = null;
-        for (PriorityValue priv : priorityArray) {
+        for (final PriorityValue priv : priorityArray) {
             if (!priv.isNull()) {
                 topValue = priv;
                 break;
@@ -237,17 +238,8 @@ public class CommandableMixin extends AbstractMixin {
 
     synchronized void minOnOffCompleted() {
         minOnOffTimerTask = null;
-        PriorityArray priArr = get(priorityArray);
+        final PriorityArray priArr = get(priorityArray);
         priArr.set(6, new PriorityValue(new Null()));
         updatePresentValue(priArr);
-    }
-
-    class MinOnOffTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            // Min time has elapsed.
-            LOG.debug("Min off/on timer has expired");
-            minOnOffCompleted();
-        }
     }
 }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.mstp;
@@ -31,13 +31,12 @@ package com.serotonin.bacnet4j.npdu.mstp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Clock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.util.ClockTimeSource;
-import com.serotonin.bacnet4j.util.TimeSource;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 import com.serotonin.bacnet4j.util.sero.StreamUtils;
@@ -72,6 +71,7 @@ abstract public class MstpNode implements Runnable {
 
     private SerialPortWrapper wrapper;
     //private SerialPortProxy serialPort;
+    protected Clock clock;
 
     private OutputStream out;
     private InputStream in;
@@ -81,7 +81,6 @@ abstract public class MstpNode implements Runnable {
     private final HeaderCRC sendHeaderCRC = new HeaderCRC();
     private final DataCRC sendDataCRC = new DataCRC();
 
-    protected TimeSource timeSource = new ClockTimeSource();
     Thread thread;
 
     private volatile boolean running;
@@ -92,12 +91,12 @@ abstract public class MstpNode implements Runnable {
     private long bytesOut;
     private long bytesIn;
 
-    public MstpNode(SerialPortWrapper wrapper, byte thisStation) {
+    public MstpNode(final SerialPortWrapper wrapper, final byte thisStation) {
         this.wrapper = wrapper;
         this.thisStation = thisStation;
     }
 
-    public MstpNode(InputStream in, OutputStream out, byte thisStation) {
+    public MstpNode(final InputStream in, final OutputStream out, final byte thisStation) {
         this.in = in;
         this.out = out;
         this.thisStation = thisStation;
@@ -109,7 +108,8 @@ abstract public class MstpNode implements Runnable {
         return wrapper.getCommPortId();
     }
 
-    public void initialize() throws Exception {
+    public void initialize(final Clock clock) throws Exception {
+        this.clock = clock;
         initialize(true);
     }
 
@@ -117,7 +117,7 @@ abstract public class MstpNode implements Runnable {
         return trace;
     }
 
-    public void setTrace(boolean trace) {
+    public void setTrace(final boolean trace) {
         this.trace = trace;
     }
 
@@ -129,7 +129,7 @@ abstract public class MstpNode implements Runnable {
         return bytesIn;
     }
 
-    public void initialize(boolean runInThread) throws Exception {
+    public void initialize(final boolean runInThread) throws Exception {
         if (!running) {
             if (wrapper != null) {
                 wrapper.open();
@@ -138,7 +138,7 @@ abstract public class MstpNode implements Runnable {
             }
 
             running = true;
-            lastNonSilence = timeSource.currentTimeMillis();
+            lastNonSilence = clock.millis();
             state = ReadFrameState.idle;
             if (runInThread) {
                 thread = new Thread(this, "BACnet4J MS/TP node");
@@ -151,16 +151,8 @@ abstract public class MstpNode implements Runnable {
         running = false;
     }
 
-    public void setNetwork(MstpNetwork network) {
+    public void setNetwork(final MstpNetwork network) {
         this.network = network;
-    }
-
-    /**
-     * @param timeSource
-     *            the timeSource to set
-     */
-    public void setTimeSource(TimeSource timeSource) {
-        this.timeSource = timeSource;
     }
 
     /**
@@ -251,8 +243,7 @@ abstract public class MstpNode implements Runnable {
             if (!activity && inactivityDelay > 0) {
                 try {
                     Thread.sleep(inactivityDelay);
-                }
-                catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     // no op
                 }
             }
@@ -260,8 +251,7 @@ abstract public class MstpNode implements Runnable {
 
         try {
             wrapper.close();
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             LOG.warn("", e);
         }
     }
@@ -303,7 +293,7 @@ abstract public class MstpNode implements Runnable {
     }
 
     protected long silence() {
-        return timeSource.currentTimeMillis() - lastNonSilence;
+        return clock.millis() - lastNonSilence;
     }
 
     private void readInputStream() {
@@ -317,8 +307,7 @@ abstract public class MstpNode implements Runnable {
                 eventCount += readCount;
                 //noise();
             }
-        }
-        catch (IOException e) {
+        } catch (final IOException e) {
             if (StringUtils.equals(e.getMessage(), "Stream closed."))
                 throw new RuntimeException(e);
             if (LOG.isDebugEnabled())
@@ -352,8 +341,7 @@ abstract public class MstpNode implements Runnable {
                 LOG.debug(thisStation + " Frame abort due to timeout");
             state = ReadFrameState.idle;
             activity = true;
-        }
-        else {
+        } else {
             byte b;
             while (inputBuffer.size() > 0) {
                 activity = true;
@@ -362,16 +350,14 @@ abstract public class MstpNode implements Runnable {
                 if (b == PREAMBLE1) {
                     // RepeatedPreamble1
                     // no op
-                }
-                else if (b == PREAMBLE2) {
+                } else if (b == PREAMBLE2) {
                     // Preamble2
                     frame.reset();
                     headerCRC.reset();
                     index = 0;
                     state = ReadFrameState.header;
                     break;
-                }
-                else {
+                } else {
                     // NotPreamble
                     state = ReadFrameState.idle;
                     break;
@@ -389,8 +375,7 @@ abstract public class MstpNode implements Runnable {
                 LOG.debug(thisStation + " Timeout reading header: index=" + index + ", frame=" + frame);
             state = ReadFrameState.idle;
             activity = true;
-        }
-        else {
+        } else {
             byte b;
             while (inputBuffer.size() > 0) {
                 activity = true;
@@ -403,32 +388,27 @@ abstract public class MstpNode implements Runnable {
                     if (trace && frame.getFrameType() == null)
                         trace("Unknown frame type for value: " + b);
                     index = 1;
-                }
-                else if (index == 1) {
+                } else if (index == 1) {
                     // Destination
                     headerCRC.accumulate(b);
                     frame.setDestinationAddress(b);
                     index = 2;
-                }
-                else if (index == 2) {
+                } else if (index == 2) {
                     // Source
                     headerCRC.accumulate(b);
                     frame.setSourceAddress(b);
                     index = 3;
-                }
-                else if (index == 3) {
+                } else if (index == 3) {
                     // Length1
                     headerCRC.accumulate(b);
                     frame.setLength((b & 0xff) << 8);
                     index = 4;
-                }
-                else if (index == 4) {
+                } else if (index == 4) {
                     // Length2
                     headerCRC.accumulate(b);
-                    frame.setLength(frame.getLength() | (b & 0xff));
+                    frame.setLength(frame.getLength() | b & 0xff);
                     index = 5;
-                }
-                else if (index == 5) {
+                } else if (index == 5) {
                     // HeaderCRC
                     headerCRC.accumulate(b);
                     state = ReadFrameState.headerCrc;
@@ -445,8 +425,7 @@ abstract public class MstpNode implements Runnable {
             // BadCRC
             receivedInvalidFrame = "Bad header CRC. Frame: " + frame;
             state = ReadFrameState.idle;
-        }
-        else {
+        } else {
             if (!frame.forStationOrBroadcast(thisStation))
                 // NotForUs
                 state = ReadFrameState.idle;
@@ -454,15 +433,13 @@ abstract public class MstpNode implements Runnable {
                 // FrameTooLong
                 receivedInvalidFrame = "Frame too long";
                 state = ReadFrameState.idle;
-            }
-            else if (frame.getLength() == 0) {
+            } else if (frame.getLength() == 0) {
                 // NoData
                 receivedValidFrame = true;
                 if (frame.getFrameType() == null && LOG.isDebugEnabled())
                     LOG.debug(thisStation + " Received valid frame with no type (1): " + frame);
                 state = ReadFrameState.idle;
-            }
-            else {
+            } else {
                 // Data
                 index = 0;
                 dataCRC.reset();
@@ -478,24 +455,21 @@ abstract public class MstpNode implements Runnable {
             receivedInvalidFrame = "Timeout reading data";
             state = ReadFrameState.idle;
             activity = true;
-        }
-        else {
+        } else {
             while (inputBuffer.size() > 0) {
                 activity = true;
-                byte b = inputBuffer.pop();
+                final byte b = inputBuffer.pop();
 
                 if (index < frame.getLength()) {
                     // DataOctet
                     dataCRC.accumulate(b);
                     frame.getData()[index] = b;
                     index++;
-                }
-                else if (index == frame.getLength()) {
+                } else if (index == frame.getLength()) {
                     // CRC1
                     dataCRC.accumulate(b);
                     index++;
-                }
-                else if (index == frame.getLength() + 1) {
+                } else if (index == frame.getLength() + 1) {
                     // CRC2
                     dataCRC.accumulate(b);
                     state = ReadFrameState.dataCrc;
@@ -521,11 +495,11 @@ abstract public class MstpNode implements Runnable {
         state = ReadFrameState.idle;
     }
 
-    protected void sendFrame(FrameType type, byte destinationAddress) {
+    protected void sendFrame(final FrameType type, final byte destinationAddress) {
         sendFrame(type, destinationAddress, null);
     }
 
-    protected void sendFrame(FrameType type, byte destinationAddress, byte[] data) {
+    protected void sendFrame(final FrameType type, final byte destinationAddress, final byte[] data) {
         sendFrame.reset();
         sendFrame.setFrameType(type);
         sendFrame.setDestinationAddress(destinationAddress);
@@ -534,12 +508,12 @@ abstract public class MstpNode implements Runnable {
         sendFrame(sendFrame);
     }
 
-    public void testSendFrame(Frame frame) {
+    public void testSendFrame(final Frame frame) {
         sendFrame(frame);
     }
 
-    protected void sendFrame(Frame frame) {
-        //        long start = timeSource.currentTimeMillis();
+    protected void sendFrame(final Frame frame) {
+        //        long start = clock.millis();
 
         // Turnaround. 40 bit times at 9600 baud is around 4ms.
         //        long wait = 4 - silence();
@@ -566,7 +540,7 @@ abstract public class MstpNode implements Runnable {
             out.write(frame.getFrameType().id & 0xff);
             out.write(frame.getDestinationAddress() & 0xff);
             out.write(frame.getSourceAddress() & 0xff);
-            out.write((frame.getLength() >> 8) & 0xff);
+            out.write(frame.getLength() >> 8 & 0xff);
             out.write(frame.getLength() & 0xff);
             out.write(sendHeaderCRC.getCrc(frame));
             bytesOut += 8;
@@ -574,15 +548,14 @@ abstract public class MstpNode implements Runnable {
             if (frame.getLength() > 0) {
                 // Data
                 out.write(frame.getData());
-                int crc = sendDataCRC.getCrc(frame);
+                final int crc = sendDataCRC.getCrc(frame);
                 out.write(crc & 0xff);
-                out.write((crc >> 8) & 0xff);
+                out.write(crc >> 8 & 0xff);
                 bytesOut += frame.getLength() + 2;
             }
 
             out.flush();
-        }
-        catch (IOException e) {
+        } catch (final IOException e) {
             // Only write the same error message once. Prevents logs from getting filled up unnecessarily with repeated
             // error messages.
             if (!StringUtils.equals(e.getMessage(), lastWriteError)) {
@@ -594,26 +567,26 @@ abstract public class MstpNode implements Runnable {
 
         noise();
 
-        //        debug("Write took " + (timeSource.currentTimeMillis() - start) + " ms");
+        //        debug("Write took " + (clock.millis() - start) + " ms");
 
         // NOTE: ??
-        // Wait until the final stop bit of the most significant CRC octet has been transmitted 
+        // Wait until the final stop bit of the most significant CRC octet has been transmitted
         // but not more than Tpostdrive.
     }
 
     private void noise() {
-        lastNonSilence = timeSource.currentTimeMillis();
+        lastNonSilence = clock.millis();
     }
 
-    protected void trace(String msg) {
-        System.out.println(thisStation + "/" + (timeSource.currentTimeMillis() % 10000000) + ": " + msg);
+    protected void trace(final String msg) {
+        System.out.println(thisStation + "/" + clock.millis() % 10000000 + ": " + msg);
     }
 
     //
     //
     // Incoming message handling
     //
-    protected void receivedDataNoReply(Frame frame) {
+    protected void receivedDataNoReply(final Frame frame) {
         if (frame.getFrameType() == FrameType.testResponse)
             LOG.info("Received test response frame");
         else if (network == null)
@@ -622,7 +595,7 @@ abstract public class MstpNode implements Runnable {
             network.receivedFrame(frame.copy());
     }
 
-    protected void receivedDataNeedingReply(Frame frame) {
+    protected void receivedDataNeedingReply(final Frame frame) {
         if (frame.getFrameType() == FrameType.testRequest)
             // Echo the data back.
             sendFrame(FrameType.testResponse, frame.getSourceAddress(), frame.getData());
@@ -636,24 +609,23 @@ abstract public class MstpNode implements Runnable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((wrapper == null) ? 0 : wrapper.hashCode());
+        result = prime * result + (wrapper == null ? 0 : wrapper.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MstpNode other = (MstpNode) obj;
+        final MstpNode other = (MstpNode) obj;
         if (wrapper == null) {
             if (other.wrapper != null)
                 return false;
-        }
-        else if (!wrapper.equals(other.wrapper))
+        } else if (!wrapper.equals(other.wrapper))
             return false;
         return true;
     }

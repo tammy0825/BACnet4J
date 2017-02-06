@@ -23,10 +23,12 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin;
+
+import java.time.Clock;
 
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -35,6 +37,8 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class ObjectCovSubscription {
+    private final Clock clock;
+
     // Identifying properties.
     private final Address address;
     private final UnsignedInteger subscriberProcessIdentifier;
@@ -48,8 +52,9 @@ public class ObjectCovSubscription {
     // Runtime values.
     private Encodable lastCovIncrementValue;
 
-    public ObjectCovSubscription(Address address, UnsignedInteger subscriberProcessIdentifier,
-            PropertyIdentifier monitoredProperty) {
+    public ObjectCovSubscription(final Clock clock, final Address address,
+            final UnsignedInteger subscriberProcessIdentifier, final PropertyIdentifier monitoredProperty) {
+        this.clock = clock;
         this.address = address;
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.monitoredProperty = monitoredProperty;
@@ -71,7 +76,7 @@ public class ObjectCovSubscription {
         return issueConfirmedNotifications;
     }
 
-    public void setIssueConfirmedNotifications(boolean issueConfirmedNotifications) {
+    public void setIssueConfirmedNotifications(final boolean issueConfirmedNotifications) {
         this.issueConfirmedNotifications = issueConfirmedNotifications;
     }
 
@@ -79,18 +84,18 @@ public class ObjectCovSubscription {
         return covIncrement;
     }
 
-    public void setCovIncrement(Real covIncrement) {
+    public void setCovIncrement(final Real covIncrement) {
         this.covIncrement = covIncrement;
     }
 
-    public void setExpiryTime(int seconds) {
+    public void setExpiryTime(final int seconds) {
         if (seconds == 0)
             expiryTime = -1;
         else
-            expiryTime = System.currentTimeMillis() + seconds * 1000;
+            expiryTime = clock.millis() + seconds * 1000;
     }
 
-    public boolean hasExpired(long now) {
+    public boolean hasExpired(final long now) {
         if (expiryTime == -1)
             return false;
         return expiryTime < now;
@@ -100,14 +105,14 @@ public class ObjectCovSubscription {
         return lastCovIncrementValue;
     }
 
-    public void setLastCovIncrementValue(Encodable lastCovIncrementValue) {
+    public void setLastCovIncrementValue(final Encodable lastCovIncrementValue) {
         this.lastCovIncrementValue = lastCovIncrementValue;
     }
 
-    public int getTimeRemaining(long now) {
+    public int getTimeRemaining(final long now) {
         if (expiryTime == -1)
             return 0;
-        int left = (int) ((expiryTime - now) / 1000);
+        final int left = (int) ((expiryTime - now) / 1000);
         if (left < 1)
             return 1;
         return left;

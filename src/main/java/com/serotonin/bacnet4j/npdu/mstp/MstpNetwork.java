@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.mstp;
@@ -42,11 +42,11 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class MstpNetwork extends Network {
     private final MstpNode node;
 
-    public MstpNetwork(MstpNode node) {
+    public MstpNetwork(final MstpNode node) {
         this(node, 0);
     }
 
-    public MstpNetwork(MstpNode node, int localNetworkNumber) {
+    public MstpNetwork(final MstpNode node, final int localNetworkNumber) {
         super(localNetworkNumber);
         this.node = node;
         node.setNetwork(this);
@@ -58,9 +58,9 @@ public class MstpNetwork extends Network {
     }
 
     @Override
-    public void initialize(Transport transport) throws Exception {
+    public void initialize(final Transport transport) throws Exception {
         super.initialize(transport);
-        node.initialize();
+        node.initialize(transport.getLocalDevice().getClock());
     }
 
     @Override
@@ -94,24 +94,23 @@ public class MstpNetwork extends Network {
     }
 
     @Override
-    protected void sendNPDU(Address recipient, OctetString router, ByteQueue npdu, boolean broadcast,
-            boolean expectsReply) throws BACnetException {
-        byte[] data = npdu.popAll();
+    protected void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
+            final boolean broadcast, final boolean expectsReply) throws BACnetException {
+        final byte[] data = npdu.popAll();
 
-        OctetString dest = getDestination(recipient, router);
-        byte mstpAddress = MstpNetworkUtils.getMstpAddress(dest);
+        final OctetString dest = getDestination(recipient, router);
+        final byte mstpAddress = MstpNetworkUtils.getMstpAddress(dest);
 
         if (expectsReply) {
             if (node instanceof SlaveNode)
                 throw new RuntimeException("Cannot originate a request from a slave node");
 
             ((MasterNode) node).queueFrame(FrameType.bacnetDataExpectingReply, mstpAddress, data);
-        }
-        else
+        } else
             node.setReplyFrame(FrameType.bacnetDataNotExpectingReply, mstpAddress, data);
     }
 
-    public void sendTestRequest(byte destination) {
+    public void sendTestRequest(final byte destination) {
         if (!(node instanceof MasterNode))
             throw new RuntimeException("Only master nodes can send test requests");
         ((MasterNode) node).queueFrame(FrameType.testRequest, destination, null);
@@ -122,12 +121,12 @@ public class MstpNetwork extends Network {
     //
     // Incoming frames
     //
-    void receivedFrame(Frame frame) {
+    void receivedFrame(final Frame frame) {
         handleIncomingData(new ByteQueue(frame.getData()), MstpNetworkUtils.toOctetString(frame.getSourceAddress()));
     }
 
     @Override
-    protected NPDU handleIncomingDataImpl(ByteQueue queue, OctetString linkService)
+    protected NPDU handleIncomingDataImpl(final ByteQueue queue, final OctetString linkService)
             throws MessageValidationException {
         return parseNpduData(queue, linkService);
     }
@@ -136,7 +135,7 @@ public class MstpNetwork extends Network {
     //
     // Convenience methods
     //
-    public Address getAddress(byte station) {
+    public Address getAddress(final byte station) {
         return MstpNetworkUtils.toAddress(getLocalNetworkNumber(), station);
     }
 
@@ -144,24 +143,23 @@ public class MstpNetwork extends Network {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((node == null) ? 0 : node.hashCode());
+        result = prime * result + (node == null ? 0 : node.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MstpNetwork other = (MstpNetwork) obj;
+        final MstpNetwork other = (MstpNetwork) obj;
         if (node == null) {
             if (other.node != null)
                 return false;
-        }
-        else if (!node.equals(other.node))
+        } else if (!node.equals(other.node))
             return false;
         return true;
     }

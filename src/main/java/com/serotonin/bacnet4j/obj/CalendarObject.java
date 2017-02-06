@@ -23,14 +23,17 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
 
+import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -43,34 +46,26 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
-import com.serotonin.bacnet4j.util.ClockTimeSource;
-import com.serotonin.bacnet4j.util.TimeSource;
 
 public class CalendarObject extends BACnetObject {
     private static final long serialVersionUID = 4337001513572175841L;
 
     private int timeTolerance = 0;
-
-    private TimeSource timeSource = new ClockTimeSource();
+    private final Clock clock;
 
     // This timer task keeps the present value up to date in case other objects have registered
     // for COV on it.
-    private Refresher presentValueRefersher;
+    private ScheduledFuture<?> presentValueRefersher;
 
-    public CalendarObject(int instanceNumber, String name, SequenceOf<CalendarEntry> dateList) {
+    public CalendarObject(final int instanceNumber, final String name, final SequenceOf<CalendarEntry> dateList,
+            final Clock clock) {
         super(ObjectType.calendar, instanceNumber, name);
+        this.clock = clock;
 
-        writePropertyImpl(PropertyIdentifier.dateList, dateList);
+        writePropertyInternal(PropertyIdentifier.dateList, dateList);
         updatePresentValue();
 
         addMixin(new CalendarMixin(this));
-    }
-
-    /**
-     * Used by the test cases.
-     */
-    void setTimeSource(TimeSource timeSource) {
-        this.timeSource = timeSource;
     }
 
     public int getTimeTolerance() {
@@ -82,33 +77,32 @@ public class CalendarObject extends BACnetObject {
      * This protects against schedules on devices that with clocks that are a bit ahead of ours, so that they get
      * the correct calendar value even if they ask for it a bit too early.
      */
-    public void setTimeTolerance(int timeTolerance) {
+    public void setTimeTolerance(final int timeTolerance) {
         this.timeTolerance = timeTolerance;
     }
 
     @Override
     public void addedToDevice() {
-        // Schedule a timer task to run every hour. This way we don't need to worry 
+        // Schedule a timer task to run every hour. This way we don't need to worry
         // about daylight savings time changeovers.
-        presentValueRefersher = new Refresher();
-
         // Calculate the amount of time until the next hour.
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(timeSource.currentTimeMillis());
-        long elapsed = gc.get(Calendar.MILLISECOND) //
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(clock.millis());
+        final long elapsed = gc.get(Calendar.MILLISECOND) //
                 + gc.get(Calendar.SECOND) * 1000 //
                 + gc.get(Calendar.MINUTE) * 60 * 1000;
-        long hour = 1000 * 60 * 60;
-        long delay = hour - elapsed + 10; // Add a few milliseconds for fun.
+        final long hour = 1000 * 60 * 60;
+        final long delay = hour - elapsed + 10; // Add a few milliseconds for fun.
 
         // Delay until the top of the next hour, and then run every hour.
-        getLocalDevice().getTimer().scheduleAtFixedRate(presentValueRefersher, delay, hour);
+        presentValueRefersher = getLocalDevice().scheduleAtFixedRate(() -> updatePresentValue(), delay, hour,
+                TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void removedFromDevice() {
         if (presentValueRefersher != null) {
-            presentValueRefersher.cancel();
+            presentValueRefersher.cancel(false);
             presentValueRefersher = null;
         }
     }
@@ -121,12 +115,12 @@ public class CalendarObject extends BACnetObject {
     }
 
     class CalendarMixin extends AbstractMixin {
-        public CalendarMixin(BACnetObject bo) {
+        public CalendarMixin(final BACnetObject bo) {
             super(bo);
         }
 
         @Override
-        protected void beforeReadProperty(PropertyIdentifier pid) {
+        protected void beforeReadProperty(final PropertyIdentifier pid) {
             if (pid.equals(PropertyIdentifier.presentValue))
                 // Ensure that the present value gets updated before the read is performed.
                 // TODO it could make a bit of sense to only run this again after some timeout, in
@@ -135,22 +129,23 @@ public class CalendarObject extends BACnetObject {
         }
 
         @Override
-        protected boolean validateProperty(PropertyValue value) throws BACnetServiceException {
+        protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
             if (PropertyIdentifier.presentValue.equals(value.getPropertyIdentifier()))
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
             return false;
         }
 
         @Override
-        protected void afterWriteProperty(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+        protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+                final Encodable newValue) {
             if (PropertyIdentifier.dateList.equals(pid))
                 updatePresentValue();
         }
     }
 
     synchronized void updatePresentValue() {
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(timeSource.currentTimeMillis());
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(clock.millis());
 
         if (timeTolerance > 0) {
             // And on the compensatory time.
@@ -160,17 +155,17 @@ public class CalendarObject extends BACnetObject {
         updatePresentValue(new Date(gc));
     }
 
-    private void updatePresentValue(Date date) {
-        SequenceOf<CalendarEntry> dateList = get(PropertyIdentifier.dateList);
+    private void updatePresentValue(final Date date) {
+        final SequenceOf<CalendarEntry> dateList = get(PropertyIdentifier.dateList);
 
         boolean match = false;
-        for (CalendarEntry e : dateList) {
+        for (final CalendarEntry e : dateList) {
             if (e.matches(date)) {
                 match = true;
                 break;
             }
         }
 
-        writePropertyImpl(PropertyIdentifier.presentValue, match ? Boolean.TRUE : Boolean.FALSE);
+        writePropertyInternal(PropertyIdentifier.presentValue, match ? Boolean.TRUE : Boolean.FALSE);
     }
 }

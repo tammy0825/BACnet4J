@@ -23,14 +23,14 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -56,14 +56,14 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 /**
  * Could add support for COV_Period...
- * 
+ *
  * @author Matthew
  */
 public class CovReportingMixin extends AbstractMixin {
     private final CovReportingCriteria criteria;
-    private final List<ObjectCovSubscription> covSubscriptions = new ArrayList<ObjectCovSubscription>();
+    private final List<ObjectCovSubscription> covSubscriptions = new ArrayList<>();
 
-    public CovReportingMixin(BACnetObject bo, CovReportingCriteria criteria, Real covIncrement) {
+    public CovReportingMixin(final BACnetObject bo, final CovReportingCriteria criteria, final Real covIncrement) {
         super(bo);
         this.criteria = criteria;
         if (covIncrement != null)
@@ -71,9 +71,9 @@ public class CovReportingMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean validateProperty(PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
         if (PropertyIdentifier.covIncrement.equals(value.getPropertyIdentifier())) {
-            Real covIncrement = (Real) value.getValue();
+            final Real covIncrement = (Real) value.getValue();
             if (covIncrement.floatValue() < 0)
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         }
@@ -82,18 +82,18 @@ public class CovReportingMixin extends AbstractMixin {
     }
 
     @Override
-    protected void afterWriteProperty(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+    protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
         if (pid.isOneOf(criteria.monitoredProperties)) {
-            long now = System.currentTimeMillis();
+            final long now = getLocalDevice().getClock().millis();
             synchronized (covSubscriptions) {
                 List<ObjectCovSubscription> expired = null;
-                for (ObjectCovSubscription subscription : covSubscriptions) {
+                for (final ObjectCovSubscription subscription : covSubscriptions) {
                     if (subscription.hasExpired(now)) {
                         if (expired == null)
-                            expired = new ArrayList<ObjectCovSubscription>();
+                            expired = new ArrayList<>();
                         expired.add(subscription);
-                    }
-                    else {
+                    } else {
                         boolean send = true;
                         if (pid.equals(criteria.incrementProperty))
                             send = incrementChange(subscription, newValue);
@@ -112,9 +112,10 @@ public class CovReportingMixin extends AbstractMixin {
         }
     }
 
-    public void addCovSubscription(Address from, UnsignedInteger subscriberProcessIdentifier,
-            com.serotonin.bacnet4j.type.primitive.Boolean issueConfirmedNotifications, UnsignedInteger lifetime,
-            PropertyReference monitoredPropertyIdentifier, Real covIncrement) throws BACnetServiceException {
+    public void addCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier,
+            final com.serotonin.bacnet4j.type.primitive.Boolean issueConfirmedNotifications,
+            final UnsignedInteger lifetime, final PropertyReference monitoredPropertyIdentifier,
+            final Real covIncrement) throws BACnetServiceException {
         synchronized (covSubscriptions) {
             ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
 
@@ -123,14 +124,16 @@ public class CovReportingMixin extends AbstractMixin {
                 if (monitoredPropertyIdentifier != null) {
                     // Don't allow a subscription on a sequence index
                     if (monitoredPropertyIdentifier.getPropertyArrayIndex() != null)
-                        throw new BACnetServiceException(ErrorClass.object, ErrorCode.optionalFunctionalityNotSupported);
+                        throw new BACnetServiceException(ErrorClass.object,
+                                ErrorCode.optionalFunctionalityNotSupported);
 
                     // Make sure that the requested property is one of the supported properties.
                     if (!monitoredPropertyIdentifier.getPropertyIdentifier().isOneOf(criteria.monitoredProperties))
-                        throw new BACnetServiceException(ErrorClass.object, ErrorCode.optionalFunctionalityNotSupported);
+                        throw new BACnetServiceException(ErrorClass.object,
+                                ErrorCode.optionalFunctionalityNotSupported);
                 }
 
-                sub = new ObjectCovSubscription(from, subscriberProcessIdentifier, //
+                sub = new ObjectCovSubscription(getLocalDevice().getClock(), from, subscriberProcessIdentifier, //
                         monitoredPropertyIdentifier == null ? null
                                 : monitoredPropertyIdentifier.getPropertyIdentifier());
 
@@ -142,37 +145,35 @@ public class CovReportingMixin extends AbstractMixin {
             sub.setCovIncrement(covIncrement);
 
             // Remove from device list.
-            RecipientProcess rp = new RecipientProcess(new Recipient(from), subscriberProcessIdentifier);
+            final RecipientProcess rp = new RecipientProcess(new Recipient(from), subscriberProcessIdentifier);
             removeFromDeviceList(rp);
 
             // Add to the device list.
-            ObjectPropertyReference opr = new ObjectPropertyReference(
+            final ObjectPropertyReference opr = new ObjectPropertyReference(
                     (ObjectIdentifier) get(PropertyIdentifier.objectIdentifier),
                     monitoredPropertyIdentifier == null ? null : monitoredPropertyIdentifier.getPropertyIdentifier(),
                     monitoredPropertyIdentifier == null ? null : monitoredPropertyIdentifier.getPropertyArrayIndex());
-            CovSubscription cs = new CovSubscription(rp, opr, issueConfirmedNotifications, lifetime, covIncrement);
-            SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration().get(
-                    PropertyIdentifier.activeCovSubscriptions);
+            final CovSubscription cs = new CovSubscription(rp, opr, issueConfirmedNotifications, lifetime,
+                    covIncrement);
+            final SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration()
+                    .get(PropertyIdentifier.activeCovSubscriptions);
             deviceList.add(cs);
 
             // "Immediately" send a notification
             final ObjectCovSubscription subscription = sub;
-            getLocalDevice().getTimer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    long now = System.currentTimeMillis();
-                    if (subscription.getMonitoredProperty() != null)
-                        sendPropertyNotification(subscription, now, subscription.getMonitoredProperty());
-                    else
-                        sendObjectNotification(subscription, now);
-                }
-            }, 20);
+            getLocalDevice().schedule(() -> {
+                final long now = getLocalDevice().getClock().millis();
+                if (subscription.getMonitoredProperty() != null)
+                    sendPropertyNotification(subscription, now, subscription.getMonitoredProperty());
+                else
+                    sendObjectNotification(subscription, now);
+            }, 20, TimeUnit.MILLISECONDS);
         }
     }
 
-    public void removeCovSubscription(Address from, UnsignedInteger subscriberProcessIdentifier) {
+    public void removeCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier) {
         synchronized (covSubscriptions) {
-            ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
+            final ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
             if (sub != null)
                 covSubscriptions.remove(sub);
 
@@ -180,8 +181,9 @@ public class CovReportingMixin extends AbstractMixin {
         }
     }
 
-    private ObjectCovSubscription findCovSubscription(Address from, UnsignedInteger subscriberProcessIdentifier) {
-        for (ObjectCovSubscription sub : covSubscriptions) {
+    private ObjectCovSubscription findCovSubscription(final Address from,
+            final UnsignedInteger subscriberProcessIdentifier) {
+        for (final ObjectCovSubscription sub : covSubscriptions) {
             if (sub.getAddress().equals(from)
                     && sub.getSubscriberProcessIdentifier().equals(subscriberProcessIdentifier))
                 return sub;
@@ -189,10 +191,10 @@ public class CovReportingMixin extends AbstractMixin {
         return null;
     }
 
-    private void removeFromDeviceList(RecipientProcess rp) {
-        SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration().get(
-                PropertyIdentifier.activeCovSubscriptions);
-        for (CovSubscription cs : deviceList) {
+    private void removeFromDeviceList(final RecipientProcess rp) {
+        final SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration()
+                .get(PropertyIdentifier.activeCovSubscriptions);
+        for (final CovSubscription cs : deviceList) {
             if (cs.getRecipient().equals(rp)) {
                 deviceList.remove(cs);
                 break;
@@ -200,10 +202,10 @@ public class CovReportingMixin extends AbstractMixin {
         }
     }
 
-    void sendObjectNotification(ObjectCovSubscription subscription, long now) {
-        SequenceOf<PropertyValue> values = new SequenceOf<PropertyValue>();
-        for (PropertyIdentifier pid : criteria.propertiesReported) {
-            Encodable value = get(pid);
+    void sendObjectNotification(final ObjectCovSubscription subscription, final long now) {
+        final SequenceOf<PropertyValue> values = new SequenceOf<>();
+        for (final PropertyIdentifier pid : criteria.propertiesReported) {
+            final Encodable value = get(pid);
             if (pid.equals(criteria.incrementProperty))
                 subscription.setLastCovIncrementValue(value);
             values.add(new PropertyValue(pid, value));
@@ -211,25 +213,26 @@ public class CovReportingMixin extends AbstractMixin {
         sendNotification(subscription, now, values);
     }
 
-    void sendPropertyNotification(ObjectCovSubscription subscription, long now, PropertyIdentifier pid) {
-        Encodable value = get(pid);
+    void sendPropertyNotification(final ObjectCovSubscription subscription, final long now,
+            final PropertyIdentifier pid) {
+        final Encodable value = get(pid);
         if (pid.equals(criteria.incrementProperty))
             subscription.setLastCovIncrementValue(value);
-        sendNotification(subscription, now, new SequenceOf<PropertyValue>(new PropertyValue(pid, value)));
+        sendNotification(subscription, now, new SequenceOf<>(new PropertyValue(pid, value)));
     }
 
-    private void sendNotification(ObjectCovSubscription subscription, long now, SequenceOf<PropertyValue> values) {
-        ObjectIdentifier deviceId = getLocalDevice().getConfiguration().getId();
-        ObjectIdentifier id = get(PropertyIdentifier.objectIdentifier);
-        UnsignedInteger timeLeft = new UnsignedInteger(subscription.getTimeRemaining(now));
+    private void sendNotification(final ObjectCovSubscription subscription, final long now,
+            final SequenceOf<PropertyValue> values) {
+        final ObjectIdentifier deviceId = getLocalDevice().getConfiguration().getId();
+        final ObjectIdentifier id = get(PropertyIdentifier.objectIdentifier);
+        final UnsignedInteger timeLeft = new UnsignedInteger(subscription.getTimeRemaining(now));
 
         if (subscription.isIssueConfirmedNotifications()) {
-            ConfirmedCovNotificationRequest req = new ConfirmedCovNotificationRequest( //
+            final ConfirmedCovNotificationRequest req = new ConfirmedCovNotificationRequest( //
                     subscription.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
             getLocalDevice().send(subscription.getAddress(), req, null);
-        }
-        else {
-            UnconfirmedCovNotificationRequest req = new UnconfirmedCovNotificationRequest(
+        } else {
+            final UnconfirmedCovNotificationRequest req = new UnconfirmedCovNotificationRequest(
                     subscription.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
             getLocalDevice().send(subscription.getAddress(), req);
         }
@@ -244,8 +247,8 @@ public class CovReportingMixin extends AbstractMixin {
         final PropertyIdentifier[] propertiesReported;
         final PropertyIdentifier incrementProperty;
 
-        public CovReportingCriteria(PropertyIdentifier[] monitoredProperties, PropertyIdentifier[] propertiesReported,
-                PropertyIdentifier incrementProperty) {
+        public CovReportingCriteria(final PropertyIdentifier[] monitoredProperties,
+                final PropertyIdentifier[] propertiesReported, final PropertyIdentifier incrementProperty) {
             this.monitoredProperties = monitoredProperties;
             this.propertiesReported = propertiesReported;
             this.incrementProperty = incrementProperty;
@@ -267,8 +270,8 @@ public class CovReportingMixin extends AbstractMixin {
             new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
             null);
 
-    boolean incrementChange(ObjectCovSubscription subscription, Encodable value) {
-        Encodable lastValue = subscription.getLastCovIncrementValue();
+    boolean incrementChange(final ObjectCovSubscription subscription, final Encodable value) {
+        final Encodable lastValue = subscription.getLastCovIncrementValue();
         if (lastValue == null)
             return true;
 
@@ -281,8 +284,7 @@ public class CovReportingMixin extends AbstractMixin {
             increment = ((Real) covIncrement).floatValue();
             last = ((Real) lastValue).floatValue();
             newValue = ((Real) value).floatValue();
-        }
-        else
+        } else
             throw new BACnetRuntimeException("Unhandled type: " + value.getClass());
 
         double diff = newValue - last;
