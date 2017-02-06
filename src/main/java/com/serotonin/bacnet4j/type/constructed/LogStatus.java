@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -34,11 +34,11 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class LogStatus extends BitString {
     private static final long serialVersionUID = 2623926749486653669L;
 
-    public LogStatus(boolean logDisabled, boolean bufferPurged) {
-        super(new boolean[] { logDisabled, bufferPurged });
+    public LogStatus(final boolean logDisabled, final boolean bufferPurged, final boolean logInterrupted) {
+        super(new boolean[] { logDisabled, bufferPurged, logInterrupted });
     }
 
-    public LogStatus(ByteQueue queue) {
+    public LogStatus(final ByteQueue queue) {
         super(queue);
     }
 
@@ -48,5 +48,9 @@ public class LogStatus extends BitString {
 
     public boolean isBufferPurged() {
         return getValue()[1];
+    }
+
+    public boolean isLogInterrupted() {
+        return getValue()[2];
     }
 }
