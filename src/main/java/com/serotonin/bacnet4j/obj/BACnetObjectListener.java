@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.obj;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 
+@FunctionalInterface
 public interface BACnetObjectListener {
     void propertyChange(PropertyIdentifier pid, Encodable oldValue, Encodable newValue);
 }
