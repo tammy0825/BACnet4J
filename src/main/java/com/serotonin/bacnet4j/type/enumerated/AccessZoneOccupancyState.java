@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -37,25 +37,25 @@ public class AccessZoneOccupancyState extends Enumerated {
     public static final AccessZoneOccupancyState normal = new AccessZoneOccupancyState(0);
     public static final AccessZoneOccupancyState belowLowerLimit = new AccessZoneOccupancyState(1);
     public static final AccessZoneOccupancyState atLowerLimit = new AccessZoneOccupancyState(2);
-    public static final AccessZoneOccupancyState atUpperLimit = new AccessZoneOccupancyState(0);
-    public static final AccessZoneOccupancyState aboveUpperLimit = new AccessZoneOccupancyState(1);
-    public static final AccessZoneOccupancyState disabled = new AccessZoneOccupancyState(2);
-    public static final AccessZoneOccupancyState notSupported = new AccessZoneOccupancyState(0);
+    public static final AccessZoneOccupancyState atUpperLimit = new AccessZoneOccupancyState(3);
+    public static final AccessZoneOccupancyState aboveUpperLimit = new AccessZoneOccupancyState(4);
+    public static final AccessZoneOccupancyState disabled = new AccessZoneOccupancyState(5);
+    public static final AccessZoneOccupancyState notSupported = new AccessZoneOccupancyState(6);
 
     public static final AccessZoneOccupancyState[] ALL = { normal, belowLowerLimit, atLowerLimit, atUpperLimit,
             aboveUpperLimit, disabled, notSupported, };
 
-    public AccessZoneOccupancyState(int value) {
+    public AccessZoneOccupancyState(final int value) {
         super(value);
     }
 
-    public AccessZoneOccupancyState(ByteQueue queue) {
+    public AccessZoneOccupancyState(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == normal.intValue())
             return "normal";
         if (type == belowLowerLimit.intValue())
