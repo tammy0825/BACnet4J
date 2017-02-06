@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -50,7 +50,7 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(UnsignedInteger.class);
         classes.add(CharacterString.class);
     }
@@ -59,24 +59,24 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
     private final MessagePriority messagePriority;
     private final CharacterString message;
 
-    public UnconfirmedTextMessageRequest(ObjectIdentifier textMessageSourceDevice, UnsignedInteger messageClass,
-            MessagePriority messagePriority, CharacterString message) {
+    public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
+            final UnsignedInteger messageClass, final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
         this.messageClass = new Choice(0, messageClass);
         this.messagePriority = messagePriority;
         this.message = message;
     }
 
-    public UnconfirmedTextMessageRequest(ObjectIdentifier textMessageSourceDevice, CharacterString messageClass,
-            MessagePriority messagePriority, CharacterString message) {
+    public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
+            final CharacterString messageClass, final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
         this.messageClass = new Choice(0, messageClass);
         this.messagePriority = messagePriority;
         this.message = message;
     }
 
-    public UnconfirmedTextMessageRequest(ObjectIdentifier textMessageSourceDevice, MessagePriority messagePriority,
-            CharacterString message) {
+    public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
+            final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
         this.messagePriority = messagePriority;
         this.message = message;
@@ -93,21 +93,20 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) {
-        localDevice.getEventHandler().fireTextMessage(
-                localDevice.getRemoteDeviceCreate(textMessageSourceDevice.getInstanceNumber(), from), messageClass,
-                messagePriority, message);
+    public void handle(final LocalDevice localDevice, final Address from) {
+        localDevice.updateRemoteDevice(textMessageSourceDevice.getInstanceNumber(), from);
+        localDevice.getEventHandler().fireTextMessage(textMessageSourceDevice, messageClass, messagePriority, message);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, textMessageSourceDevice, 0);
         writeOptional(queue, messageClass, 1);
         write(queue, messagePriority, 2);
         write(queue, message, 3);
     }
 
-    UnconfirmedTextMessageRequest(ByteQueue queue) throws BACnetException {
+    UnconfirmedTextMessageRequest(final ByteQueue queue) throws BACnetException {
         textMessageSourceDevice = read(queue, ObjectIdentifier.class, 0);
         if (readStart(queue) == 1)
             messageClass = new Choice(queue, classes);
@@ -119,15 +118,15 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((message == null) ? 0 : message.hashCode());
-        result = PRIME * result + ((messageClass == null) ? 0 : messageClass.hashCode());
-        result = PRIME * result + ((messagePriority == null) ? 0 : messagePriority.hashCode());
-        result = PRIME * result + ((textMessageSourceDevice == null) ? 0 : textMessageSourceDevice.hashCode());
+        result = PRIME * result + (message == null ? 0 : message.hashCode());
+        result = PRIME * result + (messageClass == null ? 0 : messageClass.hashCode());
+        result = PRIME * result + (messagePriority == null ? 0 : messagePriority.hashCode());
+        result = PRIME * result + (textMessageSourceDevice == null ? 0 : textMessageSourceDevice.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -138,26 +137,22 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
         if (message == null) {
             if (other.message != null)
                 return false;
-        }
-        else if (!message.equals(other.message))
+        } else if (!message.equals(other.message))
             return false;
         if (messageClass == null) {
             if (other.messageClass != null)
                 return false;
-        }
-        else if (!messageClass.equals(other.messageClass))
+        } else if (!messageClass.equals(other.messageClass))
             return false;
         if (messagePriority == null) {
             if (other.messagePriority != null)
                 return false;
-        }
-        else if (!messagePriority.equals(other.messagePriority))
+        } else if (!messagePriority.equals(other.messagePriority))
             return false;
         if (textMessageSourceDevice == null) {
             if (other.textMessageSourceDevice != null)
                 return false;
-        }
-        else if (!textMessageSourceDevice.equals(other.textMessageSourceDevice))
+        } else if (!textMessageSourceDevice.equals(other.textMessageSourceDevice))
             return false;
         return true;
     }

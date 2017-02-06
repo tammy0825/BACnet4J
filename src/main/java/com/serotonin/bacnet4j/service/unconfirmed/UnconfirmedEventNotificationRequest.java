@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -62,11 +62,12 @@ public class UnconfirmedEventNotificationRequest extends UnconfirmedRequestServi
     private final EventState toState; // 11
     private final NotificationParameters eventValues; // 12 optional
 
-    public UnconfirmedEventNotificationRequest(UnsignedInteger processIdentifier,
-            ObjectIdentifier initiatingDeviceIdentifier, ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp,
-            UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType,
-            CharacterString messageText, NotifyType notifyType, Boolean ackRequired, EventState fromState,
-            EventState toState, NotificationParameters eventValues) {
+    public UnconfirmedEventNotificationRequest(final UnsignedInteger processIdentifier,
+            final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier eventObjectIdentifier,
+            final TimeStamp timeStamp, final UnsignedInteger notificationClass, final UnsignedInteger priority,
+            final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
+            final Boolean ackRequired, final EventState fromState, final EventState toState,
+            final NotificationParameters eventValues) {
         this.processIdentifier = processIdentifier;
         this.initiatingDeviceIdentifier = initiatingDeviceIdentifier;
         this.eventObjectIdentifier = eventObjectIdentifier;
@@ -93,15 +94,15 @@ public class UnconfirmedEventNotificationRequest extends UnconfirmedRequestServi
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) {
-        localDevice.getEventHandler().fireEventNotification(processIdentifier,
-                localDevice.getRemoteDeviceCreate(initiatingDeviceIdentifier.getInstanceNumber(), from),
+    public void handle(final LocalDevice localDevice, final Address from) {
+        localDevice.updateRemoteDevice(initiatingDeviceIdentifier.getInstanceNumber(), from);
+        localDevice.getEventHandler().fireEventNotification(processIdentifier, initiatingDeviceIdentifier,
                 eventObjectIdentifier, timeStamp, notificationClass, priority, eventType, messageText, notifyType,
                 ackRequired, fromState, toState, eventValues);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, processIdentifier, 0);
         write(queue, initiatingDeviceIdentifier, 1);
         write(queue, eventObjectIdentifier, 2);
@@ -117,7 +118,7 @@ public class UnconfirmedEventNotificationRequest extends UnconfirmedRequestServi
         writeOptional(queue, eventValues, 12);
     }
 
-    UnconfirmedEventNotificationRequest(ByteQueue queue) throws BACnetException {
+    UnconfirmedEventNotificationRequest(final ByteQueue queue) throws BACnetException {
         processIdentifier = read(queue, UnsignedInteger.class, 0);
         initiatingDeviceIdentifier = read(queue, ObjectIdentifier.class, 1);
         eventObjectIdentifier = read(queue, ObjectIdentifier.class, 2);
@@ -137,24 +138,24 @@ public class UnconfirmedEventNotificationRequest extends UnconfirmedRequestServi
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((ackRequired == null) ? 0 : ackRequired.hashCode());
-        result = PRIME * result + ((eventObjectIdentifier == null) ? 0 : eventObjectIdentifier.hashCode());
-        result = PRIME * result + ((eventType == null) ? 0 : eventType.hashCode());
-        result = PRIME * result + ((eventValues == null) ? 0 : eventValues.hashCode());
-        result = PRIME * result + ((fromState == null) ? 0 : fromState.hashCode());
-        result = PRIME * result + ((initiatingDeviceIdentifier == null) ? 0 : initiatingDeviceIdentifier.hashCode());
-        result = PRIME * result + ((messageText == null) ? 0 : messageText.hashCode());
-        result = PRIME * result + ((notificationClass == null) ? 0 : notificationClass.hashCode());
-        result = PRIME * result + ((notifyType == null) ? 0 : notifyType.hashCode());
-        result = PRIME * result + ((priority == null) ? 0 : priority.hashCode());
-        result = PRIME * result + ((processIdentifier == null) ? 0 : processIdentifier.hashCode());
-        result = PRIME * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
-        result = PRIME * result + ((toState == null) ? 0 : toState.hashCode());
+        result = PRIME * result + (ackRequired == null ? 0 : ackRequired.hashCode());
+        result = PRIME * result + (eventObjectIdentifier == null ? 0 : eventObjectIdentifier.hashCode());
+        result = PRIME * result + (eventType == null ? 0 : eventType.hashCode());
+        result = PRIME * result + (eventValues == null ? 0 : eventValues.hashCode());
+        result = PRIME * result + (fromState == null ? 0 : fromState.hashCode());
+        result = PRIME * result + (initiatingDeviceIdentifier == null ? 0 : initiatingDeviceIdentifier.hashCode());
+        result = PRIME * result + (messageText == null ? 0 : messageText.hashCode());
+        result = PRIME * result + (notificationClass == null ? 0 : notificationClass.hashCode());
+        result = PRIME * result + (notifyType == null ? 0 : notifyType.hashCode());
+        result = PRIME * result + (priority == null ? 0 : priority.hashCode());
+        result = PRIME * result + (processIdentifier == null ? 0 : processIdentifier.hashCode());
+        result = PRIME * result + (timeStamp == null ? 0 : timeStamp.hashCode());
+        result = PRIME * result + (toState == null ? 0 : toState.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -165,80 +166,67 @@ public class UnconfirmedEventNotificationRequest extends UnconfirmedRequestServi
         if (ackRequired == null) {
             if (other.ackRequired != null)
                 return false;
-        }
-        else if (!ackRequired.equals(other.ackRequired))
+        } else if (!ackRequired.equals(other.ackRequired))
             return false;
         if (eventObjectIdentifier == null) {
             if (other.eventObjectIdentifier != null)
                 return false;
-        }
-        else if (!eventObjectIdentifier.equals(other.eventObjectIdentifier))
+        } else if (!eventObjectIdentifier.equals(other.eventObjectIdentifier))
             return false;
         if (eventType == null) {
             if (other.eventType != null)
                 return false;
-        }
-        else if (!eventType.equals(other.eventType))
+        } else if (!eventType.equals(other.eventType))
             return false;
         if (eventValues == null) {
             if (other.eventValues != null)
                 return false;
-        }
-        else if (!eventValues.equals(other.eventValues))
+        } else if (!eventValues.equals(other.eventValues))
             return false;
         if (fromState == null) {
             if (other.fromState != null)
                 return false;
-        }
-        else if (!fromState.equals(other.fromState))
+        } else if (!fromState.equals(other.fromState))
             return false;
         if (initiatingDeviceIdentifier == null) {
             if (other.initiatingDeviceIdentifier != null)
                 return false;
-        }
-        else if (!initiatingDeviceIdentifier.equals(other.initiatingDeviceIdentifier))
+        } else if (!initiatingDeviceIdentifier.equals(other.initiatingDeviceIdentifier))
             return false;
         if (messageText == null) {
             if (other.messageText != null)
                 return false;
-        }
-        else if (!messageText.equals(other.messageText))
+        } else if (!messageText.equals(other.messageText))
             return false;
         if (notificationClass == null) {
             if (other.notificationClass != null)
                 return false;
-        }
-        else if (!notificationClass.equals(other.notificationClass))
+        } else if (!notificationClass.equals(other.notificationClass))
             return false;
         if (notifyType == null) {
             if (other.notifyType != null)
                 return false;
-        }
-        else if (!notifyType.equals(other.notifyType))
+        } else if (!notifyType.equals(other.notifyType))
             return false;
         if (priority == null) {
             if (other.priority != null)
                 return false;
-        }
-        else if (!priority.equals(other.priority))
+        } else if (!priority.equals(other.priority))
             return false;
         if (processIdentifier == null) {
             if (other.processIdentifier != null)
                 return false;
-        }
-        else if (!processIdentifier.equals(other.processIdentifier))
+        } else if (!processIdentifier.equals(other.processIdentifier))
             return false;
         if (timeStamp == null) {
             if (other.timeStamp != null)
                 return false;
-        }
-        else if (!timeStamp.equals(other.timeStamp))
+        } else if (!timeStamp.equals(other.timeStamp))
             return false;
         if (toState == null) {
             if (other.toState != null)
                 return false;
-        }
-        else if (!toState.equals(other.toState))
+        } else if (!toState.equals(other.toState))
             return false;
         return true;
     }

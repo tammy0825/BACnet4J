@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -49,9 +49,9 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
     private final UnsignedInteger timeRemaining;
     private final SequenceOf<PropertyValue> listOfValues;
 
-    public UnconfirmedCovNotificationRequest(UnsignedInteger subscriberProcessIdentifier,
-            ObjectIdentifier initiatingDeviceIdentifier, ObjectIdentifier monitoredObjectIdentifier,
-            UnsignedInteger timeRemaining, SequenceOf<PropertyValue> listOfValues) {
+    public UnconfirmedCovNotificationRequest(final UnsignedInteger subscriberProcessIdentifier,
+            final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier monitoredObjectIdentifier,
+            final UnsignedInteger timeRemaining, final SequenceOf<PropertyValue> listOfValues) {
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.initiatingDeviceIdentifier = initiatingDeviceIdentifier;
         this.monitoredObjectIdentifier = monitoredObjectIdentifier;
@@ -65,14 +65,14 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) {
-        localDevice.getEventHandler().fireCovNotification(subscriberProcessIdentifier,
-                localDevice.getRemoteDeviceCreate(initiatingDeviceIdentifier.getInstanceNumber(), from),
+    public void handle(final LocalDevice localDevice, final Address from) {
+        localDevice.updateRemoteDevice(initiatingDeviceIdentifier.getInstanceNumber(), from);
+        localDevice.getEventHandler().fireCovNotification(subscriberProcessIdentifier, initiatingDeviceIdentifier,
                 monitoredObjectIdentifier, timeRemaining, listOfValues);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, subscriberProcessIdentifier, 0);
         write(queue, initiatingDeviceIdentifier, 1);
         write(queue, monitoredObjectIdentifier, 2);
@@ -80,7 +80,7 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
         write(queue, listOfValues, 4);
     }
 
-    UnconfirmedCovNotificationRequest(ByteQueue queue) throws BACnetException {
+    UnconfirmedCovNotificationRequest(final ByteQueue queue) throws BACnetException {
         subscriberProcessIdentifier = read(queue, UnsignedInteger.class, 0);
         initiatingDeviceIdentifier = read(queue, ObjectIdentifier.class, 1);
         monitoredObjectIdentifier = read(queue, ObjectIdentifier.class, 2);
@@ -88,8 +88,7 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
         try {
             ThreadLocalObjectTypeStack.set(monitoredObjectIdentifier.getObjectType());
             listOfValues = readSequenceOf(queue, PropertyValue.class, 4);
-        }
-        finally {
+        } finally {
             ThreadLocalObjectTypeStack.remove();
         }
     }
@@ -98,16 +97,16 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((initiatingDeviceIdentifier == null) ? 0 : initiatingDeviceIdentifier.hashCode());
-        result = PRIME * result + ((listOfValues == null) ? 0 : listOfValues.hashCode());
-        result = PRIME * result + ((monitoredObjectIdentifier == null) ? 0 : monitoredObjectIdentifier.hashCode());
-        result = PRIME * result + ((subscriberProcessIdentifier == null) ? 0 : subscriberProcessIdentifier.hashCode());
-        result = PRIME * result + ((timeRemaining == null) ? 0 : timeRemaining.hashCode());
+        result = PRIME * result + (initiatingDeviceIdentifier == null ? 0 : initiatingDeviceIdentifier.hashCode());
+        result = PRIME * result + (listOfValues == null ? 0 : listOfValues.hashCode());
+        result = PRIME * result + (monitoredObjectIdentifier == null ? 0 : monitoredObjectIdentifier.hashCode());
+        result = PRIME * result + (subscriberProcessIdentifier == null ? 0 : subscriberProcessIdentifier.hashCode());
+        result = PRIME * result + (timeRemaining == null ? 0 : timeRemaining.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -118,32 +117,27 @@ public class UnconfirmedCovNotificationRequest extends UnconfirmedRequestService
         if (initiatingDeviceIdentifier == null) {
             if (other.initiatingDeviceIdentifier != null)
                 return false;
-        }
-        else if (!initiatingDeviceIdentifier.equals(other.initiatingDeviceIdentifier))
+        } else if (!initiatingDeviceIdentifier.equals(other.initiatingDeviceIdentifier))
             return false;
         if (listOfValues == null) {
             if (other.listOfValues != null)
                 return false;
-        }
-        else if (!listOfValues.equals(other.listOfValues))
+        } else if (!listOfValues.equals(other.listOfValues))
             return false;
         if (monitoredObjectIdentifier == null) {
             if (other.monitoredObjectIdentifier != null)
                 return false;
-        }
-        else if (!monitoredObjectIdentifier.equals(other.monitoredObjectIdentifier))
+        } else if (!monitoredObjectIdentifier.equals(other.monitoredObjectIdentifier))
             return false;
         if (subscriberProcessIdentifier == null) {
             if (other.subscriberProcessIdentifier != null)
                 return false;
-        }
-        else if (!subscriberProcessIdentifier.equals(other.subscriberProcessIdentifier))
+        } else if (!subscriberProcessIdentifier.equals(other.subscriberProcessIdentifier))
             return false;
         if (timeRemaining == null) {
             if (other.timeRemaining != null)
                 return false;
-        }
-        else if (!timeRemaining.equals(other.timeRemaining))
+        } else if (!timeRemaining.equals(other.timeRemaining))
             return false;
         return true;
     }
