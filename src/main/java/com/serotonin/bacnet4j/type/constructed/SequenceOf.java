@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,70 +32,76 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
-import com.serotonin.bacnet4j.util.sero.Utils;
 
 public class SequenceOf<E extends Encodable> extends BaseType implements Iterable<E> {
     private static final long serialVersionUID = -5118339248636778224L;
     protected final List<E> values;
 
     public SequenceOf() {
-        values = new ArrayList<E>();
+        values = new ArrayList<>();
     }
 
-    public SequenceOf(List<E> values) {
+    public SequenceOf(final List<E> values) {
         this.values = values;
     }
 
-    public SequenceOf(E... values) {
+    public SequenceOf(final E... values) {
         this();
-        for (E value : values)
+        for (final E value : values)
             this.values.add(value);
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        for (Encodable value : values)
+    public void write(final ByteQueue queue) {
+        for (final Encodable value : values)
             value.write(queue);
     }
 
-    public SequenceOf(ByteQueue queue, Class<E> clazz) throws BACnetException {
-        values = new ArrayList<E>();
+    public SequenceOf(final ByteQueue queue, final Class<E> clazz) throws BACnetException {
+        values = new ArrayList<>();
         while (peekTagNumber(queue) != -1)
             values.add(read(queue, clazz));
     }
 
-    public SequenceOf(ByteQueue queue, int count, Class<E> clazz) throws BACnetException {
-        values = new ArrayList<E>();
+    public SequenceOf(final ByteQueue queue, int count, final Class<E> clazz) throws BACnetException {
+        values = new ArrayList<>();
         while (count-- > 0)
             values.add(read(queue, clazz));
     }
 
-    public SequenceOf(ByteQueue queue, Class<E> clazz, int contextId) throws BACnetException {
-        values = new ArrayList<E>();
+    public SequenceOf(final ByteQueue queue, final Class<E> clazz, final int contextId) throws BACnetException {
+        values = new ArrayList<>();
         while (readEnd(queue) != contextId)
             values.add(read(queue, clazz));
     }
 
-    public E get(int indexBase1) {
+    public E get(final int indexBase1) {
         return values.get(indexBase1 - 1);
+    }
+
+    public boolean has(final UnsignedInteger indexBase1) {
+        final int index = indexBase1.intValue() - 1;
+        return index >= 0 && index < values.size();
     }
 
     public int getCount() {
         return values.size();
     }
 
-    public void set(int indexBase1, E value) {
-        int index = indexBase1 - 1;
+    public void set(final int indexBase1, final E value) {
+        final int index = indexBase1 - 1;
         while (values.size() <= index)
             values.add(null);
         values.set(index, value);
     }
 
-    public void add(E value) {
+    public void add(final E value) {
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i) == null) {
                 values.set(i, value);
@@ -105,39 +111,36 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         values.add(value);
     }
 
-    public void remove(int indexBase1) {
-        int index = indexBase1 - 1;
+    public Encodable remove(final int indexBase1) {
+        final int index = indexBase1 - 1;
         if (index < values.size())
-            values.remove(index);
-        // values.set(index, null);
-        // Trim null values at the end.
-        // while (!values.isEmpty() && values.get(values.size() - 1) == null)
-        // values.remove(values.size() - 1);
+            return values.remove(index);
+        return null;
     }
 
-    public void remove(E value) {
+    public void remove(final E value) {
         if (value == null)
             return;
 
         for (int i = 0; i < values.size(); i++) {
-            if (Utils.equals(values.get(i), value)) {
+            if (Objects.equals(values.get(i), value)) {
                 remove(i + 1);
                 break;
             }
         }
     }
 
-    public void removeAll(E value) {
-        for (ListIterator<E> it = values.listIterator(); it.hasNext();) {
-            E e = it.next();
-            if (Utils.equals(e, value))
+    public void removeAll(final E value) {
+        for (final ListIterator<E> it = values.listIterator(); it.hasNext();) {
+            final E e = it.next();
+            if (Objects.equals(e, value))
                 it.remove();
         }
     }
 
-    public boolean contains(E value) {
-        for (E e : values) {
-            if (Utils.equals(e, value))
+    public boolean contains(final E value) {
+        for (final E e : values) {
+            if (Objects.equals(e, value))
                 return true;
         }
         return false;
@@ -161,12 +164,12 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((values == null) ? 0 : values.hashCode());
+        result = PRIME * result + (values == null ? 0 : values.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -177,8 +180,7 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         if (values == null) {
             if (other.values != null)
                 return false;
-        }
-        else if (!values.equals(other.values))
+        } else if (!values.equals(other.values))
             return false;
         return true;
     }
