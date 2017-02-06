@@ -28,7 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
-import com.serotonin.bacnet4j.base.BACnetUtils;
+import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Double extends Primitive {

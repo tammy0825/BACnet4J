@@ -26,7 +26,7 @@
  * 
  * @author Matthew Lohbihler
  */
-package com.serotonin.bacnet4j.base;
+package com.serotonin.bacnet4j.util;
 
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;

@@ -23,14 +23,14 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
 
 import java.util.Arrays;
 
-import com.serotonin.bacnet4j.base.BACnetUtils;
+import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BitString extends Primitive {
@@ -40,11 +40,11 @@ public class BitString extends Primitive {
 
     private boolean[] value;
 
-    public BitString(boolean[] value) {
+    public BitString(final boolean[] value) {
         this.value = value;
     }
 
-    public BitString(int size, boolean defaultValue) {
+    public BitString(final int size, final boolean defaultValue) {
         value = new boolean[size];
         if (defaultValue) {
             for (int i = 0; i < size; i++)
@@ -52,7 +52,7 @@ public class BitString extends Primitive {
         }
     }
 
-    public BitString(BitString that) {
+    public BitString(final BitString that) {
         this(Arrays.copyOf(that.value, that.value.length));
     }
 
@@ -60,16 +60,24 @@ public class BitString extends Primitive {
         return value;
     }
 
-    public boolean getValue(int indexBase1) {
+    public boolean getValue(final int indexBase1) {
         return value[indexBase1 - 1];
     }
 
-    public void setAll(boolean b) {
-        for (int i = 0; i < value.length; i++)
-            value[i] = b;
+    public boolean getArrayValue(final int index) {
+        final boolean[] ba = getValue();
+        if (index < ba.length)
+            return ba[index];
+        return false;
     }
 
-    public void setValue(int indexBase1, boolean b) {
+    public BitString setAll(final boolean b) {
+        for (int i = 0; i < value.length; i++)
+            value[i] = b;
+        return this;
+    }
+
+    public void setValue(final int indexBase1, final boolean b) {
         value[indexBase1 - 1] = b;
     }
 
@@ -92,21 +100,21 @@ public class BitString extends Primitive {
     //
     // Reading and writing
     //
-    public BitString(ByteQueue queue) {
-        int length = (int) readTag(queue) - 1;
-        int remainder = queue.popU1B();
+    public BitString(final ByteQueue queue) {
+        final int length = (int) readTag(queue) - 1;
+        final int remainder = queue.popU1B();
 
         if (length == 0)
             value = new boolean[0];
         else {
-            byte[] data = new byte[length];
+            final byte[] data = new byte[length];
             queue.pop(data);
             value = BACnetUtils.convertToBooleans(data, length * 8 - remainder);
         }
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         if (value.length == 0)
             queue.push((byte) 0);
         else {
@@ -139,7 +147,7 @@ public class BitString extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

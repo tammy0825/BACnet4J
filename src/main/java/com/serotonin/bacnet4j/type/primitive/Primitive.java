@@ -28,11 +28,11 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
-import com.serotonin.bacnet4j.base.BACnetUtils;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class Primitive extends Encodable {

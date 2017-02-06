@@ -32,7 +32,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.serotonin.bacnet4j.base.BACnetUtils;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils;
 import com.serotonin.bacnet4j.npdu.ipv6.Ipv6NetworkUtils;
@@ -40,6 +39,7 @@ import com.serotonin.bacnet4j.npdu.mstp.MstpNetworkUtils;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.type.primitive.Unsigned16;
+import com.serotonin.bacnet4j.util.BACnetUtils;
 
 public class NetworkUtils {
     public static String toString(OctetString mac) {
