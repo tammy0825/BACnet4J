@@ -23,10 +23,12 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.enums;
+
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public enum MaxApduLength {
     UP_TO_50(0, 50), // MinimumMessageSize
@@ -37,22 +39,26 @@ public enum MaxApduLength {
     UP_TO_1476(5, 1476); // Fits in an ISO 8802-3 frame
 
     private byte id;
-    private int maxLength;
+    private UnsignedInteger maxLength;
 
-    MaxApduLength(int id, int maxLength) {
+    MaxApduLength(final int id, final int maxLength) {
         this.id = (byte) id;
-        this.maxLength = maxLength;
+        this.maxLength = new UnsignedInteger(maxLength);
     }
 
     public byte getId() {
         return id;
     }
 
-    public int getMaxLength() {
+    public int getMaxLengthInt() {
+        return maxLength.intValue();
+    }
+
+    public UnsignedInteger getMaxLength() {
         return maxLength;
     }
 
-    public static MaxApduLength valueOf(byte id) {
+    public static MaxApduLength valueOf(final byte id) {
         if (id == UP_TO_50.id)
             return UP_TO_50;
         if (id == UP_TO_128.id)
