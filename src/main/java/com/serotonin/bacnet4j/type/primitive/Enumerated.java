@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -36,11 +36,11 @@ public class Enumerated extends UnsignedInteger {
     private static final long serialVersionUID = 2462119559912570064L;
     public static final byte TYPE_ID = 9;
 
-    public Enumerated(int value) {
+    public Enumerated(final int value) {
         super(value);
     }
 
-    public Enumerated(BigInteger value) {
+    public Enumerated(final BigInteger value) {
         super(value);
     }
 
@@ -48,15 +48,19 @@ public class Enumerated extends UnsignedInteger {
         return (byte) intValue();
     }
 
-    public boolean equals(Enumerated that) {
+    public boolean equals(final int that) {
+        return intValue() == that;
+    }
+
+    public boolean equals(final Enumerated that) {
         if (that == null)
             return false;
         return intValue() == that.intValue();
     }
 
-    public boolean isOneOf(Enumerated... those) {
-        int id = intValue();
-        for (Enumerated that : those) {
+    public boolean isOneOf(final Enumerated... those) {
+        final int id = intValue();
+        for (final Enumerated that : those) {
             if (id == that.intValue())
                 return true;
         }
@@ -66,7 +70,7 @@ public class Enumerated extends UnsignedInteger {
     //
     // Reading and writing
     //
-    public Enumerated(ByteQueue queue) {
+    public Enumerated(final ByteQueue queue) {
         super(queue);
     }
 
