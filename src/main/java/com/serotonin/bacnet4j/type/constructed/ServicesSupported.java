@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -38,311 +38,311 @@ public class ServicesSupported extends BitString {
         super(new boolean[40]);
     }
 
-    public ServicesSupported(ByteQueue queue) {
+    public ServicesSupported(final ByteQueue queue) {
         super(queue);
     }
 
     public boolean isAcknowledgeAlarm() {
-        return getValue()[0];
+        return getArrayValue(0);
     }
 
-    public void setAcknowledgeAlarm(boolean acknowledgeAlarm) {
+    public void setAcknowledgeAlarm(final boolean acknowledgeAlarm) {
         getValue()[0] = acknowledgeAlarm;
     }
 
     public boolean isConfirmedCovNotification() {
-        return getValue()[1];
+        return getArrayValue(1);
     }
 
-    public void setConfirmedCovNotification(boolean confirmedCovNotification) {
+    public void setConfirmedCovNotification(final boolean confirmedCovNotification) {
         getValue()[1] = confirmedCovNotification;
     }
 
     public boolean isConfirmedEventNotification() {
-        return getValue()[2];
+        return getArrayValue(2);
     }
 
-    public void setConfirmedEventNotification(boolean confirmedEventNotification) {
+    public void setConfirmedEventNotification(final boolean confirmedEventNotification) {
         getValue()[2] = confirmedEventNotification;
     }
 
     public boolean isGetAlarmSummary() {
-        return getValue()[3];
+        return getArrayValue(3);
     }
 
-    public void setGetAlarmSummary(boolean getAlarmSummary) {
+    public void setGetAlarmSummary(final boolean getAlarmSummary) {
         getValue()[3] = getAlarmSummary;
     }
 
     public boolean isGetEnrollmentSummary() {
-        return getValue()[4];
+        return getArrayValue(4);
     }
 
-    public void setGetEnrollmentSummary(boolean getEnrollmentSummary) {
+    public void setGetEnrollmentSummary(final boolean getEnrollmentSummary) {
         getValue()[4] = getEnrollmentSummary;
     }
 
     public boolean isSubscribeCov() {
-        return getValue()[5];
+        return getArrayValue(5);
     }
 
-    public void setSubscribeCov(boolean subscribeCov) {
+    public void setSubscribeCov(final boolean subscribeCov) {
         getValue()[5] = subscribeCov;
     }
 
     public boolean isAtomicReadFile() {
-        return getValue()[6];
+        return getArrayValue(6);
     }
 
-    public void setAtomicReadFile(boolean atomicReadFile) {
+    public void setAtomicReadFile(final boolean atomicReadFile) {
         getValue()[6] = atomicReadFile;
     }
 
     public boolean isAtomicWriteFile() {
-        return getValue()[7];
+        return getArrayValue(7);
     }
 
-    public void setAtomicWriteFile(boolean atomicWriteFile) {
+    public void setAtomicWriteFile(final boolean atomicWriteFile) {
         getValue()[7] = atomicWriteFile;
     }
 
     public boolean isAddListElement() {
-        return getValue()[8];
+        return getArrayValue(8);
     }
 
-    public void setAddListElement(boolean addListElement) {
+    public void setAddListElement(final boolean addListElement) {
         getValue()[8] = addListElement;
     }
 
     public boolean isRemoveListElement() {
-        return getValue()[9];
+        return getArrayValue(9);
     }
 
-    public void setRemoveListElement(boolean removeListElement) {
+    public void setRemoveListElement(final boolean removeListElement) {
         getValue()[9] = removeListElement;
     }
 
     public boolean isCreateObject() {
-        return getValue()[10];
+        return getArrayValue(10);
     }
 
-    public void setCreateObject(boolean createObject) {
+    public void setCreateObject(final boolean createObject) {
         getValue()[10] = createObject;
     }
 
     public boolean isDeleteObject() {
-        return getValue()[11];
+        return getArrayValue(11);
     }
 
-    public void setDeleteObject(boolean deleteObject) {
+    public void setDeleteObject(final boolean deleteObject) {
         getValue()[11] = deleteObject;
     }
 
     public boolean isReadProperty() {
-        return getValue()[12];
+        return getArrayValue(12);
     }
 
-    public void setReadProperty(boolean readProperty) {
+    public void setReadProperty(final boolean readProperty) {
         getValue()[12] = readProperty;
     }
 
     public boolean isReadPropertyMultiple() {
-        return getValue()[14];
+        return getArrayValue(14);
     }
 
-    public void setReadPropertyMultiple(boolean readPropertyMultiple) {
+    public void setReadPropertyMultiple(final boolean readPropertyMultiple) {
         getValue()[14] = readPropertyMultiple;
     }
 
     public boolean isWriteProperty() {
-        return getValue()[15];
+        return getArrayValue(15);
     }
 
-    public void setWriteProperty(boolean writeProperty) {
+    public void setWriteProperty(final boolean writeProperty) {
         getValue()[15] = writeProperty;
     }
 
     public boolean isWritePropertyMultiple() {
-        return getValue()[16];
+        return getArrayValue(16);
     }
 
-    public void setWritePropertyMultiple(boolean writePropertyMultiple) {
+    public void setWritePropertyMultiple(final boolean writePropertyMultiple) {
         getValue()[16] = writePropertyMultiple;
     }
 
     public boolean isDeviceCommunicationControl() {
-        return getValue()[17];
+        return getArrayValue(17);
     }
 
-    public void setDeviceCommunicationControl(boolean deviceCommunicationControl) {
+    public void setDeviceCommunicationControl(final boolean deviceCommunicationControl) {
         getValue()[17] = deviceCommunicationControl;
     }
 
     public boolean isConfirmedPrivateTransfer() {
-        return getValue()[18];
+        return getArrayValue(18);
     }
 
-    public void setConfirmedPrivateTransfer(boolean confirmedPrivateTransfer) {
+    public void setConfirmedPrivateTransfer(final boolean confirmedPrivateTransfer) {
         getValue()[18] = confirmedPrivateTransfer;
     }
 
     public boolean isConfirmedTextMessage() {
-        return getValue()[19];
+        return getArrayValue(19);
     }
 
-    public void setConfirmedTextMessage(boolean confirmedTextMessage) {
+    public void setConfirmedTextMessage(final boolean confirmedTextMessage) {
         getValue()[19] = confirmedTextMessage;
     }
 
     public boolean isReinitializeDevice() {
-        return getValue()[20];
+        return getArrayValue(20);
     }
 
-    public void setReinitializeDevice(boolean reinitializeDevice) {
+    public void setReinitializeDevice(final boolean reinitializeDevice) {
         getValue()[20] = reinitializeDevice;
     }
 
     public boolean isVtOpen() {
-        return getValue()[21];
+        return getArrayValue(21);
     }
 
-    public void setVtOpen(boolean vtOpen) {
+    public void setVtOpen(final boolean vtOpen) {
         getValue()[21] = vtOpen;
     }
 
     public boolean isVtClose() {
-        return getValue()[22];
+        return getArrayValue(22);
     }
 
-    public void setVtClose(boolean vtClose) {
+    public void setVtClose(final boolean vtClose) {
         getValue()[22] = vtClose;
     }
 
     public boolean isVtData() {
-        return getValue()[23];
+        return getArrayValue(23);
     }
 
-    public void setVtData(boolean vtData) {
+    public void setVtData(final boolean vtData) {
         getValue()[23] = vtData;
     }
 
     public boolean isIAm() {
-        return getValue()[26];
+        return getArrayValue(26);
     }
 
-    public void setIAm(boolean iAm) {
+    public void setIAm(final boolean iAm) {
         getValue()[26] = iAm;
     }
 
     public boolean isIHave() {
-        return getValue()[27];
+        return getArrayValue(27);
     }
 
-    public void setIHave(boolean iHave) {
+    public void setIHave(final boolean iHave) {
         getValue()[27] = iHave;
     }
 
     public boolean isUnconfirmedCovNotification() {
-        return getValue()[28];
+        return getArrayValue(28);
     }
 
-    public void setUnconfirmedCovNotification(boolean unconfirmedCovNotification) {
+    public void setUnconfirmedCovNotification(final boolean unconfirmedCovNotification) {
         getValue()[28] = unconfirmedCovNotification;
     }
 
     public boolean isUnconfirmedEventNotification() {
-        return getValue()[29];
+        return getArrayValue(29);
     }
 
-    public void setUnconfirmedEventNotification(boolean unconfirmedEventNotification) {
+    public void setUnconfirmedEventNotification(final boolean unconfirmedEventNotification) {
         getValue()[29] = unconfirmedEventNotification;
     }
 
     public boolean isUnconfirmedPrivateTransfer() {
-        return getValue()[30];
+        return getArrayValue(30);
     }
 
-    public void setUnconfirmedPrivateTransfer(boolean unconfirmedPrivateTransfer) {
+    public void setUnconfirmedPrivateTransfer(final boolean unconfirmedPrivateTransfer) {
         getValue()[30] = unconfirmedPrivateTransfer;
     }
 
     public boolean isUnconfirmedTextMessage() {
-        return getValue()[31];
+        return getArrayValue(31);
     }
 
-    public void setUnconfirmedTextMessage(boolean unconfirmedTextMessage) {
+    public void setUnconfirmedTextMessage(final boolean unconfirmedTextMessage) {
         getValue()[31] = unconfirmedTextMessage;
     }
 
     public boolean isTimeSynchronization() {
-        return getValue()[32];
+        return getArrayValue(32);
     }
 
-    public void setTimeSynchronization(boolean timeSynchronization) {
+    public void setTimeSynchronization(final boolean timeSynchronization) {
         getValue()[32] = timeSynchronization;
     }
 
     public boolean isWhoHas() {
-        return getValue()[33];
+        return getArrayValue(33);
     }
 
-    public void setWhoHas(boolean whoHas) {
+    public void setWhoHas(final boolean whoHas) {
         getValue()[33] = whoHas;
     }
 
     public boolean isWhoIs() {
-        return getValue()[34];
+        return getArrayValue(34);
     }
 
-    public void setWhoIs(boolean whoIs) {
+    public void setWhoIs(final boolean whoIs) {
         getValue()[34] = whoIs;
     }
 
     public boolean isReadRange() {
-        return getValue()[35];
+        return getArrayValue(35);
     }
 
-    public void setReadRange(boolean readRange) {
+    public void setReadRange(final boolean readRange) {
         getValue()[36] = readRange;
     }
 
     public boolean isUtcTimeSynchronization() {
-        return getValue()[36];
+        return getArrayValue(36);
     }
 
-    public void setUtcTimeSynchronization(boolean utcTimeSynchronization) {
+    public void setUtcTimeSynchronization(final boolean utcTimeSynchronization) {
         getValue()[36] = utcTimeSynchronization;
     }
 
     public boolean isLifeSafetyOperation() {
-        return getValue()[37];
+        return getArrayValue(37);
     }
 
-    public void setLifeSafetyOperation(boolean lifeSafetyOperation) {
+    public void setLifeSafetyOperation(final boolean lifeSafetyOperation) {
         getValue()[37] = lifeSafetyOperation;
     }
 
     public boolean isSubscribeCovProperty() {
-        return getValue()[38];
+        return getArrayValue(38);
     }
 
-    public void setSubscribeCovProperty(boolean subscribeCovProperty) {
+    public void setSubscribeCovProperty(final boolean subscribeCovProperty) {
         getValue()[38] = subscribeCovProperty;
     }
 
     public boolean isGetEventInformation() {
-        return getValue()[39];
+        return getArrayValue(39);
     }
 
-    public void setGetEventInformation(boolean getEventInformation) {
+    public void setGetEventInformation(final boolean getEventInformation) {
         getValue()[39] = getEventInformation;
     }
 
     public boolean isWriteGroup() {
-        return getValue()[40];
+        return getArrayValue(40);
     }
 
-    public void setWriteGroup(boolean writeGroup) {
+    public void setWriteGroup(final boolean writeGroup) {
         getValue()[40] = writeGroup;
     }
 }
