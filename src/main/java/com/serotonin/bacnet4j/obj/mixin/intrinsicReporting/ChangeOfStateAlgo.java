@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin.intrinsicReporting;
@@ -46,7 +46,7 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 /**
  * Implements change of state event algorithm.
- * 
+ *
  * @author Matthew
  */
 public class ChangeOfStateAlgo extends EventAlgorithm {
@@ -55,8 +55,8 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
     private final PropertyIdentifier monitoredValueProperty;
     private final PropertyIdentifier alarmValuesProperty;
 
-    public ChangeOfStateAlgo(BACnetObject bo, PropertyIdentifier monitoredValueProperty,
-            PropertyIdentifier alarmValuesProperty) {
+    public ChangeOfStateAlgo(final BACnetObject bo, final PropertyIdentifier monitoredValueProperty,
+            final PropertyIdentifier alarmValuesProperty) {
         super(bo);
 
         this.monitoredValueProperty = monitoredValueProperty;
@@ -65,15 +65,16 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
 
     @Override
     protected StateTransition evaluateEventState() {
-        EventState currentState = get(PropertyIdentifier.eventState);
-        Encodable monitoredValue = get(monitoredValueProperty);
-        Encodable alarmValues = get(alarmValuesProperty);
-        UnsignedInteger timeDelay = get(PropertyIdentifier.timeDelay);
+        final EventState currentState = get(PropertyIdentifier.eventState);
+        final Encodable monitoredValue = get(monitoredValueProperty);
+        final Encodable alarmValues = get(alarmValuesProperty);
+        final UnsignedInteger timeDelay = get(PropertyIdentifier.timeDelay);
         UnsignedInteger timeDelayNormal = get(PropertyIdentifier.timeDelayNormal);
         if (timeDelayNormal == null)
             timeDelayNormal = timeDelay;
 
-        LOG.debug("Current state: {}, monitored value: {}, alarm values: {}", currentState, monitoredValue, alarmValues);
+        LOG.debug("Current state: {}, monitored value: {}, alarm values: {}", currentState, monitoredValue,
+                alarmValues);
 
         if (currentState.equals(EventState.normal) && isAlarmValue(monitoredValue, alarmValues))
             return new StateTransition(EventState.offnormal, timeDelay);
@@ -81,16 +82,16 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
         if (currentState.isOffNormal() && !isAlarmValue(monitoredValue, alarmValues))
             return new StateTransition(EventState.normal, timeDelayNormal);
 
-        // It appears that condition c) in 13.3.2 is unnecessary because the only off-normal state this event algorithm 
+        // It appears that condition c) in 13.3.2 is unnecessary because the only off-normal state this event algorithm
         // can transition to is off-normal.
 
         return null;
     }
 
-    private boolean isAlarmValue(Encodable monitoredValue, Encodable alarmValue) {
+    private static boolean isAlarmValue(final Encodable monitoredValue, final Encodable alarmValue) {
         if (alarmValue instanceof SequenceOf) {
             @SuppressWarnings("unchecked")
-            SequenceOf<Encodable> alarmValues = (SequenceOf<Encodable>) alarmValue;
+            final SequenceOf<Encodable> alarmValues = (SequenceOf<Encodable>) alarmValue;
             return alarmValues.contains(monitoredValue);
         }
         return alarmValue.equals(monitoredValue);
@@ -102,7 +103,7 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
     }
 
     @Override
-    protected NotificationParameters getEventValues(EventState fromState, EventState toState) {
+    protected NotificationParameters getEventValues(final EventState fromState, final EventState toState) {
         return new ChangeOfState(new PropertyStates(get(monitoredValueProperty)),
                 (StatusFlags) get(PropertyIdentifier.statusFlags));
     }
