@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -33,6 +33,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class EngineeringUnits extends Enumerated {
     private static final long serialVersionUID = -1334755490239859845L;
+
     // Acceleration
     public static final EngineeringUnits metersPerSecondPerSecond = new EngineeringUnits(166);
     // Area
@@ -57,6 +58,9 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits amperesPerMeter = new EngineeringUnits(167);
     public static final EngineeringUnits amperesPerSquareMeter = new EngineeringUnits(168);
     public static final EngineeringUnits ampereSquareMeters = new EngineeringUnits(169);
+    public static final EngineeringUnits decibels = new EngineeringUnits(199);
+    public static final EngineeringUnits decibelsMillivolt = new EngineeringUnits(200);
+    public static final EngineeringUnits decibelsVolt = new EngineeringUnits(201);
     public static final EngineeringUnits farads = new EngineeringUnits(170);
     public static final EngineeringUnits henrys = new EngineeringUnits(171);
     public static final EngineeringUnits ohms = new EngineeringUnits(4);
@@ -64,6 +68,8 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits milliohms = new EngineeringUnits(145);
     public static final EngineeringUnits kilohms = new EngineeringUnits(122);
     public static final EngineeringUnits megohms = new EngineeringUnits(123);
+    public static final EngineeringUnits microsiemens = new EngineeringUnits(190);
+    public static final EngineeringUnits millisiemens = new EngineeringUnits(202);
     public static final EngineeringUnits siemens = new EngineeringUnits(173); // 1 mho equals 1 siemens
     public static final EngineeringUnits siemensPerMeter = new EngineeringUnits(174);
     public static final EngineeringUnits teslas = new EngineeringUnits(175);
@@ -90,6 +96,9 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits wattHours = new EngineeringUnits(18);
     public static final EngineeringUnits kilowattHours = new EngineeringUnits(19);
     public static final EngineeringUnits megawattHours = new EngineeringUnits(146);
+    public static final EngineeringUnits wattHoursReactive = new EngineeringUnits(203);
+    public static final EngineeringUnits kilowattHoursReactive = new EngineeringUnits(204);
+    public static final EngineeringUnits megawattHoursReactive = new EngineeringUnits(205);
     public static final EngineeringUnits btus = new EngineeringUnits(20);
     public static final EngineeringUnits kiloBtus = new EngineeringUnits(147);
     public static final EngineeringUnits megaBtus = new EngineeringUnits(148);
@@ -119,8 +128,10 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits gramsOfWaterPerKilogramDryAir = new EngineeringUnits(28);
     public static final EngineeringUnits percentRelativeHumidity = new EngineeringUnits(29);
     // Length
+    public static final EngineeringUnits micrometers = new EngineeringUnits(194);
     public static final EngineeringUnits millimeters = new EngineeringUnits(30);
     public static final EngineeringUnits centimeters = new EngineeringUnits(118);
+    public static final EngineeringUnits kilometers = new EngineeringUnits(193);
     public static final EngineeringUnits meters = new EngineeringUnits(31);
     public static final EngineeringUnits inches = new EngineeringUnits(32);
     public static final EngineeringUnits feet = new EngineeringUnits(33);
@@ -133,6 +144,8 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits luxes = new EngineeringUnits(37);
     public static final EngineeringUnits footCandles = new EngineeringUnits(38);
     // Mass
+    public static final EngineeringUnits milligrams = new EngineeringUnits(196);
+    public static final EngineeringUnits grams = new EngineeringUnits(195);
     public static final EngineeringUnits kilograms = new EngineeringUnits(39);
     public static final EngineeringUnits poundsMass = new EngineeringUnits(40);
     public static final EngineeringUnits tons = new EngineeringUnits(41);
@@ -162,6 +175,7 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits millibars = new EngineeringUnits(134);
     public static final EngineeringUnits bars = new EngineeringUnits(55);
     public static final EngineeringUnits poundsForcePerSquareInch = new EngineeringUnits(56);
+    public static final EngineeringUnits millimetersOfWater = new EngineeringUnits(206);
     public static final EngineeringUnits centimetersOfWater = new EngineeringUnits(57);
     public static final EngineeringUnits inchesOfWater = new EngineeringUnits(58);
     public static final EngineeringUnits millimetersOfMercury = new EngineeringUnits(59);
@@ -203,19 +217,23 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits cubicFeet = new EngineeringUnits(79);
     public static final EngineeringUnits cubicMeters = new EngineeringUnits(80);
     public static final EngineeringUnits imperialGallons = new EngineeringUnits(81);
+    public static final EngineeringUnits milliliters = new EngineeringUnits(197);
     public static final EngineeringUnits liters = new EngineeringUnits(82);
     public static final EngineeringUnits usGallons = new EngineeringUnits(83);
     // Volumetric Flow
     public static final EngineeringUnits cubicFeetPerSecond = new EngineeringUnits(142);
     public static final EngineeringUnits cubicFeetPerMinute = new EngineeringUnits(84);
+    public static final EngineeringUnits cubicFeetPerHour = new EngineeringUnits(191);
     public static final EngineeringUnits cubicMetersPerSecond = new EngineeringUnits(85);
     public static final EngineeringUnits cubicMetersPerMinute = new EngineeringUnits(165);
     public static final EngineeringUnits cubicMetersPerHour = new EngineeringUnits(135);
     public static final EngineeringUnits imperialGallonsPerMinute = new EngineeringUnits(86);
+    public static final EngineeringUnits millilitersPerSecond = new EngineeringUnits(198);
     public static final EngineeringUnits litersPerSecond = new EngineeringUnits(87);
     public static final EngineeringUnits litersPerMinute = new EngineeringUnits(88);
     public static final EngineeringUnits litersPerHour = new EngineeringUnits(136);
     public static final EngineeringUnits usGallonsPerMinute = new EngineeringUnits(89);
+    public static final EngineeringUnits usGallonsPerHour = new EngineeringUnits(192);
     // Other
     public static final EngineeringUnits degreesAngular = new EngineeringUnits(90);
     public static final EngineeringUnits degreesCelsiusPerHour = new EngineeringUnits(91);
@@ -246,50 +264,88 @@ public class EngineeringUnits extends Enumerated {
     public static final EngineeringUnits squareMetersPerNewton = new EngineeringUnits(185);
     public static final EngineeringUnits wattsPerMeterPerDegreeKelvin = new EngineeringUnits(189);
     public static final EngineeringUnits wattsPerSquareMeterDegreeKelvin = new EngineeringUnits(141);
+    public static final EngineeringUnits perMille = new EngineeringUnits(207);
+    public static final EngineeringUnits gramsPerGram = new EngineeringUnits(208);
+    public static final EngineeringUnits kilogramsPerKilogram = new EngineeringUnits(209);
+    public static final EngineeringUnits gramsPerKilogram = new EngineeringUnits(210);
+    public static final EngineeringUnits milligramsPerGram = new EngineeringUnits(211);
+    public static final EngineeringUnits milligramsPerKilogram = new EngineeringUnits(212);
+    public static final EngineeringUnits gramsPerMilliliter = new EngineeringUnits(213);
+    public static final EngineeringUnits gramsPerLiter = new EngineeringUnits(214);
+    public static final EngineeringUnits milligramsPerLiter = new EngineeringUnits(215);
+    public static final EngineeringUnits microgramsPerLiter = new EngineeringUnits(216);
+    public static final EngineeringUnits gramsPerCubicMeter = new EngineeringUnits(217);
+    public static final EngineeringUnits milligramsPerCubicMeter = new EngineeringUnits(218);
+    public static final EngineeringUnits microgramsPerCubicMeter = new EngineeringUnits(219);
+    public static final EngineeringUnits nanogramsPerCubicMeter = new EngineeringUnits(220);
+    public static final EngineeringUnits gramsPerCubicCentimeter = new EngineeringUnits(221);
+    public static final EngineeringUnits becquerels = new EngineeringUnits(222);
+    public static final EngineeringUnits kilobecquerels = new EngineeringUnits(223);
+    public static final EngineeringUnits megabecquerels = new EngineeringUnits(224);
+    public static final EngineeringUnits gray = new EngineeringUnits(225);
+    public static final EngineeringUnits milligray = new EngineeringUnits(226);
+    public static final EngineeringUnits microgray = new EngineeringUnits(227);
+    public static final EngineeringUnits sieverts = new EngineeringUnits(228);
+    public static final EngineeringUnits millisieverts = new EngineeringUnits(229);
+    public static final EngineeringUnits microsieverts = new EngineeringUnits(230);
+    public static final EngineeringUnits microsievertsPerHour = new EngineeringUnits(231);
+    public static final EngineeringUnits decibelsA = new EngineeringUnits(232);
+    public static final EngineeringUnits nephelometricTurbidityUnit = new EngineeringUnits(233);
+    public static final EngineeringUnits pH = new EngineeringUnits(234);
+    public static final EngineeringUnits gramsPerSquareMeter = new EngineeringUnits(235);
+    public static final EngineeringUnits minutesPerDegreeKelvin = new EngineeringUnits(236);
 
-    public static final EngineeringUnits[] ALL = { squareMeters, squareFeet, milliamperes, amperes, ohms, volts,
+    public static final EngineeringUnits[] ALL = { metersPerSecondPerSecond, squareMeters, squareCentimeters,
+            squareFeet, squareInches, currency1, currency2, currency3, currency4, currency5, currency6, currency7,
+            currency8, currency9, currency10, milliamperes, amperes, amperesPerMeter, amperesPerSquareMeter,
+            ampereSquareMeters, decibels, decibelsMillivolt, decibelsVolt, farads, henrys, ohms, ohmMeters, milliohms,
+            kilohms, megohms, microsiemens, millisiemens, siemens, siemensPerMeter, teslas, volts, millivolts,
             kilovolts, megavolts, voltAmperes, kilovoltAmperes, megavoltAmperes, voltAmperesReactive,
-            kilovoltAmperesReactive, megavoltAmperesReactive, degreesPhase, powerFactor, joules, kilojoules, wattHours,
-            kilowattHours, btus, therms, tonHours, joulesPerKilogramDryAir, btusPerPoundDryAir, cyclesPerHour,
-            cyclesPerMinute, hertz, gramsOfWaterPerKilogramDryAir, percentRelativeHumidity, millimeters, meters,
-            inches, feet, wattsPerSquareFoot, wattsPerSquareMeter, lumens, luxes, footCandles, kilograms, poundsMass,
-            tons, kilogramsPerSecond, kilogramsPerMinute, kilogramsPerHour, poundsMassPerMinute, poundsMassPerHour,
-            watts, kilowatts, megawatts, btusPerHour, horsepower, tonsRefrigeration, pascals, kilopascals, bars,
-            poundsForcePerSquareInch, centimetersOfWater, inchesOfWater, millimetersOfMercury, centimetersOfMercury,
-            inchesOfMercury, degreesCelsius, degreesKelvin, degreesFahrenheit, degreeDaysCelsius, degreeDaysFahrenheit,
-            years, months, weeks, days, hours, minutes, seconds, metersPerSecond, kilometersPerHour, feetPerSecond,
-            feetPerMinute, milesPerHour, cubicFeet, cubicMeters, imperialGallons, liters, usGallons,
-            cubicFeetPerMinute, cubicMetersPerSecond, imperialGallonsPerMinute, litersPerSecond, litersPerMinute,
-            usGallonsPerMinute, degreesAngular, degreesCelsiusPerHour, degreesCelsiusPerMinute,
-            degreesFahrenheitPerHour, degreesFahrenheitPerMinute, noUnits, partsPerMillion, partsPerBillion, percent,
-            percentPerSecond, perMinute, perSecond, psiPerDegreeFahrenheit, radians, revolutionsPerMinute, currency1,
-            currency2, currency3, currency4, currency5, currency6, currency7, currency8, currency9, currency10,
-            squareInches, squareCentimeters, btusPerPound, centimeters, poundsMassPerSecond, deltaDegreesFahrenheit,
-            deltaDegreesKelvin, kilohms, megohms, millivolts, kilojoulesPerKilogram, megajoules, joulesPerDegreeKelvin,
-            joulesPerKilogramDegreeKelvin, kilohertz, megahertz, perHour, milliwatts, hectopascals, millibars,
-            cubicMetersPerHour, litersPerHour, kilowattHoursPerSquareMeter, kilowattHoursPerSquareFoot,
-            megajoulesPerSquareMeter, megajoulesPerSquareFoot, wattsPerSquareMeterDegreeKelvin, cubicFeetPerSecond,
-            percentObscurationPerFoot, percentObscurationPerMeter, milliohms, megawattHours, kiloBtus, megaBtus,
-            kilojoulesPerKilogramDryAir, megajoulesPerKilogramDryAir, kilojoulesPerDegreeKelvin,
-            megajoulesPerDegreeKelvin, newton, gramsPerSecond, gramsPerMinute, tonsPerHour, kiloBtusPerHour,
-            hundredthsSeconds, milliseconds, newtonMeters, millimetersPerSecond, millimetersPerMinute, metersPerMinute,
-            metersPerHour, cubicMetersPerMinute, metersPerSecondPerSecond, amperesPerMeter, amperesPerSquareMeter,
-            ampereSquareMeters, farads, henrys, ohmMeters, siemens, siemensPerMeter, teslas, voltsPerDegreeKelvin,
-            voltsPerMeter, webers, candelas, candelasPerSquareMeter, degreesKelvinPerHour, degreesKelvinPerMinute,
-            jouleSeconds, radiansPerSecond, squareMetersPerNewton, kilogramsPerCubicMeter, newtonSeconds,
-            newtonsPerMeter, wattsPerMeterPerDegreeKelvin, };
+            kilovoltAmperesReactive, megavoltAmperesReactive, voltsPerDegreeKelvin, voltsPerMeter, degreesPhase,
+            powerFactor, webers, joules, kilojoules, kilojoulesPerKilogram, megajoules, wattHours, kilowattHours,
+            megawattHours, wattHoursReactive, kilowattHoursReactive, megawattHoursReactive, btus, kiloBtus, megaBtus,
+            therms, tonHours, joulesPerKilogramDryAir, kilojoulesPerKilogramDryAir, megajoulesPerKilogramDryAir,
+            btusPerPoundDryAir, btusPerPound, joulesPerDegreeKelvin, kilojoulesPerDegreeKelvin,
+            megajoulesPerDegreeKelvin, joulesPerKilogramDegreeKelvin, newton, cyclesPerHour, cyclesPerMinute, hertz,
+            kilohertz, megahertz, perHour, gramsOfWaterPerKilogramDryAir, percentRelativeHumidity, micrometers,
+            millimeters, centimeters, kilometers, meters, inches, feet, candelas, candelasPerSquareMeter,
+            wattsPerSquareFoot, wattsPerSquareMeter, lumens, luxes, footCandles, milligrams, grams, kilograms,
+            poundsMass, tons, gramsPerSecond, gramsPerMinute, kilogramsPerSecond, kilogramsPerMinute, kilogramsPerHour,
+            poundsMassPerSecond, poundsMassPerMinute, poundsMassPerHour, tonsPerHour, milliwatts, watts, kilowatts,
+            megawatts, btusPerHour, kiloBtusPerHour, horsepower, tonsRefrigeration, pascals, hectopascals, kilopascals,
+            millibars, bars, poundsForcePerSquareInch, millimetersOfWater, centimetersOfWater, inchesOfWater,
+            millimetersOfMercury, centimetersOfMercury, inchesOfMercury, degreesCelsius, degreesKelvin,
+            degreesKelvinPerHour, degreesKelvinPerMinute, degreesFahrenheit, degreeDaysCelsius, degreeDaysFahrenheit,
+            deltaDegreesFahrenheit, deltaDegreesKelvin, years, months, weeks, days, hours, minutes, seconds,
+            hundredthsSeconds, milliseconds, newtonMeters, millimetersPerSecond, millimetersPerMinute, metersPerSecond,
+            metersPerMinute, metersPerHour, kilometersPerHour, feetPerSecond, feetPerMinute, milesPerHour, cubicFeet,
+            cubicMeters, imperialGallons, milliliters, liters, usGallons, cubicFeetPerSecond, cubicFeetPerMinute,
+            cubicFeetPerHour, cubicMetersPerSecond, cubicMetersPerMinute, cubicMetersPerHour, imperialGallonsPerMinute,
+            millilitersPerSecond, litersPerSecond, litersPerMinute, litersPerHour, usGallonsPerMinute, usGallonsPerHour,
+            degreesAngular, degreesCelsiusPerHour, degreesCelsiusPerMinute, degreesFahrenheitPerHour,
+            degreesFahrenheitPerMinute, jouleSeconds, kilogramsPerCubicMeter, kilowattHoursPerSquareMeter,
+            kilowattHoursPerSquareFoot, megajoulesPerSquareMeter, megajoulesPerSquareFoot, noUnits, newtonSeconds,
+            newtonsPerMeter, partsPerMillion, partsPerBillion, percent, percentObscurationPerFoot,
+            percentObscurationPerMeter, percentPerSecond, perMinute, perSecond, psiPerDegreeFahrenheit, radians,
+            radiansPerSecond, revolutionsPerMinute, squareMetersPerNewton, wattsPerMeterPerDegreeKelvin,
+            wattsPerSquareMeterDegreeKelvin, perMille, gramsPerGram, kilogramsPerKilogram, gramsPerKilogram,
+            milligramsPerGram, milligramsPerKilogram, gramsPerMilliliter, gramsPerLiter, milligramsPerLiter,
+            microgramsPerLiter, gramsPerCubicMeter, milligramsPerCubicMeter, microgramsPerCubicMeter,
+            nanogramsPerCubicMeter, gramsPerCubicCentimeter, becquerels, kilobecquerels, megabecquerels, gray,
+            milligray, microgray, sieverts, millisieverts, microsieverts, microsievertsPerHour, decibelsA,
+            nephelometricTurbidityUnit, pH, gramsPerSquareMeter, minutesPerDegreeKelvin, };
 
-    public EngineeringUnits(int value) {
+    public EngineeringUnits(final int value) {
         super(value);
     }
 
-    public EngineeringUnits(ByteQueue queue) {
+    public EngineeringUnits(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == metersPerSecondPerSecond.intValue())
             return "meters per second per second";
         if (type == squareMeters.intValue())
@@ -330,6 +386,12 @@ public class EngineeringUnits extends Enumerated {
             return "amperes per square meter";
         if (type == ampereSquareMeters.intValue())
             return "ampere square meters";
+        if (type == decibels.intValue())
+            return "decibels";
+        if (type == decibelsMillivolt.intValue())
+            return "decibels millivolt";
+        if (type == decibelsVolt.intValue())
+            return "decibels volt";
         if (type == farads.intValue())
             return "farads";
         if (type == henrys.intValue())
@@ -344,6 +406,10 @@ public class EngineeringUnits extends Enumerated {
             return "kilohms";
         if (type == megohms.intValue())
             return "megohms";
+        if (type == microsiemens.intValue())
+            return "microsiemens";
+        if (type == millisiemens.intValue())
+            return "millisiemens";
         if (type == siemens.intValue())
             return "siemens";
         if (type == siemensPerMeter.intValue())
@@ -394,6 +460,12 @@ public class EngineeringUnits extends Enumerated {
             return "kilowatt hours";
         if (type == megawattHours.intValue())
             return "megawatt hours";
+        if (type == wattHoursReactive.intValue())
+            return "watt hours reactive";
+        if (type == kilowattHoursReactive.intValue())
+            return "kilowatt hours reactive";
+        if (type == megawattHoursReactive.intValue())
+            return "megawatt hours reactive";
         if (type == btus.intValue())
             return "btus";
         if (type == kiloBtus.intValue())
@@ -440,10 +512,14 @@ public class EngineeringUnits extends Enumerated {
             return "grams of water per kilogram dry air";
         if (type == percentRelativeHumidity.intValue())
             return "percent relative humidity";
+        if (type == micrometers.intValue())
+            return "micrometers";
         if (type == millimeters.intValue())
             return "millimeters";
         if (type == centimeters.intValue())
             return "centimeters";
+        if (type == kilometers.intValue())
+            return "kilometers";
         if (type == meters.intValue())
             return "meters";
         if (type == inches.intValue())
@@ -464,6 +540,10 @@ public class EngineeringUnits extends Enumerated {
             return "luxes";
         if (type == footCandles.intValue())
             return "foot candles";
+        if (type == milligrams.intValue())
+            return "milligrams";
+        if (type == grams.intValue())
+            return "grams";
         if (type == kilograms.intValue())
             return "kilograms";
         if (type == poundsMass.intValue())
@@ -516,6 +596,8 @@ public class EngineeringUnits extends Enumerated {
             return "bars";
         if (type == poundsForcePerSquareInch.intValue())
             return "pounds force per square inch";
+        if (type == millimetersOfWater.intValue())
+            return "millimeters of water";
         if (type == centimetersOfWater.intValue())
             return "centimeters of water";
         if (type == inchesOfWater.intValue())
@@ -588,6 +670,8 @@ public class EngineeringUnits extends Enumerated {
             return "cubic meters";
         if (type == imperialGallons.intValue())
             return "imperial gallons";
+        if (type == milliliters.intValue())
+            return "milliliters";
         if (type == liters.intValue())
             return "liters";
         if (type == usGallons.intValue())
@@ -596,6 +680,8 @@ public class EngineeringUnits extends Enumerated {
             return "cubic feet per second";
         if (type == cubicFeetPerMinute.intValue())
             return "cubic feet per minute";
+        if (type == cubicFeetPerHour.intValue())
+            return "cubic feet per hour";
         if (type == cubicMetersPerSecond.intValue())
             return "cubic meters per second";
         if (type == cubicMetersPerMinute.intValue())
@@ -604,6 +690,8 @@ public class EngineeringUnits extends Enumerated {
             return "cubic meters per hour";
         if (type == imperialGallonsPerMinute.intValue())
             return "imperial gallons per minute";
+        if (type == millilitersPerSecond.intValue())
+            return "milliliters per second";
         if (type == litersPerSecond.intValue())
             return "liters per second";
         if (type == litersPerMinute.intValue())
@@ -612,6 +700,8 @@ public class EngineeringUnits extends Enumerated {
             return "liters per hour";
         if (type == usGallonsPerMinute.intValue())
             return "us gallons per minute";
+        if (type == usGallonsPerHour.intValue())
+            return "us gallons per hour";
         if (type == degreesAngular.intValue())
             return "degrees angular";
         if (type == degreesCelsiusPerHour.intValue())
@@ -670,6 +760,66 @@ public class EngineeringUnits extends Enumerated {
             return "watts per meter per degree kelvin";
         if (type == wattsPerSquareMeterDegreeKelvin.intValue())
             return "watts per square meter degree kelvin";
+        if (type == perMille.intValue())
+            return "perMille";
+        if (type == gramsPerGram.intValue())
+            return "gramsPerGram";
+        if (type == kilogramsPerKilogram.intValue())
+            return "kilogramsPerKilogram";
+        if (type == gramsPerKilogram.intValue())
+            return "gramsPerKilogram";
+        if (type == milligramsPerGram.intValue())
+            return "milligramsPerGram";
+        if (type == milligramsPerKilogram.intValue())
+            return "milligramsPerKilogram";
+        if (type == gramsPerMilliliter.intValue())
+            return "gramsPerMilliliter";
+        if (type == gramsPerLiter.intValue())
+            return "gramsPerLiter";
+        if (type == milligramsPerLiter.intValue())
+            return "milligramsPerLiter";
+        if (type == microgramsPerLiter.intValue())
+            return "microgramsPerLiter";
+        if (type == gramsPerCubicMeter.intValue())
+            return "gramsPerCubicMeter";
+        if (type == milligramsPerCubicMeter.intValue())
+            return "milligramsPerCubicMeter";
+        if (type == microgramsPerCubicMeter.intValue())
+            return "microgramsPerCubicMeter";
+        if (type == nanogramsPerCubicMeter.intValue())
+            return "nanogramsPerCubicMeter";
+        if (type == gramsPerCubicCentimeter.intValue())
+            return "gramsPerCubicCentimeter";
+        if (type == becquerels.intValue())
+            return "becquerels";
+        if (type == kilobecquerels.intValue())
+            return "kilobecquerels";
+        if (type == megabecquerels.intValue())
+            return "megabecquerels";
+        if (type == gray.intValue())
+            return "gray";
+        if (type == milligray.intValue())
+            return "milligray";
+        if (type == microgray.intValue())
+            return "microgray";
+        if (type == sieverts.intValue())
+            return "sieverts";
+        if (type == millisieverts.intValue())
+            return "millisieverts";
+        if (type == microsieverts.intValue())
+            return "microsieverts";
+        if (type == microsievertsPerHour.intValue())
+            return "microsievertsPerHour";
+        if (type == decibelsA.intValue())
+            return "decibelsA";
+        if (type == nephelometricTurbidityUnit.intValue())
+            return "nephelometricTurbidityUnit";
+        if (type == pH.intValue())
+            return "pH";
+        if (type == gramsPerSquareMeter.intValue())
+            return "gramsPerSquareMeter";
+        if (type == minutesPerDegreeKelvin.intValue())
+            return "minutesPerDegreeKelvin";
         return "Unknown: " + type;
     }
 }
