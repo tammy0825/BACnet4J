@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -35,7 +35,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 abstract public class AcknowledgementService extends Service {
     private static final long serialVersionUID = 3837098889443642001L;
 
-    public static AcknowledgementService createAcknowledgementService(byte type, ByteQueue queue)
+    public static AcknowledgementService createAcknowledgementService(final byte type, final ByteQueue queue)
             throws BACnetException {
 
         if (type == GetAlarmSummaryAck.TYPE_ID) // 3
@@ -50,8 +50,6 @@ abstract public class AcknowledgementService extends Service {
             return new CreateObjectAck(queue);
         if (type == ReadPropertyAck.TYPE_ID) // 12
             return new ReadPropertyAck(queue);
-        if (type == ReadPropertyConditionalAck.TYPE_ID) // 13
-            return new ReadPropertyConditionalAck(queue);
         if (type == ReadPropertyMultipleAck.TYPE_ID) // 14
             return new ReadPropertyMultipleAck(queue);
         if (type == ConfirmedPrivateTransferAck.TYPE_ID) // 18
@@ -60,8 +58,6 @@ abstract public class AcknowledgementService extends Service {
             return new VtOpenAck(queue);
         if (type == VtDataAck.TYPE_ID) // 23
             return new VtDataAck(queue);
-        if (type == AuthenticateAck.TYPE_ID) // 24
-            return new AuthenticateAck(queue);
         if (type == ReadRangeAck.TYPE_ID) // 26
             return new ReadRangeAck(queue);
         if (type == GetEventInformationAck.TYPE_ID) // 29
