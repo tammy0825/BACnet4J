@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -38,31 +38,53 @@ public class AbortReason extends Enumerated {
     public static final AbortReason invalidApduInThisState = new AbortReason(2);
     public static final AbortReason preemptedByHigherPriorityTask = new AbortReason(3);
     public static final AbortReason segmentationNotSupported = new AbortReason(4);
+    public static final AbortReason securityError = new AbortReason(5);
+    public static final AbortReason insufficientSecurity = new AbortReason(6);
+    public static final AbortReason windowSizeOutOfRange = new AbortReason(7);
+    public static final AbortReason applicationExceededReplyTime = new AbortReason(8);
+    public static final AbortReason outOfResources = new AbortReason(9);
+    public static final AbortReason tsmTimeout = new AbortReason(10);
+    public static final AbortReason apduTooLong = new AbortReason(11);
 
     public static final AbortReason[] ALL = { other, bufferOverflow, invalidApduInThisState,
-            preemptedByHigherPriorityTask, segmentationNotSupported, };
+            preemptedByHigherPriorityTask, segmentationNotSupported, securityError, insufficientSecurity,
+            windowSizeOutOfRange, applicationExceededReplyTime, outOfResources, tsmTimeout, apduTooLong };
 
-    public AbortReason(int value) {
+    public AbortReason(final int value) {
         super(value);
     }
 
-    public AbortReason(ByteQueue queue) {
+    public AbortReason(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == other.intValue())
-            return "Other";
+            return "other";
         if (type == bufferOverflow.intValue())
-            return "Buffer overflow";
+            return "bufferOverflow";
         if (type == invalidApduInThisState.intValue())
-            return "Invalid APDU in this state";
+            return "invalidApduInThisState";
         if (type == preemptedByHigherPriorityTask.intValue())
-            return "Preempted by higher priority task";
+            return "preemptedByHigherPriorityTask";
         if (type == segmentationNotSupported.intValue())
-            return "Segmentation not supported";
+            return "segmentationNotSupported";
+        if (type == securityError.intValue())
+            return "securityError";
+        if (type == insufficientSecurity.intValue())
+            return "insufficientSecurity";
+        if (type == windowSizeOutOfRange.intValue())
+            return "windowSizeOutOfRange";
+        if (type == applicationExceededReplyTime.intValue())
+            return "applicationExceededReplyTime";
+        if (type == outOfResources.intValue())
+            return "outOfResources";
+        if (type == tsmTimeout.intValue())
+            return "tsmTimeout";
+        if (type == apduTooLong.intValue())
+            return "apduTooLong";
         return "Unknown(" + type + ")";
     }
 }
