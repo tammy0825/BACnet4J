@@ -8,7 +8,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -23,16 +22,18 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class EventNotifListener extends DeviceEventAdapter {
     static final Logger LOG = LoggerFactory.getLogger(EventNotifListener.class);
 
-    public final List<Map<String, Object>> notifs = new ArrayList<Map<String, Object>>();
+    public final List<Map<String, Object>> notifs = new ArrayList<>();
 
     @Override
-    public void eventNotificationReceived(UnsignedInteger processIdentifier, RemoteDevice initiatingDevice,
-            ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp, UnsignedInteger notificationClass,
-            UnsignedInteger priority, EventType eventType, CharacterString messageText, NotifyType notifyType,
-            Boolean ackRequired, EventState fromState, EventState toState, NotificationParameters eventValues) {
+    public void eventNotificationReceived(final UnsignedInteger processIdentifier,
+            final ObjectIdentifier initiatingDevice, final ObjectIdentifier eventObjectIdentifier,
+            final TimeStamp timeStamp, final UnsignedInteger notificationClass, final UnsignedInteger priority,
+            final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
+            final Boolean ackRequired, final EventState fromState, final EventState toState,
+            final NotificationParameters eventValues) {
         LOG.info("Event notification received.");
 
-        Map<String, Object> notif = new HashMap<String, Object>();
+        final Map<String, Object> notif = new HashMap<>();
         notif.put("processIdentifier", processIdentifier);
         notif.put("initiatingDevice", initiatingDevice);
         notif.put("eventObjectIdentifier", eventObjectIdentifier);
