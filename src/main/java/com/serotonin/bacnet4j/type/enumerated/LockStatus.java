@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -39,15 +39,32 @@ public class LockStatus extends Enumerated {
     public static final LockStatus locked = new LockStatus(0);
     public static final LockStatus unlocked = new LockStatus(1);
     public static final LockStatus fault = new LockStatus(2);
-    public static final LockStatus unknown = new LockStatus(3);
+    public static final LockStatus unused = new LockStatus(3);
+    public static final LockStatus unknown = new LockStatus(4);
 
-    public static final LockStatus[] ALL = { locked, unlocked, fault, unknown, };
+    public static final LockStatus[] ALL = { locked, unlocked, fault, unused, unknown, };
 
-    public LockStatus(int value) {
+    public LockStatus(final int value) {
         super(value);
     }
 
-    public LockStatus(ByteQueue queue) {
+    public LockStatus(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == locked.intValue())
+            return "locked";
+        if (type == unlocked.intValue())
+            return "unlocked";
+        if (type == fault.intValue())
+            return "fault";
+        if (type == unused.intValue())
+            return "unused";
+        if (type == unknown.intValue())
+            return "unknown";
+        return "Unknown(" + type + ")";
     }
 }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -38,11 +38,21 @@ public class Polarity extends Enumerated {
 
     public static final Polarity[] ALL = { normal, reverse, };
 
-    public Polarity(int value) {
+    public Polarity(final int value) {
         super(value);
     }
 
-    public Polarity(ByteQueue queue) {
+    public Polarity(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == normal.intValue())
+            return "normal";
+        if (type == reverse.intValue())
+            return "reverse";
+        return "Unknown(" + type + ")";
     }
 }

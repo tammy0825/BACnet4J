@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -42,11 +42,23 @@ public class DoorSecuredStatus extends Enumerated {
 
     public static final DoorSecuredStatus[] ALL = { secured, unsecured, unknown, };
 
-    public DoorSecuredStatus(int value) {
+    public DoorSecuredStatus(final int value) {
         super(value);
     }
 
-    public DoorSecuredStatus(ByteQueue queue) {
+    public DoorSecuredStatus(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == secured.intValue())
+            return "secured";
+        if (type == unsecured.intValue())
+            return "unsecured";
+        if (type == unknown.intValue())
+            return "unknown";
+        return "Unknown: " + type;
     }
 }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -40,11 +40,25 @@ public class SilencedState extends Enumerated {
 
     public static final SilencedState[] ALL = { unsilenced, audibleSilenced, visibleSilenced, allSilenced, };
 
-    public SilencedState(int value) {
+    public SilencedState(final int value) {
         super(value);
     }
 
-    public SilencedState(ByteQueue queue) {
+    public SilencedState(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == unsilenced.intValue())
+            return "unsilenced";
+        if (type == audibleSilenced.intValue())
+            return "audibleSilenced";
+        if (type == visibleSilenced.intValue())
+            return "visibleSilenced";
+        if (type == allSilenced.intValue())
+            return "allSilenced";
+        return "Unknown: " + type;
     }
 }

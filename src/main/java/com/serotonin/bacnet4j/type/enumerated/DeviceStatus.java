@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -43,11 +43,29 @@ public class DeviceStatus extends Enumerated {
     public static final DeviceStatus[] ALL = { operational, operationalReadOnly, downloadRequired, downloadInProgress,
             nonOperational, backupInProgress, };
 
-    public DeviceStatus(int value) {
+    public DeviceStatus(final int value) {
         super(value);
     }
 
-    public DeviceStatus(ByteQueue queue) {
+    public DeviceStatus(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == operational.intValue())
+            return "operational";
+        if (type == operationalReadOnly.intValue())
+            return "operationalReadOnly";
+        if (type == downloadRequired.intValue())
+            return "downloadRequired";
+        if (type == downloadInProgress.intValue())
+            return "downloadInProgress";
+        if (type == nonOperational.intValue())
+            return "nonOperational";
+        if (type == backupInProgress.intValue())
+            return "backupInProgress";
+        return "Unknown: " + type;
     }
 }

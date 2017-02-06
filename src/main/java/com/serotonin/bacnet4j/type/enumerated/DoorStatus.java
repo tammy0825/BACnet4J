@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -36,17 +36,36 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  */
 public class DoorStatus extends Enumerated {
     private static final long serialVersionUID = -2813060268315235754L;
+
     public static final DoorStatus closed = new DoorStatus(0);
     public static final DoorStatus open = new DoorStatus(1);
     public static final DoorStatus unknown = new DoorStatus(2);
+    public static final DoorStatus doorFault = new DoorStatus(3);
+    public static final DoorStatus unused = new DoorStatus(4);
 
-    public static final DoorStatus[] ALL = { closed, open, unknown, };
+    public static final DoorStatus[] ALL = { closed, open, unknown, doorFault, unused, };
 
-    public DoorStatus(int value) {
+    public DoorStatus(final int value) {
         super(value);
     }
 
-    public DoorStatus(ByteQueue queue) {
+    public DoorStatus(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == closed.intValue())
+            return "closed";
+        if (type == open.intValue())
+            return "open";
+        if (type == unknown.intValue())
+            return "unknown";
+        if (type == doorFault.intValue())
+            return "doorFault";
+        if (type == unused.intValue())
+            return "unused";
+        return "Unknown: " + type;
     }
 }

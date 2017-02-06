@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -49,11 +49,35 @@ public class DoorAlarmState extends Enumerated {
     public static final DoorAlarmState[] ALL = { normal, alarm, doorOpenTooLong, forcedOpen, tamper, doorFault,
             lockDown, freeAccess, egressOpen, };
 
-    public DoorAlarmState(int value) {
+    public DoorAlarmState(final int value) {
         super(value);
     }
 
-    public DoorAlarmState(ByteQueue queue) {
+    public DoorAlarmState(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == normal.intValue())
+            return "normal";
+        if (type == alarm.intValue())
+            return "alarm";
+        if (type == doorOpenTooLong.intValue())
+            return "doorOpenTooLong";
+        if (type == forcedOpen.intValue())
+            return "forcedOpen";
+        if (type == tamper.intValue())
+            return "tamper";
+        if (type == doorFault.intValue())
+            return "doorFault";
+        if (type == lockDown.intValue())
+            return "lockDown";
+        if (type == freeAccess.intValue())
+            return "freeAccess";
+        if (type == egressOpen.intValue())
+            return "egressOpen";
+        return "Unknown: " + type;
     }
 }
