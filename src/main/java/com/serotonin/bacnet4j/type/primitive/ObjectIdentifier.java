@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -34,16 +34,17 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class ObjectIdentifier extends Primitive {
     private static final long serialVersionUID = 4171263406246161971L;
 
+    public static final int UNINITIALIZED = 4194303;
     public static final byte TYPE_ID = 12;
 
-    private ObjectType objectType;
+    private final ObjectType objectType;
     private int instanceNumber;
 
-    public ObjectIdentifier(ObjectType objectType, int instanceNumber) {
-        setValues(objectType, instanceNumber);
+    public ObjectIdentifier(final int objectType, final int instanceNumber) {
+        this(new ObjectType(objectType), instanceNumber);
     }
 
-    private void setValues(ObjectType objectType, int instanceNumber) {
+    public ObjectIdentifier(final ObjectType objectType, final int instanceNumber) {
         if (instanceNumber < 0 || instanceNumber > 0x3FFFFF)
             throw new IllegalArgumentException("Illegal instance number: " + instanceNumber);
 
@@ -67,11 +68,11 @@ public class ObjectIdentifier extends Primitive {
     //
     // Reading and writing
     //
-    public ObjectIdentifier(ByteQueue queue) {
+    public ObjectIdentifier(final ByteQueue queue) {
         readTag(queue);
 
         int objectType = queue.popU1B() << 2;
-        int i = queue.popU1B();
+        final int i = queue.popU1B();
         objectType |= i >> 6;
 
         this.objectType = new ObjectType(objectType);
@@ -82,10 +83,10 @@ public class ObjectIdentifier extends Primitive {
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
-        int objectType = this.objectType.intValue();
+    public void writeImpl(final ByteQueue queue) {
+        final int objectType = this.objectType.intValue();
         queue.push(objectType >> 2);
-        queue.push(((objectType & 3) << 6) | (instanceNumber >> 16));
+        queue.push((objectType & 3) << 6 | instanceNumber >> 16);
         queue.push(instanceNumber >> 8);
         queue.push(instanceNumber);
     }
@@ -105,12 +106,12 @@ public class ObjectIdentifier extends Primitive {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result + instanceNumber;
-        result = PRIME * result + ((objectType == null) ? 0 : objectType.hashCode());
+        result = PRIME * result + (objectType == null ? 0 : objectType.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -123,8 +124,7 @@ public class ObjectIdentifier extends Primitive {
         if (objectType == null) {
             if (other.objectType != null)
                 return false;
-        }
-        else if (!objectType.equals(other.objectType))
+        } else if (!objectType.equals(other.objectType))
             return false;
         return true;
     }
