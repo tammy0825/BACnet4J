@@ -7,7 +7,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
-import com.serotonin.bacnet4j.util.DiscoveryUtils;
 
 abstract public class AbstractTest {
     LocalDevice d1;
@@ -28,13 +27,11 @@ abstract public class AbstractTest {
         d2.sendGlobalBroadcast(d2.getIAm());
 
         // Wait a bit
-        Thread.sleep(100);
+        Thread.sleep(300);
 
         // Get d1 as a remote object.
         rd1 = d2.getRemoteDevice(1).get();
-        DiscoveryUtils.getExtendedDeviceInformation(d2, rd1);
         rd2 = d1.getRemoteDevice(2).get();
-        DiscoveryUtils.getExtendedDeviceInformation(d1, rd2);
 
         before();
     }
