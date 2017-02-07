@@ -31,7 +31,7 @@ public class EventNotifListener extends DeviceEventAdapter {
             final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
             final Boolean ackRequired, final EventState fromState, final EventState toState,
             final NotificationParameters eventValues) {
-        LOG.info("Event notification received.");
+        LOG.debug("Event notification received.");
 
         final Map<String, Object> notif = new HashMap<>();
         notif.put("processIdentifier", processIdentifier);

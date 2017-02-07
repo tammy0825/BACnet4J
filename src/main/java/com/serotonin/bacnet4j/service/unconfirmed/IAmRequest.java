@@ -94,6 +94,8 @@ public class IAmRequest extends UnconfirmedRequestService {
         if (d == null) {
             // Populate the object with discovered values, but do so in a different thread.
             localDevice.execute(() -> {
+                LOG.debug("{} received and IAm from {}. Asynchronously creating remote device",
+                        localDevice.getConfiguration().getInstanceId(), remoteDoi);
                 try {
                     final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
                     rd.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
@@ -102,7 +104,7 @@ public class IAmRequest extends UnconfirmedRequestService {
                     DiscoveryUtils.getExtendedDeviceInformation(localDevice, rd);
                     localDevice.getEventHandler().fireIAmReceived(rd);
                 } catch (final BACnetException e) {
-                    LOG.warn("Error while discovering extended device information", e);
+                    LOG.warn("Error while discovering extended device information from {} at {}", remoteDoi, from, e);
                 }
             });
         } else {
