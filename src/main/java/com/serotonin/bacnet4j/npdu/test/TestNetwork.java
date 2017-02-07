@@ -33,6 +33,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.MessageValidationException;
@@ -51,6 +54,8 @@ import com.serotonin.bacnet4j.util.sero.ThreadUtils;
  * the currently available networks,
  */
 public class TestNetwork extends Network implements Runnable {
+    static final Logger LOG = LoggerFactory.getLogger(TestNetwork.class);
+
     public static final OctetString BROADCAST = new OctetString(new byte[0]);
 
     private static Map<Address, TestNetwork> instances = new ConcurrentHashMap<>();
@@ -63,6 +68,9 @@ public class TestNetwork extends Network implements Runnable {
     private volatile boolean running = true;
     private Thread thread;
 
+    /**
+     * This is the list of outgoing messages queued up for sending.
+     */
     private final Queue<SendData> queue = new ConcurrentLinkedQueue<>();
     private long bytesOut;
     private long bytesIn;
@@ -154,6 +162,7 @@ public class TestNetwork extends Network implements Runnable {
     @Override
     public void run() {
         while (running) {
+            // Check for a message to send.
             final SendData d = queue.poll();
 
             if (d == null)
@@ -163,9 +172,11 @@ public class TestNetwork extends Network implements Runnable {
                 ThreadUtils.sleep(sendDelay);
 
                 if (d.recipient.equals(getLocalBroadcastAddress()) || d.recipient.equals(Address.GLOBAL)) {
+                    // A broadcast. Send to everyone.
                     for (final TestNetwork network : instances.values())
                         receive(network, d.data);
                 } else {
+                    // A directed message. Find the network to pass it to.
                     final TestNetwork network = instances.get(d.recipient);
                     if (network != null)
                         receive(network, d.data);
@@ -174,8 +185,15 @@ public class TestNetwork extends Network implements Runnable {
         }
     }
 
-    private void receive(final TestNetwork network, final byte[] data) {
-        network.handleIncomingData(new ByteQueue(data), address.getMacAddress());
+    /**
+     * Passes the the data over to the given network instance.
+     *
+     * @param recipient
+     * @param data
+     */
+    private void receive(final TestNetwork recipient, final byte[] data) {
+        LOG.debug("Sending data from {} to {}", address, recipient.address);
+        recipient.handleIncomingData(new ByteQueue(data), address.getMacAddress());
     }
 
     @Override
