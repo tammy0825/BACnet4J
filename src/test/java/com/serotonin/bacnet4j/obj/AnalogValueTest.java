@@ -1,5 +1,6 @@
 package com.serotonin.bacnet4j.obj;
 
+import static com.serotonin.bacnet4j.TestUtils.assertBACnetServiceException;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
@@ -12,17 +13,21 @@ import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.notificationParameters.OutOfRange;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
@@ -58,7 +63,6 @@ public class AnalogValueTest extends AbstractTest {
         //                        + "eventType={}, messageText={}, notifyType={}, ackRequired={}, fromState={}, toState={}, " //
         //                        + "eventValues={}", eventObjectIdentifier, timeStamp, notificationClass, priority, eventType,
         //                        messageText, notifyType, ackRequired, fromState, toState, eventValues);
-        //
         //            }
         //        });
 
@@ -188,5 +192,12 @@ public class AnalogValueTest extends AbstractTest {
         assertEquals(
                 new OutOfRange(new Real(94), new StatusFlags(false, false, false, false), new Real(5), new Real(100)),
                 notif.get("eventValues"));
+    }
+
+    @Test
+    public void propertyConformanceReadOnly() {
+        assertBACnetServiceException(() -> av.writeProperty(new PropertyValue(PropertyIdentifier.eventMessageTexts,
+                new UnsignedInteger(2), new CharacterString("should fail"), null)), ErrorClass.property,
+                ErrorCode.writeAccessDenied);
     }
 }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.obj;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.OutOfRangeAlgo;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -41,31 +42,32 @@ import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class AnalogValueObject extends BACnetObject {
     private static final long serialVersionUID = -919281684940144433L;
 
-    public AnalogValueObject(int instanceNumber, String name, float presentValue, EngineeringUnits units,
-            boolean outOfService) {
+    public AnalogValueObject(final int instanceNumber, final String name, final float presentValue,
+            final EngineeringUnits units, final boolean outOfService) {
         super(ObjectType.analogValue, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.presentValue, new Real(presentValue));
         writePropertyInternal(PropertyIdentifier.units, units);
-        writePropertyInternal(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
-                outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this));
+        addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
     }
 
-    public void supportIntrinsicReporting(int timeDelay, int notificationClass, float highLimit, float lowLimit,
-            float deadband, LimitEnable limitEnable, EventTransitionBits eventEnable, NotifyType notifyType,
-            int timeDelayNormal) {
+    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final float highLimit,
+            final float lowLimit, final float deadband, final LimitEnable limitEnable,
+            final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
 
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
@@ -80,14 +82,13 @@ public class AnalogValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(this),
-                null, //
+        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(this), null, //
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.highLimit,
                         PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable, },
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 
-    public void supportCovReporting(float covIncrement) {
+    public void supportCovReporting(final float covIncrement) {
         supportCovReporting(CovReportingMixin.criteria13_1_3, new Real(covIncrement));
     }
 }
