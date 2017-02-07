@@ -1,12 +1,17 @@
 package com.serotonin.bacnet4j;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
 import org.junit.Assert;
+
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 
 public class TestUtils {
     public static <T, U> void assertListEqualsIgnoreOrder(final List<T> expectedList, final List<U> actualList,
@@ -37,5 +42,21 @@ public class TestUtils {
         for (final T e : elements)
             result.add(e);
         return result;
+    }
+
+    public static void assertBACnetServiceException(final ServiceExceptionCommand command, final ErrorClass errorClass,
+            final ErrorCode errorCode) {
+        try {
+            command.call();
+            fail("BACnetServiceException was expected");
+        } catch (final BACnetServiceException e) {
+            assertEquals(errorClass, e.getErrorClass());
+            assertEquals(errorCode, e.getErrorCode());
+        }
+    }
+
+    @FunctionalInterface
+    public static interface ServiceExceptionCommand {
+        void call() throws BACnetServiceException;
     }
 }
