@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -60,8 +60,8 @@ public class AddListElementRequest extends ConfirmedRequestService {
     private final UnsignedInteger propertyArrayIndex;
     private final SequenceOf<? extends Encodable> listOfElements;
 
-    public AddListElementRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, SequenceOf<? extends Encodable> listOfElements) {
+    public AddListElementRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final SequenceOf<? extends Encodable> listOfElements) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
@@ -75,12 +75,12 @@ public class AddListElementRequest extends ConfirmedRequestService {
 
     @SuppressWarnings("unchecked")
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        BACnetObject obj = localDevice.getObject(objectIdentifier);
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final BACnetObject obj = localDevice.getObject(objectIdentifier);
         if (obj == null)
             throw createException(ErrorClass.object, ErrorCode.unknownObject, new UnsignedInteger(0));
 
-        PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
+        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
                 propertyIdentifier);
         if (def == null)
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
@@ -88,14 +88,13 @@ public class AddListElementRequest extends ConfirmedRequestService {
         Encodable e;
         try {
             e = obj.getProperty(propertyIdentifier);
-        }
-        catch (BACnetServiceException ex) {
+        } catch (@SuppressWarnings("unused") final BACnetServiceException ex) {
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
         }
         if (e == null)
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
 
-        PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
+        final PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
         if (!localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv))
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
 
@@ -106,33 +105,32 @@ public class AddListElementRequest extends ConfirmedRequestService {
             if (e instanceof BACnetArray)
                 throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
 
-            SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
-            SequenceOf<Encodable> list = new SequenceOf<Encodable>(origList.getValues());
+            final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
+            final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
             for (int i = 0; i < listOfElements.getCount(); i++) {
-                Encodable pr = listOfElements.get(i + 1);
+                final Encodable pr = listOfElements.get(i + 1);
                 if (!def.getClazz().isAssignableFrom(pr.getClass()))
-                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported, new UnsignedInteger(
-                            i + 1));
+                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
+                            new UnsignedInteger(i + 1));
                 if (!list.contains(pr))
                     list.add(pr);
             }
 
             obj.writeProperty(propertyIdentifier, origList);
-        }
-        else {
+        } else {
             // Expecting an array
             if (!(e instanceof BACnetArray))
                 throw createException(ErrorClass.property, ErrorCode.propertyIsNotAnArray, new UnsignedInteger(0));
 
-            BACnetArray<Encodable> array = new BACnetArray<Encodable>((BACnetArray<Encodable>) e);
-            int writeIndex = propertyArrayIndex.intValue();
+            final BACnetArray<Encodable> array = new BACnetArray<>((BACnetArray<Encodable>) e);
+            final int writeIndex = propertyArrayIndex.intValue();
             for (int i = 0; i < listOfElements.getCount(); i++) {
-                Encodable pr = listOfElements.get(i + 1);
+                final Encodable pr = listOfElements.get(i + 1);
                 if (!def.getClazz().isAssignableFrom(pr.getClass()))
-                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported, new UnsignedInteger(
-                            i + 1));
+                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
+                            new UnsignedInteger(i + 1));
 
-                int index = writeIndex + i;
+                final int index = writeIndex + i;
                 if (i < 1 || i > array.getCount())
                     throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, new UnsignedInteger(i + 1));
                 array.set(index, pr);
@@ -146,25 +144,25 @@ public class AddListElementRequest extends ConfirmedRequestService {
         return null;
     }
 
-    private BACnetErrorException createException(ErrorClass errorClass, ErrorCode errorCode,
-            UnsignedInteger firstFailedElementNumber) {
-        return new BACnetErrorException(new ChangeListError(getChoiceId(), new BACnetError(errorClass, errorCode),
-                firstFailedElementNumber));
+    private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
+            final UnsignedInteger firstFailedElementNumber) {
+        return new BACnetErrorException(
+                new ChangeListError(getChoiceId(), new BACnetError(errorClass, errorCode), firstFailedElementNumber));
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
         writeEncodable(queue, listOfElements, 3);
     }
 
-    AddListElementRequest(ByteQueue queue) throws BACnetException {
+    AddListElementRequest(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
+        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
                 propertyIdentifier);
         listOfElements = readSequenceOf(queue, def.getClazz(), 3);
         // listOfElements = readEncodable(queue, objectIdentifier.getObjectType(), propertyIdentifier,
@@ -175,15 +173,15 @@ public class AddListElementRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((listOfElements == null) ? 0 : listOfElements.hashCode());
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (listOfElements == null ? 0 : listOfElements.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -194,26 +192,22 @@ public class AddListElementRequest extends ConfirmedRequestService {
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (listOfElements == null) {
             if (other.listOfElements != null)
                 return false;
-        }
-        else if (!listOfElements.equals(other.listOfElements))
+        } else if (!listOfElements.equals(other.listOfElements))
             return false;
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         return true;
     }

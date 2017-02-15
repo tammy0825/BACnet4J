@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -44,22 +44,21 @@ public class Sequence extends BaseType {
     private final SequenceDefinition definition;
     private final Map<String, Encodable> values;
 
-    public Sequence(SequenceDefinition definition, Map<String, Encodable> values) {
+    public Sequence(final SequenceDefinition definition, final Map<String, Encodable> values) {
         this.definition = definition;
         this.values = values;
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        List<ElementSpecification> specs = definition.getElements();
-        for (ElementSpecification spec : specs) {
+    public void write(final ByteQueue queue) {
+        final List<ElementSpecification> specs = definition.getElements();
+        for (final ElementSpecification spec : specs) {
             if (spec.isOptional()) {
                 if (spec.hasContextId())
                     writeOptional(queue, values.get(spec.getId()), spec.getContextId());
                 else
                     writeOptional(queue, values.get(spec.getId()));
-            }
-            else {
+            } else {
                 if (spec.hasContextId())
                     write(queue, values.get(spec.getId()), spec.getContextId());
                 else
@@ -68,24 +67,25 @@ public class Sequence extends BaseType {
         }
     }
 
-    public Sequence(SequenceDefinition definition, ByteQueue queue, int contextId) throws BACnetException {
+    public Sequence(final SequenceDefinition definition, final ByteQueue queue, final int contextId)
+            throws BACnetException {
         this(definition, popStart0(queue, contextId));
         Encodable.popEnd(queue, contextId);
     }
 
-    // The constructor call must be the first statement in the constructor (a nuisance of a rule), so this static 
+    // The constructor call must be the first statement in the constructor (a nuisance of a rule), so this static
     // method is required as a workaround. Ugly, but it works.
-    private static ByteQueue popStart0(ByteQueue queue, int contextId) throws BACnetException {
+    private static ByteQueue popStart0(final ByteQueue queue, final int contextId) throws BACnetException {
         Encodable.popStart(queue, contextId);
         return queue;
     }
 
-    public Sequence(SequenceDefinition definition, ByteQueue queue) throws BACnetException {
+    public Sequence(final SequenceDefinition definition, final ByteQueue queue) throws BACnetException {
         this.definition = definition;
-        values = new HashMap<String, Encodable>();
-        List<ElementSpecification> specs = definition.getElements();
+        values = new HashMap<>();
+        final List<ElementSpecification> specs = definition.getElements();
         for (int i = 0; i < specs.size(); i++) {
-            ElementSpecification spec = specs.get(i);
+            final ElementSpecification spec = specs.get(i);
             if (spec.isSequenceOf()) {
                 if (spec.isOptional())
                     values.put(spec.getId(), readOptionalSequenceOf(queue, spec.getClazz(), spec.getContextId()));
@@ -95,8 +95,7 @@ public class Sequence extends BaseType {
                     else
                         values.put(spec.getId(), readSequenceOf(queue, spec.getClazz()));
                 }
-            }
-            else if (spec.isOptional())
+            } else if (spec.isOptional())
                 values.put(spec.getId(), readOptional(queue, spec.getClazz(), spec.getContextId()));
             else if (spec.hasContextId())
                 values.put(spec.getId(), read(queue, spec.getClazz(), spec.getContextId()));
@@ -117,12 +116,12 @@ public class Sequence extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((values == null) ? 0 : values.hashCode());
+        result = PRIME * result + (values == null ? 0 : values.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -133,8 +132,7 @@ public class Sequence extends BaseType {
         if (values == null) {
             if (other.values != null)
                 return false;
-        }
-        else if (!values.equals(other.values))
+        } else if (!values.equals(other.values))
             return false;
         return true;
     }

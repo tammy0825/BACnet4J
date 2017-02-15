@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -51,18 +51,18 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class NotificationClassObject extends BACnetObject {
     private static final long serialVersionUID = -3881883402727466774L;
 
-    private final List<NotificationClassListener> eventListeners = new CopyOnWriteArrayList<NotificationClassListener>();
+    private final List<NotificationClassListener> eventListeners = new CopyOnWriteArrayList<>();
 
-    public NotificationClassObject(int instanceNumber, String name, int toOffnormalPriority, int toFaultPriority,
-            int toNormalPriority, EventTransitionBits ackRequired) {
-        this(instanceNumber, name, new BACnetArray<UnsignedInteger>(new UnsignedInteger(toOffnormalPriority),
+    public NotificationClassObject(final int instanceNumber, final String name, final int toOffnormalPriority,
+            final int toFaultPriority, final int toNormalPriority, final EventTransitionBits ackRequired) {
+        this(instanceNumber, name, new BACnetArray<>(new UnsignedInteger(toOffnormalPriority),
                 new UnsignedInteger(toFaultPriority), new UnsignedInteger(toNormalPriority)), ackRequired);
 
         writePropertyInternal(PropertyIdentifier.recipientList, new SequenceOf<Destination>());
     }
 
-    public NotificationClassObject(int instanceNumber, String name, BACnetArray<UnsignedInteger> priority,
-            EventTransitionBits ackRequired) {
+    public NotificationClassObject(final int instanceNumber, final String name,
+            final BACnetArray<UnsignedInteger> priority, final EventTransitionBits ackRequired) {
         super(ObjectType.notificationClass, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(instanceNumber));
@@ -70,19 +70,19 @@ public class NotificationClassObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.ackRequired, ackRequired);
     }
 
-    public void addEventListener(NotificationClassListener l) {
+    public void addEventListener(final NotificationClassListener l) {
         eventListeners.add(l);
     }
 
-    public void removeEventListener(NotificationClassListener l) {
+    public void removeEventListener(final NotificationClassListener l) {
         eventListeners.remove(l);
     }
 
-    public void fireEventNotification(ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp,
-            UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType,
-            CharacterString messageText, NotifyType notifyType, Boolean ackRequired, EventState fromState,
-            EventState toState, NotificationParameters eventValues) {
-        for (NotificationClassListener l : eventListeners)
+    public void fireEventNotification(final ObjectIdentifier eventObjectIdentifier, final TimeStamp timeStamp,
+            final UnsignedInteger notificationClass, final UnsignedInteger priority, final EventType eventType,
+            final CharacterString messageText, final NotifyType notifyType, final Boolean ackRequired,
+            final EventState fromState, final EventState toState, final NotificationParameters eventValues) {
+        for (final NotificationClassListener l : eventListeners)
             l.event(eventObjectIdentifier, timeStamp, notificationClass, priority, eventType, messageText, notifyType,
                     ackRequired, fromState, toState, eventValues);
     }

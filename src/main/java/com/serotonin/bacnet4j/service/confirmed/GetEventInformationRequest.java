@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -47,7 +47,7 @@ public class GetEventInformationRequest extends ConfirmedRequestService {
 
     private final ObjectIdentifier lastReceivedObjectIdentifier; // Optional
 
-    public GetEventInformationRequest(ObjectIdentifier lastReceivedObjectIdentifier) {
+    public GetEventInformationRequest(final ObjectIdentifier lastReceivedObjectIdentifier) {
         this.lastReceivedObjectIdentifier = lastReceivedObjectIdentifier;
     }
 
@@ -57,11 +57,11 @@ public class GetEventInformationRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        SequenceOf<EventSummary> summaries = new SequenceOf<EventSummary>();
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final SequenceOf<EventSummary> summaries = new SequenceOf<>();
 
-        for (BACnetObject bo : localDevice.getLocalObjects()) {
-            EventSummary eventSummary = bo.getEventSummary();
+        for (final BACnetObject bo : localDevice.getLocalObjects()) {
+            final EventSummary eventSummary = bo.getEventSummary();
             if (eventSummary != null)
                 summaries.add(eventSummary);
         }
@@ -70,11 +70,11 @@ public class GetEventInformationRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         writeOptional(queue, lastReceivedObjectIdentifier, 0);
     }
 
-    GetEventInformationRequest(ByteQueue queue) throws BACnetException {
+    GetEventInformationRequest(final ByteQueue queue) throws BACnetException {
         lastReceivedObjectIdentifier = readOptional(queue, ObjectIdentifier.class, 0);
     }
 
@@ -82,13 +82,12 @@ public class GetEventInformationRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result
-                + ((lastReceivedObjectIdentifier == null) ? 0 : lastReceivedObjectIdentifier.hashCode());
+        result = PRIME * result + (lastReceivedObjectIdentifier == null ? 0 : lastReceivedObjectIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -99,8 +98,7 @@ public class GetEventInformationRequest extends ConfirmedRequestService {
         if (lastReceivedObjectIdentifier == null) {
             if (other.lastReceivedObjectIdentifier != null)
                 return false;
-        }
-        else if (!lastReceivedObjectIdentifier.equals(other.lastReceivedObjectIdentifier))
+        } else if (!lastReceivedObjectIdentifier.equals(other.lastReceivedObjectIdentifier))
             return false;
         return true;
     }

@@ -320,7 +320,7 @@ public class MasterNode extends MstpNode {
                     //debug("waitForReply:ReceivedPostpone from " + frame.getSourceAddress());
                     if (LOG.isDebugEnabled())
                         LOG.debug(thisStation + " waitForReply:ReceivedPostpone");
-                    ; // the reply to the message has been postponed until a later time.
+                    // The reply to the message has been postponed until a later time.
                 }
 
                 state = MasterNodeState.doneWithToken;

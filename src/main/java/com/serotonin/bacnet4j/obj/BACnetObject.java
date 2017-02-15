@@ -104,15 +104,13 @@ public class BACnetObject implements Serializable {
         this(id, null);
     }
 
-    public BACnetObject(final ObjectIdentifier id, String name) {
+    public BACnetObject(final ObjectIdentifier id, final String name) {
         if (id == null)
             throw new IllegalArgumentException("object id cannot be null");
         objectType = id.getObjectType();
 
-        if (name == null)
-            name = id.toString();
         properties.put(PropertyIdentifier.objectIdentifier, id);
-        properties.put(PropertyIdentifier.objectName, new CharacterString(name));
+        properties.put(PropertyIdentifier.objectName, new CharacterString(name == null ? id.toString() : name));
         properties.put(PropertyIdentifier.objectType, objectType);
 
         // All objects have a property list.

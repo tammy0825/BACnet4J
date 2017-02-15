@@ -51,6 +51,7 @@ public class BACnetArray<E extends Encodable> extends SequenceOf<E> {
         return list;
     }
 
+    @SafeVarargs
     public BACnetArray(final E... values) {
         super(values);
     }

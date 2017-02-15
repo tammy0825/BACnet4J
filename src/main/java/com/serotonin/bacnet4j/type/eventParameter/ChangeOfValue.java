@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
@@ -46,7 +46,7 @@ public class ChangeOfValue extends EventParameter {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(BitString.class);
         classes.add(Real.class);
     }
@@ -54,23 +54,23 @@ public class ChangeOfValue extends EventParameter {
     private final UnsignedInteger timeDelay;
     private final Choice newValue;
 
-    public ChangeOfValue(UnsignedInteger timeDelay, BitString bitmask) {
+    public ChangeOfValue(final UnsignedInteger timeDelay, final BitString bitmask) {
         this.timeDelay = timeDelay;
         this.newValue = new Choice(0, bitmask);
     }
 
-    public ChangeOfValue(UnsignedInteger timeDelay, Real referencedPropertyIncrement) {
+    public ChangeOfValue(final UnsignedInteger timeDelay, final Real referencedPropertyIncrement) {
         this.timeDelay = timeDelay;
         this.newValue = new Choice(1, referencedPropertyIncrement);
     }
 
-    public ChangeOfValue(ByteQueue queue) throws BACnetException {
+    public ChangeOfValue(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         newValue = new Choice(queue, classes, 1);
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    protected void writeImpl(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, newValue, 1);
     }
@@ -92,31 +92,29 @@ public class ChangeOfValue extends EventParameter {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
-        result = prime * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = prime * result + (newValue == null ? 0 : newValue.hashCode());
+        result = prime * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfValue other = (ChangeOfValue) obj;
+        final ChangeOfValue other = (ChangeOfValue) obj;
         if (newValue == null) {
             if (other.newValue != null)
                 return false;
-        }
-        else if (!newValue.equals(other.newValue))
+        } else if (!newValue.equals(other.newValue))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

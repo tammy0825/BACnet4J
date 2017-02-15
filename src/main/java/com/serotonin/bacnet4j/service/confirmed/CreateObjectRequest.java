@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -52,7 +52,7 @@ public class CreateObjectRequest extends ConfirmedRequestService {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(ObjectType.class);
         classes.add(ObjectIdentifier.class);
     }
@@ -60,12 +60,13 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     private final Choice objectSpecifier;
     private final SequenceOf<PropertyValue> listOfInitialValues;
 
-    public CreateObjectRequest(ObjectType objectType, SequenceOf<PropertyValue> listOfInitialValues) {
+    public CreateObjectRequest(final ObjectType objectType, final SequenceOf<PropertyValue> listOfInitialValues) {
         objectSpecifier = new Choice(0, objectType);
         this.listOfInitialValues = listOfInitialValues;
     }
 
-    public CreateObjectRequest(ObjectIdentifier objectIdentifier, SequenceOf<PropertyValue> listOfInitialValues) {
+    public CreateObjectRequest(final ObjectIdentifier objectIdentifier,
+            final SequenceOf<PropertyValue> listOfInitialValues) {
         objectSpecifier = new Choice(1, objectIdentifier);
         this.listOfInitialValues = listOfInitialValues;
     }
@@ -76,7 +77,7 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         // TODO object created this way should be the actual object classes where possible. This implies:
         // 1) A method to select the class to create based upon the provided object type
         // 2) A way to validate the given list of initial values in the same way that constructors validate parameters
@@ -117,12 +118,12 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectSpecifier, 0);
         writeOptional(queue, listOfInitialValues, 1);
     }
 
-    CreateObjectRequest(ByteQueue queue) throws BACnetException {
+    CreateObjectRequest(final ByteQueue queue) throws BACnetException {
         popStart(queue, 0);
         objectSpecifier = new Choice(queue, classes);
         popEnd(queue, 0);
@@ -133,8 +134,7 @@ public class CreateObjectRequest extends ConfirmedRequestService {
             else
                 ThreadLocalObjectTypeStack.set(((ObjectIdentifier) objectSpecifier.getDatum()).getObjectType());
             listOfInitialValues = readOptionalSequenceOf(queue, PropertyValue.class, 1);
-        }
-        finally {
+        } finally {
             ThreadLocalObjectTypeStack.remove();
         }
     }
@@ -143,13 +143,13 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfInitialValues == null) ? 0 : listOfInitialValues.hashCode());
-        result = PRIME * result + ((objectSpecifier == null) ? 0 : objectSpecifier.hashCode());
+        result = PRIME * result + (listOfInitialValues == null ? 0 : listOfInitialValues.hashCode());
+        result = PRIME * result + (objectSpecifier == null ? 0 : objectSpecifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -160,14 +160,12 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         if (listOfInitialValues == null) {
             if (other.listOfInitialValues != null)
                 return false;
-        }
-        else if (!listOfInitialValues.equals(other.listOfInitialValues))
+        } else if (!listOfInitialValues.equals(other.listOfInitialValues))
             return false;
         if (objectSpecifier == null) {
             if (other.objectSpecifier != null)
                 return false;
-        }
-        else if (!objectSpecifier.equals(other.objectSpecifier))
+        } else if (!objectSpecifier.equals(other.objectSpecifier))
             return false;
         return true;
     }

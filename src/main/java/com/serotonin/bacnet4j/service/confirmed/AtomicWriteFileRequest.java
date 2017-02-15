@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -62,15 +62,16 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
     private UnsignedInteger recordCount;
     private SequenceOf<OctetString> fileRecordData;
 
-    public AtomicWriteFileRequest(ObjectIdentifier fileIdentifier, SignedInteger fileStart, OctetString fileData) {
+    public AtomicWriteFileRequest(final ObjectIdentifier fileIdentifier, final SignedInteger fileStart,
+            final OctetString fileData) {
         super();
         this.fileIdentifier = fileIdentifier;
         this.fileStart = fileStart;
         this.fileData = fileData;
     }
 
-    public AtomicWriteFileRequest(ObjectIdentifier fileIdentifier, SignedInteger fileStart,
-            UnsignedInteger recordCount, SequenceOf<OctetString> fileRecordData) {
+    public AtomicWriteFileRequest(final ObjectIdentifier fileIdentifier, final SignedInteger fileStart,
+            final UnsignedInteger recordCount, final SequenceOf<OctetString> fileRecordData) {
         super();
         this.fileIdentifier = fileIdentifier;
         this.fileStart = fileStart;
@@ -84,7 +85,7 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         AtomicWriteFileAck response;
 
         BACnetObject obj;
@@ -97,13 +98,12 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
             file = (FileObject) obj;
 
             // Validation.
-            FileAccessMethod fileAccessMethod = (FileAccessMethod) file
+            final FileAccessMethod fileAccessMethod = (FileAccessMethod) file
                     .getProperty(PropertyIdentifier.fileAccessMethod);
-            if (fileData == null && fileAccessMethod.equals(FileAccessMethod.streamAccess) || fileData != null
-                    && fileAccessMethod.equals(FileAccessMethod.recordAccess))
+            if (fileData == null && fileAccessMethod.equals(FileAccessMethod.streamAccess)
+                    || fileData != null && fileAccessMethod.equals(FileAccessMethod.recordAccess))
                 throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.invalidFileAccessMethod);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
 
@@ -111,7 +111,7 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
             throw new NotImplementedException();
         }
 
-        long start = fileStart.longValue();
+        final long start = fileStart.longValue();
 
         if (start > file.length())
             throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.invalidFileStartPosition);
@@ -119,8 +119,7 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
         try {
             file.writeData(start, fileData);
             response = new AtomicWriteFileAck(fileData == null, fileStart);
-        }
-        catch (IOException e) {
+        } catch (@SuppressWarnings("unused") final IOException e) {
             throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.fileAccessDenied);
         }
 
@@ -128,15 +127,14 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, fileIdentifier);
         if (fileData != null) {
             writeContextTag(queue, 0, true);
             write(queue, fileStart);
             write(queue, fileData);
             writeContextTag(queue, 0, false);
-        }
-        else {
+        } else {
             writeContextTag(queue, 1, true);
             write(queue, fileStart);
             write(queue, recordCount);
@@ -145,14 +143,13 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
         }
     }
 
-    AtomicWriteFileRequest(ByteQueue queue) throws BACnetException {
+    AtomicWriteFileRequest(final ByteQueue queue) throws BACnetException {
         fileIdentifier = read(queue, ObjectIdentifier.class);
         if (popStart(queue) == 0) {
             fileStart = read(queue, SignedInteger.class);
             fileData = read(queue, OctetString.class);
             popEnd(queue, 0);
-        }
-        else {
+        } else {
             fileStart = read(queue, SignedInteger.class);
             recordCount = read(queue, UnsignedInteger.class);
             fileRecordData = readSequenceOf(queue, recordCount.intValue(), OctetString.class);
@@ -164,16 +161,16 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((fileData == null) ? 0 : fileData.hashCode());
-        result = PRIME * result + ((fileIdentifier == null) ? 0 : fileIdentifier.hashCode());
-        result = PRIME * result + ((fileRecordData == null) ? 0 : fileRecordData.hashCode());
-        result = PRIME * result + ((fileStart == null) ? 0 : fileStart.hashCode());
-        result = PRIME * result + ((recordCount == null) ? 0 : recordCount.hashCode());
+        result = PRIME * result + (fileData == null ? 0 : fileData.hashCode());
+        result = PRIME * result + (fileIdentifier == null ? 0 : fileIdentifier.hashCode());
+        result = PRIME * result + (fileRecordData == null ? 0 : fileRecordData.hashCode());
+        result = PRIME * result + (fileStart == null ? 0 : fileStart.hashCode());
+        result = PRIME * result + (recordCount == null ? 0 : recordCount.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -184,32 +181,27 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
         if (fileData == null) {
             if (other.fileData != null)
                 return false;
-        }
-        else if (!fileData.equals(other.fileData))
+        } else if (!fileData.equals(other.fileData))
             return false;
         if (fileIdentifier == null) {
             if (other.fileIdentifier != null)
                 return false;
-        }
-        else if (!fileIdentifier.equals(other.fileIdentifier))
+        } else if (!fileIdentifier.equals(other.fileIdentifier))
             return false;
         if (fileRecordData == null) {
             if (other.fileRecordData != null)
                 return false;
-        }
-        else if (!fileRecordData.equals(other.fileRecordData))
+        } else if (!fileRecordData.equals(other.fileRecordData))
             return false;
         if (fileStart == null) {
             if (other.fileStart != null)
                 return false;
-        }
-        else if (!fileStart.equals(other.fileStart))
+        } else if (!fileStart.equals(other.fileStart))
             return false;
         if (recordCount == null) {
             if (other.recordCount != null)
                 return false;
-        }
-        else if (!recordCount.equals(other.recordCount))
+        } else if (!recordCount.equals(other.recordCount))
             return false;
         return true;
     }

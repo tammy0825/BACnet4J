@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -52,7 +52,7 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
 
     private final SequenceOf<WriteAccessSpecification> listOfWriteAccessSpecifications;
 
-    public WritePropertyMultipleRequest(SequenceOf<WriteAccessSpecification> listOfWriteAccessSpecifications) {
+    public WritePropertyMultipleRequest(final SequenceOf<WriteAccessSpecification> listOfWriteAccessSpecifications) {
         this.listOfWriteAccessSpecifications = listOfWriteAccessSpecifications;
     }
 
@@ -62,32 +62,30 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, listOfWriteAccessSpecifications);
     }
 
-    WritePropertyMultipleRequest(ByteQueue queue) throws BACnetException {
+    WritePropertyMultipleRequest(final ByteQueue queue) throws BACnetException {
         listOfWriteAccessSpecifications = readSequenceOf(queue, WriteAccessSpecification.class);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         BACnetObject obj;
-        for (WriteAccessSpecification spec : listOfWriteAccessSpecifications) {
+        for (final WriteAccessSpecification spec : listOfWriteAccessSpecifications) {
             obj = localDevice.getObject(spec.getObjectIdentifier());
             if (obj == null)
                 throw createException(ErrorClass.property, ErrorCode.unknownObject, spec, null);
 
-            for (PropertyValue pv : spec.getListOfProperties()) {
+            for (final PropertyValue pv : spec.getListOfProperties()) {
                 try {
                     if (localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv)) {
                         obj.writeProperty(pv);
                         localDevice.getEventHandler().propertyWritten(from, obj, pv);
-                    }
-                    else
+                    } else
                         throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, spec, pv);
-                }
-                catch (BACnetServiceException e) {
+                } catch (final BACnetServiceException e) {
                     throw createException(e.getErrorClass(), e.getErrorCode(), spec, pv);
                 }
             }
@@ -96,13 +94,12 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
         return null;
     }
 
-    private BACnetErrorException createException(ErrorClass errorClass, ErrorCode errorCode,
-            WriteAccessSpecification spec, PropertyValue pv) {
-        if (pv == null)
-            pv = spec.getListOfProperties().get(1);
-        return new BACnetErrorException(new WritePropertyMultipleError(getChoiceId(), new BACnetError(errorClass,
-                errorCode), new ObjectPropertyReference(spec.getObjectIdentifier(), pv.getPropertyIdentifier(),
-                pv.getPropertyArrayIndex())));
+    private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
+            final WriteAccessSpecification spec, final PropertyValue pv) {
+        final PropertyValue pvToUse = pv == null ? spec.getListOfProperties().get(1) : pv;
+        return new BACnetErrorException(new WritePropertyMultipleError(getChoiceId(),
+                new BACnetError(errorClass, errorCode), new ObjectPropertyReference(spec.getObjectIdentifier(),
+                        pvToUse.getPropertyIdentifier(), pvToUse.getPropertyArrayIndex())));
     }
 
     @Override
@@ -110,12 +107,12 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result
-                + ((listOfWriteAccessSpecifications == null) ? 0 : listOfWriteAccessSpecifications.hashCode());
+                + (listOfWriteAccessSpecifications == null ? 0 : listOfWriteAccessSpecifications.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -126,8 +123,7 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
         if (listOfWriteAccessSpecifications == null) {
             if (other.listOfWriteAccessSpecifications != null)
                 return false;
-        }
-        else if (!listOfWriteAccessSpecifications.equals(other.listOfWriteAccessSpecifications))
+        } else if (!listOfWriteAccessSpecifications.equals(other.listOfWriteAccessSpecifications))
             return false;
         return true;
     }

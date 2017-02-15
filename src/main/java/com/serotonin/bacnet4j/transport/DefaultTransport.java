@@ -480,6 +480,8 @@ public class DefaultTransport implements Transport, Runnable {
                 else
                     reason = "Unknown reason code";
                 LOG.warn("Received Reject-Message-To-Network with reason '{}': {}", reasonCode, reason);
+                break;
+            default:
             }
         } else
             receiveAPDU(in);
@@ -492,7 +494,7 @@ public class DefaultTransport implements Transport, Runnable {
 
         try {
             apdu = npdu.getAPDU(servicesSupported);
-        } catch (final BACnetException e) {
+        } catch (@SuppressWarnings("unused") final BACnetException e) {
             // Error parsing the APDU. Drop the request.
             return;
         }
@@ -645,7 +647,7 @@ public class DefaultTransport implements Transport, Runnable {
                     key.getLinkService(), msg.getInvokeId());
     }
 
-    private void completeComplexAckResponse(final ComplexACK cack, final ResponseConsumer consumer) {
+    private static void completeComplexAckResponse(final ComplexACK cack, final ResponseConsumer consumer) {
         try {
             cack.parseServiceData();
             consumer.success(cack.getService());
@@ -730,13 +732,14 @@ public class DefaultTransport implements Transport, Runnable {
             final ConfirmedRequestService service) throws BACnetException {
         try {
             return service.handle(localDevice, from);
-        } catch (final NotImplementedException e) {
+        } catch (@SuppressWarnings("unused") final NotImplementedException e) {
             LOG.warn("Unsupported confirmed request: invokeId=" + invokeId + ", from=" + from + ", request="
                     + service.getClass().getName());
             throw new BACnetErrorException(ErrorClass.services, ErrorCode.serviceRequestDenied);
         } catch (final BACnetErrorException e) {
             throw e;
         } catch (final Exception e) {
+            LOG.warn("Error while handling confirmed request", e);
             throw new BACnetErrorException(ErrorClass.device, ErrorCode.operationalProblem);
         }
     }

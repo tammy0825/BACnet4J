@@ -68,12 +68,13 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
     }
 
     @Override
-    public void set(final int indexBase1, PriorityValue value) {
+    public void set(final int indexBase1, final PriorityValue value) {
         if (indexBase1 < 1 || indexBase1 > LENGTH)
             throw new RuntimeException("Invalid priority value");
         if (value == null)
-            value = new PriorityValue(new Null());
-        super.set(indexBase1, value);
+            super.set(indexBase1, new PriorityValue(new Null()));
+        else
+            super.set(indexBase1, value);
     }
 
     @Override

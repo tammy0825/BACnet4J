@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -52,11 +52,11 @@ public class GetAlarmSummaryRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        SequenceOf<AlarmSummary> summaries = new SequenceOf<AlarmSummary>();
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final SequenceOf<AlarmSummary> summaries = new SequenceOf<>();
 
-        for (BACnetObject bo : localDevice.getLocalObjects()) {
-            AlarmSummary alarmSummary = bo.getAlarmSummary();
+        for (final BACnetObject bo : localDevice.getLocalObjects()) {
+            final AlarmSummary alarmSummary = bo.getAlarmSummary();
             if (alarmSummary != null)
                 summaries.add(alarmSummary);
         }
@@ -65,16 +65,16 @@ public class GetAlarmSummaryRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         // no op
     }
 
-    GetAlarmSummaryRequest(@SuppressWarnings("unused") ByteQueue queue) {
+    GetAlarmSummaryRequest(@SuppressWarnings("unused") final ByteQueue queue) {
         // no op
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -82,5 +82,10 @@ public class GetAlarmSummaryRequest extends ConfirmedRequestService {
         if (getClass() != obj.getClass())
             return false;
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

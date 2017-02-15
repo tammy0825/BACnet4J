@@ -42,7 +42,7 @@ import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 import com.serotonin.bacnet4j.util.sero.StreamUtils;
 
 abstract public class MstpNode implements Runnable {
-    static final Logger LOG = LoggerFactory.getLogger(MstpNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MstpNode.class);
 
     private static final byte PREAMBLE1 = 0x55;
     private static final byte PREAMBLE2 = (byte) 0xFF;
@@ -244,7 +244,7 @@ abstract public class MstpNode implements Runnable {
                 try {
                     Thread.sleep(inactivityDelay);
                 } catch (final InterruptedException e) {
-                    // no op
+                    throw new RuntimeException(e);
                 }
             }
         }

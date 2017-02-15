@@ -17,7 +17,7 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RemoteDeviceTest {
     @Test
-    public void asdf() {
+    public void nonsequenceProperties() {
         final LocalDevice d = new LocalDevice(1234, new DefaultTransport(new TestNetwork(1, 10)));
         final RemoteDevice rd = new RemoteDevice(d, 1235);
         final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.binaryValue, 0);

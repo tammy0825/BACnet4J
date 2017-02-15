@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -51,7 +51,7 @@ public class WhoHasRequest extends UnconfirmedRequestService {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(Encodable.class);
         classes.add(Encodable.class);
         classes.add(ObjectIdentifier.class);
@@ -61,12 +61,12 @@ public class WhoHasRequest extends UnconfirmedRequestService {
     private final Limits limits;
     private final Choice object;
 
-    public WhoHasRequest(Limits limits, ObjectIdentifier identifier) {
+    public WhoHasRequest(final Limits limits, final ObjectIdentifier identifier) {
         this.limits = limits;
         object = new Choice(2, identifier);
     }
 
-    public WhoHasRequest(Limits limits, CharacterString name) {
+    public WhoHasRequest(final Limits limits, final CharacterString name) {
         this.limits = limits;
         object = new Choice(3, name);
     }
@@ -77,10 +77,10 @@ public class WhoHasRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public void handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         // Check if we're in the device id range.
         if (limits != null) {
-            int localId = localDevice.getConfiguration().getInstanceId();
+            final int localId = localDevice.getConfiguration().getInstanceId();
             if (localId < limits.getDeviceInstanceRangeLowLimit().intValue()
                     || localId > limits.getDeviceInstanceRangeHighLimit().intValue())
                 return;
@@ -89,32 +89,30 @@ public class WhoHasRequest extends UnconfirmedRequestService {
         // Check if we have the thing being looking for.
         BACnetObject result;
         if (object.getContextId() == 2) {
-            ObjectIdentifier oid = (ObjectIdentifier) object.getDatum();
+            final ObjectIdentifier oid = (ObjectIdentifier) object.getDatum();
             result = localDevice.getObject(oid);
-        }
-        else if (object.getContextId() == 3) {
-            String name = ((CharacterString) object.getDatum()).toString();
+        } else if (object.getContextId() == 3) {
+            final String name = ((CharacterString) object.getDatum()).toString();
             result = localDevice.getObject(name);
-        }
-        else
+        } else
             return;
 
         if (result != null) {
             // Return the result in an i have message.
-            IHaveRequest response = new IHaveRequest(localDevice.getConfiguration().getId(), result.getId(),
+            final IHaveRequest response = new IHaveRequest(localDevice.getConfiguration().getId(), result.getId(),
                     (CharacterString) result.get(PropertyIdentifier.objectName));
             localDevice.sendGlobalBroadcast(response);
         }
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         writeOptional(queue, limits);
         write(queue, object);
     }
 
-    public WhoHasRequest(ByteQueue queue) throws BACnetException {
-        Limits l = new Limits(queue);
+    public WhoHasRequest(final ByteQueue queue) throws BACnetException {
+        final Limits l = new Limits(queue);
         limits = l.getDeviceInstanceRangeLowLimit() == null ? null : l;
         object = new Choice(queue, classes);
     }
@@ -125,17 +123,18 @@ public class WhoHasRequest extends UnconfirmedRequestService {
         private UnsignedInteger deviceInstanceRangeHighLimit;
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             write(queue, deviceInstanceRangeLowLimit, 0);
             write(queue, deviceInstanceRangeHighLimit, 1);
         }
 
-        Limits(ByteQueue queue) throws BACnetException {
+        Limits(final ByteQueue queue) throws BACnetException {
             deviceInstanceRangeLowLimit = readOptional(queue, UnsignedInteger.class, 0);
             deviceInstanceRangeHighLimit = readOptional(queue, UnsignedInteger.class, 1);
         }
 
-        public Limits(UnsignedInteger deviceInstanceRangeLowLimit, UnsignedInteger deviceInstanceRangeHighLimit) {
+        public Limits(final UnsignedInteger deviceInstanceRangeLowLimit,
+                final UnsignedInteger deviceInstanceRangeHighLimit) {
             if (deviceInstanceRangeLowLimit == null || deviceInstanceRangeHighLimit == null)
                 throw new RuntimeException("Both the low and high limits must be set");
             this.deviceInstanceRangeLowLimit = deviceInstanceRangeLowLimit;
@@ -146,7 +145,7 @@ public class WhoHasRequest extends UnconfirmedRequestService {
             return deviceInstanceRangeLowLimit;
         }
 
-        public void setDeviceInstanceRangeLowLimit(UnsignedInteger deviceInstanceRangeLowLimit) {
+        public void setDeviceInstanceRangeLowLimit(final UnsignedInteger deviceInstanceRangeLowLimit) {
             this.deviceInstanceRangeLowLimit = deviceInstanceRangeLowLimit;
         }
 
@@ -154,7 +153,7 @@ public class WhoHasRequest extends UnconfirmedRequestService {
             return deviceInstanceRangeHighLimit;
         }
 
-        public void setDeviceInstanceRangeHighLimit(UnsignedInteger deviceInstanceRangeHighLimit) {
+        public void setDeviceInstanceRangeHighLimit(final UnsignedInteger deviceInstanceRangeHighLimit) {
             this.deviceInstanceRangeHighLimit = deviceInstanceRangeHighLimit;
         }
     }
@@ -163,13 +162,13 @@ public class WhoHasRequest extends UnconfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((limits == null) ? 0 : limits.hashCode());
-        result = PRIME * result + ((object == null) ? 0 : object.hashCode());
+        result = PRIME * result + (limits == null ? 0 : limits.hashCode());
+        result = PRIME * result + (object == null ? 0 : object.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -180,14 +179,12 @@ public class WhoHasRequest extends UnconfirmedRequestService {
         if (limits == null) {
             if (other.limits != null)
                 return false;
-        }
-        else if (!limits.equals(other.limits))
+        } else if (!limits.equals(other.limits))
             return false;
         if (object == null) {
             if (other.object != null)
                 return false;
-        }
-        else if (!object.equals(other.object))
+        } else if (!object.equals(other.object))
             return false;
         return true;
     }

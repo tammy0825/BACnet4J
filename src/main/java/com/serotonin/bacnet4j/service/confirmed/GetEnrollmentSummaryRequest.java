@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -54,9 +54,10 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     private final PriorityFilter priorityFilter; // 4 optional
     private final UnsignedInteger notificationClassFilter; // 5 optional
 
-    public GetEnrollmentSummaryRequest(AcknowledgmentFilter acknowledgmentFilter, RecipientProcess enrollmentFilter,
-            EventStateFilter eventStateFilter, EventType eventTypeFilter, PriorityFilter priorityFilter,
-            UnsignedInteger notificationClassFilter) {
+    public GetEnrollmentSummaryRequest(final AcknowledgmentFilter acknowledgmentFilter,
+            final RecipientProcess enrollmentFilter, final EventStateFilter eventStateFilter,
+            final EventType eventTypeFilter, final PriorityFilter priorityFilter,
+            final UnsignedInteger notificationClassFilter) {
         this.acknowledgmentFilter = acknowledgmentFilter;
         this.enrollmentFilter = enrollmentFilter;
         this.eventStateFilter = eventStateFilter;
@@ -71,11 +72,11 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        SequenceOf<EnrollmentSummary> summaries = new SequenceOf<EnrollmentSummary>();
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final SequenceOf<EnrollmentSummary> summaries = new SequenceOf<>();
 
-        for (BACnetObject bo : localDevice.getLocalObjects()) {
-            EnrollmentSummary enrollmentSummary = bo.getEnrollmentSummary(acknowledgmentFilter, enrollmentFilter,
+        for (final BACnetObject bo : localDevice.getLocalObjects()) {
+            final EnrollmentSummary enrollmentSummary = bo.getEnrollmentSummary(acknowledgmentFilter, enrollmentFilter,
                     eventStateFilter, eventTypeFilter, priorityFilter, notificationClassFilter);
             if (enrollmentSummary != null)
                 summaries.add(enrollmentSummary);
@@ -85,7 +86,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, acknowledgmentFilter, 0);
         writeOptional(queue, enrollmentFilter, 1);
         writeOptional(queue, eventStateFilter, 2);
@@ -94,7 +95,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         writeOptional(queue, notificationClassFilter, 5);
     }
 
-    GetEnrollmentSummaryRequest(ByteQueue queue) throws BACnetException {
+    GetEnrollmentSummaryRequest(final ByteQueue queue) throws BACnetException {
         acknowledgmentFilter = read(queue, AcknowledgmentFilter.class, 0);
         enrollmentFilter = readOptional(queue, RecipientProcess.class, 1);
         eventStateFilter = readOptional(queue, EventStateFilter.class, 2);
@@ -112,17 +113,17 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
 
         public static final AcknowledgmentFilter[] ALL = { all, acked, notAcked, };
 
-        public AcknowledgmentFilter(int value) {
+        public AcknowledgmentFilter(final int value) {
             super(value);
         }
 
-        public AcknowledgmentFilter(ByteQueue queue) {
+        public AcknowledgmentFilter(final ByteQueue queue) {
             super(queue);
         }
 
         @Override
         public String toString() {
-            int type = intValue();
+            final int type = intValue();
             if (type == all.intValue())
                 return "all";
             if (type == acked.intValue())
@@ -144,17 +145,17 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
 
         public static final EventStateFilter[] ALL = { offnormal, fault, normal, all, active, };
 
-        public EventStateFilter(int value) {
+        public EventStateFilter(final int value) {
             super(value);
         }
 
-        public EventStateFilter(ByteQueue queue) {
+        public EventStateFilter(final ByteQueue queue) {
             super(queue);
         }
 
         @Override
         public String toString() {
-            int type = intValue();
+            final int type = intValue();
             if (type == offnormal.intValue())
                 return "offnormal";
             if (type == fault.intValue())
@@ -174,18 +175,18 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         private final UnsignedInteger minPriority;
         private final UnsignedInteger maxPriority;
 
-        public PriorityFilter(UnsignedInteger minPriority, UnsignedInteger maxPriority) {
+        public PriorityFilter(final UnsignedInteger minPriority, final UnsignedInteger maxPriority) {
             this.minPriority = minPriority;
             this.maxPriority = maxPriority;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             minPriority.write(queue, 0);
             maxPriority.write(queue, 1);
         }
 
-        public PriorityFilter(ByteQueue queue) throws BACnetException {
+        public PriorityFilter(final ByteQueue queue) throws BACnetException {
             minPriority = read(queue, UnsignedInteger.class, 0);
             maxPriority = read(queue, UnsignedInteger.class, 1);
         }
@@ -202,13 +203,13 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
-            result = PRIME * result + ((maxPriority == null) ? 0 : maxPriority.hashCode());
-            result = PRIME * result + ((minPriority == null) ? 0 : minPriority.hashCode());
+            result = PRIME * result + (maxPriority == null ? 0 : maxPriority.hashCode());
+            result = PRIME * result + (minPriority == null ? 0 : minPriority.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -219,14 +220,12 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
             if (maxPriority == null) {
                 if (other.maxPriority != null)
                     return false;
-            }
-            else if (!maxPriority.equals(other.maxPriority))
+            } else if (!maxPriority.equals(other.maxPriority))
                 return false;
             if (minPriority == null) {
                 if (other.minPriority != null)
                     return false;
-            }
-            else if (!minPriority.equals(other.minPriority))
+            } else if (!minPriority.equals(other.minPriority))
                 return false;
             return true;
         }
@@ -236,17 +235,17 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((acknowledgmentFilter == null) ? 0 : acknowledgmentFilter.hashCode());
-        result = PRIME * result + ((enrollmentFilter == null) ? 0 : enrollmentFilter.hashCode());
-        result = PRIME * result + ((eventStateFilter == null) ? 0 : eventStateFilter.hashCode());
-        result = PRIME * result + ((eventTypeFilter == null) ? 0 : eventTypeFilter.hashCode());
-        result = PRIME * result + ((notificationClassFilter == null) ? 0 : notificationClassFilter.hashCode());
-        result = PRIME * result + ((priorityFilter == null) ? 0 : priorityFilter.hashCode());
+        result = PRIME * result + (acknowledgmentFilter == null ? 0 : acknowledgmentFilter.hashCode());
+        result = PRIME * result + (enrollmentFilter == null ? 0 : enrollmentFilter.hashCode());
+        result = PRIME * result + (eventStateFilter == null ? 0 : eventStateFilter.hashCode());
+        result = PRIME * result + (eventTypeFilter == null ? 0 : eventTypeFilter.hashCode());
+        result = PRIME * result + (notificationClassFilter == null ? 0 : notificationClassFilter.hashCode());
+        result = PRIME * result + (priorityFilter == null ? 0 : priorityFilter.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -257,38 +256,32 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         if (acknowledgmentFilter == null) {
             if (other.acknowledgmentFilter != null)
                 return false;
-        }
-        else if (!acknowledgmentFilter.equals(other.acknowledgmentFilter))
+        } else if (!acknowledgmentFilter.equals(other.acknowledgmentFilter))
             return false;
         if (enrollmentFilter == null) {
             if (other.enrollmentFilter != null)
                 return false;
-        }
-        else if (!enrollmentFilter.equals(other.enrollmentFilter))
+        } else if (!enrollmentFilter.equals(other.enrollmentFilter))
             return false;
         if (eventStateFilter == null) {
             if (other.eventStateFilter != null)
                 return false;
-        }
-        else if (!eventStateFilter.equals(other.eventStateFilter))
+        } else if (!eventStateFilter.equals(other.eventStateFilter))
             return false;
         if (eventTypeFilter == null) {
             if (other.eventTypeFilter != null)
                 return false;
-        }
-        else if (!eventTypeFilter.equals(other.eventTypeFilter))
+        } else if (!eventTypeFilter.equals(other.eventTypeFilter))
             return false;
         if (notificationClassFilter == null) {
             if (other.notificationClassFilter != null)
                 return false;
-        }
-        else if (!notificationClassFilter.equals(other.notificationClassFilter))
+        } else if (!notificationClassFilter.equals(other.notificationClassFilter))
             return false;
         if (priorityFilter == null) {
             if (other.priorityFilter != null)
                 return false;
-        }
-        else if (!priorityFilter.equals(other.priorityFilter))
+        } else if (!priorityFilter.equals(other.priorityFilter))
             return false;
         return true;
     }

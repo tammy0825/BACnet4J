@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.error;
@@ -44,14 +44,14 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class ConfirmedPrivateTransferError extends BaseError {
     private static final long serialVersionUID = -4736829685989649711L;
 
-    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResolutions = new HashMap<VendorServiceKey, SequenceDefinition>();
+    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResolutions = new HashMap<>();
 
     private final UnsignedInteger vendorId;
     private final UnsignedInteger serviceNumber;
     private final Encodable errorParameters;
 
-    public ConfirmedPrivateTransferError(byte choice, BACnetError error, UnsignedInteger vendorId,
-            UnsignedInteger serviceNumber, BaseType errorParameters) {
+    public ConfirmedPrivateTransferError(final byte choice, final BACnetError error, final UnsignedInteger vendorId,
+            final UnsignedInteger serviceNumber, final BaseType errorParameters) {
         super(choice, error);
         this.vendorId = vendorId;
         this.serviceNumber = serviceNumber;
@@ -59,7 +59,7 @@ public class ConfirmedPrivateTransferError extends BaseError {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(choice);
         write(queue, error, 0);
         write(queue, vendorId, 1);
@@ -67,7 +67,7 @@ public class ConfirmedPrivateTransferError extends BaseError {
         writeOptional(queue, errorParameters, 3);
     }
 
-    ConfirmedPrivateTransferError(byte choice, ByteQueue queue) throws BACnetException {
+    ConfirmedPrivateTransferError(final byte choice, final ByteQueue queue) throws BACnetException {
         super(choice, queue, 0);
         vendorId = read(queue, UnsignedInteger.class, 1);
         serviceNumber = read(queue, UnsignedInteger.class, 2);
@@ -79,14 +79,14 @@ public class ConfirmedPrivateTransferError extends BaseError {
     public int hashCode() {
         final int PRIME = 31;
         int result = super.hashCode();
-        result = PRIME * result + ((errorParameters == null) ? 0 : errorParameters.hashCode());
-        result = PRIME * result + ((serviceNumber == null) ? 0 : serviceNumber.hashCode());
-        result = PRIME * result + ((vendorId == null) ? 0 : vendorId.hashCode());
+        result = PRIME * result + (errorParameters == null ? 0 : errorParameters.hashCode());
+        result = PRIME * result + (serviceNumber == null ? 0 : serviceNumber.hashCode());
+        result = PRIME * result + (vendorId == null ? 0 : vendorId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (!super.equals(obj))
@@ -97,20 +97,17 @@ public class ConfirmedPrivateTransferError extends BaseError {
         if (errorParameters == null) {
             if (other.errorParameters != null)
                 return false;
-        }
-        else if (!errorParameters.equals(other.errorParameters))
+        } else if (!errorParameters.equals(other.errorParameters))
             return false;
         if (serviceNumber == null) {
             if (other.serviceNumber != null)
                 return false;
-        }
-        else if (!serviceNumber.equals(other.serviceNumber))
+        } else if (!serviceNumber.equals(other.serviceNumber))
             return false;
         if (vendorId == null) {
             if (other.vendorId != null)
                 return false;
-        }
-        else if (!vendorId.equals(other.vendorId))
+        } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
     }

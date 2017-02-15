@@ -51,6 +51,7 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         this.values = values;
     }
 
+    @SafeVarargs
     public SequenceOf(final E... values) {
         this();
         for (final E value : values)
@@ -69,9 +70,10 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
             values.add(read(queue, clazz));
     }
 
-    public SequenceOf(final ByteQueue queue, int count, final Class<E> clazz) throws BACnetException {
+    public SequenceOf(final ByteQueue queue, final int count, final Class<E> clazz) throws BACnetException {
         values = new ArrayList<>();
-        while (count-- > 0)
+        int _count = count;
+        while (_count-- > 0)
             values.add(read(queue, clazz));
     }
 

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -56,7 +56,7 @@ public class FileObject extends BACnetObject {
      */
     private final File file;
 
-    public FileObject(int instanceNumber, File file, FileAccessMethod fileAccessMethod) {
+    public FileObject(final int instanceNumber, final File file, final FileAccessMethod fileAccessMethod) {
         super(ObjectType.file, instanceNumber, file.getName());
         this.file = file;
 
@@ -70,7 +70,8 @@ public class FileObject extends BACnetObject {
 
     public void updateProperties() {
         // NOTE: This is only a snapshot. Property read methods need to be overridden to report real time values.
-        writePropertyInternal(PropertyIdentifier.fileSize, new UnsignedInteger(new BigInteger(Long.toString(length()))));
+        writePropertyInternal(PropertyIdentifier.fileSize,
+                new UnsignedInteger(new BigInteger(Long.toString(length()))));
         writePropertyInternal(PropertyIdentifier.modificationDate, new DateTime(file.lastModified()));
         writePropertyInternal(PropertyIdentifier.readOnly, new Boolean(!file.canWrite()));
     }
@@ -79,43 +80,36 @@ public class FileObject extends BACnetObject {
         return file.length();
     }
 
-    public OctetString readData(long start, long length) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        try {
-            while (start > 0) {
-                long result = in.skip(start);
+    public OctetString readData(final long start, final long length) throws IOException {
+        long skip = start;
+        try (FileInputStream in = new FileInputStream(file)) {
+            while (skip > 0) {
+                final long result = in.skip(skip);
                 if (result == -1)
                     // EOF
                     break;
-                start -= result;
+                skip -= result;
             }
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
             StreamUtils.transfer(in, out, length);
             return new OctetString(out.toByteArray());
         }
-        finally {
-            in.close();
-        }
     }
 
-    public void writeData(long start, OctetString fileData) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(file, "rw");
-        try {
-            byte data[] = fileData.getBytes();
-            long newLength = start + data.length;
+    public void writeData(final long start, final OctetString fileData) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            final byte data[] = fileData.getBytes();
+            final long newLength = start + data.length;
             raf.seek(start);
             raf.write(data);
             raf.setLength(newLength);
-        }
-        finally {
-            raf.close();
         }
 
         updateProperties();
     }
 
-    //    
+    //
     // public SequenceOf<OctetString> readRecords(int start, int length) throws IOException {
-    //        
+    //
     // }
 }

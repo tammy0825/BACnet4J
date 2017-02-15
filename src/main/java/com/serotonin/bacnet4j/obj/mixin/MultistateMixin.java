@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin;
@@ -41,27 +41,25 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class MultistateMixin extends AbstractMixin {
-    public MultistateMixin(BACnetObject bo) {
+    public MultistateMixin(final BACnetObject bo) {
         super(bo);
     }
 
     @Override
-    protected boolean validateProperty(PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
         if (PropertyIdentifier.presentValue.equals(value.getPropertyIdentifier())) {
-            UnsignedInteger pv = (UnsignedInteger) value.getValue();
-            UnsignedInteger numStates = get(PropertyIdentifier.numberOfStates);
+            final UnsignedInteger pv = (UnsignedInteger) value.getValue();
+            final UnsignedInteger numStates = get(PropertyIdentifier.numberOfStates);
             if (pv.intValue() < 1 || pv.intValue() > numStates.intValue())
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.inconsistentConfiguration);
-        }
-        else if (PropertyIdentifier.numberOfStates.equals(value.getPropertyIdentifier())) {
-            UnsignedInteger numStates = (UnsignedInteger) value.getValue();
+        } else if (PropertyIdentifier.numberOfStates.equals(value.getPropertyIdentifier())) {
+            final UnsignedInteger numStates = (UnsignedInteger) value.getValue();
             if (numStates.intValue() < 1)
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.inconsistentConfiguration);
-        }
-        else if (PropertyIdentifier.stateText.equals(value.getPropertyIdentifier())) {
+        } else if (PropertyIdentifier.stateText.equals(value.getPropertyIdentifier())) {
             @SuppressWarnings("unchecked")
-            BACnetArray<CharacterString> stateText = (BACnetArray<CharacterString>) value.getValue();
-            UnsignedInteger numStates = get(PropertyIdentifier.numberOfStates);
+            final BACnetArray<CharacterString> stateText = (BACnetArray<CharacterString>) value.getValue();
+            final UnsignedInteger numStates = get(PropertyIdentifier.numberOfStates);
             if (numStates.intValue() != stateText.getCount())
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.inconsistentConfiguration);
         }
@@ -69,16 +67,18 @@ public class MultistateMixin extends AbstractMixin {
     }
 
     @Override
-    protected void afterWriteProperty(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+    protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
         if (PropertyIdentifier.numberOfStates.equals(pid)) {
             if (oldValue != null && !oldValue.equals(newValue)) {
-                BACnetArray<CharacterString> stateText = get(PropertyIdentifier.stateText);
+                final BACnetArray<CharacterString> stateText = get(PropertyIdentifier.stateText);
                 if (stateText != null) {
-                    int numStates = ((UnsignedInteger) newValue).intValue();
-                    BACnetArray<CharacterString> newText = new BACnetArray<CharacterString>(numStates);
+                    final int numStates = ((UnsignedInteger) newValue).intValue();
+                    final BACnetArray<CharacterString> newText = new BACnetArray<>(numStates);
 
                     // Copy the old state values in.
-                    int min = newText.getCount() < stateText.getCount() ? newText.getCount() : stateText.getCount();
+                    final int min = newText.getCount() < stateText.getCount() ? newText.getCount()
+                            : stateText.getCount();
                     for (int i = 0; i < min; i++)
                         newText.set(i + 1, stateText.get(i + 1));
 

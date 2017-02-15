@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -61,15 +61,16 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
     private final SignedInteger fileStartPosition;
     private final UnsignedInteger requestedCount;
 
-    public AtomicReadFileRequest(ObjectIdentifier fileIdentifier, boolean recordAccess,
-            SignedInteger fileStartPosition, UnsignedInteger requestedCount) {
+    public AtomicReadFileRequest(final ObjectIdentifier fileIdentifier, final boolean recordAccess,
+            final SignedInteger fileStartPosition, final UnsignedInteger requestedCount) {
         this.fileIdentifier = fileIdentifier;
         this.recordAccess = recordAccess;
         this.fileStartPosition = fileStartPosition;
         this.requestedCount = requestedCount;
     }
 
-    public AtomicReadFileRequest(ObjectIdentifier fileIdentifier, boolean recordAccess, int start, int length) {
+    public AtomicReadFileRequest(final ObjectIdentifier fileIdentifier, final boolean recordAccess, final int start,
+            final int length) {
         this(fileIdentifier, recordAccess, new SignedInteger(start), new UnsignedInteger(length));
     }
 
@@ -79,7 +80,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         AtomicReadFileAck response;
 
         BACnetObject obj;
@@ -93,8 +94,8 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
             }
 
             // Check for status (backup/restore)
-            BackupState bsOld = (BackupState) localDevice.getConfiguration().getProperty(
-                    PropertyIdentifier.backupAndRestoreState);
+            final BackupState bsOld = (BackupState) localDevice.getConfiguration()
+                    .getProperty(PropertyIdentifier.backupAndRestoreState);
             if (bsOld.intValue() == BackupState.preparingForBackup.intValue()
                     || bsOld.intValue() == BackupState.preparingForRestore.intValue())
                 // Send error: device configuration in progress as response
@@ -103,21 +104,20 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
             file = (FileObject) obj;
 
             // Validation.
-            FileAccessMethod fileAccessMethod = (FileAccessMethod) file
+            final FileAccessMethod fileAccessMethod = (FileAccessMethod) file
                     .getProperty(PropertyIdentifier.fileAccessMethod);
-            if (recordAccess && fileAccessMethod.equals(FileAccessMethod.streamAccess) || !recordAccess
-                    && fileAccessMethod.equals(FileAccessMethod.recordAccess))
+            if (recordAccess && fileAccessMethod.equals(FileAccessMethod.streamAccess)
+                    || !recordAccess && fileAccessMethod.equals(FileAccessMethod.recordAccess))
                 throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.invalidFileAccessMethod);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
 
         if (recordAccess)
             throw new NotImplementedException();
 
-        long start = fileStartPosition.longValue();
-        long length = requestedCount.longValue();
+        final long start = fileStartPosition.longValue();
+        final long length = requestedCount.longValue();
 
         /*
          * throw an exception when the following conditions are met - start is a negative number - start exceeds the
@@ -129,8 +129,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
         try {
             response = new AtomicReadFileAck(new Boolean(file.length() <= start + length), fileStartPosition,
                     file.readData(start, length));
-        }
-        catch (IOException e) {
+        } catch (@SuppressWarnings("unused") final IOException e) {
             throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.fileAccessDenied);
         }
 
@@ -138,7 +137,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, fileIdentifier);
         writeContextTag(queue, recordAccess ? 1 : 0, true);
         write(queue, fileStartPosition);
@@ -146,7 +145,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
         writeContextTag(queue, recordAccess ? 1 : 0, false);
     }
 
-    AtomicReadFileRequest(ByteQueue queue) throws BACnetException {
+    AtomicReadFileRequest(final ByteQueue queue) throws BACnetException {
         fileIdentifier = read(queue, ObjectIdentifier.class);
         recordAccess = popStart(queue) == 1;
         fileStartPosition = read(queue, SignedInteger.class);
@@ -158,15 +157,15 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((fileIdentifier == null) ? 0 : fileIdentifier.hashCode());
-        result = PRIME * result + ((fileStartPosition == null) ? 0 : fileStartPosition.hashCode());
+        result = PRIME * result + (fileIdentifier == null ? 0 : fileIdentifier.hashCode());
+        result = PRIME * result + (fileStartPosition == null ? 0 : fileStartPosition.hashCode());
         result = PRIME * result + (recordAccess ? 1231 : 1237);
-        result = PRIME * result + ((requestedCount == null) ? 0 : requestedCount.hashCode());
+        result = PRIME * result + (requestedCount == null ? 0 : requestedCount.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -177,22 +176,19 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
         if (fileIdentifier == null) {
             if (other.fileIdentifier != null)
                 return false;
-        }
-        else if (!fileIdentifier.equals(other.fileIdentifier))
+        } else if (!fileIdentifier.equals(other.fileIdentifier))
             return false;
         if (fileStartPosition == null) {
             if (other.fileStartPosition != null)
                 return false;
-        }
-        else if (!fileStartPosition.equals(other.fileStartPosition))
+        } else if (!fileStartPosition.equals(other.fileStartPosition))
             return false;
         if (recordAccess != other.recordAccess)
             return false;
         if (requestedCount == null) {
             if (other.requestedCount != null)
                 return false;
-        }
-        else if (!requestedCount.equals(other.requestedCount))
+        } else if (!requestedCount.equals(other.requestedCount))
             return false;
         return true;
     }

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 
 public class SlaveNode extends MstpNode {
-    static final Logger LOG = LoggerFactory.getLogger(SlaveNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SlaveNode.class);
 
     private enum SlaveNodeState {
         idle, answerDataRequest
@@ -110,10 +110,10 @@ public class SlaveNode extends MstpNode {
                 // ReceivedUnwantedFrame
                 if (LOG.isDebugEnabled())
                     LOG.debug("Frame type should not be broadcast: " + type);
-            } else if (type.oneOf(FrameType.pollForMaster))
+            } else if (type.oneOf(FrameType.pollForMaster)) {
                 // ReceivedUnwantedFrame
-                ; // It happens
-            else if (type.oneOf(FrameType.token, FrameType.pollForMaster, FrameType.replyToPollForMaster,
+                // It happens
+            } else if (type.oneOf(FrameType.token, FrameType.pollForMaster, FrameType.replyToPollForMaster,
                     FrameType.replyPostponed)) {
                 // ReceivedUnwantedFrame
                 if (LOG.isDebugEnabled())

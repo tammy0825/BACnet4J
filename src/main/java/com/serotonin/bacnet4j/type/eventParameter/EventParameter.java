@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
@@ -39,9 +39,10 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 abstract public class EventParameter extends BaseType {
     private static final long serialVersionUID = -8202182792179896645L;
 
-    public static EventParameter createEventParameter(ByteQueue queue) throws BACnetException {
+    @SuppressWarnings("unused")
+    public static EventParameter createEventParameter(final ByteQueue queue) throws BACnetException {
         // Get the first byte. It will tell us what the parameter type is.
-        int type = popStart(queue);
+        final int type = popStart(queue);
 
         EventParameter result;
         if (type == ChangeOfBitString.TYPE_ID) // 0
@@ -77,10 +78,10 @@ abstract public class EventParameter extends BaseType {
         else if (type == ChangeOfStatusFlags.TYPE_ID) // 18
             result = new ChangeOfStatusFlags(queue);
         else if (type == 20) {
+            // Create the Null object to remove the bytes from the queue, but don't use it for anything.
             new Null(queue);
             result = null;
-        }
-        else
+        } else
             throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
 
         popEnd(queue, type);
@@ -88,7 +89,7 @@ abstract public class EventParameter extends BaseType {
     }
 
     @Override
-    final public void write(ByteQueue queue) {
+    final public void write(final ByteQueue queue) {
         writeContextTag(queue, getTypeId(), true);
         writeImpl(queue);
         writeContextTag(queue, getTypeId(), false);

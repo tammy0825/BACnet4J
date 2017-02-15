@@ -44,14 +44,14 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.IpAddressUtils;
 
 public class IpNetworkUtils {
-    public static OctetString toOctetString(String dottedString) {
-        dottedString = dottedString.trim();
-        final int colon = dottedString.indexOf(":");
+    public static OctetString toOctetString(final String dottedString) {
+        final String s = dottedString.trim();
+        final int colon = s.indexOf(":");
         if (colon == -1)
             throw new IllegalArgumentException("Dotted string missing port number. Expected x.x.x.x:port");
 
-        final byte[] ip = BACnetUtils.dottedStringToBytes(dottedString.substring(0, colon));
-        final int port = Integer.parseInt(dottedString.substring(colon + 1));
+        final byte[] ip = BACnetUtils.dottedStringToBytes(s.substring(0, colon));
+        final int port = Integer.parseInt(s.substring(colon + 1));
         return toOctetString(ip, port);
     }
 

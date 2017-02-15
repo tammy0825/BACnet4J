@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -38,15 +38,16 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 abstract public class Primitive extends Encodable {
     private static final long serialVersionUID = 611651273642455709L;
 
-    public static Primitive createPrimitive(ByteQueue queue) throws BACnetErrorException {
+    public static Primitive createPrimitive(final ByteQueue queue) throws BACnetErrorException {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
         byte type = queue.peek(0);
         type = (byte) ((type & 0xff) >> 4);
         return createPrimitive(type, queue);
     }
 
-    public static Primitive createPrimitive(ByteQueue queue, int contextId, int typeId) throws BACnetErrorException {
-        int tagNumber = peekTagNumber(queue);
+    public static Primitive createPrimitive(final ByteQueue queue, final int contextId, final int typeId)
+            throws BACnetErrorException {
+        final int tagNumber = peekTagNumber(queue);
 
         // Check if the tag number matches the context id. If they match, then create the context-specific parameter,
         // otherwise return null.
@@ -56,7 +57,7 @@ abstract public class Primitive extends Encodable {
         return createPrimitive(typeId, queue);
     }
 
-    private static Primitive createPrimitive(int typeId, ByteQueue queue) throws BACnetErrorException {
+    private static Primitive createPrimitive(final int typeId, final ByteQueue queue) throws BACnetErrorException {
         if (typeId == Null.TYPE_ID)
             return new Null(queue);
         if (typeId == Boolean.TYPE_ID)
@@ -87,10 +88,10 @@ abstract public class Primitive extends Encodable {
         throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
     }
 
-    public static boolean isPrimitive(byte firstByte) {
+    public static boolean isPrimitive(final byte firstByte) {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
-        firstByte = (byte) ((firstByte & 0xff) >> 4);
-        return firstByte >= Null.TYPE_ID && firstByte <= ObjectIdentifier.TYPE_ID;
+        final byte b = (byte) ((firstByte & 0xff) >> 4);
+        return b >= Null.TYPE_ID && b <= ObjectIdentifier.TYPE_ID;
     }
 
     /**
@@ -100,19 +101,19 @@ abstract public class Primitive extends Encodable {
     protected boolean contextSpecific;
 
     @Override
-    final public void write(ByteQueue queue) {
+    final public void write(final ByteQueue queue) {
         writeTag(queue, getTypeId(), false, getLength());
         writeImpl(queue);
     }
 
     @Override
-    final public void write(ByteQueue queue, int contextId) {
+    final public void write(final ByteQueue queue, final int contextId) {
         contextSpecific = true;
         writeTag(queue, contextId, true, getLength());
         writeImpl(queue);
     }
 
-    final public void writeEncodable(ByteQueue queue, int contextId) {
+    final public void writeEncodable(final ByteQueue queue, final int contextId) {
         writeContextTag(queue, contextId, true);
         write(queue);
         writeContextTag(queue, contextId, false);
@@ -124,48 +125,45 @@ abstract public class Primitive extends Encodable {
 
     abstract protected byte getTypeId();
 
-    private void writeTag(ByteQueue queue, int tagNumber, boolean classTag, long length) {
-        int classValue = classTag ? 8 : 0;
+    private static void writeTag(final ByteQueue queue, final int tagNumber, final boolean classTag,
+            final long length) {
+        final int classValue = classTag ? 8 : 0;
 
         if (length < 0 || length > 0x100000000l)
             throw new IllegalArgumentException("Invalid length: " + length);
 
-        boolean extendedTag = tagNumber > 14;
+        final boolean extendedTag = tagNumber > 14;
 
         if (length < 5) {
             if (extendedTag) {
                 queue.push(0xf0 | classValue | length);
                 queue.push(tagNumber);
-            }
-            else
-                queue.push((tagNumber << 4) | classValue | length);
-        }
-        else {
+            } else
+                queue.push(tagNumber << 4 | classValue | length);
+        } else {
             if (extendedTag) {
                 queue.push(0xf5 | classValue);
                 queue.push(tagNumber);
-            }
-            else
-                queue.push((tagNumber << 4) | classValue | 0x5);
+            } else
+                queue.push(tagNumber << 4 | classValue | 0x5);
 
             if (length < 254)
                 queue.push(length);
             else if (length < 65536) {
                 queue.push(254);
                 queue.pushU2B((int) length);
-            }
-            else {
+            } else {
                 queue.push(255);
                 BACnetUtils.pushInt(queue, length);
             }
         }
     }
 
-    protected long readTag(ByteQueue queue) {
-        byte b = queue.pop();
+    protected long readTag(final ByteQueue queue) {
+        final byte b = queue.pop();
         int tagNumber = (b & 0xff) >> 4;
         contextSpecific = (b & 8) != 0;
-        long length = (b & 7);
+        long length = b & 7;
 
         if (tagNumber == 0xf)
             // Extended tag.

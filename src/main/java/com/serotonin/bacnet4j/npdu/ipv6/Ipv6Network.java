@@ -272,7 +272,7 @@ public class Ipv6Network extends Network implements Runnable {
 
                 // Reset the packet.
                 p.setData(buffer);
-            } catch (final IOException e) {
+            } catch (@SuppressWarnings("unused") final IOException e) {
                 // no op. This happens if the socket gets closed by the destroy method.
             }
         }

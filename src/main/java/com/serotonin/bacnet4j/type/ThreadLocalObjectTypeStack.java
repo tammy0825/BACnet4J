@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type;
@@ -34,13 +34,13 @@ import java.util.List;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 
 public class ThreadLocalObjectTypeStack {
-    private static ThreadLocal<List<ObjectType>> objType = new ThreadLocal<List<ObjectType>>();
+    private static ThreadLocal<List<ObjectType>> objType = new ThreadLocal<>();
 
-    public static void set(ObjectType objectType) {
+    public static void set(final ObjectType objectType) {
         List<ObjectType> stack = objType.get();
 
         if (stack == null) {
-            stack = new ArrayList<ObjectType>();
+            stack = new ArrayList<>();
             objType.set(stack);
         }
 
@@ -48,14 +48,14 @@ public class ThreadLocalObjectTypeStack {
     }
 
     public static ObjectType get() {
-        List<ObjectType> stack = objType.get();
+        final List<ObjectType> stack = objType.get();
         if (stack == null)
             return null;
         return stack.get(stack.size() - 1);
     }
 
     public static void remove() {
-        List<ObjectType> stack = objType.get();
+        final List<ObjectType> stack = objType.get();
         if (stack == null)
             return;
 

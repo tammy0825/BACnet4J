@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.error;
@@ -39,8 +39,8 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class BaseError extends BaseType {
     private static final long serialVersionUID = 8363160647986011176L;
 
-    public static BaseError createBaseError(ByteQueue queue) throws BACnetException {
-        byte choice = queue.pop();
+    public static BaseError createBaseError(final ByteQueue queue) throws BACnetException {
+        final byte choice = queue.pop();
 
         try {
             queue.mark();
@@ -56,9 +56,9 @@ public class BaseError extends BaseType {
                 return new ConfirmedPrivateTransferError(choice, queue);
             case 22:
                 return new VTCloseError(choice, queue);
+            default:
             }
-        }
-        catch (BACnetErrorException e) {
+        } catch (final BACnetErrorException e) {
             // Some devices do not send properly formatted error. In case of error, try just parsing as a BaseError.
             if (e.getError().getError().getErrorClass().isOneOf(ErrorClass.property)
                     && e.getError().getError().getErrorCode().isOneOf(ErrorCode.missingRequiredParameter))
@@ -72,23 +72,23 @@ public class BaseError extends BaseType {
     protected byte choice;
     protected BACnetError error;
 
-    public BaseError(byte choice, BACnetError error) {
+    public BaseError(final byte choice, final BACnetError error) {
         this.choice = choice;
         this.error = error;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(choice);
         write(queue, error);
     }
 
-    public BaseError(byte choice, ByteQueue queue) throws BACnetException {
+    public BaseError(final byte choice, final ByteQueue queue) throws BACnetException {
         this.choice = choice;
         error = read(queue, BACnetError.class);
     }
 
-    public BaseError(byte choice, ByteQueue queue, int contextId) throws BACnetException {
+    public BaseError(final byte choice, final ByteQueue queue, final int contextId) throws BACnetException {
         this.choice = choice;
         error = read(queue, BACnetError.class, contextId);
     }
@@ -107,12 +107,12 @@ public class BaseError extends BaseType {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result + choice;
-        result = PRIME * result + ((error == null) ? 0 : error.hashCode());
+        result = PRIME * result + (error == null ? 0 : error.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -125,8 +125,7 @@ public class BaseError extends BaseType {
         if (error == null) {
             if (other.error != null)
                 return false;
-        }
-        else if (!error.equals(other.error))
+        } else if (!error.equals(other.error))
             return false;
         return true;
     }

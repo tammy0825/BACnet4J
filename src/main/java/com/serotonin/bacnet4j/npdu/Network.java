@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu;
@@ -49,7 +49,7 @@ abstract public class Network {
         this(0);
     }
 
-    public Network(int localNetworkNumber) {
+    public Network(final int localNetworkNumber) {
         this.localNetworkNumber = localNetworkNumber;
     }
 
@@ -57,7 +57,7 @@ abstract public class Network {
         return localNetworkNumber;
     }
 
-    public void setTransport(Transport transport) {
+    public void setTransport(final Transport transport) {
         this.transport = transport;
     }
 
@@ -73,7 +73,7 @@ abstract public class Network {
 
     abstract public MaxApduLength getMaxApduLength();
 
-    public void initialize(Transport transport) throws Exception {
+    public void initialize(final Transport transport) throws Exception {
         this.transport = transport;
     }
 
@@ -87,21 +87,22 @@ abstract public class Network {
 
     abstract public Address[] getAllLocalAddresses();
 
-    public final void sendAPDU(Address recipient, OctetString router, APDU apdu, boolean broadcast)
-            throws BACnetException {
-        ByteQueue npdu = new ByteQueue();
+    public final void sendAPDU(final Address recipient, final OctetString router, final APDU apdu,
+            final boolean broadcast) throws BACnetException {
+        final ByteQueue npdu = new ByteQueue();
 
         NPCI npci;
         if (recipient.isGlobal())
             npci = new NPCI((Address) null);
         else if (isThisNetwork(recipient)) {
             if (router != null)
-                throw new RuntimeException("Invalid arguments: router address provided for local recipient " + recipient);
+                throw new RuntimeException(
+                        "Invalid arguments: router address provided for local recipient " + recipient);
             npci = new NPCI(null, null, apdu.expectsReply());
-        }
-        else {
+        } else {
             if (router == null)
-                throw new RuntimeException("Invalid arguments: router address not provided for remote recipient " + recipient);
+                throw new RuntimeException(
+                        "Invalid arguments: router address not provided for remote recipient " + recipient);
             npci = new NPCI(recipient, null, apdu.expectsReply());
         }
 
@@ -115,9 +116,9 @@ abstract public class Network {
         sendNPDU(recipient, router, npdu, broadcast, apdu.expectsReply());
     }
 
-    public final void sendNetworkMessage(Address recipient, OctetString router, int messageType, byte[] msg,
-            boolean broadcast, boolean expectsReply) throws BACnetException {
-        ByteQueue npdu = new ByteQueue();
+    public final void sendNetworkMessage(final Address recipient, final OctetString router, final int messageType,
+            final byte[] msg, final boolean broadcast, final boolean expectsReply) throws BACnetException {
+        final ByteQueue npdu = new ByteQueue();
 
         NPCI npci;
         if (recipient.isGlobal())
@@ -126,8 +127,7 @@ abstract public class Network {
             if (router != null)
                 throw new RuntimeException("Invalid arguments: router address provided for a local recipient");
             npci = new NPCI(null, null, expectsReply, messageType, 0);
-        }
-        else {
+        } else {
             if (router == null)
                 throw new RuntimeException("Invalid arguments: router address not provided for a remote recipient");
             npci = new NPCI(recipient, null, expectsReply, messageType, 0);
@@ -144,7 +144,7 @@ abstract public class Network {
     abstract protected void sendNPDU(Address recipient, OctetString router, ByteQueue npdu, boolean broadcast,
             boolean expectsReply) throws BACnetException;
 
-    protected OctetString getDestination(Address recipient, OctetString link) {
+    protected OctetString getDestination(final Address recipient, final OctetString link) {
         if (recipient.isGlobal())
             return getLocalBroadcastAddress().getMacAddress();
         if (link != null)
@@ -152,38 +152,36 @@ abstract public class Network {
         return recipient.getMacAddress();
     }
 
-    protected boolean isThisNetwork(Address address) {
-        int nn = address.getNetworkNumber().intValue();
+    protected boolean isThisNetwork(final Address address) {
+        final int nn = address.getNetworkNumber().intValue();
         return nn == Address.LOCAL_NETWORK || nn == localNetworkNumber;
     }
 
-    protected void handleIncomingData(ByteQueue queue, OctetString linkService) {
+    protected void handleIncomingData(final ByteQueue queue, final OctetString linkService) {
         try {
-            NPDU npdu = handleIncomingDataImpl(queue, linkService);
+            final NPDU npdu = handleIncomingDataImpl(queue, linkService);
             if (npdu != null) {
                 LOG.debug("Received NPDU from {}: {}", linkService, npdu);
                 getTransport().incoming(npdu);
             }
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             transport.getLocalDevice().getExceptionDispatcher().fireReceivedException(e);
-        }
-        catch (Throwable t) {
+        } catch (final Throwable t) {
             transport.getLocalDevice().getExceptionDispatcher().fireReceivedThrowable(t);
         }
     }
 
     abstract protected NPDU handleIncomingDataImpl(ByteQueue queue, OctetString linkService) throws Exception;
 
-    public NPDU parseNpduData(ByteQueue queue, OctetString linkService) throws MessageValidationException {
+    public NPDU parseNpduData(final ByteQueue queue, final OctetString linkService) throws MessageValidationException {
         // Network layer protocol control information. See 6.2.2
-        NPCI npci = new NPCI(queue);
+        final NPCI npci = new NPCI(queue);
         if (npci.getVersion() != 1)
             throw new MessageValidationException("Invalid protocol version: " + npci.getVersion());
 
-        // Check the destination network number and ignore foreign networks requests  
+        // Check the destination network number and ignore foreign networks requests
         if (npci.hasDestinationInfo()) {
-            int destNet = npci.getDestinationNetwork();
+            final int destNet = npci.getDestinationNetwork();
             if (destNet > 0 && destNet != 0xffff && getLocalNetworkNumber() > 0 && getLocalNetworkNumber() != destNet)
                 return null;
         }
@@ -194,15 +192,16 @@ abstract public class Network {
         else
             from = new Address(linkService);
 
+        OctetString ls = linkService;
         if (isThisNetwork(from))
-            linkService = null;
+            ls = null;
 
         if (npci.isNetworkMessage())
             // Network message
-            return new NPDU(from, linkService, npci.getMessageType(), queue);
+            return new NPDU(from, ls, npci.getMessageType(), queue);
 
         // APDU message
-        return new NPDU(from, linkService, queue);
+        return new NPDU(from, ls, queue);
     }
 
     @Override
@@ -214,14 +213,14 @@ abstract public class Network {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Network other = (Network) obj;
+        final Network other = (Network) obj;
         if (localNetworkNumber != other.localNetworkNumber)
             return false;
         return true;

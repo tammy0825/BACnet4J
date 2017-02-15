@@ -175,12 +175,11 @@ public class CommandableMixin extends AbstractMixin {
         updatePresentValue(priArr);
     }
 
-    private void updatePresentValue(PriorityArray priorityArray) {
-        if (priorityArray == null)
-            priorityArray = get(PropertyIdentifier.priorityArray);
+    private void updatePresentValue(final PriorityArray priorityArray) {
+        final PriorityArray pa = priorityArray == null ? get(PropertyIdentifier.priorityArray) : priorityArray;
 
         // Update the present value.
-        final Encodable newValue = calculatePresentValue(priorityArray);
+        final Encodable newValue = calculatePresentValue(pa);
 
         // Minimum on/off time
         final UnsignedInteger minOff = get(minimumOffTime);
@@ -191,7 +190,7 @@ public class CommandableMixin extends AbstractMixin {
                 final Encodable oldValue = get(presentValue);
                 if (!newValue.equals(oldValue)) {
                     // Change of state.
-                    priorityArray.set(6, new PriorityValue(newValue));
+                    pa.set(6, new PriorityValue(newValue));
 
                     int time;
                     if (BinaryPV.inactive.equals(newValue)) {

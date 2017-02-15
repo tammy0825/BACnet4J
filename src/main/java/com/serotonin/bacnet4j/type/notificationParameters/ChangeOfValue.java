@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -46,7 +46,7 @@ public class ChangeOfValue extends NotificationParameters {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(BitString.class);
         classes.add(Real.class);
     }
@@ -54,23 +54,23 @@ public class ChangeOfValue extends NotificationParameters {
     private final Choice newValue;
     private final StatusFlags statusFlags;
 
-    public ChangeOfValue(BitString newValue, StatusFlags statusFlags) {
+    public ChangeOfValue(final BitString newValue, final StatusFlags statusFlags) {
         this.newValue = new Choice(0, newValue);
         this.statusFlags = statusFlags;
     }
 
-    public ChangeOfValue(Real newValue, StatusFlags statusFlags) {
+    public ChangeOfValue(final Real newValue, final StatusFlags statusFlags) {
         this.newValue = new Choice(1, newValue);
         this.statusFlags = statusFlags;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    protected void writeImpl(final ByteQueue queue) {
         write(queue, newValue, 0);
         write(queue, statusFlags, 1);
     }
 
-    public ChangeOfValue(ByteQueue queue) throws BACnetException {
+    public ChangeOfValue(final ByteQueue queue) throws BACnetException {
         newValue = new Choice(queue, classes, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
     }
@@ -92,13 +92,13 @@ public class ChangeOfValue extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((newValue == null) ? 0 : newValue.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (newValue == null ? 0 : newValue.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -109,14 +109,12 @@ public class ChangeOfValue extends NotificationParameters {
         if (newValue == null) {
             if (other.newValue != null)
                 return false;
-        }
-        else if (!newValue.equals(other.newValue))
+        } else if (!newValue.equals(other.newValue))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

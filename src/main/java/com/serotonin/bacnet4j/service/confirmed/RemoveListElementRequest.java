@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -60,8 +60,9 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
     private final UnsignedInteger propertyArrayIndex;
     private final SequenceOf<? extends Encodable> listOfElements;
 
-    public RemoveListElementRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, SequenceOf<? extends Encodable> listOfElements) {
+    public RemoveListElementRequest(final ObjectIdentifier objectIdentifier,
+            final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex,
+            final SequenceOf<? extends Encodable> listOfElements) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
@@ -74,30 +75,30 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
         write(queue, listOfElements, 3);
     }
 
-    RemoveListElementRequest(ByteQueue queue) throws BACnetException {
+    RemoveListElementRequest(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
+        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
                 propertyIdentifier);
         listOfElements = readSequenceOf(queue, def.getClazz(), 3);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        BACnetObject obj = localDevice.getObject(objectIdentifier);
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final BACnetObject obj = localDevice.getObject(objectIdentifier);
         if (obj == null)
             throw createException(ErrorClass.object, ErrorCode.unknownObject, new UnsignedInteger(0));
 
-        PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
+        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
                 propertyIdentifier);
         if (def == null)
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
@@ -105,14 +106,13 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         Encodable e;
         try {
             e = obj.getProperty(propertyIdentifier);
-        }
-        catch (BACnetServiceException ex) {
+        } catch (@SuppressWarnings("unused") final BACnetServiceException ex) {
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
         }
         if (e == null)
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
 
-        PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
+        final PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
         if (!localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv))
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
 
@@ -123,13 +123,13 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
             if (e instanceof BACnetArray)
                 throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
 
-            SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
-            SequenceOf<Encodable> list = new SequenceOf<Encodable>(origList.getValues());
+            final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
+            final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
             for (int i = 0; i < listOfElements.getCount(); i++) {
-                Encodable pr = listOfElements.get(i + 1);
+                final Encodable pr = listOfElements.get(i + 1);
                 if (!def.getClazz().isAssignableFrom(pr.getClass()))
-                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported, new UnsignedInteger(
-                            i + 1));
+                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
+                            new UnsignedInteger(i + 1));
                 if (!list.contains(pr))
                     throw createException(ErrorClass.services, ErrorCode.listElementNotFound,
                             new UnsignedInteger(i + 1));
@@ -137,9 +137,8 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
             }
 
             obj.writeProperty(propertyIdentifier, origList);
-        }
-        else
-            // It doesn't make much sense to me how elements can be removed from an array. 
+        } else
+            // It doesn't make much sense to me how elements can be removed from an array.
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
 
         localDevice.getEventHandler().propertyWritten(from, obj, pv);
@@ -147,25 +146,25 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         return null;
     }
 
-    private BACnetErrorException createException(ErrorClass errorClass, ErrorCode errorCode,
-            UnsignedInteger firstFailedElementNumber) {
-        return new BACnetErrorException(new ChangeListError(getChoiceId(), new BACnetError(errorClass, errorCode),
-                firstFailedElementNumber));
+    private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
+            final UnsignedInteger firstFailedElementNumber) {
+        return new BACnetErrorException(
+                new ChangeListError(getChoiceId(), new BACnetError(errorClass, errorCode), firstFailedElementNumber));
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((listOfElements == null) ? 0 : listOfElements.hashCode());
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (listOfElements == null ? 0 : listOfElements.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -176,26 +175,22 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (listOfElements == null) {
             if (other.listOfElements != null)
                 return false;
-        }
-        else if (!listOfElements.equals(other.listOfElements))
+        } else if (!listOfElements.equals(other.listOfElements))
             return false;
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         return true;
     }

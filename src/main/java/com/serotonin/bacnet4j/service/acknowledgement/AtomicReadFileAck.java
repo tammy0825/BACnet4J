@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -50,7 +50,8 @@ public class AtomicReadFileAck extends AcknowledgementService {
     private final UnsignedInteger returnedRecordCount;
     private final SequenceOf<OctetString> fileRecordData;
 
-    public AtomicReadFileAck(Boolean endOfFile, SignedInteger fileStartPosition, OctetString fileData) {
+    public AtomicReadFileAck(final Boolean endOfFile, final SignedInteger fileStartPosition,
+            final OctetString fileData) {
         super();
         this.endOfFile = endOfFile;
         this.fileStartPosition = fileStartPosition;
@@ -59,8 +60,8 @@ public class AtomicReadFileAck extends AcknowledgementService {
         fileRecordData = null;
     }
 
-    public AtomicReadFileAck(Boolean endOfFile, SignedInteger fileStartPosition, UnsignedInteger returnedRecordCount,
-            SequenceOf<OctetString> fileRecordData) {
+    public AtomicReadFileAck(final Boolean endOfFile, final SignedInteger fileStartPosition,
+            final UnsignedInteger returnedRecordCount, final SequenceOf<OctetString> fileRecordData) {
         super();
         this.endOfFile = endOfFile;
         this.fileStartPosition = fileStartPosition;
@@ -75,15 +76,14 @@ public class AtomicReadFileAck extends AcknowledgementService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, endOfFile);
         if (fileData != null) {
             writeContextTag(queue, 0, true);
             write(queue, fileStartPosition);
             write(queue, fileData);
             writeContextTag(queue, 0, false);
-        }
-        else {
+        } else {
             writeContextTag(queue, 1, true);
             write(queue, fileStartPosition);
             write(queue, returnedRecordCount);
@@ -92,7 +92,7 @@ public class AtomicReadFileAck extends AcknowledgementService {
         }
     }
 
-    AtomicReadFileAck(ByteQueue queue) throws BACnetException {
+    AtomicReadFileAck(final ByteQueue queue) throws BACnetException {
         endOfFile = read(queue, Boolean.class);
         if (popStart(queue) == 0) {
             fileStartPosition = read(queue, SignedInteger.class);
@@ -100,15 +100,14 @@ public class AtomicReadFileAck extends AcknowledgementService {
             returnedRecordCount = null;
             fileRecordData = null;
             popEnd(queue, 0);
-        }
-        else {
+        } else {
             fileStartPosition = read(queue, SignedInteger.class);
             returnedRecordCount = read(queue, UnsignedInteger.class);
             fileData = null;
-            List<OctetString> records = new ArrayList<OctetString>();
+            final List<OctetString> records = new ArrayList<>();
             for (int i = 0; i < returnedRecordCount.intValue(); i++)
                 records.add(read(queue, OctetString.class));
-            fileRecordData = new SequenceOf<OctetString>(records);
+            fileRecordData = new SequenceOf<>(records);
             popEnd(queue, 1);
         }
     }
@@ -137,16 +136,16 @@ public class AtomicReadFileAck extends AcknowledgementService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((endOfFile == null) ? 0 : endOfFile.hashCode());
-        result = PRIME * result + ((fileData == null) ? 0 : fileData.hashCode());
-        result = PRIME * result + ((fileRecordData == null) ? 0 : fileRecordData.hashCode());
-        result = PRIME * result + ((fileStartPosition == null) ? 0 : fileStartPosition.hashCode());
-        result = PRIME * result + ((returnedRecordCount == null) ? 0 : returnedRecordCount.hashCode());
+        result = PRIME * result + (endOfFile == null ? 0 : endOfFile.hashCode());
+        result = PRIME * result + (fileData == null ? 0 : fileData.hashCode());
+        result = PRIME * result + (fileRecordData == null ? 0 : fileRecordData.hashCode());
+        result = PRIME * result + (fileStartPosition == null ? 0 : fileStartPosition.hashCode());
+        result = PRIME * result + (returnedRecordCount == null ? 0 : returnedRecordCount.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -157,32 +156,27 @@ public class AtomicReadFileAck extends AcknowledgementService {
         if (endOfFile == null) {
             if (other.endOfFile != null)
                 return false;
-        }
-        else if (!endOfFile.equals(other.endOfFile))
+        } else if (!endOfFile.equals(other.endOfFile))
             return false;
         if (fileData == null) {
             if (other.fileData != null)
                 return false;
-        }
-        else if (!fileData.equals(other.fileData))
+        } else if (!fileData.equals(other.fileData))
             return false;
         if (fileRecordData == null) {
             if (other.fileRecordData != null)
                 return false;
-        }
-        else if (!fileRecordData.equals(other.fileRecordData))
+        } else if (!fileRecordData.equals(other.fileRecordData))
             return false;
         if (fileStartPosition == null) {
             if (other.fileStartPosition != null)
                 return false;
-        }
-        else if (!fileStartPosition.equals(other.fileStartPosition))
+        } else if (!fileStartPosition.equals(other.fileStartPosition))
             return false;
         if (returnedRecordCount == null) {
             if (other.returnedRecordCount != null)
                 return false;
-        }
-        else if (!returnedRecordCount.equals(other.returnedRecordCount))
+        } else if (!returnedRecordCount.equals(other.returnedRecordCount))
             return false;
         return true;
     }

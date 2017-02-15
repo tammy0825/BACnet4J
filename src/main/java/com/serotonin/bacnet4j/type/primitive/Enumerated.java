@@ -34,6 +34,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Enumerated extends UnsignedInteger {
     private static final long serialVersionUID = 2462119559912570064L;
+    @SuppressWarnings("hiding")
     public static final byte TYPE_ID = 9;
 
     public Enumerated(final int value) {

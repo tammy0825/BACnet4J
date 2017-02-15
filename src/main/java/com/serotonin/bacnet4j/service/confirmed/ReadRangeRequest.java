@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -53,7 +53,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
 
     private static List<Class<? extends Encodable>> classes;
     static {
-        classes = new ArrayList<Class<? extends Encodable>>();
+        classes = new ArrayList<>();
         classes.add(Encodable.class);
         classes.add(Encodable.class);
         classes.add(Encodable.class);
@@ -68,27 +68,27 @@ public class ReadRangeRequest extends ConfirmedRequestService {
     private final UnsignedInteger propertyArrayIndex;
     private Choice range;
 
-    private ReadRangeRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex) {
+    private ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
     }
 
-    public ReadRangeRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, ByPosition range) {
+    public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final ByPosition range) {
         this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
         this.range = new Choice(3, range);
     }
 
-    public ReadRangeRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, BySequenceNumber range) {
+    public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final BySequenceNumber range) {
         this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
         this.range = new Choice(6, range);
     }
 
-    public ReadRangeRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, ByTime range) {
+    public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final ByTime range) {
         this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
         this.range = new Choice(7, range);
     }
@@ -99,19 +99,19 @@ public class ReadRangeRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
         writeOptional(queue, range);
     }
 
-    ReadRangeRequest(ByteQueue queue) throws BACnetException {
+    ReadRangeRequest(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
@@ -123,7 +123,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         private static final long serialVersionUID = 7079223629723797175L;
         protected SignedInteger count;
 
-        public Range(SignedInteger count) {
+        public Range(final SignedInteger count) {
             this.count = count;
         }
 
@@ -136,18 +136,18 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         private static final long serialVersionUID = 4251374814674312091L;
         private final UnsignedInteger referenceIndex;
 
-        public ByPosition(UnsignedInteger referenceIndex, SignedInteger count) {
+        public ByPosition(final UnsignedInteger referenceIndex, final SignedInteger count) {
             super(count);
             this.referenceIndex = referenceIndex;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             write(queue, referenceIndex);
             write(queue, count);
         }
 
-        ByPosition(ByteQueue queue) throws BACnetException {
+        ByPosition(final ByteQueue queue) throws BACnetException {
             referenceIndex = read(queue, UnsignedInteger.class);
             count = read(queue, SignedInteger.class);
         }
@@ -157,18 +157,18 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         private static final long serialVersionUID = 4218886072119156278L;
         private final UnsignedInteger referenceIndex;
 
-        public BySequenceNumber(UnsignedInteger referenceIndex, SignedInteger count) {
+        public BySequenceNumber(final UnsignedInteger referenceIndex, final SignedInteger count) {
             super(count);
             this.referenceIndex = referenceIndex;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             write(queue, referenceIndex);
             write(queue, count);
         }
 
-        BySequenceNumber(ByteQueue queue) throws BACnetException {
+        BySequenceNumber(final ByteQueue queue) throws BACnetException {
             referenceIndex = read(queue, UnsignedInteger.class);
             count = read(queue, SignedInteger.class);
         }
@@ -178,18 +178,18 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         private static final long serialVersionUID = 6322007580214441250L;
         private final DateTime referenceTime;
 
-        public ByTime(DateTime referenceTime, SignedInteger count) {
+        public ByTime(final DateTime referenceTime, final SignedInteger count) {
             super(count);
             this.referenceTime = referenceTime;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             write(queue, referenceTime);
             write(queue, count);
         }
 
-        ByTime(ByteQueue queue) throws BACnetException {
+        ByTime(final ByteQueue queue) throws BACnetException {
             referenceTime = read(queue, DateTime.class);
             count = read(queue, SignedInteger.class);
         }
@@ -199,15 +199,15 @@ public class ReadRangeRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
-        result = PRIME * result + ((range == null) ? 0 : range.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (range == null ? 0 : range.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -218,26 +218,22 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         if (range == null) {
             if (other.range != null)
                 return false;
-        }
-        else if (!range.equals(other.range))
+        } else if (!range.equals(other.range))
             return false;
         return true;
     }

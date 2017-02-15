@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -41,13 +41,13 @@ public class DateRange extends BaseType implements DateMatchable {
     private final Date startDate;
     private final Date endDate;
 
-    public DateRange(Date startDate, Date endDate) {
+    public DateRange(final Date startDate, final Date endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
         validate();
     }
 
-    public DateRange(ByteQueue queue) throws BACnetException {
+    public DateRange(final ByteQueue queue) throws BACnetException {
         startDate = read(queue, Date.class);
         endDate = read(queue, Date.class);
         validate();
@@ -72,7 +72,7 @@ public class DateRange extends BaseType implements DateMatchable {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, startDate);
         write(queue, endDate);
     }
@@ -89,23 +89,21 @@ public class DateRange extends BaseType implements DateMatchable {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((endDate == null) ? 0 : endDate.hashCode());
-        result = PRIME * result + ((startDate == null) ? 0 : startDate.hashCode());
+        result = PRIME * result + (endDate == null ? 0 : endDate.hashCode());
+        result = PRIME * result + (startDate == null ? 0 : startDate.hashCode());
         return result;
     }
 
     @Override
-    public boolean matches(Date date) {
+    public boolean matches(final Date date) {
         if (!date.isSpecific())
             throw new BACnetRuntimeException("Dates for matching must be completely specified: " + date);
 
-        Date leastBefore = startDate.calculateLeastMatchOnOrBefore(date);
-        Date greatestBefore = endDate.calculateGreatestMatchOnOrBefore(date);
+        final Date leastBefore = startDate.calculateLeastMatchOnOrBefore(date);
+        final Date greatestBefore = endDate.calculateGreatestMatchOnOrBefore(date);
 
-        if (greatestBefore == null && leastBefore == null)
-            return false;
-        if (greatestBefore == null && leastBefore != null)
-            return true;
+        if (greatestBefore == null)
+            return leastBefore != null;
         if (greatestBefore.before(leastBefore))
             return true;
         if (date.sameAs(greatestBefore))
@@ -114,7 +112,7 @@ public class DateRange extends BaseType implements DateMatchable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -125,14 +123,12 @@ public class DateRange extends BaseType implements DateMatchable {
         if (endDate == null) {
             if (other.endDate != null)
                 return false;
-        }
-        else if (!endDate.equals(other.endDate))
+        } else if (!endDate.equals(other.endDate))
             return false;
         if (startDate == null) {
             if (other.startDate != null)
                 return false;
-        }
-        else if (!startDate.equals(other.startDate))
+        } else if (!startDate.equals(other.startDate))
             return false;
         return true;
     }
