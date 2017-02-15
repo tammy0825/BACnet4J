@@ -57,7 +57,7 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
 
     public Date(final int year, final Month month, final int day, final DayOfWeek dayOfWeek) {
         if (year >= 1900)
-            this.year -= 1900;
+            this.year = year - 1900;
         else if (year == -1)
             this.year = UNSPECIFIED_YEAR;
         else
