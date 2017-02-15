@@ -23,18 +23,15 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
-import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
-import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class TimeSynchronizationRequest extends UnconfirmedRequestService {
@@ -44,7 +41,7 @@ public class TimeSynchronizationRequest extends UnconfirmedRequestService {
 
     private final DateTime time;
 
-    public TimeSynchronizationRequest(DateTime time) {
+    public TimeSynchronizationRequest(final DateTime time) {
         this.time = time;
     }
 
@@ -54,37 +51,29 @@ public class TimeSynchronizationRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, time);
     }
 
-    TimeSynchronizationRequest(ByteQueue queue) throws BACnetException {
+    TimeSynchronizationRequest(final ByteQueue queue) throws BACnetException {
         time = read(queue, DateTime.class);
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) {
-        try {
-            ServicesSupported servicesSupported = (ServicesSupported) localDevice.getConfiguration().getProperty(
-                    PropertyIdentifier.protocolServicesSupported);
-            if (servicesSupported.isTimeSynchronization())
-                localDevice.getEventHandler().synchronizeTime(from, time, false);
-        }
-        catch (BACnetServiceException e) {
-            // no op
-        }
+    public void handle(final LocalDevice localDevice, final Address from) {
+        localDevice.getEventHandler().synchronizeTime(from, time, false);
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((time == null) ? 0 : time.hashCode());
+        result = PRIME * result + (time == null ? 0 : time.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -95,8 +84,7 @@ public class TimeSynchronizationRequest extends UnconfirmedRequestService {
         if (time == null) {
             if (other.time != null)
                 return false;
-        }
-        else if (!time.equals(other.time))
+        } else if (!time.equals(other.time))
             return false;
         return true;
     }
