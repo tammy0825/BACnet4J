@@ -1,5 +1,7 @@
 package com.serotonin.bacnet4j;
 
+import static com.serotonin.bacnet4j.TestUtils.assertListEqualsIgnoreOrder;
+import static com.serotonin.bacnet4j.TestUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
+import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
@@ -24,6 +27,7 @@ import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
@@ -279,6 +283,45 @@ public class MessagingTest {
 
         d1.terminate();
         d2.terminate();
+    }
+
+    @Test(expected = BACnetTimeoutException.class)
+    public void disappearingRemoteDevice() throws Exception {
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+        d1.initialize();
+
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
+        d2.addObject(createAnalogValue(0));
+        d2.initialize();
+
+        final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+
+        // Read properties from d2
+        final SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs = new SequenceOf<>( //
+                new ReadAccessSpecification(new ObjectIdentifier(ObjectType.analogValue, 0),
+                        new SequenceOf<>( //
+                                new PropertyReference(PropertyIdentifier.presentValue), //
+                                new PropertyReference(PropertyIdentifier.units), //
+                                new PropertyReference(PropertyIdentifier.statusFlags))));
+        final ReadPropertyMultipleAck ack = d1.send(rd2, new ReadPropertyMultipleRequest(listOfReadAccessSpecs)).get();
+
+        assertEquals(1, ack.getListOfReadAccessResults().getCount());
+        final ReadAccessResult readAccessResult = ack.getListOfReadAccessResults().get(1);
+        assertEquals(ObjectType.analogValue, readAccessResult.getObjectIdentifier().getObjectType());
+        assertEquals(0, readAccessResult.getObjectIdentifier().getInstanceNumber());
+
+        final List<Result> expectedListOfResults = toList( //
+                new Result(PropertyIdentifier.presentValue, null, new Real(3.14F)), //
+                new Result(PropertyIdentifier.units, null, EngineeringUnits.noUnits), //
+                new Result(PropertyIdentifier.statusFlags, null, new StatusFlags(false, false, false, false)));
+
+        assertListEqualsIgnoreOrder(expectedListOfResults, readAccessResult.getListOfResults().getValues());
+
+        // Get rid of the d2
+        d2.terminate();
+
+        // Try the request again.
+        d1.send(rd2, new ReadPropertyMultipleRequest(listOfReadAccessSpecs)).get();
     }
 
     private static BACnetObject createAnalogValue(final int id) {
