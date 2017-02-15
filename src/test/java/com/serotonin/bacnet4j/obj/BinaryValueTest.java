@@ -38,6 +38,7 @@ public class BinaryValueTest extends AbstractTest {
         d1.addObject(bv);
     }
 
+    @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
         new BinaryValueObject(0, "bvName1", BinaryPV.inactive, false);
@@ -118,8 +119,7 @@ public class BinaryValueTest extends AbstractTest {
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
-        }
-        catch (ErrorAPDUException e) {
+        } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
             assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
         }
@@ -130,8 +130,7 @@ public class BinaryValueTest extends AbstractTest {
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
-        }
-        catch (ErrorAPDUException e) {
+        } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
             assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
         }
@@ -142,8 +141,7 @@ public class BinaryValueTest extends AbstractTest {
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
-        }
-        catch (ErrorAPDUException e) {
+        } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
             assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
         }
@@ -171,8 +169,7 @@ public class BinaryValueTest extends AbstractTest {
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
-        }
-        catch (ErrorAPDUException e) {
+        } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
             assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
         }
@@ -183,8 +180,7 @@ public class BinaryValueTest extends AbstractTest {
         try {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
-        }
-        catch (ErrorAPDUException e) {
+        } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
             assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
         }

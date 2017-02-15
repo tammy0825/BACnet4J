@@ -456,6 +456,7 @@ public class BBMDTest {
         return info;
     }
 
+    @SuppressWarnings("resource")
     Broadcaster createBroadcaster(final int subnet) throws IOException {
         final String ip = "127.0." + subnet + ".255";
         final DatagramSocket s = new DatagramSocket(IpNetwork.DEFAULT_PORT, InetAddress.getByName(ip));

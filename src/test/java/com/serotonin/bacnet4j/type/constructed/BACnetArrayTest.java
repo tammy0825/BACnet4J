@@ -11,7 +11,7 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 public class BACnetArrayTest {
     @Test
     public void arrayTest() {
-        BACnetArray<CharacterString> arr = new BACnetArray<CharacterString>(3);
+        final BACnetArray<CharacterString> arr = new BACnetArray<>(3);
         assertEquals(3, arr.getCount());
 
         arr.set(1, new CharacterString("A"));
@@ -24,16 +24,14 @@ public class BACnetArrayTest {
         try {
             arr.remove(2);
             Assert.fail("Should have failed");
-        }
-        catch (BACnetRuntimeException e) {
+        } catch (@SuppressWarnings("unused") final BACnetRuntimeException e) {
             // no op
         }
 
         try {
             arr.add(new CharacterString("D"));
             Assert.fail("Should have failed");
-        }
-        catch (BACnetRuntimeException e) {
+        } catch (@SuppressWarnings("unused") final BACnetRuntimeException e) {
             // no op
         }
     }

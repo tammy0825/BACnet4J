@@ -30,13 +30,15 @@ public class BinaryOutputTest extends AbstractTest {
         obj = new BinaryOutputObject(0, "boName1", BinaryPV.inactive, true, Polarity.normal, BinaryPV.inactive);
         obj.addListener(new BACnetObjectListener() {
             @Override
-            public void propertyChange(PropertyIdentifier pid, Encodable oldValue, Encodable newValue) {
+            public void propertyChange(final PropertyIdentifier pid, final Encodable oldValue,
+                    final Encodable newValue) {
                 LOG.debug("{} changed from {} to {}", pid, oldValue, newValue);
             }
         });
         d1.addObject(obj);
     }
 
+    @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
         new BinaryOutputObject(0, "boName1", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);
@@ -48,7 +50,7 @@ public class BinaryOutputTest extends AbstractTest {
         obj.writePropertyInternal(PropertyIdentifier.minimumOffTime, new UnsignedInteger(2)); // 4 seconds
         obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
 
-        PriorityArray pa = obj.getProperty(priorityArray);
+        final PriorityArray pa = obj.getProperty(priorityArray);
 
         // See Annex I for a description of this process.
         // a)
@@ -88,7 +90,7 @@ public class BinaryOutputTest extends AbstractTest {
         assertEquals(new PriorityArray().put(6, inactive).put(10, inactive), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
-        // Wait for the timer to expire. 
+        // Wait for the timer to expire.
         Thread.sleep(2100);
         LOG.debug("B");
         assertEquals(new PriorityArray().put(10, inactive), pa);

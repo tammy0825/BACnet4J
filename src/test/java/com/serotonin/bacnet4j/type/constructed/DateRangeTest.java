@@ -44,99 +44,86 @@ public class DateRangeTest {
 
     @Test
     public void allMatchTest() {
-        DateRange spec = new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED);
-        test(spec, new Matcher() {
-            @Override
-            public boolean match(GregorianCalendar gc) {
-                return true;
-            }
-        });
+        final DateRange spec = new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED);
+        test(spec, (gc) -> true);
+
     }
 
     @Test
     public void specificMatchTest() {
-        DateRange spec = new DateRange(new Date(2014, Month.NOVEMBER, 13, null), new Date(2015, Month.MARCH, 2, null));
-        test(spec, new Matcher() {
-            @Override
-            public boolean match(GregorianCalendar gc) {
-                int year = gc.get(Calendar.YEAR);
-                int month = gc.get(Calendar.MONTH);
-                int day = gc.get(Calendar.DATE);
+        final DateRange spec = new DateRange(new Date(2014, Month.NOVEMBER, 13, null),
+                new Date(2015, Month.MARCH, 2, null));
+        test(spec, (gc) -> {
+            final int year = gc.get(Calendar.YEAR);
+            final int month = gc.get(Calendar.MONTH);
+            final int day = gc.get(Calendar.DATE);
 
-                if (year < 2014)
-                    return false;
-                if (year == 2014 && month < Calendar.NOVEMBER)
-                    return false;
-                if (year == 2014 && month == Calendar.NOVEMBER && day < 13)
-                    return false;
+            if (year < 2014)
+                return false;
+            if (year == 2014 && month < Calendar.NOVEMBER)
+                return false;
+            if (year == 2014 && month == Calendar.NOVEMBER && day < 13)
+                return false;
 
-                if (year > 2015)
-                    return false;
-                if (year == 2015 && month > Calendar.MARCH)
-                    return false;
-                if (year == 2015 && month == Calendar.MARCH && day > 2)
-                    return false;
+            if (year > 2015)
+                return false;
+            if (year == 2015 && month > Calendar.MARCH)
+                return false;
+            if (year == 2015 && month == Calendar.MARCH && day > 2)
+                return false;
 
-                return true;
-            }
+            return true;
         });
     }
 
     @Test
     public void yearMatchTest() {
-        DateRange spec = new DateRange(new Date(2010, null, -1, null), new Date(2015, null, -1, null));
-        test(spec, new Matcher() {
-            @Override
-            public boolean match(GregorianCalendar gc) {
-                int year = gc.get(Calendar.YEAR);
-                return year >= 2010 && year <= 2015;
-            }
+        final DateRange spec = new DateRange(new Date(2010, null, -1, null), new Date(2015, null, -1, null));
+        test(spec, (gc) -> {
+            final int year = gc.get(Calendar.YEAR);
+            return year >= 2010 && year <= 2015;
         });
     }
 
     @Test
     public void monthMatchTest() {
-        DateRange spec = new DateRange(new Date(-1, Month.NOVEMBER, -1, null), new Date(-1, Month.FEBRUARY, -1, null));
-        test(spec, new Matcher() {
-            @Override
-            public boolean match(GregorianCalendar gc) {
-                int month = gc.get(Calendar.MONTH);
-                return month == Calendar.NOVEMBER || month == Calendar.DECEMBER || month == Calendar.JANUARY
-                        || month == Calendar.FEBRUARY;
-            }
+        final DateRange spec = new DateRange(new Date(-1, Month.NOVEMBER, -1, null),
+                new Date(-1, Month.FEBRUARY, -1, null));
+        test(spec, (gc) -> {
+            final int month = gc.get(Calendar.MONTH);
+            return month == Calendar.NOVEMBER || month == Calendar.DECEMBER || month == Calendar.JANUARY
+                    || month == Calendar.FEBRUARY;
         });
     }
 
     @Test
     public void oneDayMatchTest() {
-        DateRange spec = new DateRange(new Date(2016, Month.NOVEMBER, 4, null),
+        final DateRange spec = new DateRange(new Date(2016, Month.NOVEMBER, 4, null),
                 new Date(2016, Month.NOVEMBER, 4, null));
-        test(spec, new Matcher() {
-            @Override
-            public boolean match(GregorianCalendar gc) {
-                int year = gc.get(Calendar.YEAR);
-                int month = gc.get(Calendar.MONTH);
-                int day = gc.get(Calendar.DATE);
-                return year == 2016 && month == Calendar.NOVEMBER && day == 4;
-            }
+        test(spec, (gc) -> {
+            final int year = gc.get(Calendar.YEAR);
+            final int month = gc.get(Calendar.MONTH);
+            final int day = gc.get(Calendar.DATE);
+            return year == 2016 && month == Calendar.NOVEMBER && day == 4;
         });
     }
 
+    @FunctionalInterface
     static interface Matcher {
         boolean match(GregorianCalendar gc);
     }
 
-    // Tests run through about 245 years. Much bigger and we get a Y2K-type error when the year is 2155. (I.e. the 
+    // Tests run through about 245 years. Much bigger and we get a Y2K-type error when the year is 2155. (I.e. the
     // year value hits 255.)
     // Note that the year 1900 is known to produce incorrect results, and is excluded from these tests.
     private static final int ITERATIONS = 92771;
 
-    private void test(DateRange spec, Matcher matcher) {
-        GregorianCalendar gc = new GregorianCalendar(1901, Calendar.JANUARY, 1, 12, 0);
+    private static void test(final DateRange spec, final Matcher matcher) {
+        final GregorianCalendar gc = new GregorianCalendar(1901, Calendar.JANUARY, 1, 12, 0);
         for (int i = 0; i < ITERATIONS; i++) {
-            Date date = new Date(gc);
-            boolean expected = matcher.match(gc);
-            boolean match = spec.matches(date);
+            final Date date = new Date(gc);
+            final boolean expected = matcher.match(gc);
+            final boolean match = spec.matches(date);
             if (expected != match)
                 Assert.fail("Match failure on " + gc.getTime() + ", expected=" + expected + ", actual=" + match);
             gc.add(Calendar.DATE, 1);
