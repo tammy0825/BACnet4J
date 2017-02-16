@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 
 import org.junit.Assert;
@@ -31,6 +32,27 @@ public class TestUtils {
         for (int i = 0; i < list.size(); i++) {
             final U value = list.get(i);
             if (predicate.test(key, value))
+                return i;
+        }
+        return -1;
+    }
+
+    public static <T> void assertListEqualsIgnoreOrder(final List<T> expectedList, final List<T> actualList) {
+        assertEquals(expectedList.size(), actualList.size());
+        final List<T> actualListCopy = new ArrayList<>(actualList);
+        for (final T expected : expectedList) {
+            // Find an element in the actual copy list which equals the expected.
+            final int index = indexOf(actualListCopy, expected);
+            if (index == -1)
+                Assert.fail("Did not find " + expected + " in actual list");
+            actualListCopy.remove(index);
+        }
+    }
+
+    public static <T> int indexOf(final List<T> list, final T key) {
+        for (int i = 0; i < list.size(); i++) {
+            final T value = list.get(i);
+            if (Objects.equals(value, key))
                 return i;
         }
         return -1;

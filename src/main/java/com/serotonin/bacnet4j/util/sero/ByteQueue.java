@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 public class ByteQueue implements Cloneable {
     private byte[] queue;
@@ -592,5 +593,37 @@ public class ByteQueue implements Cloneable {
 
         sb.append(", h=").append(head).append(", t=").append(tail).append(", s=").append(size);
         return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + head;
+        result = prime * result + Arrays.hashCode(queue);
+        result = prime * result + size;
+        result = prime * result + tail;
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final ByteQueue other = (ByteQueue) obj;
+
+        if (size != other.size)
+            return false;
+
+        for (int i = 0; i < size; i++) {
+            if (peek(i) != other.peek(i))
+                return false;
+        }
+
+        return true;
     }
 }

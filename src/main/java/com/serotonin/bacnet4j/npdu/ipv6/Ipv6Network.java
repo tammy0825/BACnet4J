@@ -185,7 +185,7 @@ public class Ipv6Network extends Network implements Runnable {
     }
 
     @Override
-    protected void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
+    public void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
             final boolean broadcast, final boolean expectsReply) throws BACnetException {
         LOG.debug("Sending npdu: recipient={}, router={}, npdu={}, broadcast={}", recipient, router, npdu, broadcast);
 

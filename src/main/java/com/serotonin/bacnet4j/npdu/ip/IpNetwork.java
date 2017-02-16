@@ -187,9 +187,9 @@ public class IpNetwork extends Network implements Runnable {
 
         if (reuseAddress) {
             socket = new DatagramSocket();
+            socket.setReuseAddress(true);
             if (!socket.getReuseAddress())
                 LOG.warn("reuseAddress was set, but not supported by the underlying platform");
-            socket.setReuseAddress(true);
             socket.bind(localBindAddress);
         } else
             socket = new DatagramSocket(localBindAddress);
@@ -304,7 +304,7 @@ public class IpNetwork extends Network implements Runnable {
     }
 
     @Override
-    protected void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
+    public void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
             final boolean broadcast, final boolean expectsReply) throws BACnetException {
         final ByteQueue queue = new ByteQueue();
 

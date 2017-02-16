@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.transport;
@@ -34,7 +34,7 @@ public class SegmentWindow {
     private int firstSequenceId;
     private final Segmentable[] segments;
 
-    public SegmentWindow(int windowSize, int firstSequenceId) {
+    public SegmentWindow(final int windowSize, final int firstSequenceId) {
         this.firstSequenceId = firstSequenceId;
         segments = new Segmentable[windowSize];
     }
@@ -43,16 +43,16 @@ public class SegmentWindow {
         return firstSequenceId;
     }
 
-    public Segmentable getSegment(int sequenceId) {
+    public Segmentable getSegment(final int sequenceId) {
         return segments[sequenceId - firstSequenceId];
     }
 
-    public void setSegment(Segmentable segment) {
+    public void setSegment(final Segmentable segment) {
         segments[segment.getSequenceNumber() - firstSequenceId] = segment;
     }
 
-    public boolean fitsInWindow(Segmentable segment) {
-        int index = segment.getSequenceNumber() - firstSequenceId;
+    public boolean fitsInWindow(final Segmentable segment) {
+        final int index = segment.getSequenceNumber() - firstSequenceId;
         if (index < 0 || index >= segments.length)
             return false;
         return true;
@@ -66,6 +66,11 @@ public class SegmentWindow {
         return true;
     }
 
+    /**
+     * The segment window is full if all slots are non-null.
+     *
+     * @return
+     */
     public boolean isFull() {
         for (int i = 0; i < segments.length; i++) {
             if (segments[i] == null)
@@ -74,13 +79,29 @@ public class SegmentWindow {
         return true;
     }
 
-    public void clear(int firstSequenceId) {
+    /**
+     * The message is complete if the last full slot is marked as not more follows, all slots before it are filled.
+     * (Full slots following it are ignored.)
+     *
+     * @return
+     */
+    public boolean isMessageComplete() {
+        for (int i = 0; i < segments.length; i++) {
+            if (segments[i] == null)
+                return false;
+            if (!segments[i].isMoreFollows())
+                return true;
+        }
+        return false;
+    }
+
+    public void clear(final int firstSequenceId) {
         this.firstSequenceId = firstSequenceId;
         for (int i = 0; i < segments.length; i++)
             segments[i] = null;
     }
 
-    public boolean isLastSegment(int sequenceId) {
+    public boolean isLastSegment(final int sequenceId) {
         return sequenceId == segments.length + firstSequenceId - 1;
     }
 
@@ -89,15 +110,11 @@ public class SegmentWindow {
     }
 
     public int getLatestSequenceId() {
-        if (segments[0] == null)
-            return -1;
-
-        for (int i = 1; i < segments.length; i++) {
-            if (segments[i] == null)
-                return segments[i - 1].getSequenceNumber();
+        for (int i = segments.length - 1; i >= 0; i--) {
+            if (segments[i] != null)
+                return segments[i].getSequenceNumber();
         }
-
-        return segments[segments.length - 1].getSequenceNumber();
+        return -1;
     }
 
     public int getWindowSize() {

@@ -149,7 +149,7 @@ public class TestNetwork extends Network implements Runnable {
     }
 
     @Override
-    protected void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
+    public void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
             final boolean broadcast, final boolean expectsReply) throws BACnetException {
         final SendData d = new SendData();
         d.recipient = recipient;

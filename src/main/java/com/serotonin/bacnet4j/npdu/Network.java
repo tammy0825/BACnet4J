@@ -141,7 +141,7 @@ abstract public class Network {
         sendNPDU(recipient, router, npdu, broadcast, expectsReply);
     }
 
-    abstract protected void sendNPDU(Address recipient, OctetString router, ByteQueue npdu, boolean broadcast,
+    abstract public void sendNPDU(Address recipient, OctetString router, ByteQueue npdu, boolean broadcast,
             boolean expectsReply) throws BACnetException;
 
     protected OctetString getDestination(final Address recipient, final OctetString link) {
@@ -152,7 +152,7 @@ abstract public class Network {
         return recipient.getMacAddress();
     }
 
-    protected boolean isThisNetwork(final Address address) {
+    public boolean isThisNetwork(final Address address) {
         final int nn = address.getNetworkNumber().intValue();
         return nn == Address.LOCAL_NETWORK || nn == localNetworkNumber;
     }

@@ -494,8 +494,9 @@ public class DefaultTransport implements Transport, Runnable {
 
         try {
             apdu = npdu.getAPDU(servicesSupported);
-        } catch (@SuppressWarnings("unused") final BACnetException e) {
+        } catch (final BACnetException e) {
             // Error parsing the APDU. Drop the request.
+            LOG.debug("Error parsing APDU", e);
             return;
         }
 
@@ -527,7 +528,7 @@ public class DefaultTransport implements Transport, Runnable {
                 else {
                     ctx = unackedMessages.remove(key);
                     if (ctx == null)
-                        LOG.warn("Received an request segment for an unknown request: {}", confAPDU);
+                        LOG.warn("Received a request segment for an unknown request: {}", confAPDU);
                 }
 
                 try {
@@ -602,16 +603,17 @@ public class DefaultTransport implements Transport, Runnable {
     private void segmentedIncoming(final UnackedMessageKey key, final Segmentable msg, final UnackedMessageContext ctx)
             throws BACnetException {
         final int windowSize = msg.getProposedWindowSize();
-        final int lastSeq = msg.getSequenceNumber() & 0xff;
+        final int currentSeq = msg.getSequenceNumber() & 0xff;
+        boolean complete = false;
 
         if (ctx.getSegmentWindow() == null) {
             // This is the first segment.
-            ctx.setSegmentWindow(new SegmentWindow(windowSize, lastSeq + 1));
+            ctx.setSegmentWindow(new SegmentWindow(windowSize, currentSeq + 1));
             ctx.setSegmentedMessage(msg);
 
             // Send a segment acknowledgement going with the proposed window size.
             network.sendAPDU(key.getAddress(), key.getLinkService(),
-                    new SegmentACK(false, !key.isFromServer(), msg.getInvokeId(), lastSeq, windowSize, true), false);
+                    new SegmentACK(false, !key.isFromServer(), msg.getInvokeId(), currentSeq, windowSize, true), false);
         } else {
             final SegmentWindow segmentWindow = ctx.getSegmentWindow();
 
@@ -620,22 +622,25 @@ public class DefaultTransport implements Transport, Runnable {
             segmentWindow.setSegment(msg);
 
             // Do we need to send an ack?
-            if (!msg.isMoreFollows() || segmentWindow.isFull()) {
+            complete = segmentWindow.isMessageComplete();
+            if (complete || segmentWindow.isFull()) {
+                final int lastSeq = segmentWindow.getLatestSequenceId();
                 // Send an acknowledgement
                 network.sendAPDU(key.getAddress(), key.getLinkService(), new SegmentACK(false, !key.isFromServer(),
-                        msg.getInvokeId(), lastSeq, windowSize, msg.isMoreFollows()), false);
+                        msg.getInvokeId(), lastSeq, windowSize, !segmentWindow.isMessageComplete()), false);
 
                 // Append the window onto the original response.
                 for (final Segmentable segment : segmentWindow.getSegments()) {
-                    if (segment != null)
-                        ctx.getSegmentedMessage().appendServiceData(segment.getServiceData());
+                    ctx.getSegmentedMessage().appendServiceData(segment.getServiceData());
+                    if (!segment.isMoreFollows())
+                        break;
                 }
                 segmentWindow.clear(lastSeq + 1);
             }
         }
 
-        if (msg.isMoreFollows()) {
-            // Put the value back in the pending requests.
+        if (!complete) {
+            // More segments to come. Put the value back in the pending requests.
             ctx.reset(segTimeout * 4, 0);
             unackedMessages.add(key, ctx);
         } else if (msg instanceof ComplexACK)
@@ -808,10 +813,10 @@ public class DefaultTransport implements Transport, Runnable {
                     sendForResponse(key, ctx);
                 } else {
                     // Timeout
+                    umIter.remove();
                     if (ctx.getSegmentWindow() == null) {
                         // Not a segmented message, at least as far as we know.
                         ctx.getConsumer().ex(new BACnetTimeoutException());
-                        umIter.remove();
                     } else {
                         // A segmented message.
                         if (ctx.getSegmentWindow().isEmpty() && ctx.getConsumer() != null) {
@@ -820,7 +825,6 @@ public class DefaultTransport implements Transport, Runnable {
                                     .ex(new BACnetTimeoutException(
                                             "Timeout while waiting for segment part: invokeId=" + key.getInvokeId()
                                                     + ", sequenceId=" + ctx.getSegmentWindow().getFirstSequenceId()));
-                            umIter.remove();
                         } else if (ctx.getSegmentWindow().isEmpty())
                             LOG.warn("No segments received for message " + ctx.getOriginalApdu());
                         else {
@@ -833,7 +837,6 @@ public class DefaultTransport implements Transport, Runnable {
                                         false);
                             } catch (final BACnetException ex) {
                                 ctx.getConsumer().ex(ex);
-                                umIter.remove();
                             }
                         }
                     }
