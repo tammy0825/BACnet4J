@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class RestartReason extends Enumerated {
-    private static final long serialVersionUID = -4199348259202899844L;
     public static final RestartReason unknown = new RestartReason(0);
     public static final RestartReason coldstart = new RestartReason(1);
     public static final RestartReason warmstart = new RestartReason(2);
@@ -41,15 +40,16 @@ public class RestartReason extends Enumerated {
     public static final RestartReason hardwareWatchdog = new RestartReason(5);
     public static final RestartReason softwareWatchdog = new RestartReason(6);
     public static final RestartReason suspended = new RestartReason(7);
+    public static final RestartReason activateChanges = new RestartReason(8);
 
     public static final RestartReason[] ALL = { unknown, coldstart, warmstart, detectedPowerLost, detectedPoweredOff,
-            hardwareWatchdog, softwareWatchdog, suspended, };
+            hardwareWatchdog, softwareWatchdog, suspended, activateChanges, };
 
-    public RestartReason(int value) {
+    public RestartReason(final int value) {
         super(value);
     }
 
-    public RestartReason(ByteQueue queue) {
+    public RestartReason(final ByteQueue queue) {
         super(queue);
     }
 }

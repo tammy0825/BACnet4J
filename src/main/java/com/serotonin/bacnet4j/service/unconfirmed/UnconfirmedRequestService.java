@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -39,9 +39,8 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class UnconfirmedRequestService extends Service {
-    private static final long serialVersionUID = 8962921362279665295L;
-
-    public static void checkUnconfirmedRequestService(ServicesSupported services, byte type) throws BACnetException {
+    public static void checkUnconfirmedRequestService(final ServicesSupported services, final byte type)
+            throws BACnetException {
         if (type == IAmRequest.TYPE_ID && services.isIAm()) // 0
             return;
         if (type == IHaveRequest.TYPE_ID && services.isIHave()) // 1
@@ -64,11 +63,14 @@ abstract public class UnconfirmedRequestService extends Service {
             return;
         if (type == WriteGroupRequest.TYPE_ID && services.isWriteGroup()) // 10
             return;
+        if (type == UnconfirmedCovNotificationMultipleRequest.TYPE_ID
+                && services.isUnconfirmedCovNotificationMultiple()) // 11
+            return;
 
         throw new BACnetErrorException(ErrorClass.device, ErrorCode.serviceRequestDenied);
     }
 
-    public static UnconfirmedRequestService createUnconfirmedRequestService(byte type, ByteQueue queue)
+    public static UnconfirmedRequestService createUnconfirmedRequestService(final byte type, final ByteQueue queue)
             throws BACnetException {
         if (type == IAmRequest.TYPE_ID)
             return new IAmRequest(queue);
@@ -92,6 +94,8 @@ abstract public class UnconfirmedRequestService extends Service {
             return new UTCTimeSynchronizationRequest(queue);
         if (type == WriteGroupRequest.TYPE_ID)
             return new WriteGroupRequest(queue);
+        if (type == UnconfirmedCovNotificationMultipleRequest.TYPE_ID)
+            return new UnconfirmedCovNotificationMultipleRequest(queue);
 
         throw new BACnetException("Unsupported unconfirmed service: " + (type & 0xff));
     }

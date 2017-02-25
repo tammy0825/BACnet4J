@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,19 +32,18 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ActionList extends BaseType {
-    private static final long serialVersionUID = 2923869954790260717L;
     private final SequenceOf<ActionCommand> action;
 
-    public ActionList(SequenceOf<ActionCommand> action) {
+    public ActionList(final SequenceOf<ActionCommand> action) {
         this.action = action;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, action, 0);
     }
 
-    public ActionList(ByteQueue queue) throws BACnetException {
+    public ActionList(final ByteQueue queue) throws BACnetException {
         action = readSequenceOf(queue, ActionCommand.class, 0);
     }
 
@@ -56,12 +55,12 @@ public class ActionList extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((action == null) ? 0 : action.hashCode());
+        result = prime * result + (action == null ? 0 : action.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -72,8 +71,7 @@ public class ActionList extends BaseType {
         if (action == null) {
             if (other.action != null)
                 return false;
-        }
-        else if (!action.equals(other.action))
+        } else if (!action.equals(other.action))
             return false;
         return true;
     }

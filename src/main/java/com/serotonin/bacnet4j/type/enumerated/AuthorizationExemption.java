@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AuthorizationExemption extends Enumerated {
-    private static final long serialVersionUID = 666234867355986821L;
-
     public static final AuthorizationExemption passback = new AuthorizationExemption(0);
     public static final AuthorizationExemption occupancyCheck = new AuthorizationExemption(1);
     public static final AuthorizationExemption accessRights = new AuthorizationExemption(2);

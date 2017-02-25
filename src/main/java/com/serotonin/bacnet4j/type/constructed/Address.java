@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -39,38 +39,37 @@ public class Address extends BaseType {
     public static final int ALL_NETWORKS = 0xFFFF;
     public static final Address GLOBAL = new Address(new Unsigned16(ALL_NETWORKS), null);
 
-    private static final long serialVersionUID = -3376358193474831753L;
     private final Unsigned16 networkNumber;
     private final OctetString macAddress;
 
-    public Address(byte[] macAddress) {
+    public Address(final byte[] macAddress) {
         this(new Unsigned16(LOCAL_NETWORK), new OctetString(macAddress));
     }
 
-    public Address(int networkNumber, byte[] macAddress) {
+    public Address(final int networkNumber, final byte[] macAddress) {
         this(new Unsigned16(networkNumber), new OctetString(macAddress));
     }
 
-    public Address(OctetString macAddress) {
+    public Address(final OctetString macAddress) {
         this(new Unsigned16(LOCAL_NETWORK), macAddress);
     }
 
-    public Address(int networkNumber, OctetString macAddress) {
+    public Address(final int networkNumber, final OctetString macAddress) {
         this(new Unsigned16(networkNumber), macAddress);
     }
 
-    public Address(Unsigned16 networkNumber, OctetString macAddress) {
+    public Address(final Unsigned16 networkNumber, final OctetString macAddress) {
         this.networkNumber = networkNumber;
         this.macAddress = macAddress;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, networkNumber);
         write(queue, macAddress);
     }
 
-    public Address(ByteQueue queue) throws BACnetException {
+    public Address(final ByteQueue queue) throws BACnetException {
         networkNumber = read(queue, Unsigned16.class);
         macAddress = read(queue, OctetString.class);
     }
@@ -133,7 +132,7 @@ public class Address extends BaseType {
     // General convenience
     //
     public String getDescription() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(macAddress.getDescription());
         if (networkNumber.intValue() != 0)
             sb.append('(').append(networkNumber).append(')');
@@ -149,13 +148,13 @@ public class Address extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((macAddress == null) ? 0 : macAddress.hashCode());
-        result = PRIME * result + ((networkNumber == null) ? 0 : networkNumber.hashCode());
+        result = PRIME * result + (macAddress == null ? 0 : macAddress.hashCode());
+        result = PRIME * result + (networkNumber == null ? 0 : networkNumber.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -166,14 +165,12 @@ public class Address extends BaseType {
         if (macAddress == null) {
             if (other.macAddress != null)
                 return false;
-        }
-        else if (!macAddress.equals(other.macAddress))
+        } else if (!macAddress.equals(other.macAddress))
             return false;
         if (networkNumber == null) {
             if (other.networkNumber != null)
                 return false;
-        }
-        else if (!networkNumber.equals(other.networkNumber))
+        } else if (!networkNumber.equals(other.networkNumber))
             return false;
         return true;
     }

@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class DeviceStatus extends Enumerated {
-    private static final long serialVersionUID = -111489048861220863L;
     public static final DeviceStatus operational = new DeviceStatus(0);
     public static final DeviceStatus operationalReadOnly = new DeviceStatus(1);
     public static final DeviceStatus downloadRequired = new DeviceStatus(2);

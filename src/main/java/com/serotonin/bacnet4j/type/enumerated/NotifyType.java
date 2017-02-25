@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,24 +32,23 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class NotifyType extends Enumerated {
-    private static final long serialVersionUID = 3980483915280625804L;
     public static final NotifyType alarm = new NotifyType(0);
     public static final NotifyType event = new NotifyType(1);
     public static final NotifyType ackNotification = new NotifyType(2);
 
     public static final NotifyType[] ALL = { alarm, event, ackNotification, };
 
-    public NotifyType(int value) {
+    public NotifyType(final int value) {
         super(value);
     }
 
-    public NotifyType(ByteQueue queue) {
+    public NotifyType(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == alarm.intValue())
             return "alarm";
         if (type == event.intValue())

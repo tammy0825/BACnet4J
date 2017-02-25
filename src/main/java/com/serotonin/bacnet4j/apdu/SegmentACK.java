@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -31,8 +31,6 @@ package com.serotonin.bacnet4j.apdu;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SegmentACK extends AckAPDU {
-    private static final long serialVersionUID = -4754176957008435326L;
-
     public static final byte TYPE_ID = 4;
 
     /**
@@ -44,7 +42,7 @@ public class SegmentACK extends AckAPDU {
     /**
      * This parameter shall be TRUE when the SegmentACK PDU is sent by a server, that is, when the SegmentACK PDU is in
      * acknowledgment of a segment or segments of a Confirmed-Request PDU.
-     * 
+     *
      * This parameter shall be FALSE when the SegmentACK PDU is sent by a client, that is, when the SegmentACK PDU is in
      * acknowledgment of a segment or segments of a ComplexACK PDU.
      */
@@ -53,7 +51,7 @@ public class SegmentACK extends AckAPDU {
     /**
      * This parameter shall contain the 'sequence-number' of a previously received message segment. It is used to
      * acknowledge the receipt of that message segment and all earlier segments of the message.
-     * 
+     *
      * If the 'more-follows' parameter of the received message segment is TRUE, then the 'sequence-number' also requests
      * continuation of the segmented message beginning with the segment whose 'sequence-number' is one plus the value of
      * this parameter, modulo 256.
@@ -69,8 +67,8 @@ public class SegmentACK extends AckAPDU {
 
     private boolean expectsResponse;
 
-    public SegmentACK(boolean negativeAck, boolean server, byte originalInvokeId, int sequenceNumber,
-            int actualWindowSize, boolean expectsResponse) {
+    public SegmentACK(final boolean negativeAck, final boolean server, final byte originalInvokeId,
+            final int sequenceNumber, final int actualWindowSize, final boolean expectsResponse) {
         this.negativeAck = negativeAck;
         this.server = server;
         this.originalInvokeId = originalInvokeId;
@@ -102,15 +100,15 @@ public class SegmentACK extends AckAPDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID) | (negativeAck ? 2 : 0) | (server ? 1 : 0));
         queue.push(originalInvokeId);
         queue.push(sequenceNumber);
         queue.push(actualWindowSize);
     }
 
-    public SegmentACK(ByteQueue queue) {
-        byte b = queue.pop();
+    public SegmentACK(final ByteQueue queue) {
+        final byte b = queue.pop();
         negativeAck = (b & 2) != 0;
         server = (b & 1) != 0;
 
@@ -121,9 +119,8 @@ public class SegmentACK extends AckAPDU {
 
     @Override
     public String toString() {
-        return "SegmentACK(negativeAck=" + negativeAck + ", server=" + server + ", originalInvokeId="
-                + originalInvokeId + ", sequenceNumber=" + sequenceNumber + ", actualWindowSize=" + actualWindowSize
-                + ")";
+        return "SegmentACK(negativeAck=" + negativeAck + ", server=" + server + ", originalInvokeId=" + originalInvokeId
+                + ", sequenceNumber=" + sequenceNumber + ", actualWindowSize=" + actualWindowSize + ")";
     }
 
     @Override
@@ -139,7 +136,7 @@ public class SegmentACK extends AckAPDU {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

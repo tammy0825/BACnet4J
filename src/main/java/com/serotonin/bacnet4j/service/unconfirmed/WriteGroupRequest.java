@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
@@ -40,8 +40,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WriteGroupRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = -7378234217541272001L;
-
     public static final byte TYPE_ID = 10;
 
     private final Unsigned32 groupNumber; // 0
@@ -49,8 +47,8 @@ public class WriteGroupRequest extends UnconfirmedRequestService {
     private final SequenceOf<GroupChannelValue> changeList; // 2
     private final Boolean inhibitDelay; // 3 optional
 
-    public WriteGroupRequest(Unsigned32 groupNumber, UnsignedInteger writePriority,
-            SequenceOf<GroupChannelValue> changeList, Boolean inhibitDelay) {
+    public WriteGroupRequest(final Unsigned32 groupNumber, final UnsignedInteger writePriority,
+            final SequenceOf<GroupChannelValue> changeList, final Boolean inhibitDelay) {
         this.groupNumber = groupNumber;
         this.writePriority = writePriority;
         this.changeList = changeList;
@@ -79,19 +77,19 @@ public class WriteGroupRequest extends UnconfirmedRequestService {
     }
 
     @Override
-    public void handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public void handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, groupNumber, 0);
         write(queue, writePriority, 1);
-        write(queue, changeList, 1);
+        write(queue, changeList, 2);
         writeOptional(queue, inhibitDelay, 3);
     }
 
-    WriteGroupRequest(ByteQueue queue) throws BACnetException {
+    WriteGroupRequest(final ByteQueue queue) throws BACnetException {
         groupNumber = read(queue, Unsigned32.class, 0);
         writePriority = read(queue, UnsignedInteger.class, 1);
         changeList = readSequenceOf(queue, GroupChannelValue.class, 2);
@@ -102,45 +100,41 @@ public class WriteGroupRequest extends UnconfirmedRequestService {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((changeList == null) ? 0 : changeList.hashCode());
-        result = prime * result + ((groupNumber == null) ? 0 : groupNumber.hashCode());
-        result = prime * result + ((inhibitDelay == null) ? 0 : inhibitDelay.hashCode());
-        result = prime * result + ((writePriority == null) ? 0 : writePriority.hashCode());
+        result = prime * result + (changeList == null ? 0 : changeList.hashCode());
+        result = prime * result + (groupNumber == null ? 0 : groupNumber.hashCode());
+        result = prime * result + (inhibitDelay == null ? 0 : inhibitDelay.hashCode());
+        result = prime * result + (writePriority == null ? 0 : writePriority.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        WriteGroupRequest other = (WriteGroupRequest) obj;
+        final WriteGroupRequest other = (WriteGroupRequest) obj;
         if (changeList == null) {
             if (other.changeList != null)
                 return false;
-        }
-        else if (!changeList.equals(other.changeList))
+        } else if (!changeList.equals(other.changeList))
             return false;
         if (groupNumber == null) {
             if (other.groupNumber != null)
                 return false;
-        }
-        else if (!groupNumber.equals(other.groupNumber))
+        } else if (!groupNumber.equals(other.groupNumber))
             return false;
         if (inhibitDelay == null) {
             if (other.inhibitDelay != null)
                 return false;
-        }
-        else if (!inhibitDelay.equals(other.inhibitDelay))
+        } else if (!inhibitDelay.equals(other.inhibitDelay))
             return false;
         if (writePriority == null) {
             if (other.writePriority != null)
                 return false;
-        }
-        else if (!writePriority.equals(other.writePriority))
+        } else if (!writePriority.equals(other.writePriority))
             return false;
         return true;
     }

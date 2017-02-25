@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -38,15 +38,14 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtDataRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 5285787585416136977L;
-
     public static final byte TYPE_ID = 23;
 
     private final UnsignedInteger vtSessionIdentifier;
     private final OctetString vtNewData;
     private final UnsignedInteger vtDataFlag;
 
-    public VtDataRequest(UnsignedInteger vtSessionIdentifier, OctetString vtNewData, UnsignedInteger vtDataFlag) {
+    public VtDataRequest(final UnsignedInteger vtSessionIdentifier, final OctetString vtNewData,
+            final UnsignedInteger vtDataFlag) {
         this.vtSessionIdentifier = vtSessionIdentifier;
         this.vtNewData = vtNewData;
         this.vtDataFlag = vtDataFlag;
@@ -58,20 +57,20 @@ public class VtDataRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, vtSessionIdentifier);
         write(queue, vtNewData);
         write(queue, vtDataFlag);
     }
 
-    VtDataRequest(ByteQueue queue) throws BACnetException {
+    VtDataRequest(final ByteQueue queue) throws BACnetException {
         vtSessionIdentifier = read(queue, UnsignedInteger.class);
         vtNewData = read(queue, OctetString.class);
         vtDataFlag = read(queue, UnsignedInteger.class);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
@@ -79,14 +78,14 @@ public class VtDataRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((vtDataFlag == null) ? 0 : vtDataFlag.hashCode());
-        result = PRIME * result + ((vtNewData == null) ? 0 : vtNewData.hashCode());
-        result = PRIME * result + ((vtSessionIdentifier == null) ? 0 : vtSessionIdentifier.hashCode());
+        result = PRIME * result + (vtDataFlag == null ? 0 : vtDataFlag.hashCode());
+        result = PRIME * result + (vtNewData == null ? 0 : vtNewData.hashCode());
+        result = PRIME * result + (vtSessionIdentifier == null ? 0 : vtSessionIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -97,20 +96,17 @@ public class VtDataRequest extends ConfirmedRequestService {
         if (vtDataFlag == null) {
             if (other.vtDataFlag != null)
                 return false;
-        }
-        else if (!vtDataFlag.equals(other.vtDataFlag))
+        } else if (!vtDataFlag.equals(other.vtDataFlag))
             return false;
         if (vtNewData == null) {
             if (other.vtNewData != null)
                 return false;
-        }
-        else if (!vtNewData.equals(other.vtNewData))
+        } else if (!vtNewData.equals(other.vtNewData))
             return false;
         if (vtSessionIdentifier == null) {
             if (other.vtSessionIdentifier != null)
                 return false;
-        }
-        else if (!vtSessionIdentifier.equals(other.vtSessionIdentifier))
+        } else if (!vtSessionIdentifier.equals(other.vtSessionIdentifier))
             return false;
         return true;
     }

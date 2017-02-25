@@ -120,8 +120,8 @@ public class BinaryValueTest extends AbstractTest {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.property, e.getError().getErrorClass());
+            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
         }
 
         // ... even when it is out of service.
@@ -131,8 +131,8 @@ public class BinaryValueTest extends AbstractTest {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.property, e.getError().getErrorClass());
+            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
         }
 
         // When not overridden, the present value is not settable while not out of service.
@@ -142,8 +142,8 @@ public class BinaryValueTest extends AbstractTest {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.property, e.getError().getErrorClass());
+            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
         }
 
         // ... but it is when the object is out of service.
@@ -170,8 +170,8 @@ public class BinaryValueTest extends AbstractTest {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.property, e.getError().getErrorClass());
+            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
         }
 
         // ... even when it is out of service.
@@ -181,8 +181,8 @@ public class BinaryValueTest extends AbstractTest {
             RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
             assertTrue("Should have gotten an error APDU", false);
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.property, e.getError().getErrorClass());
+            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
         }
 
         // When not overridden, the present value is writable while not out of service.

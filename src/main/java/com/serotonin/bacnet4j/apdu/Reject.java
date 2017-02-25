@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -37,8 +37,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * request PDUs may be rejected.
  */
 public class Reject extends AckAPDU {
-    private static final long serialVersionUID = 3800544859107653762L;
-
     public static final byte TYPE_ID = 6;
 
     /**
@@ -47,7 +45,7 @@ public class Reject extends AckAPDU {
      */
     private final RejectReason rejectReason;
 
-    public Reject(byte originalInvokeId, RejectReason rejectReason) {
+    public Reject(final byte originalInvokeId, final RejectReason rejectReason) {
         this.originalInvokeId = originalInvokeId;
         this.rejectReason = rejectReason;
     }
@@ -58,13 +56,13 @@ public class Reject extends AckAPDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID));
         queue.push(originalInvokeId);
         queue.push(rejectReason.byteValue());
     }
 
-    Reject(ByteQueue queue) {
+    Reject(final ByteQueue queue) {
         queue.pop(); // Ignore the first byte. No news there.
         originalInvokeId = queue.pop();
         rejectReason = new RejectReason(queue.popU1B());
@@ -79,12 +77,12 @@ public class Reject extends AckAPDU {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result + originalInvokeId;
-        result = PRIME * result + ((rejectReason == null) ? 0 : rejectReason.hashCode());
+        result = PRIME * result + (rejectReason == null ? 0 : rejectReason.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -97,8 +95,7 @@ public class Reject extends AckAPDU {
         if (rejectReason == null) {
             if (other.rejectReason != null)
                 return false;
-        }
-        else if (!rejectReason.equals(other.rejectReason))
+        } else if (!rejectReason.equals(other.rejectReason))
             return false;
         return true;
     }

@@ -28,17 +28,23 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class TimeStamp extends BaseType {
-    private static final long serialVersionUID = 728644269380254714L;
+    static final Logger LOG = LoggerFactory.getLogger(TimeStamp.class);
+
+    private static final ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(0, Time.class);
+        choiceOptions.addContextual(1, UnsignedInteger.class);
+        choiceOptions.addContextual(2, DateTime.class);
+    }
 
     public static final TimeStamp UNSPECIFIED_TIME = new TimeStamp(Time.UNSPECIFIED);
     public static final TimeStamp UNSPECIFIED_SEQUENCE = new TimeStamp(new UnsignedInteger(0));
@@ -46,24 +52,16 @@ public class TimeStamp extends BaseType {
 
     private final Choice choice;
 
-    private static List<Class<? extends Encodable>> classes;
-    static {
-        classes = new ArrayList<>();
-        classes.add(Time.class);
-        classes.add(UnsignedInteger.class);
-        classes.add(DateTime.class);
-    }
-
     public TimeStamp(final Time time) {
-        choice = new Choice(0, time);
+        choice = new Choice(0, time, choiceOptions);
     }
 
     public TimeStamp(final UnsignedInteger sequenceNumber) {
-        choice = new Choice(1, sequenceNumber);
+        choice = new Choice(1, sequenceNumber, choiceOptions);
     }
 
     public TimeStamp(final DateTime dateTime) {
-        choice = new Choice(2, dateTime);
+        choice = new Choice(2, dateTime, choiceOptions);
     }
 
     @Override
@@ -72,31 +70,31 @@ public class TimeStamp extends BaseType {
     }
 
     public TimeStamp(final ByteQueue queue) throws BACnetException {
-        choice = new Choice(queue, classes);
+        choice = new Choice(queue, choiceOptions);
     }
 
     public boolean isTime() {
-        return choice.getContextId() == 0;
+        return choice.isa(Time.class);
     }
 
     public Time getTime() {
-        return (Time) choice.getDatum();
+        return choice.getDatum();
     }
 
     public boolean isSequenceNumber() {
-        return choice.getContextId() == 1;
+        return choice.isa(UnsignedInteger.class);
     }
 
     public UnsignedInteger getSequenceNumber() {
-        return (UnsignedInteger) choice.getDatum();
+        return choice.getDatum();
     }
 
     public boolean isDateTime() {
-        return choice.getContextId() == 2;
+        return choice.isa(DateTime.class);
     }
 
     public DateTime getDateTime() {
-        return (DateTime) choice.getDatum();
+        return choice.getDatum();
     }
 
     @Override

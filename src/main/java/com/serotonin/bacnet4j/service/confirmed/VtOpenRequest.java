@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -38,14 +38,12 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtOpenRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 6197768113884175382L;
-
     public static final byte TYPE_ID = 21;
 
     private final VtClass vtClass;
     private final UnsignedInteger localVTSessionIdentifier;
 
-    public VtOpenRequest(VtClass vtClass, UnsignedInteger localVTSessionIdentifier) {
+    public VtOpenRequest(final VtClass vtClass, final UnsignedInteger localVTSessionIdentifier) {
         this.vtClass = vtClass;
         this.localVTSessionIdentifier = localVTSessionIdentifier;
     }
@@ -56,18 +54,18 @@ public class VtOpenRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, vtClass);
         write(queue, localVTSessionIdentifier);
     }
 
-    VtOpenRequest(ByteQueue queue) throws BACnetException {
+    VtOpenRequest(final ByteQueue queue) throws BACnetException {
         vtClass = read(queue, VtClass.class);
         localVTSessionIdentifier = read(queue, UnsignedInteger.class);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
@@ -75,13 +73,13 @@ public class VtOpenRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((localVTSessionIdentifier == null) ? 0 : localVTSessionIdentifier.hashCode());
-        result = PRIME * result + ((vtClass == null) ? 0 : vtClass.hashCode());
+        result = PRIME * result + (localVTSessionIdentifier == null ? 0 : localVTSessionIdentifier.hashCode());
+        result = PRIME * result + (vtClass == null ? 0 : vtClass.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -92,14 +90,12 @@ public class VtOpenRequest extends ConfirmedRequestService {
         if (localVTSessionIdentifier == null) {
             if (other.localVTSessionIdentifier != null)
                 return false;
-        }
-        else if (!localVTSessionIdentifier.equals(other.localVTSessionIdentifier))
+        } else if (!localVTSessionIdentifier.equals(other.localVTSessionIdentifier))
             return false;
         if (vtClass == null) {
             if (other.vtClass != null)
                 return false;
-        }
-        else if (!vtClass.equals(other.vtClass))
+        } else if (!vtClass.equals(other.vtClass))
             return false;
         return true;
     }

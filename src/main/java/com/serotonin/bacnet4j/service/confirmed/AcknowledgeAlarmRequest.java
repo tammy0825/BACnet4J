@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -45,8 +45,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -2003086447797009243L;
-
     public static final byte TYPE_ID = 0;
 
     private final UnsignedInteger acknowledgingProcessIdentifier;
@@ -56,9 +54,10 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
     private final CharacterString acknowledgmentSource;
     private final TimeStamp timeOfAcknowledgment;
 
-    public AcknowledgeAlarmRequest(UnsignedInteger acknowledgingProcessIdentifier,
-            ObjectIdentifier eventObjectIdentifier, EventState eventStateAcknowledged, TimeStamp timeStamp,
-            CharacterString acknowledgmentSource, TimeStamp timeOfAcknowledgment) {
+    public AcknowledgeAlarmRequest(final UnsignedInteger acknowledgingProcessIdentifier,
+            final ObjectIdentifier eventObjectIdentifier, final EventState eventStateAcknowledged,
+            final TimeStamp timeStamp, final CharacterString acknowledgmentSource,
+            final TimeStamp timeOfAcknowledgment) {
         this.acknowledgingProcessIdentifier = acknowledgingProcessIdentifier;
         this.eventObjectIdentifier = eventObjectIdentifier;
         this.eventStateAcknowledged = eventStateAcknowledged;
@@ -73,16 +72,15 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
-        BACnetObject obj = localDevice.getObject(eventObjectIdentifier);
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final BACnetObject obj = localDevice.getObject(eventObjectIdentifier);
         if (obj == null)
             throw new BACnetErrorException(getChoiceId(), ErrorClass.object, ErrorCode.unknownObject);
 
         try {
             obj.acknowledgeAlarm(acknowledgingProcessIdentifier, eventStateAcknowledged, timeStamp,
                     acknowledgmentSource, timeOfAcknowledgment);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
 
@@ -90,7 +88,7 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         acknowledgingProcessIdentifier.write(queue, 0);
         eventObjectIdentifier.write(queue, 1);
         eventStateAcknowledged.write(queue, 2);
@@ -99,7 +97,7 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
         timeOfAcknowledgment.write(queue, 5);
     }
 
-    AcknowledgeAlarmRequest(ByteQueue queue) throws BACnetException {
+    AcknowledgeAlarmRequest(final ByteQueue queue) throws BACnetException {
         acknowledgingProcessIdentifier = read(queue, UnsignedInteger.class, 0);
         eventObjectIdentifier = read(queue, ObjectIdentifier.class, 1);
         eventStateAcknowledged = read(queue, EventState.class, 2);
@@ -113,17 +111,17 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result
-                + ((acknowledgingProcessIdentifier == null) ? 0 : acknowledgingProcessIdentifier.hashCode());
-        result = PRIME * result + ((acknowledgmentSource == null) ? 0 : acknowledgmentSource.hashCode());
-        result = PRIME * result + ((eventObjectIdentifier == null) ? 0 : eventObjectIdentifier.hashCode());
-        result = PRIME * result + ((eventStateAcknowledged == null) ? 0 : eventStateAcknowledged.hashCode());
-        result = PRIME * result + ((timeOfAcknowledgment == null) ? 0 : timeOfAcknowledgment.hashCode());
-        result = PRIME * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
+                + (acknowledgingProcessIdentifier == null ? 0 : acknowledgingProcessIdentifier.hashCode());
+        result = PRIME * result + (acknowledgmentSource == null ? 0 : acknowledgmentSource.hashCode());
+        result = PRIME * result + (eventObjectIdentifier == null ? 0 : eventObjectIdentifier.hashCode());
+        result = PRIME * result + (eventStateAcknowledged == null ? 0 : eventStateAcknowledged.hashCode());
+        result = PRIME * result + (timeOfAcknowledgment == null ? 0 : timeOfAcknowledgment.hashCode());
+        result = PRIME * result + (timeStamp == null ? 0 : timeStamp.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -134,38 +132,32 @@ public class AcknowledgeAlarmRequest extends ConfirmedRequestService {
         if (acknowledgingProcessIdentifier == null) {
             if (other.acknowledgingProcessIdentifier != null)
                 return false;
-        }
-        else if (!acknowledgingProcessIdentifier.equals(other.acknowledgingProcessIdentifier))
+        } else if (!acknowledgingProcessIdentifier.equals(other.acknowledgingProcessIdentifier))
             return false;
         if (acknowledgmentSource == null) {
             if (other.acknowledgmentSource != null)
                 return false;
-        }
-        else if (!acknowledgmentSource.equals(other.acknowledgmentSource))
+        } else if (!acknowledgmentSource.equals(other.acknowledgmentSource))
             return false;
         if (eventObjectIdentifier == null) {
             if (other.eventObjectIdentifier != null)
                 return false;
-        }
-        else if (!eventObjectIdentifier.equals(other.eventObjectIdentifier))
+        } else if (!eventObjectIdentifier.equals(other.eventObjectIdentifier))
             return false;
         if (eventStateAcknowledged == null) {
             if (other.eventStateAcknowledged != null)
                 return false;
-        }
-        else if (!eventStateAcknowledged.equals(other.eventStateAcknowledged))
+        } else if (!eventStateAcknowledged.equals(other.eventStateAcknowledged))
             return false;
         if (timeOfAcknowledgment == null) {
             if (other.timeOfAcknowledgment != null)
                 return false;
-        }
-        else if (!timeOfAcknowledgment.equals(other.timeOfAcknowledgment))
+        } else if (!timeOfAcknowledgment.equals(other.timeOfAcknowledgment))
             return false;
         if (timeStamp == null) {
             if (other.timeStamp != null)
                 return false;
-        }
-        else if (!timeStamp.equals(other.timeStamp))
+        } else if (!timeStamp.equals(other.timeStamp))
             return false;
         return true;
     }

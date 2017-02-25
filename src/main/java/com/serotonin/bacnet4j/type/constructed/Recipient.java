@@ -28,48 +28,41 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Recipient extends BaseType {
-    private static final long serialVersionUID = -2993858722446507060L;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(0, ObjectIdentifier.class);
+        choiceOptions.addContextual(1, Address.class);
+    }
 
     private final Choice choice;
 
-    private static List<Class<? extends Encodable>> classes;
-    static {
-        classes = new ArrayList<>();
-        classes.add(ObjectIdentifier.class);
-        classes.add(Address.class);
-    }
-
     public Recipient(final ObjectIdentifier device) {
-        choice = new Choice(0, device);
+        choice = new Choice(0, device, choiceOptions);
     }
 
     public Recipient(final Address address) {
-        choice = new Choice(1, address);
+        choice = new Choice(1, address, choiceOptions);
     }
 
     public boolean isDevice() {
-        return choice.getContextId() == 0;
+        return choice.isa(ObjectIdentifier.class);
     }
 
     public ObjectIdentifier getDevice() {
-        return (ObjectIdentifier) choice.getDatum();
+        return choice.getDatum();
     }
 
     public boolean isAddress() {
-        return choice.getContextId() == 1;
+        return choice.isa(Address.class);
     }
 
     public Address getAddress() {
-        return (Address) choice.getDatum();
+        return choice.getDatum();
     }
 
     @Override
@@ -78,7 +71,7 @@ public class Recipient extends BaseType {
     }
 
     public Recipient(final ByteQueue queue) throws BACnetException {
-        choice = new Choice(queue, classes);
+        choice = new Choice(queue, choiceOptions);
     }
 
     @Override

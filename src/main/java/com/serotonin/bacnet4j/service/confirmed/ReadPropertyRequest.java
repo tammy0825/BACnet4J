@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -43,21 +43,19 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadPropertyRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 4866163964355156811L;
-
     public static final byte TYPE_ID = 12;
 
     private final ObjectIdentifier objectIdentifier;
     private final PropertyIdentifier propertyIdentifier;
     private UnsignedInteger propertyArrayIndex;
 
-    public ReadPropertyRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier) {
+    public ReadPropertyRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
     }
 
-    public ReadPropertyRequest(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex) {
+    public ReadPropertyRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
@@ -69,26 +67,25 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
     }
 
-    ReadPropertyRequest(ByteQueue queue) throws BACnetException {
+    ReadPropertyRequest(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         Encodable prop;
         try {
-            BACnetObject obj = localDevice.getObjectRequired(objectIdentifier);
+            final BACnetObject obj = localDevice.getObjectRequired(objectIdentifier);
             prop = obj.getPropertyRequired(propertyIdentifier, propertyArrayIndex);
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
         return new ReadPropertyAck(objectIdentifier, propertyIdentifier, propertyArrayIndex, prop);
@@ -98,14 +95,14 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -116,20 +113,17 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         return true;
     }

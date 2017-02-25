@@ -3,7 +3,10 @@ package com.serotonin.bacnet4j.util;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
 import org.junit.Before;
@@ -87,5 +90,75 @@ public class RemoteDeviceFinderTest {
     public void timeout() throws CancellationException, BACnetException {
         final RemoteDeviceFuture future = RemoteDeviceFinder.findDevice(d3, 4);
         future.get(100);
+    }
+
+    @Test
+    public void callbackSuccess() throws InterruptedException {
+        final CountDownLatch countDown = new CountDownLatch(6);
+
+        final AtomicReference<RemoteDevice> discovered1 = new AtomicReference<>(null);
+        final AtomicReference<RemoteDevice> discovered2 = new AtomicReference<>(null);
+        final AtomicReference<RemoteDevice> discovered3 = new AtomicReference<>(null);
+        final AtomicReference<RemoteDevice> discovered4 = new AtomicReference<>(null);
+        final AtomicReference<RemoteDevice> discovered5 = new AtomicReference<>(null);
+        final AtomicReference<RemoteDevice> discovered6 = new AtomicReference<>(null);
+
+        final AtomicBoolean finallyCalled = new AtomicBoolean(false);
+
+        RemoteDeviceFinder.findDevice(d1, 2, (rd) -> {
+            discovered1.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 1 getting" + 2), () -> finallyCalled.set(true), 1, TimeUnit.SECONDS);
+        RemoteDeviceFinder.findDevice(d1, 3, (rd) -> {
+            discovered2.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 2 getting" + 3), null, 1, TimeUnit.SECONDS);
+        RemoteDeviceFinder.findDevice(d2, 1, (rd) -> {
+            discovered3.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 3 getting" + 1), null, 1, TimeUnit.SECONDS);
+        RemoteDeviceFinder.findDevice(d2, 3, (rd) -> {
+            discovered4.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 4 getting" + 3), null, 1, TimeUnit.SECONDS);
+        RemoteDeviceFinder.findDevice(d3, 1, (rd) -> {
+            discovered5.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 5 getting" + 1), null, 1, TimeUnit.SECONDS);
+        RemoteDeviceFinder.findDevice(d3, 2, (rd) -> {
+            discovered6.set(rd);
+            countDown.countDown();
+        }, () -> System.out.println("Timeout in 6 getting" + 2), null, 1, TimeUnit.SECONDS);
+
+        countDown.await();
+
+        assertEquals(2, discovered1.get().getInstanceNumber());
+        assertEquals(3, discovered2.get().getInstanceNumber());
+        assertEquals(1, discovered3.get().getInstanceNumber());
+        assertEquals(3, discovered4.get().getInstanceNumber());
+        assertEquals(1, discovered5.get().getInstanceNumber());
+        assertEquals(2, discovered6.get().getInstanceNumber());
+
+        assertEquals(true, finallyCalled.get());
+    }
+
+    @Test
+    public void callbackTimeout() throws InterruptedException {
+        final CountDownLatch countDown = new CountDownLatch(1);
+        final AtomicBoolean timeout = new AtomicBoolean(false);
+        final AtomicBoolean finallyCalled = new AtomicBoolean(false);
+
+        RemoteDeviceFinder.findDevice(d1, 4, (rd) -> {
+            System.out.println("Succeeded getting" + rd);
+            countDown.countDown();
+        }, () -> {
+            timeout.set(true);
+            countDown.countDown();
+        }, () -> finallyCalled.set(true), 1, TimeUnit.SECONDS);
+
+        countDown.await();
+
+        assertEquals(true, timeout.get());
+        assertEquals(true, finallyCalled.get());
     }
 }

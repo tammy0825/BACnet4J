@@ -37,7 +37,6 @@ import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class DateRange extends BaseType implements DateMatchable {
-    private static final long serialVersionUID = 7219491325251523667L;
     private final Date startDate;
     private final Date endDate;
 

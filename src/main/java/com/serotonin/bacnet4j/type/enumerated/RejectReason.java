@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class RejectReason extends Enumerated {
-    private static final long serialVersionUID = 3672606740809550085L;
     public static final RejectReason other = new RejectReason(0);
     public static final RejectReason bufferOverflow = new RejectReason(1);
     public static final RejectReason inconsistentParameters = new RejectReason(2);
@@ -48,17 +47,17 @@ public class RejectReason extends Enumerated {
             invalidTag, missingRequiredParameter, parameterOutOfRange, tooManyArguments, undefinedEnumeration,
             unrecognizedService, };
 
-    public RejectReason(int value) {
+    public RejectReason(final int value) {
         super(value);
     }
 
-    public RejectReason(ByteQueue queue) {
+    public RejectReason(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == other.intValue())
             return "Other";
         if (type == bufferOverflow.intValue())

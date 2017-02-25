@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -39,16 +39,14 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 5975917456558517142L;
-
     public static final byte TYPE_ID = 17;
 
     private final UnsignedInteger timeDuration;
     private final EnableDisable enableDisable;
     private final CharacterString password;
 
-    public DeviceCommunicationControlRequest(UnsignedInteger timeDuration, EnableDisable enableDisable,
-            CharacterString password) {
+    public DeviceCommunicationControlRequest(final UnsignedInteger timeDuration, final EnableDisable enableDisable,
+            final CharacterString password) {
         super();
         this.timeDuration = timeDuration;
         this.enableDisable = enableDisable;
@@ -61,34 +59,33 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         writeOptional(queue, timeDuration, 0);
         write(queue, enableDisable, 1);
         writeOptional(queue, password, 2);
     }
 
-    DeviceCommunicationControlRequest(ByteQueue queue) throws BACnetException {
+    DeviceCommunicationControlRequest(final ByteQueue queue) throws BACnetException {
         timeDuration = readOptional(queue, UnsignedInteger.class, 0);
         enableDisable = read(queue, EnableDisable.class, 1);
         password = readOptional(queue, CharacterString.class, 2);
     }
 
     public static class EnableDisable extends Enumerated {
-        private static final long serialVersionUID = -697975876817917708L;
         public static final EnableDisable enable = new EnableDisable(0);
         public static final EnableDisable disable = new EnableDisable(1);
         public static final EnableDisable disableInitiation = new EnableDisable(2);
 
-        private EnableDisable(int value) {
+        private EnableDisable(final int value) {
             super(value);
         }
 
-        public EnableDisable(ByteQueue queue) {
+        public EnableDisable(final ByteQueue queue) {
             super(queue);
         }
     }
@@ -97,14 +94,14 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((enableDisable == null) ? 0 : enableDisable.hashCode());
-        result = PRIME * result + ((password == null) ? 0 : password.hashCode());
-        result = PRIME * result + ((timeDuration == null) ? 0 : timeDuration.hashCode());
+        result = PRIME * result + (enableDisable == null ? 0 : enableDisable.hashCode());
+        result = PRIME * result + (password == null ? 0 : password.hashCode());
+        result = PRIME * result + (timeDuration == null ? 0 : timeDuration.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -115,20 +112,17 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
         if (enableDisable == null) {
             if (other.enableDisable != null)
                 return false;
-        }
-        else if (!enableDisable.equals(other.enableDisable))
+        } else if (!enableDisable.equals(other.enableDisable))
             return false;
         if (password == null) {
             if (other.password != null)
                 return false;
-        }
-        else if (!password.equals(other.password))
+        } else if (!password.equals(other.password))
             return false;
         if (timeDuration == null) {
             if (other.timeDuration != null)
                 return false;
-        }
-        else if (!timeDuration.equals(other.timeDuration))
+        } else if (!timeDuration.equals(other.timeDuration))
             return false;
         return true;
     }

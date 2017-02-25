@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,23 +32,22 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BinaryPV extends Enumerated {
-    private static final long serialVersionUID = -22603618114789798L;
     public static final BinaryPV inactive = new BinaryPV(0);
     public static final BinaryPV active = new BinaryPV(1);
 
     public static final BinaryPV[] ALL = { inactive, active, };
 
-    public BinaryPV(int value) {
+    public BinaryPV(final int value) {
         super(value);
     }
 
-    public BinaryPV(ByteQueue queue) {
+    public BinaryPV(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == inactive.intValue())
             return "Inactive";
         if (type == active.intValue())

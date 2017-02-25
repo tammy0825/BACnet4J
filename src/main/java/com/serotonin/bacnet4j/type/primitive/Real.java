@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -32,13 +32,11 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Real extends Primitive {
-    private static final long serialVersionUID = -165304995181723832L;
-
     public static final byte TYPE_ID = 4;
 
     private final float value;
 
-    public Real(float value) {
+    public Real(final float value) {
         this.value = value;
     }
 
@@ -49,13 +47,13 @@ public class Real extends Primitive {
     //
     // Reading and writing
     //
-    public Real(ByteQueue queue) {
+    public Real(final ByteQueue queue) {
         readTag(queue);
         value = Float.intBitsToFloat(BACnetUtils.popInt(queue));
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         BACnetUtils.pushInt(queue, Float.floatToIntBits(value));
     }
 
@@ -78,7 +76,7 @@ public class Real extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

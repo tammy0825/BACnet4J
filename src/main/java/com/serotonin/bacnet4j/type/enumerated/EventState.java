@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class EventState extends Enumerated {
-    private static final long serialVersionUID = -8567972022145562375L;
     public static final EventState normal = new EventState(0);
     public static final EventState fault = new EventState(1);
     public static final EventState offnormal = new EventState(2);
@@ -42,11 +41,11 @@ public class EventState extends Enumerated {
 
     public static final EventState[] ALL = { normal, fault, offnormal, highLimit, lowLimit, lifeSafetyAlarm, };
 
-    public EventState(int value) {
+    public EventState(final int value) {
         super(value);
     }
 
-    public EventState(ByteQueue queue) {
+    public EventState(final ByteQueue queue) {
         super(queue);
     }
 
@@ -64,7 +63,7 @@ public class EventState extends Enumerated {
 
     @Override
     public String toString() {
-        int value = intValue();
+        final int value = intValue();
         if (value == 0)
             return "normal";
         if (value == 1)

@@ -23,59 +23,75 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.error;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ChangeListError extends BaseError {
-    private static final long serialVersionUID = -466623385798604884L;
+    private final ErrorClassAndCode errorType;
     private final UnsignedInteger firstFailedElementNumber;
 
-    public ChangeListError(byte choice, BACnetError error, UnsignedInteger firstFailedElementNumber) {
-        super(choice, error);
+    public ChangeListError(final ErrorClassAndCode errorType, final UnsignedInteger firstFailedElementNumber) {
+        this.errorType = errorType;
         this.firstFailedElementNumber = firstFailedElementNumber;
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        queue.push(choice);
-        write(queue, error, 0);
+    public void write(final ByteQueue queue) {
+        write(queue, errorType, 0);
         write(queue, firstFailedElementNumber, 1);
     }
 
-    ChangeListError(byte choice, ByteQueue queue) throws BACnetException {
-        super(choice, queue, 0);
+    public ChangeListError(final ByteQueue queue) throws BACnetException {
+        errorType = read(queue, ErrorClassAndCode.class, 0);
         firstFailedElementNumber = read(queue, UnsignedInteger.class, 1);
+    }
+
+    public ErrorClassAndCode getErrorType() {
+        return errorType;
+    }
+
+    public UnsignedInteger getFirstFailedElementNumber() {
+        return firstFailedElementNumber;
     }
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = super.hashCode();
-        result = PRIME * result + ((firstFailedElementNumber == null) ? 0 : firstFailedElementNumber.hashCode());
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (errorType == null ? 0 : errorType.hashCode());
+        result = prime * result + (firstFailedElementNumber == null ? 0 : firstFailedElementNumber.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public ErrorClassAndCode getErrorClassAndCode() {
+        return errorType;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
-        if (!super.equals(obj))
+        if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
         final ChangeListError other = (ChangeListError) obj;
+        if (errorType == null) {
+            if (other.errorType != null)
+                return false;
+        } else if (!errorType.equals(other.errorType))
+            return false;
         if (firstFailedElementNumber == null) {
             if (other.firstFailedElementNumber != null)
                 return false;
-        }
-        else if (!firstFailedElementNumber.equals(other.firstFailedElementNumber))
+        } else if (!firstFailedElementNumber.equals(other.firstFailedElementNumber))
             return false;
         return true;
     }

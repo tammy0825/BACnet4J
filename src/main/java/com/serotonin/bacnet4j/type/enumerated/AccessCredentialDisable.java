@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessCredentialDisable extends Enumerated {
-    private static final long serialVersionUID = -2484224934687566191L;
-
     public static final AccessCredentialDisable none = new AccessCredentialDisable(0);
     public static final AccessCredentialDisable disable = new AccessCredentialDisable(1);
     public static final AccessCredentialDisable disableManual = new AccessCredentialDisable(2);
@@ -41,17 +39,17 @@ public class AccessCredentialDisable extends Enumerated {
 
     public static final AccessCredentialDisable[] ALL = { none, disable, disableManual, disableLockout, };
 
-    public AccessCredentialDisable(int value) {
+    public AccessCredentialDisable(final int value) {
         super(value);
     }
 
-    public AccessCredentialDisable(ByteQueue queue) {
+    public AccessCredentialDisable(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == none.intValue())
             return "none";
         if (type == disable.intValue())

@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessZoneOccupancyState extends Enumerated {
-    private static final long serialVersionUID = 6051525977406474069L;
-
     public static final AccessZoneOccupancyState normal = new AccessZoneOccupancyState(0);
     public static final AccessZoneOccupancyState belowLowerLimit = new AccessZoneOccupancyState(1);
     public static final AccessZoneOccupancyState atLowerLimit = new AccessZoneOccupancyState(2);

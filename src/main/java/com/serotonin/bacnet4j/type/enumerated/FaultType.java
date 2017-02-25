@@ -32,16 +32,17 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class FaultType extends Enumerated {
-    private static final long serialVersionUID = -2447330212564862936L;
     public static final FaultType none = new FaultType(0);
     public static final FaultType faultCharacterString = new FaultType(1);
     public static final FaultType faultExtended = new FaultType(2);
     public static final FaultType faultLifeSafety = new FaultType(3);
     public static final FaultType faultState = new FaultType(4);
     public static final FaultType faultStatusFlags = new FaultType(5);
+    public static final FaultType faultOutOfRange = new FaultType(6);
+    public static final FaultType faultListed = new FaultType(7);
 
     public static final FaultType[] ALL = { none, faultCharacterString, faultExtended, faultLifeSafety, faultState,
-            faultStatusFlags, };
+            faultStatusFlags, faultOutOfRange, faultListed, };
 
     public FaultType(final int value) {
         super(value);
@@ -66,6 +67,10 @@ public class FaultType extends Enumerated {
             return "faultState";
         if (type == faultStatusFlags.intValue())
             return "faultStatusFlags";
+        if (type == faultOutOfRange.intValue())
+            return "faultOutOfRange";
+        if (type == faultListed.intValue())
+            return "faultListed";
         return "Unknown(" + type + ")";
     }
 }

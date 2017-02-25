@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,18 +32,17 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LoggingType extends Enumerated {
-    private static final long serialVersionUID = 7142631539010266808L;
     public static final LoggingType polled = new LoggingType(0);
     public static final LoggingType cov = new LoggingType(1);
     public static final LoggingType triggered = new LoggingType(2);
 
     public static final LoggingType[] ALL = { polled, cov, triggered, };
 
-    public LoggingType(int value) {
+    public LoggingType(final int value) {
         super(value);
     }
 
-    public LoggingType(ByteQueue queue) {
+    public LoggingType(final ByteQueue queue) {
         super(queue);
     }
 }

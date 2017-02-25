@@ -28,11 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
@@ -43,63 +42,11 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LogData extends BaseType {
-    private static final long serialVersionUID = -1976023645603339559L;
-
-    public static Choice booleanElement(final Boolean datum) {
-        return new Choice(0, datum);
-    }
-
-    public static Choice realElement(final Real datum) {
-        return new Choice(1, datum);
-    }
-
-    public static Choice enumElement(final Enumerated datum) {
-        return new Choice(2, datum);
-    }
-
-    public static Choice unsignedElement(final UnsignedInteger datum) {
-        return new Choice(3, datum);
-    }
-
-    public static Choice signedElement(final SignedInteger datum) {
-        return new Choice(4, datum);
-    }
-
-    public static Choice bitstringElement(final BitString datum) {
-        return new Choice(5, datum);
-    }
-
-    public static Choice nullElement(final Null datum) {
-        return new Choice(6, datum);
-    }
-
-    public static Choice failureElement(final BACnetError datum) {
-        return new Choice(7, datum);
-    }
-
-    public static Choice anyElement(final BaseType datum) {
-        return new Choice(8, datum);
-    }
-
-    private static List<Class<? extends Encodable>> classes;
-    static {
-        classes = new ArrayList<>();
-        classes.add(Boolean.class);
-        classes.add(Real.class);
-        classes.add(Enumerated.class);
-        classes.add(UnsignedInteger.class);
-        classes.add(SignedInteger.class);
-        classes.add(BitString.class);
-        classes.add(Null.class);
-        classes.add(BACnetError.class);
-        classes.add(Encodable.class);
-    }
-
     private final LogStatus logStatus;
-    private final SequenceOf<Choice> logData;
+    private final SequenceOf<LogDataElement> logData;
     private final Real timeChange;
 
-    public LogData(final LogStatus logStatus, final SequenceOf<Choice> logData, final Real timeChange) {
+    public LogData(final LogStatus logStatus, final SequenceOf<LogDataElement> logData, final Real timeChange) {
         this.logStatus = logStatus;
         this.logData = logData;
         this.timeChange = timeChange;
@@ -116,7 +63,7 @@ public class LogData extends BaseType {
         return logStatus;
     }
 
-    public SequenceOf<Choice> getLogData() {
+    public SequenceOf<LogDataElement> getLogData() {
         return logData;
     }
 
@@ -124,49 +71,9 @@ public class LogData extends BaseType {
         return timeChange;
     }
 
-    public int getChoiceType(final int indexBase1) {
-        return logData.get(indexBase1).getContextId();
-    }
-
-    public Boolean getBoolean(final int indexBase1) {
-        return (Boolean) logData.get(indexBase1).getDatum();
-    }
-
-    public Real getReal(final int indexBase1) {
-        return (Real) logData.get(indexBase1).getDatum();
-    }
-
-    public Enumerated getEnumerated(final int indexBase1) {
-        return (Enumerated) logData.get(indexBase1).getDatum();
-    }
-
-    public UnsignedInteger getUnsignedInteger(final int indexBase1) {
-        return (UnsignedInteger) logData.get(indexBase1).getDatum();
-    }
-
-    public SignedInteger getSignedInteger(final int indexBase1) {
-        return (SignedInteger) logData.get(indexBase1).getDatum();
-    }
-
-    public BitString getBitString(final int indexBase1) {
-        return (BitString) logData.get(indexBase1).getDatum();
-    }
-
-    public Null getNull(final int indexBase1) {
-        return (Null) logData.get(indexBase1).getDatum();
-    }
-
-    public BACnetError getBACnetError(final int indexBase1) {
-        return (BACnetError) logData.get(indexBase1).getDatum();
-    }
-
-    public BaseType getAny(final int indexBase1) {
-        return (BaseType) logData.get(indexBase1).getDatum();
-    }
-
     public LogData(final ByteQueue queue) throws BACnetException {
         logStatus = read(queue, LogStatus.class, 0);
-        logData = readSequenceOfChoice(queue, classes, 1);
+        logData = readSequenceOf(queue, LogDataElement.class, 1);
         timeChange = read(queue, Real.class, 2);
     }
 
@@ -205,5 +112,128 @@ public class LogData extends BaseType {
         } else if (!timeChange.equals(other.timeChange))
             return false;
         return true;
+    }
+
+    public static class LogDataElement extends BaseType {
+        private static ChoiceOptions choiceOptions = new ChoiceOptions();
+        static {
+            choiceOptions.addContextual(0, Boolean.class);
+            choiceOptions.addContextual(1, Real.class);
+            choiceOptions.addContextual(2, Enumerated.class);
+            choiceOptions.addContextual(3, UnsignedInteger.class);
+            choiceOptions.addContextual(4, SignedInteger.class);
+            choiceOptions.addContextual(5, BitString.class);
+            choiceOptions.addContextual(6, Null.class);
+            choiceOptions.addContextual(7, ErrorClassAndCode.class);
+            choiceOptions.addContextual(8, AmbiguousValue.class);
+        }
+
+        private final Choice choice;
+
+        public LogDataElement(final Boolean datum) {
+            choice = new Choice(0, datum, choiceOptions);
+        }
+
+        public LogDataElement(final Real datum) {
+            choice = new Choice(1, datum, choiceOptions);
+        }
+
+        public LogDataElement(final Enumerated datum) {
+            choice = new Choice(2, datum, choiceOptions);
+        }
+
+        public LogDataElement(final UnsignedInteger datum) {
+            choice = new Choice(3, datum, choiceOptions);
+        }
+
+        public LogDataElement(final SignedInteger datum) {
+            choice = new Choice(4, datum, choiceOptions);
+        }
+
+        public LogDataElement(final BitString datum) {
+            choice = new Choice(5, datum, choiceOptions);
+        }
+
+        public LogDataElement(final Null datum) {
+            choice = new Choice(6, datum, choiceOptions);
+        }
+
+        public LogDataElement(final ErrorClassAndCode datum) {
+            choice = new Choice(7, datum, choiceOptions);
+        }
+
+        public LogDataElement(final Encodable datum) {
+            choice = new Choice(8, datum, choiceOptions);
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, choice);
+        }
+
+        public LogDataElement(final ByteQueue queue) throws BACnetException {
+            choice = readChoice(queue, choiceOptions);
+        }
+
+        public Boolean getBoolean() {
+            return choice.getDatum();
+        }
+
+        public Real getReal() {
+            return choice.getDatum();
+        }
+
+        public Enumerated getEnumerated() {
+            return choice.getDatum();
+        }
+
+        public UnsignedInteger getUnsignedInteger() {
+            return choice.getDatum();
+        }
+
+        public SignedInteger getSignedInteger() {
+            return choice.getDatum();
+        }
+
+        public BitString getBitString() {
+            return choice.getDatum();
+        }
+
+        public Null getNull() {
+            return choice.getDatum();
+        }
+
+        public ErrorClassAndCode getBACnetError() {
+            return choice.getDatum();
+        }
+
+        public BaseType getAny() {
+            return choice.getDatum();
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (choice == null ? 0 : choice.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final LogDataElement other = (LogDataElement) obj;
+            if (choice == null) {
+                if (other.choice != null)
+                    return false;
+            } else if (!choice.equals(other.choice))
+                return false;
+            return true;
+        }
     }
 }

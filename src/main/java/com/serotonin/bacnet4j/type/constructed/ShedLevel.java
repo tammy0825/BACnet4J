@@ -28,11 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -41,26 +37,24 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class ShedLevel extends BaseType {
-    private static final long serialVersionUID = 8550443800962401306L;
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(UnsignedInteger.class);
-        classes.add(UnsignedInteger.class);
-        classes.add(Real.class);
+        choiceOptions.addContextual(0, UnsignedInteger.class);
+        choiceOptions.addContextual(1, UnsignedInteger.class);
+        choiceOptions.addContextual(2, Real.class);
     }
 
     private final Choice choice;
 
     public ShedLevel(final UnsignedInteger datum, final boolean percent) {
         if (percent)
-            choice = new Choice(0, datum);
+            choice = new Choice(0, datum, choiceOptions);
         else
-            choice = new Choice(1, datum);
+            choice = new Choice(1, datum, choiceOptions);
     }
 
     public ShedLevel(final Real amount) {
-        choice = new Choice(2, amount);
+        choice = new Choice(2, amount, choiceOptions);
     }
 
     @Override
@@ -80,12 +74,8 @@ public class ShedLevel extends BaseType {
         return (Real) choice.getDatum();
     }
 
-    public int getChoiceType() {
-        return choice.getContextId();
-    }
-
     public ShedLevel(final ByteQueue queue) throws BACnetException {
-        choice = new Choice(queue, classes);
+        choice = new Choice(queue, choiceOptions);
     }
 
     @Override

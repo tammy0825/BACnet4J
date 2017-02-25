@@ -23,44 +23,39 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfCharacterString extends EventParameter {
-    private static final long serialVersionUID = -8565221206789011842L;
-
+public class ChangeOfCharacterString extends BaseType {
     public static final byte TYPE_ID = 17;
 
     private final UnsignedInteger timeDelay;
     private final SequenceOf<CharacterString> listOfAlarmValues;
 
-    public ChangeOfCharacterString(UnsignedInteger timeDelay, SequenceOf<CharacterString> listOfAlarmValues) {
+    public ChangeOfCharacterString(final UnsignedInteger timeDelay,
+            final SequenceOf<CharacterString> listOfAlarmValues) {
         this.timeDelay = timeDelay;
         this.listOfAlarmValues = listOfAlarmValues;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, listOfAlarmValues, 1);
     }
 
-    public ChangeOfCharacterString(ByteQueue queue) throws BACnetException {
+    public ChangeOfCharacterString(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         listOfAlarmValues = readSequenceOf(queue, CharacterString.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -75,31 +70,29 @@ public class ChangeOfCharacterString extends EventParameter {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((listOfAlarmValues == null) ? 0 : listOfAlarmValues.hashCode());
-        result = prime * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = prime * result + (listOfAlarmValues == null ? 0 : listOfAlarmValues.hashCode());
+        result = prime * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfCharacterString other = (ChangeOfCharacterString) obj;
+        final ChangeOfCharacterString other = (ChangeOfCharacterString) obj;
         if (listOfAlarmValues == null) {
             if (other.listOfAlarmValues != null)
                 return false;
-        }
-        else if (!listOfAlarmValues.equals(other.listOfAlarmValues))
+        } else if (!listOfAlarmValues.equals(other.listOfAlarmValues))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

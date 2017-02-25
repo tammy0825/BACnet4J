@@ -1,7 +1,39 @@
+/*
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * When signing a commercial license with Infinite Automation Software,
+ * the following extension to GPL is made. A special exception to the GPL is
+ * included to allow you to distribute a combined work that includes BAcnet4J
+ * without being obliged to provide the source code for any proprietary components.
+ *
+ * See www.infiniteautomation.com for commercial license options.
+ *
+ * @author Matthew Lohbihler
+ */
 package com.serotonin.bacnet4j.util;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +53,60 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  */
 public class RemoteDeviceFinder {
     static final Logger LOG = LoggerFactory.getLogger(RemoteDeviceFinder.class);
+
+    public static void findDevice(final LocalDevice localDevice, final int instanceId,
+            final Consumer<RemoteDevice> callback, final Runnable timeoutCallback, final Runnable finallyCallback,
+            final long timeout, final TimeUnit unit) {
+        Objects.requireNonNull(localDevice);
+        Objects.requireNonNull(callback);
+        Objects.requireNonNull(unit);
+
+        final DeviceEventAdapter listener = new DeviceEventAdapter() {
+            boolean done = false;
+            ScheduledFuture<?> timeoutFuture;
+
+            {
+                // Schedule a timeout that will
+                timeoutFuture = localDevice.schedule(() -> {
+                    synchronized (this) {
+                        if (!done) {
+                            // Timeout occurred. Cancel the listener and notify the timeout callback.
+                            done = true;
+                            localDevice.getEventHandler().removeListener(this);
+                            if (timeoutCallback != null)
+                                timeoutCallback.run();
+                            if (finallyCallback != null)
+                                finallyCallback.run();
+                        }
+                    }
+                }, timeout, unit);
+            }
+
+            @Override
+            public void iAmReceived(final RemoteDevice remoteDevice) {
+                if (remoteDevice.getInstanceNumber() == instanceId) {
+                    synchronized (this) {
+                        if (!done) {
+                            // Found the device. Cancel the timeout future and notify the callback.
+                            done = true;
+                            localDevice.getEventHandler().removeListener(this);
+                            timeoutFuture.cancel(false);
+                            callback.accept(remoteDevice);
+                            if (finallyCallback != null)
+                                finallyCallback.run();
+                        }
+                    }
+                }
+            }
+        };
+
+        // Register as an event listener
+        localDevice.getEventHandler().addListener(listener);
+
+        // Send a WhoIs with the device id.
+        localDevice.sendGlobalBroadcast(
+                new WhoIsRequest(new UnsignedInteger(instanceId), new UnsignedInteger(instanceId)));
+    }
 
     public static RemoteDeviceFuture findDevice(final LocalDevice localDevice, final int instanceId) {
         return new DeviceFutureImpl(localDevice, instanceId);

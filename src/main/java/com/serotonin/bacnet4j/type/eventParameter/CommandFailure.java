@@ -23,43 +23,38 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class CommandFailure extends EventParameter {
-    private static final long serialVersionUID = 6903279389504770474L;
-
+public class CommandFailure extends BaseType {
     public static final byte TYPE_ID = 3;
 
     private final UnsignedInteger timeDelay;
     private final DeviceObjectPropertyReference feedbackPropertyReference;
 
-    public CommandFailure(UnsignedInteger timeDelay, DeviceObjectPropertyReference feedbackPropertyReference) {
+    public CommandFailure(final UnsignedInteger timeDelay,
+            final DeviceObjectPropertyReference feedbackPropertyReference) {
         this.timeDelay = timeDelay;
         this.feedbackPropertyReference = feedbackPropertyReference;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, feedbackPropertyReference, 1);
     }
 
-    public CommandFailure(ByteQueue queue) throws BACnetException {
+    public CommandFailure(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         feedbackPropertyReference = read(queue, DeviceObjectPropertyReference.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -74,13 +69,13 @@ public class CommandFailure extends EventParameter {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((feedbackPropertyReference == null) ? 0 : feedbackPropertyReference.hashCode());
-        result = PRIME * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = PRIME * result + (feedbackPropertyReference == null ? 0 : feedbackPropertyReference.hashCode());
+        result = PRIME * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -91,14 +86,12 @@ public class CommandFailure extends EventParameter {
         if (feedbackPropertyReference == null) {
             if (other.feedbackPropertyReference != null)
                 return false;
-        }
-        else if (!feedbackPropertyReference.equals(other.feedbackPropertyReference))
+        } else if (!feedbackPropertyReference.equals(other.feedbackPropertyReference))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

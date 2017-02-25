@@ -23,44 +23,38 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class AccessEvent extends EventParameter {
-    private static final long serialVersionUID = -4567970907776185151L;
-
+public class AccessEvent extends BaseType {
     public static final byte TYPE_ID = 13;
 
     private final SequenceOf<AccessEvent> listOfAccessEvents;
     private final DeviceObjectPropertyReference accessEventTimeReference;
 
-    public AccessEvent(SequenceOf<AccessEvent> listOfAccessEvents,
-            DeviceObjectPropertyReference accessEventTimeReference) {
+    public AccessEvent(final SequenceOf<AccessEvent> listOfAccessEvents,
+            final DeviceObjectPropertyReference accessEventTimeReference) {
         this.listOfAccessEvents = listOfAccessEvents;
         this.accessEventTimeReference = accessEventTimeReference;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, listOfAccessEvents, 0);
         write(queue, accessEventTimeReference, 1);
     }
 
-    public AccessEvent(ByteQueue queue) throws BACnetException {
+    public AccessEvent(final ByteQueue queue) throws BACnetException {
         listOfAccessEvents = readSequenceOf(queue, AccessEvent.class, 0);
         accessEventTimeReference = read(queue, DeviceObjectPropertyReference.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public SequenceOf<AccessEvent> getListOfAccessEvents() {
@@ -75,31 +69,29 @@ public class AccessEvent extends EventParameter {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((accessEventTimeReference == null) ? 0 : accessEventTimeReference.hashCode());
-        result = prime * result + ((listOfAccessEvents == null) ? 0 : listOfAccessEvents.hashCode());
+        result = prime * result + (accessEventTimeReference == null ? 0 : accessEventTimeReference.hashCode());
+        result = prime * result + (listOfAccessEvents == null ? 0 : listOfAccessEvents.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AccessEvent other = (AccessEvent) obj;
+        final AccessEvent other = (AccessEvent) obj;
         if (accessEventTimeReference == null) {
             if (other.accessEventTimeReference != null)
                 return false;
-        }
-        else if (!accessEventTimeReference.equals(other.accessEventTimeReference))
+        } else if (!accessEventTimeReference.equals(other.accessEventTimeReference))
             return false;
         if (listOfAccessEvents == null) {
             if (other.listOfAccessEvents != null)
                 return false;
-        }
-        else if (!listOfAccessEvents.equals(other.listOfAccessEvents))
+        } else if (!listOfAccessEvents.equals(other.listOfAccessEvents))
             return false;
         return true;
     }

@@ -23,69 +23,68 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ClientCov extends BaseType {
-    private static final long serialVersionUID = 654453440700433527L;
-    private Real realIncrement;
-    private Null defaultIncrement;
-
-    public ClientCov(Real realIncrement) {
-        this.realIncrement = realIncrement;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addPrimitive(Real.class);
+        choiceOptions.addPrimitive(Null.class);
     }
 
-    public ClientCov(Null defaultIncrement) {
-        this.defaultIncrement = defaultIncrement;
+    private final Choice entry;
+
+    public ClientCov(final Real realIncrement) {
+        entry = new Choice(realIncrement, choiceOptions);
+    }
+
+    public ClientCov(final Null defaultIncrement) {
+        entry = new Choice(defaultIncrement, choiceOptions);
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        if (realIncrement != null)
-            write(queue, realIncrement);
-        else
-            write(queue, defaultIncrement);
+    public void write(final ByteQueue queue) {
+        write(queue, entry);
     }
 
-    public ClientCov(ByteQueue queue) throws BACnetException {
-        int tag = (queue.peek(0) & 0xff) >> 4;
-        if (tag == Null.TYPE_ID)
-            defaultIncrement = new Null(queue);
-        else if (tag == Real.TYPE_ID)
-            realIncrement = new Real(queue);
-        else
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+    public ClientCov(final ByteQueue queue) throws BACnetException {
+        entry = readChoice(queue, choiceOptions);
+    }
+
+    public boolean isRealIncrement() {
+        return entry.isa(Real.class);
+    }
+
+    public boolean isDefaultIncrement() {
+        return entry.isa(Null.class);
     }
 
     public Real getRealIncrement() {
-        return realIncrement;
+        return (Real) entry.getDatum();
     }
 
     public Null getDefaultIncrement() {
-        return defaultIncrement;
+        return (Null) entry.getDatum();
     }
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
+        final int prime = 31;
         int result = 1;
-        result = PRIME * result + ((defaultIncrement == null) ? 0 : defaultIncrement.hashCode());
-        result = PRIME * result + ((realIncrement == null) ? 0 : realIncrement.hashCode());
+        result = prime * result + (entry == null ? 0 : entry.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -93,17 +92,10 @@ public class ClientCov extends BaseType {
         if (getClass() != obj.getClass())
             return false;
         final ClientCov other = (ClientCov) obj;
-        if (defaultIncrement == null) {
-            if (other.defaultIncrement != null)
+        if (entry == null) {
+            if (other.entry != null)
                 return false;
-        }
-        else if (!defaultIncrement.equals(other.defaultIncrement))
-            return false;
-        if (realIncrement == null) {
-            if (other.realIncrement != null)
-                return false;
-        }
-        else if (!realIncrement.equals(other.realIncrement))
+        } else if (!entry.equals(other.entry))
             return false;
         return true;
     }

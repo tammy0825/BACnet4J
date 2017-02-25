@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -36,9 +36,7 @@ import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class AccessEvent extends NotificationParameters {
-    private static final long serialVersionUID = 4260755086143328155L;
-
+public class AccessEvent extends NotificationParameter {
     public static final byte TYPE_ID = 13;
 
     private final AccessEvent accessEvent;
@@ -48,8 +46,9 @@ public class AccessEvent extends NotificationParameters {
     private final DeviceObjectReference accessCredential;
     private final AuthenticationFactor authenticationFactor;
 
-    public AccessEvent(AccessEvent accessEvent, StatusFlags statusFlags, UnsignedInteger accessEventTag,
-            TimeStamp accessEventTime, DeviceObjectReference accessCredential, AuthenticationFactor authenticationFactor) {
+    public AccessEvent(final AccessEvent accessEvent, final StatusFlags statusFlags,
+            final UnsignedInteger accessEventTag, final TimeStamp accessEventTime,
+            final DeviceObjectReference accessCredential, final AuthenticationFactor authenticationFactor) {
         this.accessEvent = accessEvent;
         this.statusFlags = statusFlags;
         this.accessEventTag = accessEventTag;
@@ -59,7 +58,7 @@ public class AccessEvent extends NotificationParameters {
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, accessEvent, 0);
         write(queue, statusFlags, 1);
         write(queue, accessEventTag, 2);
@@ -68,18 +67,13 @@ public class AccessEvent extends NotificationParameters {
         writeOptional(queue, authenticationFactor, 5);
     }
 
-    public AccessEvent(ByteQueue queue) throws BACnetException {
+    public AccessEvent(final ByteQueue queue) throws BACnetException {
         accessEvent = read(queue, AccessEvent.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         accessEventTag = read(queue, UnsignedInteger.class, 2);
         accessEventTime = read(queue, TimeStamp.class, 3);
         accessCredential = read(queue, DeviceObjectReference.class, 4);
         authenticationFactor = readOptional(queue, AuthenticationFactor.class, 5);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public AccessEvent getAccessEvent() {
@@ -110,59 +104,53 @@ public class AccessEvent extends NotificationParameters {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((accessCredential == null) ? 0 : accessCredential.hashCode());
-        result = prime * result + ((accessEvent == null) ? 0 : accessEvent.hashCode());
-        result = prime * result + ((accessEventTag == null) ? 0 : accessEventTag.hashCode());
-        result = prime * result + ((accessEventTime == null) ? 0 : accessEventTime.hashCode());
-        result = prime * result + ((authenticationFactor == null) ? 0 : authenticationFactor.hashCode());
-        result = prime * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = prime * result + (accessCredential == null ? 0 : accessCredential.hashCode());
+        result = prime * result + (accessEvent == null ? 0 : accessEvent.hashCode());
+        result = prime * result + (accessEventTag == null ? 0 : accessEventTag.hashCode());
+        result = prime * result + (accessEventTime == null ? 0 : accessEventTime.hashCode());
+        result = prime * result + (authenticationFactor == null ? 0 : authenticationFactor.hashCode());
+        result = prime * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AccessEvent other = (AccessEvent) obj;
+        final AccessEvent other = (AccessEvent) obj;
         if (accessCredential == null) {
             if (other.accessCredential != null)
                 return false;
-        }
-        else if (!accessCredential.equals(other.accessCredential))
+        } else if (!accessCredential.equals(other.accessCredential))
             return false;
         if (accessEvent == null) {
             if (other.accessEvent != null)
                 return false;
-        }
-        else if (!accessEvent.equals(other.accessEvent))
+        } else if (!accessEvent.equals(other.accessEvent))
             return false;
         if (accessEventTag == null) {
             if (other.accessEventTag != null)
                 return false;
-        }
-        else if (!accessEventTag.equals(other.accessEventTag))
+        } else if (!accessEventTag.equals(other.accessEventTag))
             return false;
         if (accessEventTime == null) {
             if (other.accessEventTime != null)
                 return false;
-        }
-        else if (!accessEventTime.equals(other.accessEventTime))
+        } else if (!accessEventTime.equals(other.accessEventTime))
             return false;
         if (authenticationFactor == null) {
             if (other.authenticationFactor != null)
                 return false;
-        }
-        else if (!authenticationFactor.equals(other.authenticationFactor))
+        } else if (!authenticationFactor.equals(other.authenticationFactor))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

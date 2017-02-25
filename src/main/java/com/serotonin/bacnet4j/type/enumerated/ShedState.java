@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class ShedState extends Enumerated {
-    private static final long serialVersionUID = 1807549359103525990L;
     public static final ShedState shedInactive = new ShedState(0);
     public static final ShedState shedRequestPending = new ShedState(1);
     public static final ShedState shedCompliant = new ShedState(2);

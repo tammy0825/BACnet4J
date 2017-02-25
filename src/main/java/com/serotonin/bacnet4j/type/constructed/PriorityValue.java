@@ -28,12 +28,9 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
@@ -43,6 +40,7 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.Time;
@@ -50,353 +48,126 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PriorityValue extends BaseType {
-    private static final long serialVersionUID = 213834169635261132L;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addPrimitive(Null.class);
+        choiceOptions.addPrimitive(Real.class);
+        choiceOptions.addPrimitive(Enumerated.class);
+        choiceOptions.addPrimitive(UnsignedInteger.class);
+        choiceOptions.addPrimitive(Boolean.class);
+        choiceOptions.addPrimitive(SignedInteger.class);
+        choiceOptions.addPrimitive(Double.class);
+        choiceOptions.addPrimitive(Time.class);
+        choiceOptions.addPrimitive(CharacterString.class);
+        choiceOptions.addPrimitive(OctetString.class);
+        choiceOptions.addPrimitive(BitString.class);
+        choiceOptions.addPrimitive(Date.class);
+        choiceOptions.addPrimitive(ObjectIdentifier.class);
 
-    private Null nullValue;
-    private Real realValue;
-    private Enumerated enumeratedValue;
-    private UnsignedInteger unsignedValue;
-    private Boolean booleanValue;
-    private SignedInteger signedValue;
-    private Double doubleValue;
-    private Time timeValue;
-    private CharacterString characterStringValue;
-    private OctetString octetStringValue;
-    private BitString bitStringValue;
-    private Date dateValue;
-    private ObjectIdentifier oidValue;
-    private Encodable constructedValue;
-    private DateTime dateTimeValue;
-
-    public PriorityValue(final Null nullValue) {
-        this.nullValue = nullValue;
+        choiceOptions.addContextual(0, AmbiguousValue.class);
+        choiceOptions.addContextual(1, DateTime.class);
     }
 
-    public PriorityValue(final Real realValue) {
-        this.realValue = realValue;
-    }
-
-    public PriorityValue(final Enumerated enumeratedValue) {
-        this.enumeratedValue = enumeratedValue;
-    }
-
-    public PriorityValue(final UnsignedInteger unsignedValue) {
-        this.unsignedValue = unsignedValue;
-    }
-
-    public PriorityValue(final Boolean booleanValue) {
-        this.booleanValue = booleanValue;
-    }
-
-    public PriorityValue(final SignedInteger signedValue) {
-        this.signedValue = signedValue;
-    }
-
-    public PriorityValue(final Double doubleValue) {
-        this.doubleValue = doubleValue;
-    }
-
-    public PriorityValue(final Time timeValue) {
-        this.timeValue = timeValue;
-    }
-
-    public PriorityValue(final CharacterString characterStringValue) {
-        this.characterStringValue = characterStringValue;
-    }
-
-    public PriorityValue(final OctetString octetStringValue) {
-        this.octetStringValue = octetStringValue;
-    }
-
-    public PriorityValue(final BitString bitStringValue) {
-        this.bitStringValue = bitStringValue;
-    }
-
-    public PriorityValue(final Date dateValue) {
-        this.dateValue = dateValue;
-    }
-
-    public PriorityValue(final ObjectIdentifier oidValue) {
-        this.oidValue = oidValue;
-    }
-
-    public PriorityValue(final BaseType constructedValue) {
-        this.constructedValue = constructedValue;
-    }
-
-    public PriorityValue(final DateTime dateTimeValue) {
-        this.dateTimeValue = dateTimeValue;
-    }
+    private final Choice choice;
 
     public PriorityValue(final Encodable value) {
-        if (value instanceof Null)
-            nullValue = (Null) value;
-        else if (value instanceof Real)
-            realValue = (Real) value;
-        else if (value instanceof Enumerated)
-            enumeratedValue = (Enumerated) value;
-        else if (value instanceof UnsignedInteger)
-            unsignedValue = (UnsignedInteger) value;
-        else if (value instanceof Boolean)
-            booleanValue = (Boolean) value;
-        else if (value instanceof SignedInteger)
-            signedValue = (SignedInteger) value;
-        else if (value instanceof Double)
-            doubleValue = (Double) value;
-        else if (value instanceof Time)
-            timeValue = (Time) value;
-        else if (value instanceof CharacterString)
-            characterStringValue = (CharacterString) value;
-        else if (value instanceof OctetString)
-            octetStringValue = (OctetString) value;
-        else if (value instanceof BitString)
-            bitStringValue = (BitString) value;
-        else if (value instanceof Date)
-            dateValue = (Date) value;
-        else if (value instanceof ObjectIdentifier)
-            oidValue = (ObjectIdentifier) value;
+        if (value instanceof Primitive)
+            choice = new Choice(value, choiceOptions);
         else if (value instanceof DateTime)
-            dateTimeValue = (DateTime) value;
-        else if (value instanceof BaseType)
-            constructedValue = value;
+            choice = new Choice(1, value, choiceOptions);
         else
-            throw new IllegalArgumentException("Unhandled priority type: " + value.getClass());
+            choice = new Choice(0, value, choiceOptions);
     }
 
     public Null getNullValue() {
-        return nullValue;
+        return choice.getDatum();
     }
 
     public Real getRealValue() {
-        return realValue;
+        return choice.getDatum();
     }
 
     public Enumerated getEnumeratedValue() {
-        return enumeratedValue;
+        return choice.getDatum();
     }
 
     public UnsignedInteger getUnsignedValue() {
-        return unsignedValue;
+        return choice.getDatum();
     }
 
     public Boolean getBooleanValue() {
-        return booleanValue;
+        return choice.getDatum();
     }
 
     public SignedInteger getSignedValue() {
-        return signedValue;
+        return choice.getDatum();
     }
 
     public Double getDoubleValue() {
-        return doubleValue;
+        return choice.getDatum();
     }
 
     public Time getTimeValue() {
-        return timeValue;
+        return choice.getDatum();
     }
 
     public CharacterString getCharacterStringValue() {
-        return characterStringValue;
+        return choice.getDatum();
     }
 
     public OctetString getOctetStringValue() {
-        return octetStringValue;
+        return choice.getDatum();
     }
 
     public BitString getBitStringValue() {
-        return bitStringValue;
+        return choice.getDatum();
     }
 
     public Date getDateValue() {
-        return dateValue;
+        return choice.getDatum();
     }
 
     public ObjectIdentifier getOidValue() {
-        return oidValue;
+        return choice.getDatum();
     }
 
     public DateTime getDateTimeValue() {
-        return dateTimeValue;
+        return choice.getDatum();
     }
 
     public Encodable getConstructedValue() {
-        return constructedValue;
+        return choice.getDatum();
     }
 
-    public boolean isNull() {
-        return nullValue != null;
-    }
-
-    @SuppressWarnings("unchecked")
     public <T extends Encodable> T getValue() {
-        if (nullValue != null)
-            return (T) nullValue;
-        if (realValue != null)
-            return (T) realValue;
-        if (enumeratedValue != null)
-            return (T) enumeratedValue;
-        if (unsignedValue != null)
-            return (T) unsignedValue;
-        if (booleanValue != null)
-            return (T) booleanValue;
-        if (signedValue != null)
-            return (T) signedValue;
-        if (doubleValue != null)
-            return (T) doubleValue;
-        if (timeValue != null)
-            return (T) timeValue;
-        if (characterStringValue != null)
-            return (T) characterStringValue;
-        if (octetStringValue != null)
-            return (T) octetStringValue;
-        if (bitStringValue != null)
-            return (T) bitStringValue;
-        if (dateValue != null)
-            return (T) dateValue;
-        if (oidValue != null)
-            return (T) oidValue;
-        if (dateTimeValue != null)
-            return (T) dateTimeValue;
-        return (T) constructedValue;
+        return choice.getDatum();
+    }
+
+    public boolean isa(final Class<?> clazz) {
+        return choice.isa(clazz);
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("PriorityValue(");
-        if (nullValue != null)
-            sb.append("nullValue=").append(nullValue);
-        else if (realValue != null)
-            sb.append("realValue=").append(realValue);
-        else if (enumeratedValue != null)
-            sb.append("enumeratedValue=").append(enumeratedValue);
-        else if (unsignedValue != null)
-            sb.append("unsignedValue=").append(unsignedValue);
-        else if (booleanValue != null)
-            sb.append("booleanValue=").append(booleanValue);
-        else if (signedValue != null)
-            sb.append("signedValue=").append(signedValue);
-        else if (doubleValue != null)
-            sb.append("doubleValue=").append(doubleValue);
-        else if (timeValue != null)
-            sb.append("timeValue=").append(timeValue);
-        else if (characterStringValue != null)
-            sb.append("characterStringValue=").append(characterStringValue);
-        else if (octetStringValue != null)
-            sb.append("octetStringValue=").append(octetStringValue);
-        else if (bitStringValue != null)
-            sb.append("bitStringValue=").append(bitStringValue);
-        else if (dateValue != null)
-            sb.append("dateValue=").append(dateValue);
-        else if (oidValue != null)
-            sb.append("oidValue=").append(oidValue);
-        else if (dateTimeValue != null)
-            sb.append("dateTimeValue=").append(dateTimeValue);
-        else if (constructedValue != null)
-            sb.append("constructedValue=").append(constructedValue);
-        sb.append(")");
+        sb.append("PriorityValue(").append(choice).append(")");
         return sb.toString();
     }
 
     @Override
     public void write(final ByteQueue queue) {
-        if (nullValue != null)
-            nullValue.write(queue);
-        else if (realValue != null)
-            realValue.write(queue);
-        else if (enumeratedValue != null)
-            enumeratedValue.write(queue);
-        else if (unsignedValue != null)
-            unsignedValue.write(queue);
-        else if (booleanValue != null)
-            booleanValue.write(queue);
-        else if (signedValue != null)
-            signedValue.write(queue);
-        else if (doubleValue != null)
-            doubleValue.write(queue);
-        else if (timeValue != null)
-            timeValue.write(queue);
-        else if (characterStringValue != null)
-            characterStringValue.write(queue);
-        else if (octetStringValue != null)
-            octetStringValue.write(queue);
-        else if (bitStringValue != null)
-            bitStringValue.write(queue);
-        else if (dateValue != null)
-            dateValue.write(queue);
-        else if (oidValue != null)
-            oidValue.write(queue);
-        else if (constructedValue != null)
-            constructedValue.write(queue, 0);
-        else
-            dateTimeValue.write(queue, 1);
+        write(queue, choice);
     }
 
     public PriorityValue(final ByteQueue queue) throws BACnetException {
-        // Sweet Jesus...
-        int tag = queue.peek(0) & 0xff;
-
-        if ((tag & 8) == 8) {
-            // A class tag, so this is a constructed value.
-            tag = tag >> 4;
-            if (tag == 0)
-                constructedValue = new AmbiguousValue(queue, 0);
-            else if (tag == 1)
-                dateTimeValue = read(queue, DateTime.class, 1);
-        } else {
-            // A primitive value
-            tag = tag >> 4;
-            if (tag == Null.TYPE_ID)
-                nullValue = new Null(queue);
-            else if (tag == Real.TYPE_ID)
-                realValue = new Real(queue);
-            else if (tag == Enumerated.TYPE_ID)
-                enumeratedValue = new Enumerated(queue);
-            else if (tag == UnsignedInteger.TYPE_ID)
-                unsignedValue = new UnsignedInteger(queue);
-            else if (tag == Boolean.TYPE_ID)
-                booleanValue = new Boolean(queue);
-            else if (tag == SignedInteger.TYPE_ID)
-                signedValue = new SignedInteger(queue);
-            else if (tag == Double.TYPE_ID)
-                doubleValue = new Double(queue);
-            else if (tag == Time.TYPE_ID)
-                timeValue = new Time(queue);
-            else if (tag == CharacterString.TYPE_ID)
-                characterStringValue = new CharacterString(queue);
-            else if (tag == OctetString.TYPE_ID)
-                octetStringValue = new OctetString(queue);
-            else if (tag == BitString.TYPE_ID)
-                bitStringValue = new BitString(queue);
-            else if (tag == Date.TYPE_ID)
-                dateValue = new Date(queue);
-            else if (tag == ObjectIdentifier.TYPE_ID)
-                oidValue = new ObjectIdentifier(queue);
-            else
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType,
-                        "Unsupported primitive id: " + tag);
-        }
+        choice = readChoice(queue, choiceOptions);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (bitStringValue == null ? 0 : bitStringValue.hashCode());
-        result = prime * result + (booleanValue == null ? 0 : booleanValue.hashCode());
-        result = prime * result + (characterStringValue == null ? 0 : characterStringValue.hashCode());
-        result = prime * result + (constructedValue == null ? 0 : constructedValue.hashCode());
-        result = prime * result + (dateTimeValue == null ? 0 : dateTimeValue.hashCode());
-        result = prime * result + (dateValue == null ? 0 : dateValue.hashCode());
-        result = prime * result + (doubleValue == null ? 0 : doubleValue.hashCode());
-        result = prime * result + (enumeratedValue == null ? 0 : enumeratedValue.hashCode());
-        result = prime * result + (nullValue == null ? 0 : nullValue.hashCode());
-        result = prime * result + (octetStringValue == null ? 0 : octetStringValue.hashCode());
-        result = prime * result + (oidValue == null ? 0 : oidValue.hashCode());
-        result = prime * result + (realValue == null ? 0 : realValue.hashCode());
-        result = prime * result + (signedValue == null ? 0 : signedValue.hashCode());
-        result = prime * result + (timeValue == null ? 0 : timeValue.hashCode());
-        result = prime * result + (unsignedValue == null ? 0 : unsignedValue.hashCode());
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
         return result;
     }
 
@@ -409,80 +180,10 @@ public class PriorityValue extends BaseType {
         if (getClass() != obj.getClass())
             return false;
         final PriorityValue other = (PriorityValue) obj;
-        if (bitStringValue == null) {
-            if (other.bitStringValue != null)
+        if (choice == null) {
+            if (other.choice != null)
                 return false;
-        } else if (!bitStringValue.equals(other.bitStringValue))
-            return false;
-        if (booleanValue == null) {
-            if (other.booleanValue != null)
-                return false;
-        } else if (!booleanValue.equals(other.booleanValue))
-            return false;
-        if (characterStringValue == null) {
-            if (other.characterStringValue != null)
-                return false;
-        } else if (!characterStringValue.equals(other.characterStringValue))
-            return false;
-        if (constructedValue == null) {
-            if (other.constructedValue != null)
-                return false;
-        } else if (!constructedValue.equals(other.constructedValue))
-            return false;
-        if (dateTimeValue == null) {
-            if (other.dateTimeValue != null)
-                return false;
-        } else if (!dateTimeValue.equals(other.dateTimeValue))
-            return false;
-        if (dateValue == null) {
-            if (other.dateValue != null)
-                return false;
-        } else if (!dateValue.equals(other.dateValue))
-            return false;
-        if (doubleValue == null) {
-            if (other.doubleValue != null)
-                return false;
-        } else if (!doubleValue.equals(other.doubleValue))
-            return false;
-        if (enumeratedValue == null) {
-            if (other.enumeratedValue != null)
-                return false;
-        } else if (!enumeratedValue.equals(other.enumeratedValue))
-            return false;
-        if (nullValue == null) {
-            if (other.nullValue != null)
-                return false;
-        } else if (!nullValue.equals(other.nullValue))
-            return false;
-        if (octetStringValue == null) {
-            if (other.octetStringValue != null)
-                return false;
-        } else if (!octetStringValue.equals(other.octetStringValue))
-            return false;
-        if (oidValue == null) {
-            if (other.oidValue != null)
-                return false;
-        } else if (!oidValue.equals(other.oidValue))
-            return false;
-        if (realValue == null) {
-            if (other.realValue != null)
-                return false;
-        } else if (!realValue.equals(other.realValue))
-            return false;
-        if (signedValue == null) {
-            if (other.signedValue != null)
-                return false;
-        } else if (!signedValue.equals(other.signedValue))
-            return false;
-        if (timeValue == null) {
-            if (other.timeValue != null)
-                return false;
-        } else if (!timeValue.equals(other.timeValue))
-            return false;
-        if (unsignedValue == null) {
-            if (other.unsignedValue != null)
-                return false;
-        } else if (!unsignedValue.equals(other.unsignedValue))
+        } else if (!choice.equals(other.choice))
             return false;
         return true;
     }

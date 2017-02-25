@@ -33,8 +33,6 @@ import com.serotonin.bacnet4j.type.enumerated.AccessAuthenticationFactorDisable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CredentialAuthenticationFactor extends BaseType {
-    private static final long serialVersionUID = -5947617612145165918L;
-
     private final AccessAuthenticationFactorDisable disable;
     private final AuthenticationFactor authenticationFactor;
 

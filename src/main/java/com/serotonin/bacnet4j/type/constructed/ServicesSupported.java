@@ -32,10 +32,8 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ServicesSupported extends BitString {
-    private static final long serialVersionUID = -6528563197920379775L;
-
     public ServicesSupported() {
-        super(new boolean[40]);
+        super(new boolean[44]);
     }
 
     public ServicesSupported(final ByteQueue queue) {
@@ -303,7 +301,7 @@ public class ServicesSupported extends BitString {
     }
 
     public void setReadRange(final boolean readRange) {
-        getValue()[36] = readRange;
+        getValue()[35] = readRange;
     }
 
     public boolean isUtcTimeSynchronization() {
@@ -344,5 +342,29 @@ public class ServicesSupported extends BitString {
 
     public void setWriteGroup(final boolean writeGroup) {
         getValue()[40] = writeGroup;
+    }
+
+    public boolean isSubscribeCovPropertyMultiple() {
+        return getArrayValue(41);
+    }
+
+    public void setSubscribeCovPropertyMultiple(final boolean subscribeCovPropertyMultiple) {
+        getValue()[41] = subscribeCovPropertyMultiple;
+    }
+
+    public boolean isConfirmedCovNotificationMultiple() {
+        return getArrayValue(42);
+    }
+
+    public void setConfirmedCovNotificationMultiple(final boolean confirmedCovNotificationMultiple) {
+        getValue()[42] = confirmedCovNotificationMultiple;
+    }
+
+    public boolean isUnconfirmedCovNotificationMultiple() {
+        return getArrayValue(43);
+    }
+
+    public void setUnconfirmedCovNotificationMultiple(final boolean confirmedCovNotificationMultiple) {
+        getValue()[43] = confirmedCovNotificationMultiple;
     }
 }

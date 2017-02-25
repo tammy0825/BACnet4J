@@ -23,44 +23,38 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.PropertyStates;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfState extends EventParameter {
-    private static final long serialVersionUID = -2481408388822644602L;
-
+public class ChangeOfState extends BaseType {
     public static final byte TYPE_ID = 1;
 
     private final UnsignedInteger timeDelay;
     private final SequenceOf<PropertyStates> listOfValues;
 
-    public ChangeOfState(UnsignedInteger timeDelay, SequenceOf<PropertyStates> listOfValues) {
+    public ChangeOfState(final UnsignedInteger timeDelay, final SequenceOf<PropertyStates> listOfValues) {
         this.timeDelay = timeDelay;
         this.listOfValues = listOfValues;
     }
 
-    public ChangeOfState(ByteQueue queue) throws BACnetException {
+    public ChangeOfState(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         listOfValues = readSequenceOf(queue, PropertyStates.class, 1);
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, listOfValues, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -75,13 +69,13 @@ public class ChangeOfState extends EventParameter {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfValues == null) ? 0 : listOfValues.hashCode());
-        result = PRIME * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = PRIME * result + (listOfValues == null ? 0 : listOfValues.hashCode());
+        result = PRIME * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -92,14 +86,12 @@ public class ChangeOfState extends EventParameter {
         if (listOfValues == null) {
             if (other.listOfValues != null)
                 return false;
-        }
-        else if (!listOfValues.equals(other.listOfValues))
+        } else if (!listOfValues.equals(other.listOfValues))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

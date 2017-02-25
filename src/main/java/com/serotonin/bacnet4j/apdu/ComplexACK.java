@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -33,11 +33,9 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ComplexACK extends AckAPDU implements Segmentable {
-    private static final long serialVersionUID = 3393095437278653112L;
-
     public static final byte TYPE_ID = 3;
 
-    public static int getHeaderSize(boolean segmented) {
+    public static int getHeaderSize(final boolean segmented) {
         if (segmented)
             return 5;
         return 3;
@@ -78,7 +76,7 @@ public class ComplexACK extends AckAPDU implements Segmentable {
     /**
      * This parameter shall contain the value of the BACnetConfirmedServiceChoice corresponding to the service contained
      * in the previous BACnet-Confirmed-Service-Request that has resulted in this acknowledgment. See Clause 21.
-     * 
+     *
      * This parameter shall contain the parameters of the specific service acknowledgment that is being encoded
      * according to the rules of 20.2. These parameters are defined in the individual service descriptions in this
      * standard and are represented in Clause 21 in accordance with the rules of ASN.1.
@@ -93,8 +91,8 @@ public class ComplexACK extends AckAPDU implements Segmentable {
 
     private byte serviceChoice;
 
-    public ComplexACK(boolean segmentedMessage, boolean moreFollows, byte originalInvokeId, int sequenceNumber,
-            int proposedWindowSize, AcknowledgementService service) {
+    public ComplexACK(final boolean segmentedMessage, final boolean moreFollows, final byte originalInvokeId,
+            final int sequenceNumber, final int proposedWindowSize, final AcknowledgementService service) {
 
         setFields(segmentedMessage, moreFollows, originalInvokeId, sequenceNumber, proposedWindowSize,
                 service.getChoiceId());
@@ -102,16 +100,17 @@ public class ComplexACK extends AckAPDU implements Segmentable {
         this.service = service;
     }
 
-    public ComplexACK(boolean segmentedMessage, boolean moreFollows, byte originalInvokeId, int sequenceNumber,
-            int proposedWindowSize, byte serviceChoice, ByteQueue serviceData) {
+    public ComplexACK(final boolean segmentedMessage, final boolean moreFollows, final byte originalInvokeId,
+            final int sequenceNumber, final int proposedWindowSize, final byte serviceChoice,
+            final ByteQueue serviceData) {
 
         setFields(segmentedMessage, moreFollows, originalInvokeId, sequenceNumber, proposedWindowSize, serviceChoice);
 
         this.serviceData = serviceData;
     }
 
-    private void setFields(boolean segmentedMessage, boolean moreFollows, byte originalInvokeId, int sequenceNumber,
-            int proposedWindowSize, byte serviceChoice) {
+    private void setFields(final boolean segmentedMessage, final boolean moreFollows, final byte originalInvokeId,
+            final int sequenceNumber, final int proposedWindowSize, final byte serviceChoice) {
         this.segmentedMessage = segmentedMessage;
         this.moreFollows = moreFollows;
         this.originalInvokeId = originalInvokeId;
@@ -151,7 +150,7 @@ public class ComplexACK extends AckAPDU implements Segmentable {
     }
 
     @Override
-    public void appendServiceData(ByteQueue data) {
+    public void appendServiceData(final ByteQueue data) {
         this.serviceData.push(data);
     }
 
@@ -174,7 +173,7 @@ public class ComplexACK extends AckAPDU implements Segmentable {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID) | (segmentedMessage ? 8 : 0) | (moreFollows ? 4 : 0));
         queue.push(originalInvokeId);
         if (segmentedMessage) {
@@ -188,8 +187,8 @@ public class ComplexACK extends AckAPDU implements Segmentable {
             queue.push(serviceData);
     }
 
-    ComplexACK(ByteQueue queue) {
-        byte b = queue.pop();
+    ComplexACK(final ByteQueue queue) {
+        final byte b = queue.pop();
         segmentedMessage = (b & 8) != 0;
         moreFollows = (b & 4) != 0;
 
@@ -211,7 +210,8 @@ public class ComplexACK extends AckAPDU implements Segmentable {
     }
 
     @Override
-    public APDU clone(boolean moreFollows, int sequenceNumber, int actualSegWindow, ByteQueue serviceData) {
+    public APDU clone(final boolean moreFollows, final int sequenceNumber, final int actualSegWindow,
+            final ByteQueue serviceData) {
         return new ComplexACK(this.segmentedMessage, moreFollows, this.originalInvokeId, sequenceNumber,
                 actualSegWindow, this.serviceChoice, serviceData);
     }
@@ -226,13 +226,13 @@ public class ComplexACK extends AckAPDU implements Segmentable {
         result = PRIME * result + (segmentedMessage ? 1231 : 1237);
         result = PRIME * result + sequenceNumber;
         result = PRIME * result + serviceChoice;
-        result = PRIME * result + ((service == null) ? 0 : service.hashCode());
-        result = PRIME * result + ((serviceData == null) ? 0 : serviceData.hashCode());
+        result = PRIME * result + (service == null ? 0 : service.hashCode());
+        result = PRIME * result + (serviceData == null ? 0 : serviceData.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -255,14 +255,12 @@ public class ComplexACK extends AckAPDU implements Segmentable {
         if (service == null) {
             if (other.service != null)
                 return false;
-        }
-        else if (!service.equals(other.service))
+        } else if (!service.equals(other.service))
             return false;
         if (serviceData == null) {
             if (other.serviceData != null)
                 return false;
-        }
-        else if (!serviceData.equals(other.serviceData))
+        } else if (!serviceData.equals(other.serviceData))
             return false;
         return true;
     }

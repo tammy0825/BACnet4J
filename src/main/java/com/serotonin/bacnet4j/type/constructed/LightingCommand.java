@@ -35,8 +35,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LightingCommand extends BaseType {
-    private static final long serialVersionUID = -6093157514538223971L;
-
     private final LightingOperation operation;
     private final Real targetLevel;
     private final Real rampRate;

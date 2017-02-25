@@ -35,19 +35,17 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.WriteAccessSpecification;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.error.WritePropertyMultipleError;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WritePropertyMultipleRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 4702397545138383955L;
-
     public static final byte TYPE_ID = 16;
 
     private final SequenceOf<WriteAccessSpecification> listOfWriteAccessSpecifications;
@@ -97,9 +95,10 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
     private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
             final WriteAccessSpecification spec, final PropertyValue pv) {
         final PropertyValue pvToUse = pv == null ? spec.getListOfProperties().get(1) : pv;
-        return new BACnetErrorException(new WritePropertyMultipleError(getChoiceId(),
-                new BACnetError(errorClass, errorCode), new ObjectPropertyReference(spec.getObjectIdentifier(),
-                        pvToUse.getPropertyIdentifier(), pvToUse.getPropertyArrayIndex())));
+        return new BACnetErrorException(getChoiceId(),
+                new WritePropertyMultipleError(new ErrorClassAndCode(errorClass, errorCode),
+                        new ObjectPropertyReference(spec.getObjectIdentifier(), pvToUse.getPropertyIdentifier(),
+                                pvToUse.getPropertyArrayIndex())));
     }
 
     @Override

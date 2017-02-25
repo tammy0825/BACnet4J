@@ -28,12 +28,8 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,13 +37,11 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class EventLogRecord extends BaseType {
-    private static final long serialVersionUID = 7506599418976133752L;
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(LogStatus.class);
-        classes.add(ConfirmedEventNotificationRequest.class);
-        classes.add(Real.class);
+        choiceOptions.addContextual(0, LogStatus.class);
+        choiceOptions.addContextual(1, ConfirmedEventNotificationRequest.class);
+        choiceOptions.addContextual(2, Real.class);
     }
 
     private final DateTime timestamp;
@@ -55,17 +49,17 @@ public class EventLogRecord extends BaseType {
 
     public EventLogRecord(final DateTime timestamp, final LogStatus datum) {
         this.timestamp = timestamp;
-        choice = new Choice(0, datum);
+        choice = new Choice(0, datum, choiceOptions);
     }
 
     public EventLogRecord(final DateTime timestamp, final ConfirmedEventNotificationRequest datum) {
         this.timestamp = timestamp;
-        choice = new Choice(1, datum);
+        choice = new Choice(1, datum, choiceOptions);
     }
 
     public EventLogRecord(final DateTime timestamp, final Real datum) {
         this.timestamp = timestamp;
-        choice = new Choice(2, datum);
+        choice = new Choice(2, datum, choiceOptions);
     }
 
     @Override
@@ -90,13 +84,13 @@ public class EventLogRecord extends BaseType {
         return (Real) choice.getDatum();
     }
 
-    public int getChoiceType() {
-        return choice.getContextId();
+    public Choice getChoice() {
+        return choice;
     }
 
     public EventLogRecord(final ByteQueue queue) throws BACnetException {
         timestamp = read(queue, DateTime.class, 0);
-        choice = new Choice(queue, classes, 1);
+        choice = new Choice(queue, choiceOptions, 1);
     }
 
     @Override

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -36,37 +36,31 @@ import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class Extended extends NotificationParameters {
-    private static final long serialVersionUID = 7986979868840729311L;
-
+public class Extended extends NotificationParameter {
     public static final byte TYPE_ID = 9;
 
     private final UnsignedInteger vendorId;
     private final UnsignedInteger extendedEventType;
     private final SequenceOf<Parameter> parameters;
 
-    public Extended(UnsignedInteger vendorId, UnsignedInteger extendedEventType, SequenceOf<Parameter> parameters) {
+    public Extended(final UnsignedInteger vendorId, final UnsignedInteger extendedEventType,
+            final SequenceOf<Parameter> parameters) {
         this.vendorId = vendorId;
         this.extendedEventType = extendedEventType;
         this.parameters = parameters;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, vendorId, 0);
         write(queue, extendedEventType, 1);
         write(queue, parameters, 2);
     }
 
-    public Extended(ByteQueue queue) throws BACnetException {
+    public Extended(final ByteQueue queue) throws BACnetException {
         vendorId = read(queue, UnsignedInteger.class, 0);
         extendedEventType = read(queue, UnsignedInteger.class, 1);
         parameters = readSequenceOf(queue, Parameter.class, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getVendorId() {
@@ -82,27 +76,26 @@ public class Extended extends NotificationParameters {
     }
 
     public static class Parameter extends BaseType {
-        private static final long serialVersionUID = 9016759459458667665L;
         private Primitive primitive;
         private DeviceObjectPropertyReference reference;
 
-        public Parameter(Primitive primitive) {
+        public Parameter(final Primitive primitive) {
             this.primitive = primitive;
         }
 
-        public Parameter(DeviceObjectPropertyReference reference) {
+        public Parameter(final DeviceObjectPropertyReference reference) {
             this.reference = reference;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             if (primitive != null)
                 primitive.write(queue);
             else
                 reference.write(queue, 0);
         }
 
-        public Parameter(ByteQueue queue) throws BACnetException {
+        public Parameter(final ByteQueue queue) throws BACnetException {
             reference = readOptional(queue, DeviceObjectPropertyReference.class, 0);
             if (reference == null)
                 primitive = Primitive.createPrimitive(queue);
@@ -112,31 +105,29 @@ public class Extended extends NotificationParameters {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((primitive == null) ? 0 : primitive.hashCode());
-            result = prime * result + ((reference == null) ? 0 : reference.hashCode());
+            result = prime * result + (primitive == null ? 0 : primitive.hashCode());
+            result = prime * result + (reference == null ? 0 : reference.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            Parameter other = (Parameter) obj;
+            final Parameter other = (Parameter) obj;
             if (primitive == null) {
                 if (other.primitive != null)
                     return false;
-            }
-            else if (!primitive.equals(other.primitive))
+            } else if (!primitive.equals(other.primitive))
                 return false;
             if (reference == null) {
                 if (other.reference != null)
                     return false;
-            }
-            else if (!reference.equals(other.reference))
+            } else if (!reference.equals(other.reference))
                 return false;
             return true;
         }
@@ -146,14 +137,14 @@ public class Extended extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((extendedEventType == null) ? 0 : extendedEventType.hashCode());
-        result = PRIME * result + ((parameters == null) ? 0 : parameters.hashCode());
-        result = PRIME * result + ((vendorId == null) ? 0 : vendorId.hashCode());
+        result = PRIME * result + (extendedEventType == null ? 0 : extendedEventType.hashCode());
+        result = PRIME * result + (parameters == null ? 0 : parameters.hashCode());
+        result = PRIME * result + (vendorId == null ? 0 : vendorId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -164,20 +155,17 @@ public class Extended extends NotificationParameters {
         if (extendedEventType == null) {
             if (other.extendedEventType != null)
                 return false;
-        }
-        else if (!extendedEventType.equals(other.extendedEventType))
+        } else if (!extendedEventType.equals(other.extendedEventType))
             return false;
         if (parameters == null) {
             if (other.parameters != null)
                 return false;
-        }
-        else if (!parameters.equals(other.parameters))
+        } else if (!parameters.equals(other.parameters))
             return false;
         if (vendorId == null) {
             if (other.vendorId != null)
                 return false;
-        }
-        else if (!vendorId.equals(other.vendorId))
+        } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
     }

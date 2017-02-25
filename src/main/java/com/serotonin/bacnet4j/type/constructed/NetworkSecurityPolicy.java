@@ -34,8 +34,6 @@ import com.serotonin.bacnet4j.type.primitive.Unsigned8;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class NetworkSecurityPolicy extends BaseType {
-    private static final long serialVersionUID = 5545762382180349442L;
-
     private final Unsigned8 portId;
     private final SecurityPolicy securityLevel;
 

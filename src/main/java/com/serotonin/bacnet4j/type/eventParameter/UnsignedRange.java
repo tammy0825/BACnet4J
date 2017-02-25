@@ -23,46 +23,41 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class UnsignedRange extends EventParameter {
-    private static final long serialVersionUID = 8057621493864254453L;
-
+public class UnsignedRange extends BaseType {
     public static final byte TYPE_ID = 11;
 
     private final UnsignedInteger timeDelay;
     private final UnsignedInteger lowLimit;
     private final UnsignedInteger highLimit;
 
-    public UnsignedRange(UnsignedInteger timeDelay, UnsignedInteger lowLimit, UnsignedInteger highLimit) {
+    public UnsignedRange(final UnsignedInteger timeDelay, final UnsignedInteger lowLimit,
+            final UnsignedInteger highLimit) {
         this.timeDelay = timeDelay;
         this.lowLimit = lowLimit;
         this.highLimit = highLimit;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, lowLimit, 1);
         write(queue, highLimit, 2);
     }
 
-    public UnsignedRange(ByteQueue queue) throws BACnetException {
+    public UnsignedRange(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         lowLimit = read(queue, UnsignedInteger.class, 1);
         highLimit = read(queue, UnsignedInteger.class, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -81,14 +76,14 @@ public class UnsignedRange extends EventParameter {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((highLimit == null) ? 0 : highLimit.hashCode());
-        result = PRIME * result + ((lowLimit == null) ? 0 : lowLimit.hashCode());
-        result = PRIME * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = PRIME * result + (highLimit == null ? 0 : highLimit.hashCode());
+        result = PRIME * result + (lowLimit == null ? 0 : lowLimit.hashCode());
+        result = PRIME * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -99,20 +94,17 @@ public class UnsignedRange extends EventParameter {
         if (highLimit == null) {
             if (other.highLimit != null)
                 return false;
-        }
-        else if (!highLimit.equals(other.highLimit))
+        } else if (!highLimit.equals(other.highLimit))
             return false;
         if (lowLimit == null) {
             if (other.lowLimit != null)
                 return false;
-        }
-        else if (!lowLimit.equals(other.lowLimit))
+        } else if (!lowLimit.equals(other.lowLimit))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

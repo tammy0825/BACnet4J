@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class NodeType extends Enumerated {
-    private static final long serialVersionUID = -1462203629019212150L;
     public static final NodeType unknown = new NodeType(0);
     public static final NodeType system = new NodeType(1);
     public static final NodeType network = new NodeType(2);
@@ -48,15 +47,76 @@ public class NodeType extends Enumerated {
     public static final NodeType property = new NodeType(9);
     public static final NodeType functional = new NodeType(10);
     public static final NodeType other = new NodeType(11);
+    public static final NodeType subsystem = new NodeType(12);
+    public static final NodeType building = new NodeType(13);
+    public static final NodeType floor = new NodeType(14);
+    public static final NodeType section = new NodeType(15);
+    public static final NodeType module = new NodeType(16);
+    public static final NodeType tree = new NodeType(17);
+    public static final NodeType member = new NodeType(18);
+    public static final NodeType protocol = new NodeType(19);
+    public static final NodeType room = new NodeType(20);
+    public static final NodeType zone = new NodeType(21);
 
     public static final NodeType[] ALL = { unknown, system, network, device, organizational, area, equipment, point,
-            collection, property, functional, other, };
+            collection, property, functional, other, subsystem, building, floor, section, module, tree, member,
+            protocol, room, zone, };
 
-    public NodeType(int value) {
+    public NodeType(final int value) {
         super(value);
     }
 
-    public NodeType(ByteQueue queue) {
+    public NodeType(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == unknown.intValue())
+            return "unknown";
+        if (type == system.intValue())
+            return "system";
+        if (type == network.intValue())
+            return "network";
+        if (type == device.intValue())
+            return "device";
+        if (type == organizational.intValue())
+            return "organizational";
+        if (type == area.intValue())
+            return "area";
+        if (type == equipment.intValue())
+            return "equipment";
+        if (type == point.intValue())
+            return "point";
+        if (type == collection.intValue())
+            return "collection";
+        if (type == property.intValue())
+            return "property";
+        if (type == functional.intValue())
+            return "functional";
+        if (type == other.intValue())
+            return "other";
+        if (type == subsystem.intValue())
+            return "subsystem";
+        if (type == building.intValue())
+            return "building";
+        if (type == floor.intValue())
+            return "floor";
+        if (type == section.intValue())
+            return "section";
+        if (type == module.intValue())
+            return "module";
+        if (type == tree.intValue())
+            return "tree";
+        if (type == member.intValue())
+            return "member";
+        if (type == protocol.intValue())
+            return "protocol";
+        if (type == room.intValue())
+            return "room";
+        if (type == zone.intValue())
+            return "zone";
+        return "Unknown(" + type + ")";
     }
 }

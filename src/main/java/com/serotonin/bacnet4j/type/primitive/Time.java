@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -34,8 +34,6 @@ import java.util.GregorianCalendar;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Time extends Primitive {
-    private static final long serialVersionUID = -5256831366663750858L;
-
     public static final Time UNSPECIFIED = new Time(255, 255, 255, 255);
 
     public static final byte TYPE_ID = 11;
@@ -45,7 +43,7 @@ public class Time extends Primitive {
     private final int second;
     private final int hundredth;
 
-    public Time(int hour, int minute, int second, int hundredth) {
+    public Time(final int hour, final int minute, final int second, final int hundredth) {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
@@ -56,7 +54,7 @@ public class Time extends Primitive {
         this(new GregorianCalendar());
     }
 
-    public Time(GregorianCalendar now) {
+    public Time(final GregorianCalendar now) {
         this.hour = now.get(Calendar.HOUR_OF_DAY);
         this.minute = now.get(Calendar.MINUTE);
         this.second = now.get(Calendar.SECOND);
@@ -100,7 +98,7 @@ public class Time extends Primitive {
      *            The time with which to compare this
      * @return true if this < that.
      */
-    public boolean before(Time that) {
+    public boolean before(final Time that) {
         if (!this.isHourUnspecified() && !that.isHourUnspecified()) {
             if (this.hour < that.hour)
                 return true;
@@ -133,7 +131,7 @@ public class Time extends Primitive {
      *            The time with which to compare this
      * @return true if this > that
      */
-    public boolean after(Time that) {
+    public boolean after(final Time that) {
         if (!this.isHourUnspecified() && !that.isHourUnspecified()) {
             if (this.hour > that.hour)
                 return true;
@@ -164,7 +162,7 @@ public class Time extends Primitive {
     //
     // Reading and writing
     //
-    public Time(ByteQueue queue) {
+    public Time(final ByteQueue queue) {
         readTag(queue);
         hour = queue.popU1B();
         minute = queue.popU1B();
@@ -173,7 +171,7 @@ public class Time extends Primitive {
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         queue.push((byte) hour);
         queue.push((byte) minute);
         queue.push((byte) second);
@@ -202,7 +200,7 @@ public class Time extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

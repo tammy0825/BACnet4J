@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -34,33 +34,26 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfStatusFlags extends NotificationParameters {
-    private static final long serialVersionUID = -288090226627077813L;
-
+public class ChangeOfStatusFlags extends NotificationParameter {
     public static final byte TYPE_ID = 18;
 
     private final Encodable presentValue;
     private final StatusFlags referencedFlags;
 
-    public ChangeOfStatusFlags(Encodable presentValue, StatusFlags referencedFlags) {
+    public ChangeOfStatusFlags(final Encodable presentValue, final StatusFlags referencedFlags) {
         this.presentValue = presentValue;
         this.referencedFlags = referencedFlags;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
-        writeEncodable(queue, presentValue, 0);
+    public void write(final ByteQueue queue) {
+        writeANY(queue, presentValue, 0);
         write(queue, referencedFlags, 1);
     }
 
-    public ChangeOfStatusFlags(ByteQueue queue) throws BACnetException {
+    public ChangeOfStatusFlags(final ByteQueue queue) throws BACnetException {
         presentValue = new AmbiguousValue(queue, 0);
         referencedFlags = read(queue, StatusFlags.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public Encodable getPresentValue() {
@@ -75,31 +68,29 @@ public class ChangeOfStatusFlags extends NotificationParameters {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((presentValue == null) ? 0 : presentValue.hashCode());
-        result = prime * result + ((referencedFlags == null) ? 0 : referencedFlags.hashCode());
+        result = prime * result + (presentValue == null ? 0 : presentValue.hashCode());
+        result = prime * result + (referencedFlags == null ? 0 : referencedFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfStatusFlags other = (ChangeOfStatusFlags) obj;
+        final ChangeOfStatusFlags other = (ChangeOfStatusFlags) obj;
         if (presentValue == null) {
             if (other.presentValue != null)
                 return false;
-        }
-        else if (!presentValue.equals(other.presentValue))
+        } else if (!presentValue.equals(other.presentValue))
             return false;
         if (referencedFlags == null) {
             if (other.referencedFlags != null)
                 return false;
-        }
-        else if (!referencedFlags.equals(other.referencedFlags))
+        } else if (!referencedFlags.equals(other.referencedFlags))
             return false;
         return true;
     }

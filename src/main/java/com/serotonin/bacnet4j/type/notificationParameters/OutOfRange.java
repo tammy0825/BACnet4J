@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -33,9 +33,7 @@ import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class OutOfRange extends NotificationParameters {
-    private static final long serialVersionUID = 8147853414874448191L;
-
+public class OutOfRange extends NotificationParameter {
     public static final byte TYPE_ID = 5;
 
     private final Real exceedingValue;
@@ -43,7 +41,8 @@ public class OutOfRange extends NotificationParameters {
     private final Real deadband;
     private final Real exceededLimit;
 
-    public OutOfRange(Real exceedingValue, StatusFlags statusFlags, Real deadband, Real exceededLimit) {
+    public OutOfRange(final Real exceedingValue, final StatusFlags statusFlags, final Real deadband,
+            final Real exceededLimit) {
         this.exceedingValue = exceedingValue;
         this.statusFlags = statusFlags;
         this.deadband = deadband;
@@ -51,23 +50,18 @@ public class OutOfRange extends NotificationParameters {
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, exceedingValue, 0);
         write(queue, statusFlags, 1);
         write(queue, deadband, 2);
         write(queue, exceededLimit, 3);
     }
 
-    public OutOfRange(ByteQueue queue) throws BACnetException {
+    public OutOfRange(final ByteQueue queue) throws BACnetException {
         exceedingValue = read(queue, Real.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         deadband = read(queue, Real.class, 2);
         exceededLimit = read(queue, Real.class, 3);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public Real getExceedingValue() {
@@ -96,15 +90,15 @@ public class OutOfRange extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((deadband == null) ? 0 : deadband.hashCode());
-        result = PRIME * result + ((exceededLimit == null) ? 0 : exceededLimit.hashCode());
-        result = PRIME * result + ((exceedingValue == null) ? 0 : exceedingValue.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (deadband == null ? 0 : deadband.hashCode());
+        result = PRIME * result + (exceededLimit == null ? 0 : exceededLimit.hashCode());
+        result = PRIME * result + (exceedingValue == null ? 0 : exceedingValue.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -115,26 +109,22 @@ public class OutOfRange extends NotificationParameters {
         if (deadband == null) {
             if (other.deadband != null)
                 return false;
-        }
-        else if (!deadband.equals(other.deadband))
+        } else if (!deadband.equals(other.deadband))
             return false;
         if (exceededLimit == null) {
             if (other.exceededLimit != null)
                 return false;
-        }
-        else if (!exceededLimit.equals(other.exceededLimit))
+        } else if (!exceededLimit.equals(other.exceededLimit))
             return false;
         if (exceedingValue == null) {
             if (other.exceedingValue != null)
                 return false;
-        }
-        else if (!exceedingValue.equals(other.exceedingValue))
+        } else if (!exceedingValue.equals(other.exceedingValue))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

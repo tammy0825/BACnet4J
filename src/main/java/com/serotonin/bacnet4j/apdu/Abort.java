@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -33,12 +33,10 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 /**
  * The BACnet-Abort-PDU is used to terminate a transaction between two peers.
- * 
+ *
  * @author mlohbihler
  */
 public class Abort extends AckAPDU {
-    private static final long serialVersionUID = 2521232315250724579L;
-
     public static final byte TYPE_ID = 7;
 
     /**
@@ -53,7 +51,7 @@ public class Abort extends AckAPDU {
      */
     private final int abortReason;
 
-    public Abort(boolean server, byte originalInvokeId, int abortReason) {
+    public Abort(final boolean server, final byte originalInvokeId, final int abortReason) {
         this.server = server;
         this.originalInvokeId = originalInvokeId;
         this.abortReason = abortReason;
@@ -74,14 +72,14 @@ public class Abort extends AckAPDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        int data = getShiftedTypeId(TYPE_ID) | (server ? 1 : 0);
+    public void write(final ByteQueue queue) {
+        final int data = getShiftedTypeId(TYPE_ID) | (server ? 1 : 0);
         queue.push(data);
         queue.push(originalInvokeId);
         queue.push(abortReason);
     }
 
-    Abort(ByteQueue queue) {
+    Abort(final ByteQueue queue) {
         server = (queue.popU1B() & 1) == 1;
         originalInvokeId = queue.pop();
         abortReason = queue.popU1B();
@@ -98,7 +96,7 @@ public class Abort extends AckAPDU {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

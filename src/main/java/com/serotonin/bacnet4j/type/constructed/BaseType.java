@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -31,11 +31,14 @@ package com.serotonin.bacnet4j.type.constructed;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
+/**
+ * Base type for constructed data types, as opposed to primitives.
+ *
+ * @author Matthew
+ */
 abstract public class BaseType extends Encodable {
-    private static final long serialVersionUID = -2536344211247711774L;
-
     @Override
-    public void write(ByteQueue queue, int contextId) {
+    public void write(final ByteQueue queue, final int contextId) {
         // Write a start tag
         writeContextTag(queue, contextId, true);
         write(queue);

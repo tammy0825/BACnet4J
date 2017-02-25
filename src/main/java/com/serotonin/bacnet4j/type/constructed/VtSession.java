@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -33,25 +33,25 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtSession extends BaseType {
-    private static final long serialVersionUID = 3655659977689484183L;
     private final UnsignedInteger localVtSessionId;
     private final UnsignedInteger remoteVtSessionId;
     private final Address remoteVtAddress;
 
-    public VtSession(UnsignedInteger localVtSessionId, UnsignedInteger remoteVtSessionId, Address remoteVtAddress) {
+    public VtSession(final UnsignedInteger localVtSessionId, final UnsignedInteger remoteVtSessionId,
+            final Address remoteVtAddress) {
         this.localVtSessionId = localVtSessionId;
         this.remoteVtSessionId = remoteVtSessionId;
         this.remoteVtAddress = remoteVtAddress;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, localVtSessionId);
         write(queue, remoteVtSessionId);
         write(queue, remoteVtAddress);
     }
 
-    public VtSession(ByteQueue queue) throws BACnetException {
+    public VtSession(final ByteQueue queue) throws BACnetException {
         localVtSessionId = read(queue, UnsignedInteger.class);
         remoteVtSessionId = read(queue, UnsignedInteger.class);
         remoteVtAddress = read(queue, Address.class);
@@ -73,14 +73,14 @@ public class VtSession extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((localVtSessionId == null) ? 0 : localVtSessionId.hashCode());
-        result = PRIME * result + ((remoteVtAddress == null) ? 0 : remoteVtAddress.hashCode());
-        result = PRIME * result + ((remoteVtSessionId == null) ? 0 : remoteVtSessionId.hashCode());
+        result = PRIME * result + (localVtSessionId == null ? 0 : localVtSessionId.hashCode());
+        result = PRIME * result + (remoteVtAddress == null ? 0 : remoteVtAddress.hashCode());
+        result = PRIME * result + (remoteVtSessionId == null ? 0 : remoteVtSessionId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -91,20 +91,17 @@ public class VtSession extends BaseType {
         if (localVtSessionId == null) {
             if (other.localVtSessionId != null)
                 return false;
-        }
-        else if (!localVtSessionId.equals(other.localVtSessionId))
+        } else if (!localVtSessionId.equals(other.localVtSessionId))
             return false;
         if (remoteVtAddress == null) {
             if (other.remoteVtAddress != null)
                 return false;
-        }
-        else if (!remoteVtAddress.equals(other.remoteVtAddress))
+        } else if (!remoteVtAddress.equals(other.remoteVtAddress))
             return false;
         if (remoteVtSessionId == null) {
             if (other.remoteVtSessionId != null)
                 return false;
-        }
-        else if (!remoteVtSessionId.equals(other.remoteVtSessionId))
+        } else if (!remoteVtSessionId.equals(other.remoteVtSessionId))
             return false;
         return true;
     }

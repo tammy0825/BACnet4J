@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -37,8 +37,6 @@ import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class DateTime extends BaseType {
-    private static final long serialVersionUID = -5792783146879193344L;
-
     public static final DateTime UNSPECIFIED = new DateTime(Date.UNSPECIFIED, Time.UNSPECIFIED);
 
     private final Date date;
@@ -48,30 +46,30 @@ public class DateTime extends BaseType {
         this(new GregorianCalendar());
     }
 
-    public DateTime(Date date, Time time) {
+    public DateTime(final Date date, final Time time) {
         this.date = date;
         this.time = time;
     }
 
-    public DateTime(long millis) {
-        GregorianCalendar gc = new GregorianCalendar();
+    public DateTime(final long millis) {
+        final GregorianCalendar gc = new GregorianCalendar();
         gc.setTimeInMillis(millis);
         date = new Date(gc);
         time = new Time(gc);
     }
 
-    public DateTime(GregorianCalendar gc) {
+    public DateTime(final GregorianCalendar gc) {
         date = new Date(gc);
         time = new Time(gc);
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         date.write(queue);
         time.write(queue);
     }
 
-    public DateTime(ByteQueue queue) throws BACnetException {
+    public DateTime(final ByteQueue queue) throws BACnetException {
         date = read(queue, Date.class);
         time = read(queue, Time.class);
     }
@@ -85,8 +83,8 @@ public class DateTime extends BaseType {
     }
 
     public GregorianCalendar getGC() {
-        GregorianCalendar gc = new GregorianCalendar(date.getCenturyYear(), date.getMonth().getId() - 1, date.getDay(),
-                time.getHour(), time.getMinute(), time.getSecond());
+        final GregorianCalendar gc = new GregorianCalendar(date.getCenturyYear(), date.getMonth().getId() - 1,
+                date.getDay(), time.getHour(), time.getMinute(), time.getSecond());
         gc.set(Calendar.MILLISECOND, time.getHundredth() * 10);
         return gc;
     }
@@ -95,13 +93,13 @@ public class DateTime extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((date == null) ? 0 : date.hashCode());
-        result = PRIME * result + ((time == null) ? 0 : time.hashCode());
+        result = PRIME * result + (date == null ? 0 : date.hashCode());
+        result = PRIME * result + (time == null ? 0 : time.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -112,14 +110,12 @@ public class DateTime extends BaseType {
         if (date == null) {
             if (other.date != null)
                 return false;
-        }
-        else if (!date.equals(other.date))
+        } else if (!date.equals(other.date))
             return false;
         if (time == null) {
             if (other.time != null)
                 return false;
-        }
-        else if (!time.equals(other.time))
+        } else if (!time.equals(other.time))
             return false;
         return true;
     }

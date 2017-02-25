@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,6 +42,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -70,7 +72,6 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.SequenceDefinition;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -87,17 +88,18 @@ import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RemoteDeviceDiscoverer;
-import com.serotonin.bacnet4j.util.RemoteDeviceDiscovererCallback;
 import com.serotonin.bacnet4j.util.RemoteDeviceFinder;
 import com.serotonin.bacnet4j.util.RemoteDeviceFinder.RemoteDeviceFuture;
 
-import lohbihler.scheduler.ScheduledExecutorServiceVariablePool;
+import lohbihler.warp.WarpScheduledExecutorService;
+import lohbihler.warp.WarpUtils;
 
 /**
  * Enhancements:
@@ -222,15 +224,19 @@ public class LocalDevice {
         servicesSupported.setUnconfirmedEventNotification(true);
         servicesSupported.setUnconfirmedPrivateTransfer(true);
         servicesSupported.setUnconfirmedTextMessage(true);
-        //        servicesSupported.setTimeSynchronization(true);
+        servicesSupported.setTimeSynchronization(true);
         servicesSupported.setWhoHas(true);
         servicesSupported.setWhoIs(true);
         //        servicesSupported.setReadRange(true);
-        //        servicesSupported.setUtcTimeSynchronization(true);
+        servicesSupported.setUtcTimeSynchronization(true);
         //        servicesSupported.setLifeSafetyOperation(true);
         servicesSupported.setSubscribeCovProperty(true);
         servicesSupported.setGetEventInformation(true);
         //        servicesSupported.setWriteGroup(true);
+        servicesSupported.setSubscribeCovPropertyMultiple(true);
+        servicesSupported.setConfirmedCovNotificationMultiple(true);
+        servicesSupported.setUnconfirmedCovNotificationMultiple(true);
+
         configuration.writeProperty(PropertyIdentifier.protocolServicesSupported, servicesSupported);
 
         // Set up the object types supported.
@@ -245,7 +251,7 @@ public class LocalDevice {
         configuration.writeProperty(PropertyIdentifier.firmwareRevision, new CharacterString("not set"));
         configuration.writeProperty(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("4.0.0"));
         configuration.writeProperty(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
-        configuration.writeProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(14));
+        configuration.writeProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(19));
         configuration.writeProperty(PropertyIdentifier.databaseRevision, new UnsignedInteger(0));
 
         remoteDeviceCache = new RemoteEntityCache<>(this);
@@ -286,7 +292,8 @@ public class LocalDevice {
     }
 
     public synchronized LocalDevice initialize() throws Exception {
-        timer = new ScheduledExecutorServiceVariablePool(clock);
+        //        timer = new ScheduledExecutorServiceVariablePool(clock);
+        timer = new WarpScheduledExecutorService(clock);
         transport.initialize();
         initialized = true;
 
@@ -314,7 +321,7 @@ public class LocalDevice {
                 sendGlobalBroadcast(new WhoIsRequest(from, from + rangeSize - 1));
 
                 LOG.info("Waiting for incoming IAms");
-                Thread.sleep(10000);
+                WarpUtils.sleep(clock, 10, TimeUnit.SECONDS);
                 getEventHandler().removeListener(listener);
 
                 if (!idList.isEmpty()) {
@@ -562,6 +569,44 @@ public class LocalDevice {
     }
 
     /**
+     * Finds a remote device for the given instanceNumber by notifying a given callback. If a cached instance is found
+     * the callback is called by the calling thread. Otherwise, a finder will be used to try to find it. If this is
+     * successful the device will be cached.
+     *
+     * The benefits of this method are:
+     * 1) It will cache the remote device if it is found
+     * 2) No blocking is performed
+     *
+     * @param instanceNumber
+     * @param callback
+     * @param timeoutCallback
+     * @param timeout
+     * @param unit
+     */
+    public void getRemoteDevice(final int instanceNumber, final Consumer<RemoteDevice> callback,
+            final Runnable timeoutCallback, final Runnable finallyCallback, final long timeout, final TimeUnit unit) {
+        Objects.requireNonNull(callback);
+
+        // Check for a cached instance.
+        final RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+
+        if (rd != null) {
+            LOG.debug("Found a cached device: {}", instanceNumber);
+            // Provide it to the callback in this thread.
+            callback.accept(rd);
+        } else {
+            LOG.debug("Requesting the remove device from the remote device finder: {}", instanceNumber);
+            RemoteDeviceFinder.findDevice(this, instanceNumber, (cbrd) -> {
+                // Cache the device.
+                remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+
+                // Notify the client callback
+                callback.accept(cbrd);
+            }, timeoutCallback, finallyCallback, timeout, unit);
+        }
+    }
+
+    /**
      * Returns a future to get the remote device for the given instanceNumber. If a cached instance is found the future
      * will be set immediately. Otherwise, a finder will be used to try to find it. If this is successful the device
      * will be cached.
@@ -709,14 +754,14 @@ public class LocalDevice {
      *            optional client callback
      * @return the discoverer, which must be stopped by the caller
      */
-    public RemoteDeviceDiscoverer startRemoteDeviceDiscovery(final RemoteDeviceDiscovererCallback callback) {
-        final RemoteDeviceDiscovererCallback cachingCallback = (d) -> {
+    public RemoteDeviceDiscoverer startRemoteDeviceDiscovery(final Consumer<RemoteDevice> callback) {
+        final Consumer<RemoteDevice> cachingCallback = (d) -> {
             // Cache the device.
             remoteDeviceCache.putEntity(d.getInstanceNumber(), d, cachePolicies.getDevicePolicy(d.getInstanceNumber()));
 
             // Call the given callback
             if (callback != null)
-                callback.foundRemoteDevice(d);
+                callback.accept(d);
         };
 
         final RemoteDeviceDiscoverer discoverer = new RemoteDeviceDiscoverer(this, cachingCallback);
@@ -781,8 +826,8 @@ public class LocalDevice {
 
     public void setCachedRemoteProperty(final int did, final ObjectIdentifier oid, final PropertyIdentifier pid,
             final UnsignedInteger pin, final Encodable value) {
-        if (value instanceof BACnetError) {
-            final BACnetError e = (BACnetError) value;
+        if (value instanceof ErrorClassAndCode) {
+            final ErrorClassAndCode e = (ErrorClassAndCode) value;
             if (ErrorClass.device.equals(e.getErrorClass())) {
                 // Don't cache devices if the error is about the device. In fact, delete the cached device.
                 remoteDeviceCache.removeEntity(did);
@@ -848,6 +893,10 @@ public class LocalDevice {
                     serviceRequest, consumer);
         }
         send(d, serviceRequest, consumer);
+    }
+
+    public void send(final RemoteDevice d, final UnconfirmedRequestService serviceRequest) {
+        transport.send(d.getAddress(), serviceRequest, false);
     }
 
     public void send(final Address address, final UnconfirmedRequestService serviceRequest) {

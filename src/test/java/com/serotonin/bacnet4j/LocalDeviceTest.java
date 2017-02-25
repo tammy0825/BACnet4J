@@ -25,16 +25,20 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.RemoteDeviceFinder.RemoteDeviceFuture;
 
+import lohbihler.warp.WarpClock;
+
 public class LocalDeviceTest {
     static final Logger LOG = LoggerFactory.getLogger(LocalDeviceTest.class);
 
     // The clock will control the expiration of devices from the cache, but not the real time delays
     // when doing discoveries.
+    WarpClock clock;
     LocalDevice d1;
     LocalDevice d2;
 
     @Before
     public void before() throws Exception {
+        clock = new WarpClock();
         d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 100))).initialize();
         d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 100))).initialize();
     }
@@ -103,6 +107,12 @@ public class LocalDeviceTest {
     public void undefinedDeviceId() throws Exception {
         final LocalDevice ld = new LocalDevice(ObjectIdentifier.UNINITIALIZED,
                 new DefaultTransport(new TestNetwork(3, 10)));
+        ld.setClock(clock);
+        new Thread(() -> {
+            for (int i = 0; i < 20; i++) {
+                clock.plusSeconds(10);
+            }
+        }).start();
         ld.initialize();
 
         LOG.info("Local device initialized with device id {}", ld.getConfiguration().getInstanceId());

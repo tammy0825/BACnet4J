@@ -28,71 +28,50 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Unsigned32;
-import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ProcessIdSelection extends BaseType {
-    private static final long serialVersionUID = -1829749552197858514L;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addPrimitive(Unsigned32.class);
+        choiceOptions.addPrimitive(Null.class);
+    }
 
-    private Unsigned32 processIdentifier;
-    private Null nullValue;
+    private final Choice choice;
 
     public ProcessIdSelection(final Unsigned32 processIdentifier) {
-        this(processIdentifier, null);
+        this.choice = new Choice(processIdentifier, choiceOptions);
     }
 
     public ProcessIdSelection(final Null nullValue) {
-        this(null, nullValue);
-    }
-
-    private ProcessIdSelection(final Unsigned32 processIdentifier, final Null nullValue) {
-        this.processIdentifier = processIdentifier;
-        this.nullValue = nullValue;
+        this.choice = new Choice(nullValue, choiceOptions);
     }
 
     @Override
     public void write(final ByteQueue queue) {
-        if (processIdentifier != null)
-            write(queue, processIdentifier);
-        else
-            write(queue, nullValue);
+        write(queue, choice);
     }
 
     public ProcessIdSelection(final ByteQueue queue) throws BACnetException {
-        final int tag = (queue.peek(0) & 0xff) >> 4;
-        if (tag == UnsignedInteger.TYPE_ID)
-            processIdentifier = new Unsigned32(queue);
-        else if (tag == Null.TYPE_ID)
-            nullValue = new Null(queue);
-        else
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
-    }
-
-    public Unsigned32 getProcessIdentifier() {
-        return processIdentifier;
+        choice = readChoice(queue, choiceOptions);
     }
 
     public Null getNullValue() {
-        return nullValue;
+        return choice.getDatum();
     }
 
-    @Override
-    public String toString() {
-        return "ProcessIdSelection [processIdentifier=" + processIdentifier + ", nullValue=" + nullValue + "]";
+    public Unsigned32 getProcessIdentifier() {
+        return choice.getDatum();
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (nullValue == null ? 0 : nullValue.hashCode());
-        result = prime * result + (processIdentifier == null ? 0 : processIdentifier.hashCode());
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
         return result;
     }
 
@@ -105,15 +84,10 @@ public class ProcessIdSelection extends BaseType {
         if (getClass() != obj.getClass())
             return false;
         final ProcessIdSelection other = (ProcessIdSelection) obj;
-        if (nullValue == null) {
-            if (other.nullValue != null)
+        if (choice == null) {
+            if (other.choice != null)
                 return false;
-        } else if (!nullValue.equals(other.nullValue))
-            return false;
-        if (processIdentifier == null) {
-            if (other.processIdentifier != null)
-                return false;
-        } else if (!processIdentifier.equals(other.processIdentifier))
+        } else if (!choice.equals(other.choice))
             return false;
         return true;
     }

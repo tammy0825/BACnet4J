@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AbortReason extends Enumerated {
-    private static final long serialVersionUID = -5845112557505021907L;
     public static final AbortReason other = new AbortReason(0);
     public static final AbortReason bufferOverflow = new AbortReason(1);
     public static final AbortReason invalidApduInThisState = new AbortReason(2);

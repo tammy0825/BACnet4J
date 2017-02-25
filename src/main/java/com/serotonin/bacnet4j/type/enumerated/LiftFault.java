@@ -1,0 +1,105 @@
+/*
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * When signing a commercial license with Infinite Automation Software,
+ * the following extension to GPL is made. A special exception to the GPL is
+ * included to allow you to distribute a combined work that includes BAcnet4J
+ * without being obliged to provide the source code for any proprietary components.
+ *
+ * See www.infiniteautomation.com for commercial license options.
+ *
+ * @author Matthew Lohbihler
+ */
+package com.serotonin.bacnet4j.type.enumerated;
+
+import com.serotonin.bacnet4j.type.primitive.Enumerated;
+import com.serotonin.bacnet4j.util.sero.ByteQueue;
+
+public class LiftFault extends Enumerated {
+    public static final LiftFault controllerFault = new LiftFault(0);
+    public static final LiftFault driveAndMotorFault = new LiftFault(1);
+    public static final LiftFault governorAndSafetyGearFault = new LiftFault(2);
+    public static final LiftFault liftShaftDeviceFault = new LiftFault(3);
+    public static final LiftFault powerSupplyFault = new LiftFault(4);
+    public static final LiftFault safetyInterlockFault = new LiftFault(5);
+    public static final LiftFault doorClosingFault = new LiftFault(6);
+    public static final LiftFault doorOpeningFault = new LiftFault(7);
+    public static final LiftFault carStoppedOutsideLandingZone = new LiftFault(8);
+    public static final LiftFault callButtonStuck = new LiftFault(9);
+    public static final LiftFault startFailure = new LiftFault(10);
+    public static final LiftFault controllerSupplyFault = new LiftFault(11);
+    public static final LiftFault selfTestFailure = new LiftFault(12);
+    public static final LiftFault runtimeLimitExceeded = new LiftFault(13);
+    public static final LiftFault positionLost = new LiftFault(14);
+    public static final LiftFault driveTemperatureExceeded = new LiftFault(15);
+    public static final LiftFault loadMeasurementFault = new LiftFault(16);
+
+    public static final LiftFault[] ALL = { controllerFault, driveAndMotorFault, governorAndSafetyGearFault,
+            liftShaftDeviceFault, powerSupplyFault, safetyInterlockFault, doorClosingFault, doorOpeningFault,
+            carStoppedOutsideLandingZone, callButtonStuck, startFailure, controllerSupplyFault, selfTestFailure,
+            runtimeLimitExceeded, positionLost, driveTemperatureExceeded, loadMeasurementFault, };
+
+    public LiftFault(final int value) {
+        super(value);
+    }
+
+    public LiftFault(final ByteQueue queue) {
+        super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == controllerFault.intValue())
+            return "controllerFault";
+        if (type == driveAndMotorFault.intValue())
+            return "driveAndMotorFault";
+        if (type == governorAndSafetyGearFault.intValue())
+            return "governorAndSafetyGearFault";
+        if (type == liftShaftDeviceFault.intValue())
+            return "liftShaftDeviceFault";
+        if (type == powerSupplyFault.intValue())
+            return "powerSupplyFault";
+        if (type == safetyInterlockFault.intValue())
+            return "safetyInterlockFault";
+        if (type == doorClosingFault.intValue())
+            return "doorClosingFault";
+        if (type == doorOpeningFault.intValue())
+            return "doorOpeningFault";
+        if (type == carStoppedOutsideLandingZone.intValue())
+            return "carStoppedOutsideLandingZone";
+        if (type == callButtonStuck.intValue())
+            return "callButtonStuck";
+        if (type == startFailure.intValue())
+            return "startFailure";
+        if (type == controllerSupplyFault.intValue())
+            return "controllerSupplyFault";
+        if (type == selfTestFailure.intValue())
+            return "selfTestFailure";
+        if (type == runtimeLimitExceeded.intValue())
+            return "runtimeLimitExceeded";
+        if (type == positionLost.intValue())
+            return "positionLost";
+        if (type == driveTemperatureExceeded.intValue())
+            return "driveTemperatureExceeded";
+        if (type == loadMeasurementFault.intValue())
+            return "loadMeasurementFault";
+        return "Unknown(" + type + ")";
+    }
+}

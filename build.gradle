@@ -19,6 +19,7 @@ repositories {
 
 dependencies {
     compile ':sero-scheduler:1.+'
+    compile ':sero-warp:1.+'
     compile 'org.apache.commons:commons-lang3:+'
     compile 'org.scream3r:jssc:2.8.0'
     compile 'org.slf4j:slf4j-api:+'

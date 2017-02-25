@@ -28,56 +28,45 @@
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfValue extends NotificationParameters {
-    private static final long serialVersionUID = -5744561310526587892L;
-
+public class ChangeOfValue extends NotificationParameter {
     public static final byte TYPE_ID = 2;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(BitString.class);
-        classes.add(Real.class);
+        choiceOptions.addContextual(0, BitString.class);
+        choiceOptions.addContextual(1, Real.class);
     }
 
     private final Choice newValue;
     private final StatusFlags statusFlags;
 
     public ChangeOfValue(final BitString newValue, final StatusFlags statusFlags) {
-        this.newValue = new Choice(0, newValue);
+        this.newValue = new Choice(0, newValue, choiceOptions);
         this.statusFlags = statusFlags;
     }
 
     public ChangeOfValue(final Real newValue, final StatusFlags statusFlags) {
-        this.newValue = new Choice(1, newValue);
+        this.newValue = new Choice(1, newValue, choiceOptions);
         this.statusFlags = statusFlags;
     }
 
     @Override
-    protected void writeImpl(final ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, newValue, 0);
         write(queue, statusFlags, 1);
     }
 
     public ChangeOfValue(final ByteQueue queue) throws BACnetException {
-        newValue = new Choice(queue, classes, 0);
+        newValue = new Choice(queue, choiceOptions, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public Choice getNewValue() {

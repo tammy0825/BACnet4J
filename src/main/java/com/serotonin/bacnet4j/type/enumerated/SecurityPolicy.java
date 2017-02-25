@@ -35,8 +35,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class SecurityPolicy extends Enumerated {
-    private static final long serialVersionUID = -1433958074950622510L;
-
     public static final SecurityPolicy plainNonTrusted = new SecurityPolicy(0);
     public static final SecurityPolicy plainTrusted = new SecurityPolicy(1);
     public static final SecurityPolicy signedTrusted = new SecurityPolicy(2);

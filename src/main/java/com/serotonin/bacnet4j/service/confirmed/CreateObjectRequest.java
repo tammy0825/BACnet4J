@@ -28,17 +28,14 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.ThreadLocalObjectTypeStack;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -46,28 +43,25 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CreateObjectRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -610206284148696878L;
-
     public static final byte TYPE_ID = 10;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(ObjectType.class);
-        classes.add(ObjectIdentifier.class);
+        choiceOptions.addContextual(0, ObjectType.class);
+        choiceOptions.addContextual(1, ObjectIdentifier.class);
     }
 
     private final Choice objectSpecifier;
     private final SequenceOf<PropertyValue> listOfInitialValues;
 
     public CreateObjectRequest(final ObjectType objectType, final SequenceOf<PropertyValue> listOfInitialValues) {
-        objectSpecifier = new Choice(0, objectType);
+        objectSpecifier = new Choice(0, objectType, choiceOptions);
         this.listOfInitialValues = listOfInitialValues;
     }
 
     public CreateObjectRequest(final ObjectIdentifier objectIdentifier,
             final SequenceOf<PropertyValue> listOfInitialValues) {
-        objectSpecifier = new Choice(1, objectIdentifier);
+        objectSpecifier = new Choice(1, objectIdentifier, choiceOptions);
         this.listOfInitialValues = listOfInitialValues;
     }
 
@@ -124,12 +118,9 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     }
 
     CreateObjectRequest(final ByteQueue queue) throws BACnetException {
-        popStart(queue, 0);
-        objectSpecifier = new Choice(queue, classes);
-        popEnd(queue, 0);
-
+        objectSpecifier = readChoice(queue, choiceOptions, 0);
         try {
-            if (objectSpecifier.getContextId() == 0)
+            if (objectSpecifier.isa(ObjectType.class))
                 ThreadLocalObjectTypeStack.set((ObjectType) objectSpecifier.getDatum());
             else
                 ThreadLocalObjectTypeStack.set(((ObjectIdentifier) objectSpecifier.getDatum()).getObjectType());

@@ -23,48 +23,43 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfBitString extends EventParameter {
-    private static final long serialVersionUID = -3812561432266744183L;
-
+public class ChangeOfBitString extends BaseType {
     public static final byte TYPE_ID = 0;
 
     private final UnsignedInteger timeDelay;
     private final BitString bitMask;
     private final SequenceOf<BitString> listOfBitstringValues;
 
-    public ChangeOfBitString(UnsignedInteger timeDelay, BitString bitMask, SequenceOf<BitString> listOfBitstringValues) {
+    public ChangeOfBitString(final UnsignedInteger timeDelay, final BitString bitMask,
+            final SequenceOf<BitString> listOfBitstringValues) {
         this.timeDelay = timeDelay;
         this.bitMask = bitMask;
         this.listOfBitstringValues = listOfBitstringValues;
     }
 
-    public ChangeOfBitString(ByteQueue queue) throws BACnetException {
+    public ChangeOfBitString(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         bitMask = read(queue, BitString.class, 1);
         listOfBitstringValues = readSequenceOf(queue, BitString.class, 2);
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, bitMask, 1);
         write(queue, listOfBitstringValues, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -83,14 +78,14 @@ public class ChangeOfBitString extends EventParameter {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((bitMask == null) ? 0 : bitMask.hashCode());
-        result = PRIME * result + ((listOfBitstringValues == null) ? 0 : listOfBitstringValues.hashCode());
-        result = PRIME * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = PRIME * result + (bitMask == null ? 0 : bitMask.hashCode());
+        result = PRIME * result + (listOfBitstringValues == null ? 0 : listOfBitstringValues.hashCode());
+        result = PRIME * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -101,20 +96,17 @@ public class ChangeOfBitString extends EventParameter {
         if (bitMask == null) {
             if (other.bitMask != null)
                 return false;
-        }
-        else if (!bitMask.equals(other.bitMask))
+        } else if (!bitMask.equals(other.bitMask))
             return false;
         if (listOfBitstringValues == null) {
             if (other.listOfBitstringValues != null)
                 return false;
-        }
-        else if (!listOfBitstringValues.equals(other.listOfBitstringValues))
+        } else if (!listOfBitstringValues.equals(other.listOfBitstringValues))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

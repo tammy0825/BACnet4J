@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -41,10 +41,7 @@ import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WeekNDay extends OctetString implements DateMatchable {
-    private static final long serialVersionUID = -2836161294089567458L;
-
     public static class WeekOfMonth extends Enumerated {
-        private static final long serialVersionUID = 1951617360223950570L;
         public static final WeekOfMonth days1to7 = new WeekOfMonth(1);
         public static final WeekOfMonth days8to14 = new WeekOfMonth(2);
         public static final WeekOfMonth days15to21 = new WeekOfMonth(3);
@@ -53,7 +50,7 @@ public class WeekNDay extends OctetString implements DateMatchable {
         public static final WeekOfMonth last7Days = new WeekOfMonth(6);
         public static final WeekOfMonth any = new WeekOfMonth(255);
 
-        public static WeekOfMonth valueOf(byte b) {
+        public static WeekOfMonth valueOf(final byte b) {
             switch (b) {
             case 1:
                 return days1to7;
@@ -72,16 +69,16 @@ public class WeekNDay extends OctetString implements DateMatchable {
             }
         }
 
-        private WeekOfMonth(int value) {
+        private WeekOfMonth(final int value) {
             super(value);
         }
 
-        public WeekOfMonth(ByteQueue queue) {
+        public WeekOfMonth(final ByteQueue queue) {
             super(queue);
         }
     }
 
-    public WeekNDay(Month month, WeekOfMonth weekOfMonth, DayOfWeek dayOfWeek) {
+    public WeekNDay(final Month month, final WeekOfMonth weekOfMonth, final DayOfWeek dayOfWeek) {
         super(new byte[] { month.getId(), weekOfMonth.byteValue(), (byte) dayOfWeek.getId() });
     }
 
@@ -97,12 +94,12 @@ public class WeekNDay extends OctetString implements DateMatchable {
         return DayOfWeek.valueOf(getBytes()[2]);
     }
 
-    public WeekNDay(ByteQueue queue) {
+    public WeekNDay(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
-    public boolean matches(Date that) {
+    public boolean matches(final Date that) {
         if (!that.isSpecific())
             throw new BACnetRuntimeException("Dates for matching must be completely specified: " + that);
 
@@ -118,11 +115,11 @@ public class WeekNDay extends OctetString implements DateMatchable {
         return true;
     }
 
-    private boolean matchWeekOfMonth(Date that) {
-        WeekOfMonth wom = getWeekOfMonth();
+    private boolean matchWeekOfMonth(final Date that) {
+        final WeekOfMonth wom = getWeekOfMonth();
         if (wom.equals(WeekOfMonth.any))
             return true;
-        int day = that.getDay();
+        final int day = that.getDay();
         if (wom.equals(WeekOfMonth.days1to7))
             return day >= 1 && day <= 7;
         if (wom.equals(WeekOfMonth.days8to14))
@@ -135,8 +132,8 @@ public class WeekNDay extends OctetString implements DateMatchable {
             return day >= 29 && day <= 31;
 
         // Calculate the last day of the month.
-        GregorianCalendar gc = that.calculateGC();
-        int lastDay = gc.getActualMaximum(Calendar.DATE);
-        return day >= (lastDay - 6) && day <= lastDay;
+        final GregorianCalendar gc = that.calculateGC();
+        final int lastDay = gc.getActualMaximum(Calendar.DATE);
+        return day >= lastDay - 6 && day <= lastDay;
     }
 }

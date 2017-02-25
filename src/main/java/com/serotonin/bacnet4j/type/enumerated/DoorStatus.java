@@ -35,15 +35,19 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class DoorStatus extends Enumerated {
-    private static final long serialVersionUID = -2813060268315235754L;
-
     public static final DoorStatus closed = new DoorStatus(0);
     public static final DoorStatus open = new DoorStatus(1);
     public static final DoorStatus unknown = new DoorStatus(2);
     public static final DoorStatus doorFault = new DoorStatus(3);
     public static final DoorStatus unused = new DoorStatus(4);
+    public static final DoorStatus none = new DoorStatus(4);
+    public static final DoorStatus closing = new DoorStatus(4);
+    public static final DoorStatus opening = new DoorStatus(4);
+    public static final DoorStatus safetyLocked = new DoorStatus(4);
+    public static final DoorStatus limitedOpened = new DoorStatus(4);
 
-    public static final DoorStatus[] ALL = { closed, open, unknown, doorFault, unused, };
+    public static final DoorStatus[] ALL = { closed, open, unknown, doorFault, unused, none, closing, opening,
+            safetyLocked, limitedOpened, };
 
     public DoorStatus(final int value) {
         super(value);
@@ -66,6 +70,16 @@ public class DoorStatus extends Enumerated {
             return "doorFault";
         if (type == unused.intValue())
             return "unused";
+        if (type == none.intValue())
+            return "none";
+        if (type == closing.intValue())
+            return "closing";
+        if (type == opening.intValue())
+            return "opening";
+        if (type == safetyLocked.intValue())
+            return "safetyLocked";
+        if (type == limitedOpened.intValue())
+            return "limitedOpened";
         return "Unknown: " + type;
     }
 }

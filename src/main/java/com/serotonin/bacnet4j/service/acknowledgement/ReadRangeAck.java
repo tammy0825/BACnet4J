@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -38,8 +38,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadRangeAck extends AcknowledgementService {
-    private static final long serialVersionUID = -8449473466967996803L;
-
     public static final byte TYPE_ID = 26;
 
     private final ObjectIdentifier objectIdentifier;
@@ -50,9 +48,9 @@ public class ReadRangeAck extends AcknowledgementService {
     private final SequenceOf<? extends Encodable> itemData;
     private final UnsignedInteger firstSequenceNumber;
 
-    public ReadRangeAck(ObjectIdentifier objectIdentifier, PropertyIdentifier propertyIdentifier,
-            UnsignedInteger propertyArrayIndex, ResultFlags resultFlags, UnsignedInteger itemCount,
-            SequenceOf<? extends Encodable> itemData, UnsignedInteger firstSequenceNumber) {
+    public ReadRangeAck(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final ResultFlags resultFlags, final UnsignedInteger itemCount,
+            final SequenceOf<? extends Encodable> itemData, final UnsignedInteger firstSequenceNumber) {
         this.objectIdentifier = objectIdentifier;
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
@@ -68,7 +66,7 @@ public class ReadRangeAck extends AcknowledgementService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
@@ -78,13 +76,13 @@ public class ReadRangeAck extends AcknowledgementService {
         writeOptional(queue, firstSequenceNumber, 6);
     }
 
-    ReadRangeAck(ByteQueue queue) throws BACnetException {
+    ReadRangeAck(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
         resultFlags = read(queue, ResultFlags.class, 3);
         itemCount = read(queue, UnsignedInteger.class, 4);
-        itemData = readSequenceOfEncodable(queue, objectIdentifier.getObjectType(), propertyIdentifier, 5);
+        itemData = readSequenceOfANY(queue, objectIdentifier.getObjectType(), propertyIdentifier, 5);
         firstSequenceNumber = readOptional(queue, UnsignedInteger.class, 6);
     }
 
@@ -120,18 +118,18 @@ public class ReadRangeAck extends AcknowledgementService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((firstSequenceNumber == null) ? 0 : firstSequenceNumber.hashCode());
-        result = PRIME * result + ((itemCount == null) ? 0 : itemCount.hashCode());
-        result = PRIME * result + ((itemData == null) ? 0 : itemData.hashCode());
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
-        result = PRIME * result + ((resultFlags == null) ? 0 : resultFlags.hashCode());
+        result = PRIME * result + (firstSequenceNumber == null ? 0 : firstSequenceNumber.hashCode());
+        result = PRIME * result + (itemCount == null ? 0 : itemCount.hashCode());
+        result = PRIME * result + (itemData == null ? 0 : itemData.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (resultFlags == null ? 0 : resultFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -142,44 +140,37 @@ public class ReadRangeAck extends AcknowledgementService {
         if (firstSequenceNumber == null) {
             if (other.firstSequenceNumber != null)
                 return false;
-        }
-        else if (!firstSequenceNumber.equals(other.firstSequenceNumber))
+        } else if (!firstSequenceNumber.equals(other.firstSequenceNumber))
             return false;
         if (itemCount == null) {
             if (other.itemCount != null)
                 return false;
-        }
-        else if (!itemCount.equals(other.itemCount))
+        } else if (!itemCount.equals(other.itemCount))
             return false;
         if (itemData == null) {
             if (other.itemData != null)
                 return false;
-        }
-        else if (!itemData.equals(other.itemData))
+        } else if (!itemData.equals(other.itemData))
             return false;
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         if (resultFlags == null) {
             if (other.resultFlags != null)
                 return false;
-        }
-        else if (!resultFlags.equals(other.resultFlags))
+        } else if (!resultFlags.equals(other.resultFlags))
             return false;
         return true;
     }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -31,8 +31,6 @@ package com.serotonin.bacnet4j.type.primitive;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Boolean extends Primitive {
-    private static final long serialVersionUID = -161562645674050036L;
-
     public static final Boolean FALSE = new Boolean(false);
     public static final Boolean TRUE = new Boolean(true);
 
@@ -40,7 +38,7 @@ public class Boolean extends Primitive {
 
     protected final boolean value;
 
-    public Boolean(boolean value) {
+    public Boolean(final boolean value) {
         this.value = value;
     }
 
@@ -48,8 +46,8 @@ public class Boolean extends Primitive {
         return value;
     }
 
-    public Boolean(ByteQueue queue) {
-        long length = readTag(queue);
+    public Boolean(final ByteQueue queue) {
+        final long length = readTag(queue);
         if (contextSpecific)
             value = queue.pop() == 1;
         else
@@ -57,7 +55,7 @@ public class Boolean extends Primitive {
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         if (contextSpecific)
             queue.push((byte) (value ? 1 : 0));
     }
@@ -83,7 +81,7 @@ public class Boolean extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

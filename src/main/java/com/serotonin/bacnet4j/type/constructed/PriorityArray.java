@@ -37,7 +37,6 @@ import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PriorityArray extends SequenceOf<PriorityValue> {
-    private static final long serialVersionUID = 8292702351986751796L;
     private static final int LENGTH = 16;
 
     public PriorityArray() {

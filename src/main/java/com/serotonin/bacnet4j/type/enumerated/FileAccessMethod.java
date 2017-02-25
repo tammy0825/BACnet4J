@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,17 +32,16 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class FileAccessMethod extends Enumerated {
-    private static final long serialVersionUID = -2447330212564862936L;
     public static final FileAccessMethod recordAccess = new FileAccessMethod(0);
     public static final FileAccessMethod streamAccess = new FileAccessMethod(1);
 
     public static final FileAccessMethod[] ALL = { recordAccess, streamAccess, };
 
-    public FileAccessMethod(int value) {
+    public FileAccessMethod(final int value) {
         super(value);
     }
 
-    public FileAccessMethod(ByteQueue queue) {
+    public FileAccessMethod(final ByteQueue queue) {
         super(queue);
     }
 }

@@ -41,8 +41,6 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class GetEventInformationRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 5920365345189498832L;
-
     public static final byte TYPE_ID = 29;
 
     private final ObjectIdentifier lastReceivedObjectIdentifier; // Optional

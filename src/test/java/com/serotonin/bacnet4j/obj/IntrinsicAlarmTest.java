@@ -43,6 +43,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliability;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfState;
+import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -235,7 +236,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new Boolean(true), notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
-        assertEquals(new ChangeOfState(new PropertyStates(BinaryPV.active), new StatusFlags(true, false, false, false)),
+        assertEquals(new NotificationParameters(
+                new ChangeOfState(new PropertyStates(BinaryPV.active), new StatusFlags(true, false, false, false))),
                 notif.get("eventValues"));
     }
 
@@ -298,8 +300,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new Boolean(true), notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
-        assertEquals(new ChangeOfState(new PropertyStates(new UnsignedInteger(4)),
-                new StatusFlags(true, false, false, false)), notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new ChangeOfState(new PropertyStates(new UnsignedInteger(4)),
+                new StatusFlags(true, false, false, false))), notif.get("eventValues"));
 
         // Change to a different alarm value. No notification is sent.
         mv.writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(5));
@@ -339,8 +341,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new Boolean(true), notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
-        assertEquals(new ChangeOfState(new PropertyStates(new UnsignedInteger(2)),
-                new StatusFlags(false, false, false, false)), notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new ChangeOfState(new PropertyStates(new UnsignedInteger(2)),
+                new StatusFlags(false, false, false, false))), notif.get("eventValues"));
 
         // Set a fault state.
         mv.writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(7));
@@ -365,8 +367,9 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
-                new ChangeOfReliability(Reliability.multiStateFault, new StatusFlags(true, true, false, false),
-                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(7)))),
+                new NotificationParameters(new ChangeOfReliability(Reliability.multiStateFault,
+                        new StatusFlags(true, true, false, false),
+                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(7))))),
                 notif.get("eventValues"));
 
         // Change to a different fault condition.
@@ -392,8 +395,9 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
-                new ChangeOfReliability(Reliability.multiStateFault, new StatusFlags(true, true, false, false),
-                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(6)))),
+                new NotificationParameters(new ChangeOfReliability(Reliability.multiStateFault,
+                        new StatusFlags(true, true, false, false),
+                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(6))))),
                 notif.get("eventValues"));
 
         // Change to an alarm condition. An immediate notification should be sent for the transition to normal.
@@ -419,8 +423,9 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
-                new ChangeOfReliability(Reliability.noFaultDetected, new StatusFlags(false, false, false, false),
-                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(4)))),
+                new NotificationParameters(new ChangeOfReliability(Reliability.noFaultDetected,
+                        new StatusFlags(false, false, false, false),
+                        new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(4))))),
                 notif.get("eventValues"));
 
         // After the time delay the state will change to off-normal and a notification will be sent.
@@ -444,8 +449,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new Boolean(true), notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
-        assertEquals(new ChangeOfState(new PropertyStates(new UnsignedInteger(4)),
-                new StatusFlags(true, false, false, false)), notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new ChangeOfState(new PropertyStates(new UnsignedInteger(4)),
+                new StatusFlags(true, false, false, false))), notif.get("eventValues"));
     }
 
     @Test

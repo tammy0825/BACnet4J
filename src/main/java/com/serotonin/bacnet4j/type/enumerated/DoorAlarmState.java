@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class DoorAlarmState extends Enumerated {
-    private static final long serialVersionUID = -4016268027739544828L;
     public static final DoorAlarmState normal = new DoorAlarmState(0);
     public static final DoorAlarmState alarm = new DoorAlarmState(1);
     public static final DoorAlarmState doorOpenTooLong = new DoorAlarmState(2);

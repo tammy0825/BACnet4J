@@ -28,9 +28,6 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -54,43 +51,50 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class FaultParameter extends BaseType {
-    private static final long serialVersionUID = -465308973114139126L;
-
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(Null.class);
-        classes.add(FaultCharacterString.class);
-        classes.add(FaultExtended.class);
-        classes.add(FaultLifeSafety.class);
-        classes.add(FaultState.class);
-        classes.add(FaultStatusFlags.class);
+        choiceOptions.addContextual(0, Null.class);
+        choiceOptions.addContextual(1, FaultCharacterString.class);
+        choiceOptions.addContextual(2, FaultExtended.class);
+        choiceOptions.addContextual(3, FaultLifeSafety.class);
+        choiceOptions.addContextual(4, FaultState.class);
+        choiceOptions.addContextual(5, FaultStatusFlags.class);
+        choiceOptions.addContextual(6, FaultOutOfRange.class);
+        choiceOptions.addContextual(7, FaultListed.class);
     }
 
     private final Choice entry;
 
     public FaultParameter(final Null value) {
-        entry = new Choice(0, value);
+        entry = new Choice(0, value, choiceOptions);
     }
 
     public FaultParameter(final FaultCharacterString value) {
-        entry = new Choice(1, value);
+        entry = new Choice(1, value, choiceOptions);
     }
 
     public FaultParameter(final FaultExtended value) {
-        entry = new Choice(2, value);
+        entry = new Choice(2, value, choiceOptions);
     }
 
     public FaultParameter(final FaultLifeSafety value) {
-        entry = new Choice(3, value);
+        entry = new Choice(3, value, choiceOptions);
     }
 
     public FaultParameter(final FaultState value) {
-        entry = new Choice(4, value);
+        entry = new Choice(4, value, choiceOptions);
     }
 
     public FaultParameter(final FaultStatusFlags value) {
-        entry = new Choice(5, value);
+        entry = new Choice(5, value, choiceOptions);
+    }
+
+    public FaultParameter(final FaultOutOfRange value) {
+        entry = new Choice(6, value, choiceOptions);
+    }
+
+    public FaultParameter(final FaultListed value) {
+        entry = new Choice(7, value, choiceOptions);
     }
 
     @Override
@@ -99,31 +103,39 @@ public class FaultParameter extends BaseType {
     }
 
     public FaultParameter(final ByteQueue queue) throws BACnetException {
-        entry = new Choice(queue, classes);
+        entry = new Choice(queue, choiceOptions);
     }
 
     public boolean isNull() {
-        return entry.getContextId() == 0;
+        return entry.isa(Null.class);
     }
 
     public boolean isFaultCharacterString() {
-        return entry.getContextId() == 1;
+        return entry.isa(FaultCharacterString.class);
     }
 
     public boolean isFaultExtended() {
-        return entry.getContextId() == 2;
+        return entry.isa(FaultExtended.class);
     }
 
     public boolean isFaultLifeSafety() {
-        return entry.getContextId() == 3;
+        return entry.isa(FaultLifeSafety.class);
     }
 
     public boolean isFaultState() {
-        return entry.getContextId() == 4;
+        return entry.isa(FaultState.class);
     }
 
     public boolean isFaultStatusFlags() {
-        return entry.getContextId() == 5;
+        return entry.isa(FaultStatusFlags.class);
+    }
+
+    public boolean isFaultOutOfRange() {
+        return entry.isa(FaultOutOfRange.class);
+    }
+
+    public boolean isFaultListed() {
+        return entry.isa(FaultListed.class);
     }
 
     public Null getNull() {
@@ -148,6 +160,14 @@ public class FaultParameter extends BaseType {
 
     public FaultStatusFlags getFaultStatusFlags() {
         return (FaultStatusFlags) entry.getDatum();
+    }
+
+    public FaultOutOfRange getFaultOutOfRange() {
+        return (FaultOutOfRange) entry.getDatum();
+    }
+
+    public FaultListed getFaultListed() {
+        return (FaultListed) entry.getDatum();
     }
 
     @Override
@@ -176,8 +196,6 @@ public class FaultParameter extends BaseType {
     }
 
     public static class FaultCharacterString extends BaseType {
-        private static final long serialVersionUID = -6244553018644048034L;
-
         private final SequenceOf<CharacterString> listOfFaultValues;
 
         public FaultCharacterString(final SequenceOf<CharacterString> listOfFaultValues) {
@@ -229,8 +247,6 @@ public class FaultParameter extends BaseType {
     }
 
     public static class FaultExtended extends BaseType {
-        private static final long serialVersionUID = -6389905193957957932L;
-
         private final Unsigned16 vendorId;
         private final UnsignedInteger extendedFaultType;
         private final SequenceOf<FaultExtendedParameter> parameters;
@@ -311,8 +327,6 @@ public class FaultParameter extends BaseType {
         }
 
         public static class FaultExtendedParameter extends BaseType {
-            private static final long serialVersionUID = 334765649997595069L;
-
             private Null nullValue;
             private Real realValue;
             private UnsignedInteger unsignedValue;
@@ -477,7 +491,7 @@ public class FaultParameter extends BaseType {
             @Override
             public String toString() {
                 final StringBuilder sb = new StringBuilder();
-                sb.append("PriorityValue(");
+                sb.append("FaultExtendedParameter(");
                 if (nullValue != null)
                     sb.append("nullValue=").append(nullValue);
                 else if (realValue != null)
@@ -688,8 +702,6 @@ public class FaultParameter extends BaseType {
     }
 
     public static class FaultLifeSafety extends BaseType {
-        private static final long serialVersionUID = -5852300578634203306L;
-
         private final SequenceOf<LifeSafetyState> listOfFaultValues;
         private final DeviceObjectPropertyReference modePropertyReference;
 
@@ -757,8 +769,6 @@ public class FaultParameter extends BaseType {
     }
 
     public static class FaultState extends BaseType {
-        private static final long serialVersionUID = 8215607054305312995L;
-
         private final SequenceOf<PropertyStates> listOfFaultValues;
 
         public FaultState(final SequenceOf<PropertyStates> listOfFaultValues) {
@@ -810,8 +820,6 @@ public class FaultParameter extends BaseType {
     }
 
     public static class FaultStatusFlags extends BaseType {
-        private static final long serialVersionUID = 1832473272124794781L;
-
         private final DeviceObjectPropertyReference statusFlagsReference;
 
         public FaultStatusFlags(final DeviceObjectPropertyReference statusFlagsReference) {
@@ -857,6 +865,188 @@ public class FaultParameter extends BaseType {
                 if (other.statusFlagsReference != null)
                     return false;
             } else if (!statusFlagsReference.equals(other.statusFlagsReference))
+                return false;
+            return true;
+        }
+    }
+
+    public static class FaultOutOfRange extends BaseType {
+        private final FaultNormalValue minNormalValue;
+        private final FaultNormalValue maxNormalValue;
+
+        public FaultOutOfRange(final FaultNormalValue minNormalValue, final FaultNormalValue maxNormalValue) {
+            this.minNormalValue = minNormalValue;
+            this.maxNormalValue = maxNormalValue;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, minNormalValue, 0);
+            write(queue, maxNormalValue, 1);
+        }
+
+        public FaultOutOfRange(final ByteQueue queue) throws BACnetException {
+            minNormalValue = read(queue, FaultNormalValue.class, 0);
+            maxNormalValue = read(queue, FaultNormalValue.class, 1);
+        }
+
+        @Override
+        public String toString() {
+            return "FaultOutOfRange [minNormalValue=" + minNormalValue + ", maxNormalValue=" + maxNormalValue + "]";
+        }
+
+        public FaultNormalValue getMinNormalValue() {
+            return minNormalValue;
+        }
+
+        public FaultNormalValue getMaxNormalValue() {
+            return maxNormalValue;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (maxNormalValue == null ? 0 : maxNormalValue.hashCode());
+            result = prime * result + (minNormalValue == null ? 0 : minNormalValue.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final FaultOutOfRange other = (FaultOutOfRange) obj;
+            if (maxNormalValue == null) {
+                if (other.maxNormalValue != null)
+                    return false;
+            } else if (!maxNormalValue.equals(other.maxNormalValue))
+                return false;
+            if (minNormalValue == null) {
+                if (other.minNormalValue != null)
+                    return false;
+            } else if (!minNormalValue.equals(other.minNormalValue))
+                return false;
+            return true;
+        }
+
+        public static class FaultNormalValue extends BaseType {
+            private static ChoiceOptions valueChoiceOptions = new ChoiceOptions();
+            static {
+                valueChoiceOptions.addPrimitive(Real.class);
+                valueChoiceOptions.addPrimitive(UnsignedInteger.class);
+                valueChoiceOptions.addPrimitive(Double.class);
+                valueChoiceOptions.addPrimitive(SignedInteger.class);
+            }
+
+            private final Choice choice;
+
+            public FaultNormalValue(final Real realValue) {
+                choice = new Choice(realValue, valueChoiceOptions);
+            }
+
+            public FaultNormalValue(final UnsignedInteger unsignedValue) {
+                choice = new Choice(unsignedValue, valueChoiceOptions);
+            }
+
+            public FaultNormalValue(final Double doubleValue) {
+                choice = new Choice(doubleValue, valueChoiceOptions);
+            }
+
+            public FaultNormalValue(final SignedInteger integerValue) {
+                choice = new Choice(integerValue, valueChoiceOptions);
+            }
+
+            public <T extends Encodable> T getValue() {
+                return choice.getDatum();
+            }
+
+            @Override
+            public void write(final ByteQueue queue) {
+                write(queue, choice);
+            }
+
+            public FaultNormalValue(final ByteQueue queue) throws BACnetException {
+                choice = readChoice(queue, valueChoiceOptions);
+            }
+
+            @Override
+            public int hashCode() {
+                final int prime = 31;
+                int result = 1;
+                result = prime * result + (choice == null ? 0 : choice.hashCode());
+                return result;
+            }
+
+            @Override
+            public boolean equals(final Object obj) {
+                if (this == obj)
+                    return true;
+                if (obj == null)
+                    return false;
+                if (getClass() != obj.getClass())
+                    return false;
+                final FaultNormalValue other = (FaultNormalValue) obj;
+                if (choice == null) {
+                    if (other.choice != null)
+                        return false;
+                } else if (!choice.equals(other.choice))
+                    return false;
+                return true;
+            }
+        }
+    }
+
+    public static class FaultListed extends BaseType {
+        private final DeviceObjectPropertyReference faultListReference;
+
+        public FaultListed(final DeviceObjectPropertyReference faultListReference) {
+            this.faultListReference = faultListReference;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, faultListReference, 0);
+        }
+
+        public FaultListed(final ByteQueue queue) throws BACnetException {
+            faultListReference = read(queue, DeviceObjectPropertyReference.class, 0);
+        }
+
+        public DeviceObjectPropertyReference getFaultListReference() {
+            return faultListReference;
+        }
+
+        @Override
+        public String toString() {
+            return "FaultLifeSafety [faultListReference=" + faultListReference + "]";
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (faultListReference == null ? 0 : faultListReference.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final FaultListed other = (FaultListed) obj;
+            if (faultListReference == null) {
+                if (other.faultListReference != null)
+                    return false;
+            } else if (!faultListReference.equals(other.faultListReference))
                 return false;
             return true;
         }

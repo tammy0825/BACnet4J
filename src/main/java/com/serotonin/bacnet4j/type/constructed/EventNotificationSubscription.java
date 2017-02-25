@@ -38,8 +38,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class EventNotificationSubscription extends BaseType {
-    private static final long serialVersionUID = -157895569644862881L;
-
     private final Recipient recipient; // 0
     private final Unsigned32 processIdentifier; // 1
     private final Boolean issueConfirmedNotifications; // 3

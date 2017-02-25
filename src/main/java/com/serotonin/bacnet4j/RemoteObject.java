@@ -34,9 +34,9 @@ import com.serotonin.bacnet4j.cache.RemoteEntityCache;
 import com.serotonin.bacnet4j.cache.RemoteEntityCachePolicy;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -88,7 +88,7 @@ public class RemoteObject implements Serializable {
     @SuppressWarnings("unchecked")
     public void setProperty(final PropertyIdentifier pid, final UnsignedInteger pin, final Encodable value,
             final RemoteEntityCachePolicy policy) {
-        if (value instanceof BACnetError) {
+        if (value instanceof ErrorClassAndCode) {
             // Don't cache errors. In fact, remove whatever is currently there.
             propertyCache.removeEntity(pid);
             return;

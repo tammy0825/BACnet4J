@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ProgramState extends Enumerated {
-    private static final long serialVersionUID = 9182595225658615643L;
     public static final ProgramState idle = new ProgramState(0);
     public static final ProgramState loading = new ProgramState(1);
     public static final ProgramState running = new ProgramState(2);
@@ -42,11 +41,11 @@ public class ProgramState extends Enumerated {
 
     public static final ProgramState[] ALL = { idle, loading, running, waiting, halted, unloading, };
 
-    public ProgramState(int value) {
+    public ProgramState(final int value) {
         super(value);
     }
 
-    public ProgramState(ByteQueue queue) {
+    public ProgramState(final ByteQueue queue) {
         super(queue);
     }
 }

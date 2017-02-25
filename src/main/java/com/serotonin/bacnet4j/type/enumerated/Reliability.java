@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Reliability extends Enumerated {
-    private static final long serialVersionUID = 1105281466137206125L;
     public static final Reliability noFaultDetected = new Reliability(0);
     public static final Reliability noSensor = new Reliability(1);
     public static final Reliability overRange = new Reliability(2);
@@ -48,22 +47,33 @@ public class Reliability extends Enumerated {
     public static final Reliability memberFault = new Reliability(13);
     public static final Reliability monitoredObjectFault = new Reliability(14);
     public static final Reliability tripped = new Reliability(15);
+    public static final Reliability lampFailure = new Reliability(16);
+    public static final Reliability activationFailure = new Reliability(17);
+    public static final Reliability renewDhcpFailure = new Reliability(18);
+    public static final Reliability renewFdRgistrationFailure = new Reliability(19);
+    public static final Reliability restartAutoNegotiationFailure = new Reliability(20);
+    public static final Reliability restartFailure = new Reliability(21);
+    public static final Reliability proprietaryCommandFailure = new Reliability(22);
+    public static final Reliability faultsListed = new Reliability(23);
+    public static final Reliability referencedObjectFault = new Reliability(24);
 
     public static final Reliability[] ALL = { noFaultDetected, noSensor, overRange, underRange, openLoop, shortedLoop,
             noOutput, unreliableOther, processError, multiStateFault, configurationError, communicationFailure,
-            memberFault, monitoredObjectFault, tripped };
+            memberFault, monitoredObjectFault, tripped, lampFailure, activationFailure, renewDhcpFailure,
+            renewFdRgistrationFailure, restartAutoNegotiationFailure, restartFailure, proprietaryCommandFailure,
+            faultsListed, referencedObjectFault, };
 
-    public Reliability(int value) {
+    public Reliability(final int value) {
         super(value);
     }
 
-    public Reliability(ByteQueue queue) {
+    public Reliability(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == noFaultDetected.intValue())
             return "noFaultDetected";
         if (type == noSensor.intValue())
@@ -94,6 +104,24 @@ public class Reliability extends Enumerated {
             return "monitoredObjectFault";
         if (type == tripped.intValue())
             return "tripped";
+        if (type == lampFailure.intValue())
+            return "lampFailure";
+        if (type == activationFailure.intValue())
+            return "activationFailure";
+        if (type == renewDhcpFailure.intValue())
+            return "renewDhcpFailure";
+        if (type == renewFdRgistrationFailure.intValue())
+            return "renewFdRgistrationFailure";
+        if (type == restartAutoNegotiationFailure.intValue())
+            return "restartAutoNegotiationFailure";
+        if (type == restartFailure.intValue())
+            return "restartFailure";
+        if (type == proprietaryCommandFailure.intValue())
+            return "proprietaryCommandFailure";
+        if (type == faultsListed.intValue())
+            return "faultsListed";
+        if (type == referencedObjectFault.intValue())
+            return "referencedObjectFault";
         return "Unknown (" + type + ")";
     }
 }

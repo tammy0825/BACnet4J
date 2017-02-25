@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PropertyIdentifier extends Enumerated {
-    private static final long serialVersionUID = 7289026444729646422L;
-
     public static final PropertyIdentifier ackedTransitions = new PropertyIdentifier(0);
     public static final PropertyIdentifier ackRequired = new PropertyIdentifier(1);
     public static final PropertyIdentifier action = new PropertyIdentifier(2);
@@ -386,6 +384,110 @@ public class PropertyIdentifier extends Enumerated {
     public static final PropertyIdentifier power = new PropertyIdentifier(384);
     public static final PropertyIdentifier transition = new PropertyIdentifier(385);
     public static final PropertyIdentifier egressActive = new PropertyIdentifier(386);
+    public static final PropertyIdentifier interfaceValue = new PropertyIdentifier(387);
+    public static final PropertyIdentifier faultHighLimit = new PropertyIdentifier(388);
+    public static final PropertyIdentifier faultLowLimit = new PropertyIdentifier(389);
+    public static final PropertyIdentifier lowDiffLimit = new PropertyIdentifier(390);
+    public static final PropertyIdentifier strikeCount = new PropertyIdentifier(391);
+    public static final PropertyIdentifier timeOfStrikeCountReset = new PropertyIdentifier(392);
+    public static final PropertyIdentifier defaultTimeout = new PropertyIdentifier(393);
+    public static final PropertyIdentifier initialTimeout = new PropertyIdentifier(394);
+    public static final PropertyIdentifier lastStateChange = new PropertyIdentifier(395);
+    public static final PropertyIdentifier stateChangeValues = new PropertyIdentifier(396);
+    public static final PropertyIdentifier timerRunning = new PropertyIdentifier(397);
+    public static final PropertyIdentifier timerState = new PropertyIdentifier(398);
+    public static final PropertyIdentifier apduLength = new PropertyIdentifier(399);
+    public static final PropertyIdentifier ipAddress = new PropertyIdentifier(400);
+    public static final PropertyIdentifier ipDefaultGateway = new PropertyIdentifier(401);
+    public static final PropertyIdentifier ipDhcpEnable = new PropertyIdentifier(402);
+    public static final PropertyIdentifier ipDhcpLeaseTime = new PropertyIdentifier(403);
+    public static final PropertyIdentifier ipDhcpLeaseTimeRemaining = new PropertyIdentifier(404);
+    public static final PropertyIdentifier ipDhcpServer = new PropertyIdentifier(405);
+    public static final PropertyIdentifier ipDnsServer = new PropertyIdentifier(406);
+    public static final PropertyIdentifier bacnetIpGlobalAddress = new PropertyIdentifier(407);
+    public static final PropertyIdentifier bacnetIpMode = new PropertyIdentifier(408);
+    public static final PropertyIdentifier bacnetIpMulticastAddress = new PropertyIdentifier(409);
+    public static final PropertyIdentifier bacnetIpNatTraversal = new PropertyIdentifier(410);
+    public static final PropertyIdentifier ipSubnetMask = new PropertyIdentifier(411);
+    public static final PropertyIdentifier bacnetIpUdpPort = new PropertyIdentifier(412);
+    public static final PropertyIdentifier bbmdAcceptFdRegistrations = new PropertyIdentifier(413);
+    public static final PropertyIdentifier bbmdBroadcastDistributionTable = new PropertyIdentifier(414);
+    public static final PropertyIdentifier bbmdForeignDeviceTable = new PropertyIdentifier(415);
+    public static final PropertyIdentifier changesPending = new PropertyIdentifier(416);
+    public static final PropertyIdentifier command = new PropertyIdentifier(417);
+    public static final PropertyIdentifier fdBbmdAddress = new PropertyIdentifier(418);
+    public static final PropertyIdentifier fdSubscriptionLifetime = new PropertyIdentifier(419);
+    public static final PropertyIdentifier linkSpeed = new PropertyIdentifier(420);
+    public static final PropertyIdentifier linkSpeeds = new PropertyIdentifier(421);
+    public static final PropertyIdentifier linkSpeedAutonegotiate = new PropertyIdentifier(422);
+    public static final PropertyIdentifier macAddress = new PropertyIdentifier(423);
+    public static final PropertyIdentifier networkInterfaceName = new PropertyIdentifier(424);
+    public static final PropertyIdentifier networkNumber = new PropertyIdentifier(425);
+    public static final PropertyIdentifier networkNumberQuality = new PropertyIdentifier(426);
+    public static final PropertyIdentifier networkType = new PropertyIdentifier(427);
+    public static final PropertyIdentifier routingTable = new PropertyIdentifier(428);
+    public static final PropertyIdentifier virtualMacAddressTable = new PropertyIdentifier(429);
+    public static final PropertyIdentifier commandTimeArray = new PropertyIdentifier(430);
+    public static final PropertyIdentifier currentCommandPriority = new PropertyIdentifier(431);
+    public static final PropertyIdentifier lastCommandTime = new PropertyIdentifier(432);
+    public static final PropertyIdentifier valueSource = new PropertyIdentifier(433);
+    public static final PropertyIdentifier valueSourceArray = new PropertyIdentifier(434);
+    public static final PropertyIdentifier bacnetIpv6Mode = new PropertyIdentifier(435);
+    public static final PropertyIdentifier ipv6Address = new PropertyIdentifier(436);
+    public static final PropertyIdentifier ipv6PrefixLength = new PropertyIdentifier(437);
+    public static final PropertyIdentifier bacnetIpv6UdpPort = new PropertyIdentifier(438);
+    public static final PropertyIdentifier ipv6DefaultGateway = new PropertyIdentifier(439);
+    public static final PropertyIdentifier bacnetIpv6MulticastAddress = new PropertyIdentifier(440);
+    public static final PropertyIdentifier ipv6DnsServer = new PropertyIdentifier(441);
+    public static final PropertyIdentifier ipv6AutoAddressingEnable = new PropertyIdentifier(442);
+    public static final PropertyIdentifier ipv6DhcpLeaseTime = new PropertyIdentifier(443);
+    public static final PropertyIdentifier ipv6DhcpLeaseTimeRemaining = new PropertyIdentifier(444);
+    public static final PropertyIdentifier ipv6DhcpServer = new PropertyIdentifier(445);
+    public static final PropertyIdentifier ipv6ZoneIndex = new PropertyIdentifier(446);
+    public static final PropertyIdentifier assignedLandingCalls = new PropertyIdentifier(447);
+    public static final PropertyIdentifier carAssignedDirection = new PropertyIdentifier(448);
+    public static final PropertyIdentifier carDoorCommand = new PropertyIdentifier(449);
+    public static final PropertyIdentifier carDoorStatus = new PropertyIdentifier(450);
+    public static final PropertyIdentifier carDoorText = new PropertyIdentifier(451);
+    public static final PropertyIdentifier carDoorZone = new PropertyIdentifier(452);
+    public static final PropertyIdentifier carDriveStatus = new PropertyIdentifier(453);
+    public static final PropertyIdentifier carLoad = new PropertyIdentifier(454);
+    public static final PropertyIdentifier carLoadUnits = new PropertyIdentifier(455);
+    public static final PropertyIdentifier carMode = new PropertyIdentifier(456);
+    public static final PropertyIdentifier carMovingDirection = new PropertyIdentifier(457);
+    public static final PropertyIdentifier carPosition = new PropertyIdentifier(458);
+    public static final PropertyIdentifier elevatorGroup = new PropertyIdentifier(459);
+    public static final PropertyIdentifier energyMeter = new PropertyIdentifier(460);
+    public static final PropertyIdentifier energyMeterRef = new PropertyIdentifier(461);
+    public static final PropertyIdentifier escalatorMode = new PropertyIdentifier(462);
+    public static final PropertyIdentifier faultSignals = new PropertyIdentifier(463);
+    public static final PropertyIdentifier floorText = new PropertyIdentifier(464);
+    public static final PropertyIdentifier groupId = new PropertyIdentifier(465);
+    public static final PropertyIdentifier groupMode = new PropertyIdentifier(467);
+    public static final PropertyIdentifier higherDeck = new PropertyIdentifier(468);
+    public static final PropertyIdentifier installationId = new PropertyIdentifier(469);
+    public static final PropertyIdentifier landingCalls = new PropertyIdentifier(470);
+    public static final PropertyIdentifier landingCallControl = new PropertyIdentifier(471);
+    public static final PropertyIdentifier landingDoorStatus = new PropertyIdentifier(472);
+    public static final PropertyIdentifier lowerDeck = new PropertyIdentifier(473);
+    public static final PropertyIdentifier machineRoomId = new PropertyIdentifier(474);
+    public static final PropertyIdentifier makingCarCall = new PropertyIdentifier(475);
+    public static final PropertyIdentifier nextStoppingFloor = new PropertyIdentifier(476);
+    public static final PropertyIdentifier operationDirection = new PropertyIdentifier(477);
+    public static final PropertyIdentifier passengerAlarm = new PropertyIdentifier(478);
+    public static final PropertyIdentifier powerMode = new PropertyIdentifier(479);
+    public static final PropertyIdentifier registeredCarCall = new PropertyIdentifier(480);
+    public static final PropertyIdentifier activeCovMultipleSubscriptions = new PropertyIdentifier(481);
+    public static final PropertyIdentifier protocolLevel = new PropertyIdentifier(482);
+    public static final PropertyIdentifier referencePort = new PropertyIdentifier(483);
+    public static final PropertyIdentifier deployedProfileLocation = new PropertyIdentifier(484);
+    public static final PropertyIdentifier profileLocation = new PropertyIdentifier(485);
+    public static final PropertyIdentifier tags = new PropertyIdentifier(486);
+    public static final PropertyIdentifier subordinateNodeTypes = new PropertyIdentifier(487);
+    public static final PropertyIdentifier subordinateTags = new PropertyIdentifier(488);
+    public static final PropertyIdentifier subordinateRelationships = new PropertyIdentifier(489);
+    public static final PropertyIdentifier defaultSubordinateRelationship = new PropertyIdentifier(490);
+    public static final PropertyIdentifier represents = new PropertyIdentifier(491);
 
     public static final PropertyIdentifier[] ALL = { ackedTransitions, ackRequired, action, actionText, activeText,
             activeVtSessions, alarmValue, alarmValues, all, allWritesSuccessful, apduSegmentTimeout, apduTimeout,
@@ -448,7 +550,25 @@ public class PropertyIdentifier extends Enumerated {
             channelNumber, controlGroups, executionDelay, lastPriority, writeStatus, propertyList, serialNumber,
             blinkWarnEnable, defaultFadeTime, defaultRampRate, defaultStepIncrement, egressTime, inProgress,
             instantaneousPower, lightingCommand, lightingCommandDefaultPriority, maxActualValue, minActualValue, power,
-            transition, egressActive,
+            transition, egressActive, interfaceValue, faultHighLimit, faultLowLimit, lowDiffLimit, strikeCount,
+            timeOfStrikeCountReset, defaultTimeout, initialTimeout, lastStateChange, stateChangeValues, timerRunning,
+            timerState, apduLength, ipAddress, ipDefaultGateway, ipDhcpEnable, ipDhcpLeaseTime,
+            ipDhcpLeaseTimeRemaining, ipDhcpServer, ipDnsServer, bacnetIpGlobalAddress, bacnetIpMode,
+            bacnetIpMulticastAddress, bacnetIpNatTraversal, ipSubnetMask, bacnetIpUdpPort, bbmdAcceptFdRegistrations,
+            bbmdBroadcastDistributionTable, bbmdForeignDeviceTable, changesPending, command, fdBbmdAddress,
+            fdSubscriptionLifetime, linkSpeed, linkSpeeds, linkSpeedAutonegotiate, macAddress, networkInterfaceName,
+            networkNumber, networkNumberQuality, networkType, routingTable, virtualMacAddressTable, commandTimeArray,
+            currentCommandPriority, lastCommandTime, valueSource, valueSourceArray, bacnetIpv6Mode, ipv6Address,
+            ipv6PrefixLength, bacnetIpv6UdpPort, ipv6DefaultGateway, bacnetIpv6MulticastAddress, ipv6DnsServer,
+            ipv6AutoAddressingEnable, ipv6DhcpLeaseTime, ipv6DhcpLeaseTimeRemaining, ipv6DhcpServer, ipv6ZoneIndex,
+            assignedLandingCalls, carAssignedDirection, carDoorCommand, carDoorStatus, carDoorText, carDoorZone,
+            carDriveStatus, carLoad, carLoadUnits, carMode, carMovingDirection, carPosition, elevatorGroup, energyMeter,
+            energyMeterRef, escalatorMode, faultSignals, floorText, groupId, groupMode, higherDeck, installationId,
+            landingCalls, landingCallControl, landingDoorStatus, lowerDeck, machineRoomId, makingCarCall,
+            nextStoppingFloor, operationDirection, passengerAlarm, powerMode, registeredCarCall,
+            activeCovMultipleSubscriptions, protocolLevel, referencePort, deployedProfileLocation, profileLocation,
+            tags, subordinateNodeTypes, subordinateTags, subordinateRelationships, defaultSubordinateRelationship,
+            represents,
 
     };
 
@@ -1167,6 +1287,214 @@ public class PropertyIdentifier extends Enumerated {
             return "transition";
         if (type == egressActive.intValue())
             return "egressActive";
+        if (type == interfaceValue.intValue())
+            return "interfaceValue";
+        if (type == faultHighLimit.intValue())
+            return "faultHighLimit";
+        if (type == faultLowLimit.intValue())
+            return "faultLowLimit";
+        if (type == lowDiffLimit.intValue())
+            return "lowDiffLimit";
+        if (type == strikeCount.intValue())
+            return "strikeCount";
+        if (type == timeOfStrikeCountReset.intValue())
+            return "timeOfStrikeCountReset";
+        if (type == defaultTimeout.intValue())
+            return "defaultTimeout";
+        if (type == initialTimeout.intValue())
+            return "initialTimeout";
+        if (type == lastStateChange.intValue())
+            return "lastStateChange";
+        if (type == stateChangeValues.intValue())
+            return "stateChangeValues";
+        if (type == timerRunning.intValue())
+            return "timerRunning";
+        if (type == timerState.intValue())
+            return "timerState";
+        if (type == apduLength.intValue())
+            return "apduLength";
+        if (type == ipAddress.intValue())
+            return "ipAddress";
+        if (type == ipDefaultGateway.intValue())
+            return "ipDefaultGateway";
+        if (type == ipDhcpEnable.intValue())
+            return "ipDhcpEnable";
+        if (type == ipDhcpLeaseTime.intValue())
+            return "ipDhcpLeaseTime";
+        if (type == ipDhcpLeaseTimeRemaining.intValue())
+            return "ipDhcpLeaseTimeRemaining";
+        if (type == ipDhcpServer.intValue())
+            return "ipDhcpServer";
+        if (type == ipDnsServer.intValue())
+            return "ipDnsServer";
+        if (type == bacnetIpGlobalAddress.intValue())
+            return "bacnetIpGlobalAddress";
+        if (type == bacnetIpMode.intValue())
+            return "bacnetIpMode";
+        if (type == bacnetIpMulticastAddress.intValue())
+            return "bacnetIpMulticastAddress";
+        if (type == bacnetIpNatTraversal.intValue())
+            return "bacnetIpNatTraversal";
+        if (type == ipSubnetMask.intValue())
+            return "ipSubnetMask";
+        if (type == bacnetIpUdpPort.intValue())
+            return "bacnetIpUdpPort";
+        if (type == bbmdAcceptFdRegistrations.intValue())
+            return "bbmdAcceptFdRegistrations";
+        if (type == bbmdBroadcastDistributionTable.intValue())
+            return "bbmdBroadcastDistributionTable";
+        if (type == bbmdForeignDeviceTable.intValue())
+            return "bbmdForeignDeviceTable";
+        if (type == changesPending.intValue())
+            return "changesPending";
+        if (type == command.intValue())
+            return "command";
+        if (type == fdBbmdAddress.intValue())
+            return "fdBbmdAddress";
+        if (type == fdSubscriptionLifetime.intValue())
+            return "fdSubscriptionLifetime";
+        if (type == linkSpeed.intValue())
+            return "linkSpeed";
+        if (type == linkSpeeds.intValue())
+            return "linkSpeeds";
+        if (type == linkSpeedAutonegotiate.intValue())
+            return "linkSpeedAutonegotiate";
+        if (type == macAddress.intValue())
+            return "macAddress";
+        if (type == networkInterfaceName.intValue())
+            return "networkInterfaceName";
+        if (type == networkNumber.intValue())
+            return "networkNumber";
+        if (type == networkNumberQuality.intValue())
+            return "networkNumberQuality";
+        if (type == networkType.intValue())
+            return "networkType";
+        if (type == routingTable.intValue())
+            return "routingTable";
+        if (type == virtualMacAddressTable.intValue())
+            return "virtualMacAddressTable";
+        if (type == commandTimeArray.intValue())
+            return "commandTimeArray";
+        if (type == currentCommandPriority.intValue())
+            return "currentCommandPriority";
+        if (type == lastCommandTime.intValue())
+            return "lastCommandTime";
+        if (type == valueSource.intValue())
+            return "valueSource";
+        if (type == valueSourceArray.intValue())
+            return "valueSourceArray";
+        if (type == bacnetIpv6Mode.intValue())
+            return "bacnetIpv6Mode";
+        if (type == ipv6Address.intValue())
+            return "ipv6Address";
+        if (type == ipv6PrefixLength.intValue())
+            return "ipv6PrefixLength";
+        if (type == bacnetIpv6UdpPort.intValue())
+            return "bacnetIpv6UdpPort";
+        if (type == ipv6DefaultGateway.intValue())
+            return "ipv6DefaultGateway";
+        if (type == bacnetIpv6MulticastAddress.intValue())
+            return "bacnetIpv6MulticastAddress";
+        if (type == ipv6DnsServer.intValue())
+            return "ipv6DnsServer";
+        if (type == ipv6AutoAddressingEnable.intValue())
+            return "ipv6AutoAddressingEnable";
+        if (type == ipv6DhcpLeaseTime.intValue())
+            return "ipv6DhcpLeaseTime";
+        if (type == ipv6DhcpLeaseTimeRemaining.intValue())
+            return "ipv6DhcpLeaseTimeRemaining";
+        if (type == ipv6DhcpServer.intValue())
+            return "ipv6DhcpServer";
+        if (type == ipv6ZoneIndex.intValue())
+            return "ipv6ZoneIndex";
+        if (type == assignedLandingCalls.intValue())
+            return "assignedLandingCalls";
+        if (type == carAssignedDirection.intValue())
+            return "carAssignedDirection";
+        if (type == carDoorCommand.intValue())
+            return "carDoorCommand";
+        if (type == carDoorStatus.intValue())
+            return "carDoorStatus";
+        if (type == carDoorText.intValue())
+            return "carDoorText";
+        if (type == carDoorZone.intValue())
+            return "carDoorZone";
+        if (type == carDriveStatus.intValue())
+            return "carDriveStatus";
+        if (type == carLoad.intValue())
+            return "carLoad";
+        if (type == carLoadUnits.intValue())
+            return "carLoadUnits";
+        if (type == carMode.intValue())
+            return "carMode";
+        if (type == carMovingDirection.intValue())
+            return "carMovingDirection";
+        if (type == carPosition.intValue())
+            return "carPosition";
+        if (type == elevatorGroup.intValue())
+            return "elevatorGroup";
+        if (type == energyMeter.intValue())
+            return "energyMeter";
+        if (type == energyMeterRef.intValue())
+            return "energyMeterRef";
+        if (type == escalatorMode.intValue())
+            return "escalatorMode";
+        if (type == faultSignals.intValue())
+            return "faultSignals";
+        if (type == floorText.intValue())
+            return "floorText";
+        if (type == groupId.intValue())
+            return "groupId";
+        if (type == groupMode.intValue())
+            return "groupMode";
+        if (type == higherDeck.intValue())
+            return "higherDeck";
+        if (type == installationId.intValue())
+            return "installationId";
+        if (type == landingCalls.intValue())
+            return "landingCalls";
+        if (type == landingCallControl.intValue())
+            return "landingCallControl";
+        if (type == landingDoorStatus.intValue())
+            return "landingDoorStatus";
+        if (type == lowerDeck.intValue())
+            return "lowerDeck";
+        if (type == machineRoomId.intValue())
+            return "machineRoomId";
+        if (type == makingCarCall.intValue())
+            return "makingCarCall";
+        if (type == nextStoppingFloor.intValue())
+            return "nextStoppingFloor";
+        if (type == operationDirection.intValue())
+            return "operationDirection";
+        if (type == passengerAlarm.intValue())
+            return "passengerAlarm";
+        if (type == powerMode.intValue())
+            return "powerMode";
+        if (type == registeredCarCall.intValue())
+            return "registeredCarCall";
+        if (type == activeCovMultipleSubscriptions.intValue())
+            return "activeCovMultipleSubscriptions";
+        if (type == protocolLevel.intValue())
+            return "protocolLevel";
+        if (type == referencePort.intValue())
+            return "referencePort";
+        if (type == deployedProfileLocation.intValue())
+            return "deployedProfileLocation";
+        if (type == profileLocation.intValue())
+            return "profileLocation";
+        if (type == tags.intValue())
+            return "tags";
+        if (type == subordinateNodeTypes.intValue())
+            return "subordinateNodeTypes";
+        if (type == subordinateTags.intValue())
+            return "subordinateTags";
+        if (type == subordinateRelationships.intValue())
+            return "subordinateRelationships";
+        if (type == defaultSubordinateRelationship.intValue())
+            return "defaultSubordinateRelationship";
+        if (type == represents.intValue())
+            return "represents";
         return "Unknown: " + type;
     }
 }

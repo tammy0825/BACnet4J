@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -33,20 +33,19 @@ import java.math.BigInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Unsigned32 extends UnsignedInteger {
-    private static final long serialVersionUID = -933873380384300138L;
     private static final long MAX = 0xffffffffl - 1;
 
-    public Unsigned32(int value) {
+    public Unsigned32(final int value) {
         super(value);
     }
 
-    public Unsigned32(BigInteger value) {
+    public Unsigned32(final BigInteger value) {
         super(value);
         if (value.longValue() > MAX)
             throw new IllegalArgumentException("Value cannot be greater than " + MAX);
     }
 
-    public Unsigned32(ByteQueue queue) {
+    public Unsigned32(final ByteQueue queue) {
         super(queue);
     }
 }

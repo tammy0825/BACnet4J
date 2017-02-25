@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,19 +32,18 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SetpointReference extends BaseType {
-    private static final long serialVersionUID = 6454996310502957318L;
     private final ObjectPropertyReference setpointReference;
 
-    public SetpointReference(ObjectPropertyReference setpointReference) {
+    public SetpointReference(final ObjectPropertyReference setpointReference) {
         this.setpointReference = setpointReference;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         writeOptional(queue, setpointReference, 0);
     }
 
-    public SetpointReference(ByteQueue queue) throws BACnetException {
+    public SetpointReference(final ByteQueue queue) throws BACnetException {
         setpointReference = readOptional(queue, ObjectPropertyReference.class, 0);
     }
 
@@ -61,12 +60,12 @@ public class SetpointReference extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((setpointReference == null) ? 0 : setpointReference.hashCode());
+        result = PRIME * result + (setpointReference == null ? 0 : setpointReference.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -77,8 +76,7 @@ public class SetpointReference extends BaseType {
         if (setpointReference == null) {
             if (other.setpointReference != null)
                 return false;
-        }
-        else if (!setpointReference.equals(other.setpointReference))
+        } else if (!setpointReference.equals(other.setpointReference))
             return false;
         return true;
     }

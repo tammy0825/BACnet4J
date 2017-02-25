@@ -44,7 +44,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -6947534972488875567L;
     public static final byte TYPE_ID = 4;
 
     private final AcknowledgmentFilter acknowledgmentFilter; // 0
@@ -105,8 +104,6 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     }
 
     public static class AcknowledgmentFilter extends Enumerated {
-        private static final long serialVersionUID = 2908973080032838353L;
-
         public static final AcknowledgmentFilter all = new AcknowledgmentFilter(0);
         public static final AcknowledgmentFilter acked = new AcknowledgmentFilter(1);
         public static final AcknowledgmentFilter notAcked = new AcknowledgmentFilter(2);
@@ -135,8 +132,6 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     }
 
     public static class EventStateFilter extends Enumerated {
-        private static final long serialVersionUID = 3658424484986437251L;
-
         public static final EventStateFilter offnormal = new EventStateFilter(0);
         public static final EventStateFilter fault = new EventStateFilter(1);
         public static final EventStateFilter normal = new EventStateFilter(2);
@@ -171,7 +166,6 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
     }
 
     public static class PriorityFilter extends BaseType {
-        private static final long serialVersionUID = 5900940972459086689L;
         private final UnsignedInteger minPriority;
         private final UnsignedInteger maxPriority;
 

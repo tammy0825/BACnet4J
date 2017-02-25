@@ -28,39 +28,32 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.DateMatchable;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CalendarEntry extends BaseType implements DateMatchable {
-    private static final long serialVersionUID = -4210434764578714766L;
-
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(Date.class);
-        classes.add(DateRange.class);
-        classes.add(WeekNDay.class);
+        choiceOptions.addContextual(0, Date.class);
+        choiceOptions.addContextual(1, DateRange.class);
+        choiceOptions.addContextual(2, WeekNDay.class);
     }
 
     private final Choice entry;
 
     public CalendarEntry(final Date date) {
-        entry = new Choice(0, date);
+        entry = new Choice(0, date, choiceOptions);
     }
 
     public CalendarEntry(final DateRange dateRange) {
-        entry = new Choice(1, dateRange);
+        entry = new Choice(1, dateRange, choiceOptions);
     }
 
     public CalendarEntry(final WeekNDay weekNDay) {
-        entry = new Choice(2, weekNDay);
+        entry = new Choice(2, weekNDay, choiceOptions);
     }
 
     @Override
@@ -69,19 +62,19 @@ public class CalendarEntry extends BaseType implements DateMatchable {
     }
 
     public CalendarEntry(final ByteQueue queue) throws BACnetException {
-        entry = new Choice(queue, classes);
+        entry = new Choice(queue, choiceOptions);
     }
 
     public boolean isDate() {
-        return entry.getContextId() == 0;
+        return entry.getDatum() instanceof Date;
     }
 
     public boolean isDateRange() {
-        return entry.getContextId() == 1;
+        return entry.getDatum() instanceof DateRange;
     }
 
     public boolean isWeekNDay() {
-        return entry.getContextId() == 2;
+        return entry.getDatum() instanceof WeekNDay;
     }
 
     public Date getDate() {

@@ -40,8 +40,6 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class ConfirmedRequestService extends Service {
-    private static final long serialVersionUID = -7443765811741238314L;
-
     public static void checkConfirmedRequestService(final ServicesSupported services, final byte type)
             throws BACnetErrorException {
         if (type == AcknowledgeAlarmRequest.TYPE_ID && services.isAcknowledgeAlarm()) // 0
@@ -97,6 +95,10 @@ abstract public class ConfirmedRequestService extends Service {
         if (type == SubscribeCOVPropertyRequest.TYPE_ID && services.isSubscribeCovProperty()) // 28
             return;
         if (type == GetEventInformationRequest.TYPE_ID && services.isGetEventInformation()) // 29
+            return;
+        if (type == SubscribeCOVPropertyMultipleRequest.TYPE_ID && services.isSubscribeCovPropertyMultiple()) // 30
+            return;
+        if (type == ConfirmedCovNotificationMultipleRequest.TYPE_ID && services.isConfirmedCovNotificationMultiple()) // 31
             return;
 
         throw new BACnetErrorException(ErrorClass.device, ErrorCode.operationalProblem);
@@ -159,6 +161,10 @@ abstract public class ConfirmedRequestService extends Service {
             return new SubscribeCOVPropertyRequest(queue);
         if (type == GetEventInformationRequest.TYPE_ID) // 29
             return new GetEventInformationRequest(queue);
+        if (type == SubscribeCOVPropertyMultipleRequest.TYPE_ID) // 30
+            return new SubscribeCOVPropertyMultipleRequest(queue);
+        if (type == ConfirmedCovNotificationMultipleRequest.TYPE_ID) // 31
+            return new ConfirmedCovNotificationMultipleRequest(queue);
 
         throw new BACnetErrorException(ErrorClass.device, ErrorCode.serviceRequestDenied);
     }

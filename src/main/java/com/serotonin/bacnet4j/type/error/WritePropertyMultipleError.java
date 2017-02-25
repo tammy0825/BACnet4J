@@ -23,35 +23,47 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.error;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WritePropertyMultipleError extends BaseError {
-    private static final long serialVersionUID = 7893783677289456368L;
+    private final ErrorClassAndCode errorType;
     private final ObjectPropertyReference firstFailedWriteAttempt;
 
-    public WritePropertyMultipleError(byte choice, BACnetError error, ObjectPropertyReference firstFailedWriteAttempt) {
-        super(choice, error);
+    public WritePropertyMultipleError(final ErrorClassAndCode errorType,
+            final ObjectPropertyReference firstFailedWriteAttempt) {
+        this.errorType = errorType;
         this.firstFailedWriteAttempt = firstFailedWriteAttempt;
     }
 
     @Override
-    public void write(ByteQueue queue) {
-        queue.push(choice);
-        write(queue, error, 0);
+    public void write(final ByteQueue queue) {
+        write(queue, errorType, 0);
         firstFailedWriteAttempt.write(queue, 1);
     }
 
-    WritePropertyMultipleError(byte choice, ByteQueue queue) throws BACnetException {
-        super(choice, queue, 0);
+    public WritePropertyMultipleError(final ByteQueue queue) throws BACnetException {
+        errorType = read(queue, ErrorClassAndCode.class, 0);
         firstFailedWriteAttempt = read(queue, ObjectPropertyReference.class, 1);
+    }
+
+    public ErrorClassAndCode getErrorType() {
+        return errorType;
+    }
+
+    public ObjectPropertyReference getFirstFailedWriteAttempt() {
+        return firstFailedWriteAttempt;
+    }
+
+    @Override
+    public ErrorClassAndCode getErrorClassAndCode() {
+        return errorType;
     }
 
     @Override
@@ -61,26 +73,31 @@ public class WritePropertyMultipleError extends BaseError {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = super.hashCode();
-        result = PRIME * result + ((firstFailedWriteAttempt == null) ? 0 : firstFailedWriteAttempt.hashCode());
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (errorType == null ? 0 : errorType.hashCode());
+        result = prime * result + (firstFailedWriteAttempt == null ? 0 : firstFailedWriteAttempt.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
-        if (!super.equals(obj))
+        if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
         final WritePropertyMultipleError other = (WritePropertyMultipleError) obj;
+        if (errorType == null) {
+            if (other.errorType != null)
+                return false;
+        } else if (!errorType.equals(other.errorType))
+            return false;
         if (firstFailedWriteAttempt == null) {
             if (other.firstFailedWriteAttempt != null)
                 return false;
-        }
-        else if (!firstFailedWriteAttempt.equals(other.firstFailedWriteAttempt))
+        } else if (!firstFailedWriteAttempt.equals(other.firstFailedWriteAttempt))
             return false;
         return true;
     }

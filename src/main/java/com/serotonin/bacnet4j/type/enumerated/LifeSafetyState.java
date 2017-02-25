@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LifeSafetyState extends Enumerated {
-    private static final long serialVersionUID = 2161598068039518923L;
     public static final LifeSafetyState quiet = new LifeSafetyState(0);
     public static final LifeSafetyState preAlarm = new LifeSafetyState(1);
     public static final LifeSafetyState alarm = new LifeSafetyState(2);
@@ -62,17 +61,17 @@ public class LifeSafetyState extends Enumerated {
             active, tamper, testAlarm, testActive, testFault, testFaultAlarm, holdup, duress, tamperAlarm, abnormal,
             emergencyPower, delayed, blocked, localAlarm, generalAlarm, supervisory, testSupervisory, };
 
-    public LifeSafetyState(int value) {
+    public LifeSafetyState(final int value) {
         super(value);
     }
 
-    public LifeSafetyState(ByteQueue queue) {
+    public LifeSafetyState(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == quiet.intValue())
             return "Quiet";
         if (type == preAlarm.intValue())

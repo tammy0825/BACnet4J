@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -33,24 +33,22 @@ import java.math.BigInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class UnsignedInteger extends Primitive {
-    private static final long serialVersionUID = -3350034351888356100L;
-
     public static final byte TYPE_ID = 2;
 
     private int smallValue;
     private BigInteger bigValue;
 
-    public UnsignedInteger(int value) {
+    public UnsignedInteger(final int value) {
         if (value < 0)
             throw new IllegalArgumentException("Value cannot be less than zero");
         smallValue = value;
     }
 
-    public UnsignedInteger(long value) {
+    public UnsignedInteger(final long value) {
         bigValue = BigInteger.valueOf(value);
     }
 
-    public UnsignedInteger(BigInteger value) {
+    public UnsignedInteger(final BigInteger value) {
         if (value.signum() == -1)
             throw new IllegalArgumentException("Value cannot be less than zero");
         bigValue = value;
@@ -77,32 +75,30 @@ public class UnsignedInteger extends Primitive {
     //
     // Reading and writing
     //
-    public UnsignedInteger(ByteQueue queue) {
+    public UnsignedInteger(final ByteQueue queue) {
         int length = (int) readTag(queue);
         if (length < 4) {
             while (length > 0)
-                smallValue |= (queue.pop() & 0xff) << (--length * 8);
-        }
-        else {
-            byte[] bytes = new byte[length + 1];
+                smallValue |= (queue.pop() & 0xff) << --length * 8;
+        } else {
+            final byte[] bytes = new byte[length + 1];
             queue.pop(bytes, 1, length);
             bigValue = new BigInteger(bytes);
         }
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    protected void writeImpl(final ByteQueue queue) {
         int length = (int) getLength();
         if (bigValue == null) {
             while (length > 0)
-                queue.push(smallValue >> (--length * 8));
-        }
-        else {
-            byte[] bytes = new byte[length];
+                queue.push(smallValue >> --length * 8);
+        } else {
+            final byte[] bytes = new byte[length];
 
             for (int i = 0; i < bigValue.bitLength(); i++) {
                 if (bigValue.testBit(i))
-                    bytes[length - i / 8 - 1] |= 1 << (i % 8);
+                    bytes[length - i / 8 - 1] |= 1 << i % 8;
             }
 
             queue.push(bytes);
@@ -139,13 +135,13 @@ public class UnsignedInteger extends Primitive {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((bigValue == null) ? 0 : bigValue.hashCode());
+        result = PRIME * result + (bigValue == null ? 0 : bigValue.hashCode());
         result = PRIME * result + smallValue;
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LifeSafetyOperation extends Enumerated {
-    private static final long serialVersionUID = -8453182789389518551L;
     public static final LifeSafetyOperation none = new LifeSafetyOperation(0);
     public static final LifeSafetyOperation silence = new LifeSafetyOperation(1);
     public static final LifeSafetyOperation silenceAudible = new LifeSafetyOperation(2);
@@ -47,11 +46,11 @@ public class LifeSafetyOperation extends Enumerated {
     public static final LifeSafetyOperation[] ALL = { none, silence, silenceAudible, silenceVisual, reset, resetAlarm,
             resetFault, unsilence, unsilenceAudible, unsilenceVisual, };
 
-    public LifeSafetyOperation(int value) {
+    public LifeSafetyOperation(final int value) {
         super(value);
     }
 
-    public LifeSafetyOperation(ByteQueue queue) {
+    public LifeSafetyOperation(final ByteQueue queue) {
         super(queue);
     }
 }

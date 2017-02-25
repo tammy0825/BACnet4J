@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SilencedState extends Enumerated {
-    private static final long serialVersionUID = -9140683573905523375L;
     public static final SilencedState unsilenced = new SilencedState(0);
     public static final SilencedState audibleSilenced = new SilencedState(1);
     public static final SilencedState visibleSilenced = new SilencedState(2);

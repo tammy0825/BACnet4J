@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
@@ -13,6 +12,7 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
@@ -59,7 +59,7 @@ public class DeviceTest extends AbstractTest {
                 PropertyIdentifier.objectList, 8);
         assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 3), oid);
 
-        final BACnetError e = RequestUtils.getProperty(d2, rd1, new ObjectIdentifier(ObjectType.device, 1),
+        final ErrorClassAndCode e = RequestUtils.getProperty(d2, rd1, new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.objectList, 9);
         assertEquals(ErrorClass.property, e.getErrorClass());
         assertEquals(ErrorCode.invalidArrayIndex, e.getErrorCode());

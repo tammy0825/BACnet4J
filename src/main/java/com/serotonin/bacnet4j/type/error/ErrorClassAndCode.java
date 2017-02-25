@@ -23,10 +23,10 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
-package com.serotonin.bacnet4j.type.constructed;
+package com.serotonin.bacnet4j.type.error;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -34,28 +34,30 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class BACnetError extends BaseType {
-    private static final long serialVersionUID = -2894184233450540796L;
+/**
+ * Represents the Error sequence
+ */
+public class ErrorClassAndCode extends BaseError {
     private final ErrorClass errorClass;
     private final ErrorCode errorCode;
 
-    public BACnetError(ErrorClass errorClass, ErrorCode errorCode) {
+    public ErrorClassAndCode(final ErrorClass errorClass, final ErrorCode errorCode) {
         this.errorClass = errorClass;
         this.errorCode = errorCode;
     }
 
-    public BACnetError(BACnetServiceException e) {
+    public ErrorClassAndCode(final BACnetServiceException e) {
         this.errorClass = e.getErrorClass();
         this.errorCode = e.getErrorCode();
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, errorClass);
         write(queue, errorCode);
     }
 
-    public BACnetError(ByteQueue queue) throws BACnetException {
+    public ErrorClassAndCode(final ByteQueue queue) throws BACnetException {
         errorClass = read(queue, ErrorClass.class);
         errorCode = read(queue, ErrorCode.class);
     }
@@ -68,7 +70,12 @@ public class BACnetError extends BaseType {
         return errorCode;
     }
 
-    public boolean equals(ErrorClass errorClass, ErrorCode errorCode) {
+    @Override
+    public ErrorClassAndCode getErrorClassAndCode() {
+        return this;
+    }
+
+    public boolean equals(final ErrorClass errorClass, final ErrorCode errorCode) {
         return this.errorClass.equals(errorClass) && this.errorCode.equals(errorCode);
     }
 
@@ -76,8 +83,8 @@ public class BACnetError extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((errorClass == null) ? 0 : errorClass.hashCode());
-        result = PRIME * result + ((errorCode == null) ? 0 : errorCode.hashCode());
+        result = PRIME * result + (errorClass == null ? 0 : errorClass.hashCode());
+        result = PRIME * result + (errorCode == null ? 0 : errorCode.hashCode());
         return result;
     }
 
@@ -87,25 +94,23 @@ public class BACnetError extends BaseType {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        final BACnetError other = (BACnetError) obj;
+        final ErrorClassAndCode other = (ErrorClassAndCode) obj;
         if (errorClass == null) {
             if (other.errorClass != null)
                 return false;
-        }
-        else if (!errorClass.equals(other.errorClass))
+        } else if (!errorClass.equals(other.errorClass))
             return false;
         if (errorCode == null) {
             if (other.errorCode != null)
                 return false;
-        }
-        else if (!errorCode.equals(other.errorCode))
+        } else if (!errorCode.equals(other.errorCode))
             return false;
         return true;
     }

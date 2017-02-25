@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -34,37 +34,30 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class CommandFailure extends NotificationParameters {
-    private static final long serialVersionUID = 5727410398456093753L;
-
+public class CommandFailure extends NotificationParameter {
     public static final byte TYPE_ID = 3;
 
     private final Encodable commandValue;
     private final StatusFlags statusFlags;
     private final Encodable feedbackValue;
 
-    public CommandFailure(Encodable commandValue, StatusFlags statusFlags, Encodable feedbackValue) {
+    public CommandFailure(final Encodable commandValue, final StatusFlags statusFlags, final Encodable feedbackValue) {
         this.commandValue = commandValue;
         this.statusFlags = statusFlags;
         this.feedbackValue = feedbackValue;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
-        writeEncodable(queue, commandValue, 0);
+    public void write(final ByteQueue queue) {
+        writeANY(queue, commandValue, 0);
         write(queue, statusFlags, 1);
-        writeEncodable(queue, feedbackValue, 2);
+        writeANY(queue, feedbackValue, 2);
     }
 
-    public CommandFailure(ByteQueue queue) throws BACnetException {
+    public CommandFailure(final ByteQueue queue) throws BACnetException {
         commandValue = new AmbiguousValue(queue, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         feedbackValue = new AmbiguousValue(queue, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public Encodable getCommandValue() {
@@ -83,14 +76,14 @@ public class CommandFailure extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((commandValue == null) ? 0 : commandValue.hashCode());
-        result = PRIME * result + ((feedbackValue == null) ? 0 : feedbackValue.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (commandValue == null ? 0 : commandValue.hashCode());
+        result = PRIME * result + (feedbackValue == null ? 0 : feedbackValue.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -101,20 +94,17 @@ public class CommandFailure extends NotificationParameters {
         if (commandValue == null) {
             if (other.commandValue != null)
                 return false;
-        }
-        else if (!commandValue.equals(other.commandValue))
+        } else if (!commandValue.equals(other.commandValue))
             return false;
         if (feedbackValue == null) {
             if (other.feedbackValue != null)
                 return false;
-        }
-        else if (!feedbackValue.equals(other.feedbackValue))
+        } else if (!feedbackValue.equals(other.feedbackValue))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

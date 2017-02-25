@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -34,16 +34,15 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PropertyReference extends BaseType {
-    private static final long serialVersionUID = 1375764258364665118L;
     private final PropertyIdentifier propertyIdentifier;
     private UnsignedInteger propertyArrayIndex;
 
-    public PropertyReference(PropertyIdentifier propertyIdentifier, UnsignedInteger propertyArrayIndex) {
+    public PropertyReference(final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex) {
         this.propertyIdentifier = propertyIdentifier;
         this.propertyArrayIndex = propertyArrayIndex;
     }
 
-    public PropertyReference(PropertyIdentifier propertyIdentifier) {
+    public PropertyReference(final PropertyIdentifier propertyIdentifier) {
         this.propertyIdentifier = propertyIdentifier;
     }
 
@@ -56,12 +55,12 @@ public class PropertyReference extends BaseType {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, propertyIdentifier, 0);
         writeOptional(queue, propertyArrayIndex, 1);
     }
 
-    public PropertyReference(ByteQueue queue) throws BACnetException {
+    public PropertyReference(final ByteQueue queue) throws BACnetException {
         propertyIdentifier = read(queue, PropertyIdentifier.class, 0);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 1);
     }
@@ -70,13 +69,13 @@ public class PropertyReference extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((propertyArrayIndex == null) ? 0 : propertyArrayIndex.hashCode());
-        result = PRIME * result + ((propertyIdentifier == null) ? 0 : propertyIdentifier.hashCode());
+        result = PRIME * result + (propertyArrayIndex == null ? 0 : propertyArrayIndex.hashCode());
+        result = PRIME * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -87,14 +86,12 @@ public class PropertyReference extends BaseType {
         if (propertyArrayIndex == null) {
             if (other.propertyArrayIndex != null)
                 return false;
-        }
-        else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
+        } else if (!propertyArrayIndex.equals(other.propertyArrayIndex))
             return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
-        }
-        else if (!propertyIdentifier.equals(other.propertyIdentifier))
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
             return false;
         return true;
     }

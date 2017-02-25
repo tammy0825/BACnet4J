@@ -561,6 +561,13 @@ public class ObjectProperties {
         add(ObjectType.analogInput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.analogInput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.analogInput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+
+        //        add(ObjectType.analogInput, PropertyIdentifier.interfaceValue, OptionalReal.class, false, false);
+        //        add(ObjectType.analogInput, PropertyIdentifier.faultHighLimit, Real.class, false, false);
+        //        add(ObjectType.analogInput, PropertyIdentifier.faultLowLimit, Real.class, false, false);
+        //        add(ObjectType.analogInput, PropertyIdentifier.tags, NameValue.class, true, false);
+        //        add(ObjectType.analogInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+
         add(ObjectType.analogInput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Analog output - 12.3

@@ -37,7 +37,6 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadAccessSpecification extends BaseType {
-    private static final long serialVersionUID = -9098153421380700655L;
     private final ObjectIdentifier objectIdentifier;
     private final SequenceOf<PropertyReference> listOfPropertyReferences;
 

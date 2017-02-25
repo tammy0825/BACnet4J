@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -38,13 +38,11 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtCloseRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -7857063472279095665L;
-
     public static final byte TYPE_ID = 22;
 
     private final SequenceOf<UnsignedInteger> listOfRemoteVTSessionIdentifiers;
 
-    public VtCloseRequest(SequenceOf<UnsignedInteger> listOfRemoteVTSessionIdentifiers) {
+    public VtCloseRequest(final SequenceOf<UnsignedInteger> listOfRemoteVTSessionIdentifiers) {
         this.listOfRemoteVTSessionIdentifiers = listOfRemoteVTSessionIdentifiers;
     }
 
@@ -54,16 +52,16 @@ public class VtCloseRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, listOfRemoteVTSessionIdentifiers);
     }
 
-    VtCloseRequest(ByteQueue queue) throws BACnetException {
+    VtCloseRequest(final ByteQueue queue) throws BACnetException {
         listOfRemoteVTSessionIdentifiers = readSequenceOf(queue, UnsignedInteger.class);
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
@@ -72,12 +70,12 @@ public class VtCloseRequest extends ConfirmedRequestService {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result
-                + ((listOfRemoteVTSessionIdentifiers == null) ? 0 : listOfRemoteVTSessionIdentifiers.hashCode());
+                + (listOfRemoteVTSessionIdentifiers == null ? 0 : listOfRemoteVTSessionIdentifiers.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -88,8 +86,7 @@ public class VtCloseRequest extends ConfirmedRequestService {
         if (listOfRemoteVTSessionIdentifiers == null) {
             if (other.listOfRemoteVTSessionIdentifiers != null)
                 return false;
-        }
-        else if (!listOfRemoteVTSessionIdentifiers.equals(other.listOfRemoteVTSessionIdentifiers))
+        } else if (!listOfRemoteVTSessionIdentifiers.equals(other.listOfRemoteVTSessionIdentifiers))
             return false;
         return true;
     }

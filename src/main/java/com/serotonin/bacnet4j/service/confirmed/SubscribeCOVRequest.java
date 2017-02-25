@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -41,8 +41,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SubscribeCOVRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -4264911944887357155L;
-
     public static final byte TYPE_ID = 5;
 
     private final UnsignedInteger subscriberProcessIdentifier;
@@ -50,8 +48,9 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     private final Boolean issueConfirmedNotifications;
     private final UnsignedInteger lifetime;
 
-    public SubscribeCOVRequest(UnsignedInteger subscriberProcessIdentifier, ObjectIdentifier monitoredObjectIdentifier,
-            Boolean issueConfirmedNotifications, UnsignedInteger lifetime) {
+    public SubscribeCOVRequest(final UnsignedInteger subscriberProcessIdentifier,
+            final ObjectIdentifier monitoredObjectIdentifier, final Boolean issueConfirmedNotifications,
+            final UnsignedInteger lifetime) {
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.monitoredObjectIdentifier = monitoredObjectIdentifier;
         this.issueConfirmedNotifications = issueConfirmedNotifications;
@@ -64,14 +63,14 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, subscriberProcessIdentifier, 0);
         write(queue, monitoredObjectIdentifier, 1);
         writeOptional(queue, issueConfirmedNotifications, 2);
         writeOptional(queue, lifetime, 3);
     }
 
-    SubscribeCOVRequest(ByteQueue queue) throws BACnetException {
+    SubscribeCOVRequest(final ByteQueue queue) throws BACnetException {
         subscriberProcessIdentifier = read(queue, UnsignedInteger.class, 0);
         monitoredObjectIdentifier = read(queue, ObjectIdentifier.class, 1);
         issueConfirmedNotifications = readOptional(queue, Boolean.class, 2);
@@ -79,17 +78,16 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         try {
-            BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
+            final BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
             if (issueConfirmedNotifications == null && lifetime == null)
                 obj.removeCovSubscription(from, subscriberProcessIdentifier);
             else
                 obj.addCovSubscription(from, subscriberProcessIdentifier, issueConfirmedNotifications, lifetime, null,
                         null);
             return null;
-        }
-        catch (BACnetServiceException e) {
+        } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
     }
@@ -98,15 +96,15 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((issueConfirmedNotifications == null) ? 0 : issueConfirmedNotifications.hashCode());
-        result = PRIME * result + ((lifetime == null) ? 0 : lifetime.hashCode());
-        result = PRIME * result + ((monitoredObjectIdentifier == null) ? 0 : monitoredObjectIdentifier.hashCode());
-        result = PRIME * result + ((subscriberProcessIdentifier == null) ? 0 : subscriberProcessIdentifier.hashCode());
+        result = PRIME * result + (issueConfirmedNotifications == null ? 0 : issueConfirmedNotifications.hashCode());
+        result = PRIME * result + (lifetime == null ? 0 : lifetime.hashCode());
+        result = PRIME * result + (monitoredObjectIdentifier == null ? 0 : monitoredObjectIdentifier.hashCode());
+        result = PRIME * result + (subscriberProcessIdentifier == null ? 0 : subscriberProcessIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -117,26 +115,22 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
         if (issueConfirmedNotifications == null) {
             if (other.issueConfirmedNotifications != null)
                 return false;
-        }
-        else if (!issueConfirmedNotifications.equals(other.issueConfirmedNotifications))
+        } else if (!issueConfirmedNotifications.equals(other.issueConfirmedNotifications))
             return false;
         if (lifetime == null) {
             if (other.lifetime != null)
                 return false;
-        }
-        else if (!lifetime.equals(other.lifetime))
+        } else if (!lifetime.equals(other.lifetime))
             return false;
         if (monitoredObjectIdentifier == null) {
             if (other.monitoredObjectIdentifier != null)
                 return false;
-        }
-        else if (!monitoredObjectIdentifier.equals(other.monitoredObjectIdentifier))
+        } else if (!monitoredObjectIdentifier.equals(other.monitoredObjectIdentifier))
             return false;
         if (subscriberProcessIdentifier == null) {
             if (other.subscriberProcessIdentifier != null)
                 return false;
-        }
-        else if (!subscriberProcessIdentifier.equals(other.subscriberProcessIdentifier))
+        } else if (!subscriberProcessIdentifier.equals(other.subscriberProcessIdentifier))
             return false;
         return true;
     }

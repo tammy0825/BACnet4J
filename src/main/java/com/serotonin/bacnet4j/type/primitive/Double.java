@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -32,13 +32,11 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Double extends Primitive {
-    private static final long serialVersionUID = -8758433354411016404L;
-
     public static final byte TYPE_ID = 5;
 
     private final double value;
 
-    public Double(double value) {
+    public Double(final double value) {
         this.value = value;
     }
 
@@ -49,13 +47,13 @@ public class Double extends Primitive {
     //
     // Reading and writing
     //
-    public Double(ByteQueue queue) {
+    public Double(final ByteQueue queue) {
         readTag(queue);
         value = java.lang.Double.longBitsToDouble(BACnetUtils.popLong(queue));
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         BACnetUtils.pushLong(queue, java.lang.Double.doubleToLongBits(value));
     }
 
@@ -75,12 +73,12 @@ public class Double extends Primitive {
         int result = 1;
         long temp;
         temp = java.lang.Double.doubleToLongBits(value);
-        result = PRIME * result + (int) (temp ^ (temp >>> 32));
+        result = PRIME * result + (int) (temp ^ temp >>> 32);
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

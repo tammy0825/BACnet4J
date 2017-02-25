@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -35,9 +35,7 @@ import com.serotonin.bacnet4j.type.enumerated.LifeSafetyOperation;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyState;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfLifeSafety extends NotificationParameters {
-    private static final long serialVersionUID = -3145779272869271053L;
-
+public class ChangeOfLifeSafety extends NotificationParameter {
     public static final byte TYPE_ID = 8;
 
     private final LifeSafetyState newState;
@@ -45,8 +43,8 @@ public class ChangeOfLifeSafety extends NotificationParameters {
     private final StatusFlags statusFlags;
     private final LifeSafetyOperation operationExpected;
 
-    public ChangeOfLifeSafety(LifeSafetyState newState, LifeSafetyMode newMode, StatusFlags statusFlags,
-            LifeSafetyOperation operationExpected) {
+    public ChangeOfLifeSafety(final LifeSafetyState newState, final LifeSafetyMode newMode,
+            final StatusFlags statusFlags, final LifeSafetyOperation operationExpected) {
         this.newState = newState;
         this.newMode = newMode;
         this.statusFlags = statusFlags;
@@ -54,23 +52,18 @@ public class ChangeOfLifeSafety extends NotificationParameters {
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, newState, 0);
         write(queue, statusFlags, 1);
         write(queue, newMode, 2);
         write(queue, operationExpected, 3);
     }
 
-    public ChangeOfLifeSafety(ByteQueue queue) throws BACnetException {
+    public ChangeOfLifeSafety(final ByteQueue queue) throws BACnetException {
         newState = read(queue, LifeSafetyState.class, 0);
         newMode = read(queue, LifeSafetyMode.class, 1);
         statusFlags = read(queue, StatusFlags.class, 2);
         operationExpected = read(queue, LifeSafetyOperation.class, 3);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public LifeSafetyState getNewState() {
@@ -93,15 +86,15 @@ public class ChangeOfLifeSafety extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((newMode == null) ? 0 : newMode.hashCode());
-        result = PRIME * result + ((newState == null) ? 0 : newState.hashCode());
-        result = PRIME * result + ((operationExpected == null) ? 0 : operationExpected.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (newMode == null ? 0 : newMode.hashCode());
+        result = PRIME * result + (newState == null ? 0 : newState.hashCode());
+        result = PRIME * result + (operationExpected == null ? 0 : operationExpected.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -112,26 +105,22 @@ public class ChangeOfLifeSafety extends NotificationParameters {
         if (newMode == null) {
             if (other.newMode != null)
                 return false;
-        }
-        else if (!newMode.equals(other.newMode))
+        } else if (!newMode.equals(other.newMode))
             return false;
         if (newState == null) {
             if (other.newState != null)
                 return false;
-        }
-        else if (!newState.equals(other.newState))
+        } else if (!newState.equals(other.newState))
             return false;
         if (operationExpected == null) {
             if (other.operationExpected != null)
                 return false;
-        }
-        else if (!operationExpected.equals(other.operationExpected))
+        } else if (!operationExpected.equals(other.operationExpected))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

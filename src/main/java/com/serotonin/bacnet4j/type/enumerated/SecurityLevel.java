@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SecurityLevel extends Enumerated {
-    private static final long serialVersionUID = 4872601808833629487L;
-
     public static final SecurityLevel incapable = new SecurityLevel(0);
     public static final SecurityLevel plain = new SecurityLevel(1);
     public static final SecurityLevel signed = new SecurityLevel(2);
@@ -41,19 +39,20 @@ public class SecurityLevel extends Enumerated {
     public static final SecurityLevel signedEndToEnd = new SecurityLevel(4);
     public static final SecurityLevel encryptedEndToEnd = new SecurityLevel(5);
 
-    public static final SecurityLevel[] ALL = { incapable, plain, signed, encrypted, signedEndToEnd, encryptedEndToEnd, };
+    public static final SecurityLevel[] ALL = { incapable, plain, signed, encrypted, signedEndToEnd,
+            encryptedEndToEnd, };
 
-    public SecurityLevel(int value) {
+    public SecurityLevel(final int value) {
         super(value);
     }
 
-    public SecurityLevel(ByteQueue queue) {
+    public SecurityLevel(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == incapable.intValue())
             return "incapable";
         if (type == plain.intValue())

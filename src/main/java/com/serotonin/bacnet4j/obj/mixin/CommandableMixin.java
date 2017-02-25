@@ -220,7 +220,7 @@ public class CommandableMixin extends AbstractMixin {
         // Update the present value.
         PriorityValue topValue = null;
         for (final PriorityValue priv : priorityArray) {
-            if (!priv.isNull()) {
+            if (!priv.isa(Null.class)) {
                 topValue = priv;
                 break;
             }

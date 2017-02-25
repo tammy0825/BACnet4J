@@ -28,15 +28,12 @@
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.NPCI.NetworkPriority;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.enumerated.MessagePriority;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -44,25 +41,22 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = 1555323189158421374L;
-
     public static final byte TYPE_ID = 5;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(UnsignedInteger.class);
-        classes.add(CharacterString.class);
+        choiceOptions.addContextual(0, UnsignedInteger.class);
+        choiceOptions.addContextual(1, CharacterString.class);
     }
     private final ObjectIdentifier textMessageSourceDevice;
-    private Choice messageClass;
+    private final Choice messageClass;
     private final MessagePriority messagePriority;
     private final CharacterString message;
 
     public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
             final UnsignedInteger messageClass, final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
-        this.messageClass = new Choice(0, messageClass);
+        this.messageClass = new Choice(0, messageClass, choiceOptions);
         this.messagePriority = messagePriority;
         this.message = message;
     }
@@ -70,7 +64,7 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
     public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
             final CharacterString messageClass, final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
-        this.messageClass = new Choice(0, messageClass);
+        this.messageClass = new Choice(1, messageClass, choiceOptions);
         this.messagePriority = messagePriority;
         this.message = message;
     }
@@ -78,6 +72,7 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
     public UnconfirmedTextMessageRequest(final ObjectIdentifier textMessageSourceDevice,
             final MessagePriority messagePriority, final CharacterString message) {
         this.textMessageSourceDevice = textMessageSourceDevice;
+        this.messageClass = null;
         this.messagePriority = messagePriority;
         this.message = message;
     }
@@ -108,8 +103,7 @@ public class UnconfirmedTextMessageRequest extends UnconfirmedRequestService {
 
     UnconfirmedTextMessageRequest(final ByteQueue queue) throws BACnetException {
         textMessageSourceDevice = read(queue, ObjectIdentifier.class, 0);
-        if (readStart(queue) == 1)
-            messageClass = new Choice(queue, classes);
+        messageClass = readOptionalChoice(queue, choiceOptions, 1);
         messagePriority = read(queue, MessagePriority.class, 2);
         message = read(queue, CharacterString.class, 3);
     }

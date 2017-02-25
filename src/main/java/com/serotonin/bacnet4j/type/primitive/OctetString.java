@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.primitive;
@@ -35,13 +35,11 @@ import com.serotonin.bacnet4j.util.sero.ArrayUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class OctetString extends Primitive {
-    private static final long serialVersionUID = -3557657941142811228L;
-
     public static final byte TYPE_ID = 6;
 
     private final byte[] value;
 
-    public OctetString(byte[] value) {
+    public OctetString(final byte[] value) {
         this.value = value;
     }
 
@@ -52,14 +50,14 @@ public class OctetString extends Primitive {
     //
     // Reading and writing
     //
-    public OctetString(ByteQueue queue) {
-        int length = (int) readTag(queue);
+    public OctetString(final ByteQueue queue) {
+        final int length = (int) readTag(queue);
         value = new byte[length];
         queue.pop(value);
     }
 
     @Override
-    public void writeImpl(ByteQueue queue) {
+    public void writeImpl(final ByteQueue queue) {
         queue.push(value);
     }
 
@@ -82,7 +80,7 @@ public class OctetString extends Primitive {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

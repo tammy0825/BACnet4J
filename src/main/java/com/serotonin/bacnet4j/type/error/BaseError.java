@@ -30,103 +30,67 @@ package com.serotonin.bacnet4j.type.error;
 
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class BaseError extends BaseType {
-    private static final long serialVersionUID = 8363160647986011176L;
-
-    public static BaseError createBaseError(final ByteQueue queue) throws BACnetException {
-        final byte choice = queue.pop();
-
+abstract public class BaseError extends BaseType {
+    public static BaseError createBaseError(final int choice, final ByteQueue queue) throws BACnetException {
         try {
             queue.mark();
             switch (choice) {
             case 8:
             case 9:
-                return new ChangeListError(choice, queue);
+                return new ChangeListError(queue);
             case 10:
-                return new CreateObjectError(choice, queue);
+                return new CreateObjectError(queue);
             case 16:
-                return new WritePropertyMultipleError(choice, queue);
+                return new WritePropertyMultipleError(queue);
             case 18:
-                return new ConfirmedPrivateTransferError(choice, queue);
+                return new ConfirmedPrivateTransferError(queue);
             case 22:
-                return new VTCloseError(choice, queue);
+                return new VTCloseError(queue);
+            case 30:
+                return new SubscribeCovPropertyMultipleError(queue);
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 11:
+            case 12:
+            case 14:
+            case 15:
+            case 17:
+            case 19:
+            case 20:
+            case 21:
+            case 23:
+            case 26:
+            case 27:
+            case 28:
+            case 29:
+            case 31:
+            case 127:
+                return new ErrorClassAndCode(queue);
             default:
+                throw new BACnetException("Could not map error choice to class: " + choice);
             }
         } catch (final BACnetErrorException e) {
-            // Some devices do not send properly formatted error. In case of error, try just parsing as a BaseError.
-            if (e.getError().getError().getErrorClass().isOneOf(ErrorClass.property)
-                    && e.getError().getError().getErrorCode().isOneOf(ErrorCode.missingRequiredParameter))
+            // Some devices do not send a properly formatted error. In case of error, try just parsing as a BaseError.
+            if (e.getBacnetError().getError().getErrorClassAndCode().getErrorClass().isOneOf(ErrorClass.property)
+                    && e.getBacnetError().getError().getErrorClassAndCode().getErrorCode()
+                            .isOneOf(ErrorCode.missingRequiredParameter)) {
                 queue.reset();
-            else
-                throw e;
+                return new ErrorClassAndCode(queue);
+            }
+            throw e;
         }
-        return new BaseError(choice, queue);
     }
 
-    protected byte choice;
-    protected BACnetError error;
-
-    public BaseError(final byte choice, final BACnetError error) {
-        this.choice = choice;
-        this.error = error;
-    }
-
-    @Override
-    public void write(final ByteQueue queue) {
-        queue.push(choice);
-        write(queue, error);
-    }
-
-    public BaseError(final byte choice, final ByteQueue queue) throws BACnetException {
-        this.choice = choice;
-        error = read(queue, BACnetError.class);
-    }
-
-    public BaseError(final byte choice, final ByteQueue queue, final int contextId) throws BACnetException {
-        this.choice = choice;
-        error = read(queue, BACnetError.class, contextId);
-    }
-
-    @Override
-    public String toString() {
-        return "choice=" + (choice & 0xff) + ", " + error;
-    }
-
-    public BACnetError getError() {
-        return error;
-    }
-
-    @Override
-    public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + choice;
-        result = PRIME * result + (error == null ? 0 : error.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final BaseError other = (BaseError) obj;
-        if (choice != other.choice)
-            return false;
-        if (error == null) {
-            if (other.error != null)
-                return false;
-        } else if (!error.equals(other.error))
-            return false;
-        return true;
-    }
+    abstract public ErrorClassAndCode getErrorClassAndCode();
 }

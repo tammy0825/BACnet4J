@@ -34,8 +34,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class GroupChannelValue extends BaseType {
-    private static final long serialVersionUID = 7883669863981626367L;
-
     private final Unsigned16 channel; // 0
     private final UnsignedInteger overridingPriority; // 1 optional
     private final ChannelValue value; //

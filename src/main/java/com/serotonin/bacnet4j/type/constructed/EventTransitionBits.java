@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -33,17 +33,15 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class EventTransitionBits extends BitString {
-    private static final long serialVersionUID = 7904969709288399573L;
-
-    public EventTransitionBits(boolean toOffnormal, boolean toFault, boolean toNormal) {
+    public EventTransitionBits(final boolean toOffnormal, final boolean toFault, final boolean toNormal) {
         super(new boolean[] { toOffnormal, toFault, toNormal });
     }
 
-    public EventTransitionBits(ByteQueue queue) {
+    public EventTransitionBits(final ByteQueue queue) {
         super(queue);
     }
 
-    public EventTransitionBits(EventTransitionBits that) {
+    public EventTransitionBits(final EventTransitionBits that) {
         super(that);
     }
 
@@ -59,7 +57,7 @@ public class EventTransitionBits extends BitString {
         return getValue()[2];
     }
 
-    public boolean contains(EventState toState) {
+    public boolean contains(final EventState toState) {
         return getValue(toState.getTransitionIndex());
     }
 }

@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ErrorCode extends Enumerated {
-    private static final long serialVersionUID = -6627023845995429296L;
-
     public static final ErrorCode other = new ErrorCode(0);
     public static final ErrorCode configurationInProgress = new ErrorCode(2);
     public static final ErrorCode deviceBusy = new ErrorCode(3);
@@ -165,6 +163,8 @@ public class ErrorCode extends Enumerated {
     public static final ErrorCode valueTooLong = new ErrorCode(134);
     public static final ErrorCode abortInsufficientSecurity = new ErrorCode(135);
     public static final ErrorCode abortSecurityError = new ErrorCode(136);
+    public static final ErrorCode duplicateEntry = new ErrorCode(137);
+    public static final ErrorCode invalidValueInThisState = new ErrorCode(138);
 
     public static final ErrorCode[] ALL = { other, configurationInProgress, deviceBusy, dynamicCreationNotSupported,
             fileAccessDenied, inconsistentParameters, inconsistentSelectionCriterion, invalidDataType,
@@ -193,7 +193,7 @@ public class ErrorCode extends Enumerated {
             readFdtFailed, deleteFdtEntryFailed, distributeBroadcastFailed, unknownFileSize, abortApduTooLong,
             abortApplicationExceededReplyTime, abortOutOfResources, abortTsmTimeout, abortWindowSizeOutOfRange,
             fileFull, inconsistentConfiguration, inconsistentObjectType, internalError, notConfigured, outOfMemory,
-            valueTooLong, abortInsufficientSecurity, abortSecurityError, };
+            valueTooLong, abortInsufficientSecurity, abortSecurityError, duplicateEntry, invalidValueInThisState, };
 
     public ErrorCode(final int value) {
         super(value);
@@ -468,6 +468,11 @@ public class ErrorCode extends Enumerated {
             return "abortInsufficientSecurity";
         if (type == abortSecurityError.intValue())
             return "abortSecurityError";
+        if (type == duplicateEntry.intValue())
+            return "duplicateEntry";
+        if (type == invalidValueInThisState.intValue())
+            return "invalidValueInThisState";
+
         return "Unknown: " + type;
     }
 }

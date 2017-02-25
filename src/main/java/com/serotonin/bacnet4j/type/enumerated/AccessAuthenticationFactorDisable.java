@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessAuthenticationFactorDisable extends Enumerated {
-    private static final long serialVersionUID = 3409339570414164518L;
-
     public static final AccessAuthenticationFactorDisable none = new AccessAuthenticationFactorDisable(0);
     public static final AccessAuthenticationFactorDisable disabled = new AccessAuthenticationFactorDisable(1);
     public static final AccessAuthenticationFactorDisable disabledLost = new AccessAuthenticationFactorDisable(2);
@@ -44,17 +42,17 @@ public class AccessAuthenticationFactorDisable extends Enumerated {
     public static final AccessAuthenticationFactorDisable[] ALL = { none, disabled, disabledLost, disabledStolen,
             disabledDamaged, disabledDestroyed };
 
-    public AccessAuthenticationFactorDisable(int value) {
+    public AccessAuthenticationFactorDisable(final int value) {
         super(value);
     }
 
-    public AccessAuthenticationFactorDisable(ByteQueue queue) {
+    public AccessAuthenticationFactorDisable(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == none.intValue())
             return "none";
         if (type == disabled.intValue())

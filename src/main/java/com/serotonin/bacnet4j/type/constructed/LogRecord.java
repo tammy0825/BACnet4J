@@ -28,11 +28,9 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
@@ -43,21 +41,19 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LogRecord extends BaseType {
-    private static final long serialVersionUID = -158114439196293884L;
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(LogStatus.class);
-        classes.add(Boolean.class);
-        classes.add(Real.class);
-        classes.add(Enumerated.class);
-        classes.add(UnsignedInteger.class);
-        classes.add(SignedInteger.class);
-        classes.add(BitString.class);
-        classes.add(Null.class);
-        classes.add(BACnetError.class);
-        classes.add(Real.class);
-        classes.add(Encodable.class);
+        choiceOptions.addContextual(0, LogStatus.class);
+        choiceOptions.addContextual(1, Boolean.class);
+        choiceOptions.addContextual(2, Real.class);
+        choiceOptions.addContextual(3, Enumerated.class);
+        choiceOptions.addContextual(4, UnsignedInteger.class);
+        choiceOptions.addContextual(5, SignedInteger.class);
+        choiceOptions.addContextual(6, BitString.class);
+        choiceOptions.addContextual(7, Null.class);
+        choiceOptions.addContextual(8, ErrorClassAndCode.class);
+        choiceOptions.addContextual(9, Real.class);
+        choiceOptions.addContextual(10, Encodable.class);
     }
 
     private final DateTime timestamp;
@@ -71,53 +67,53 @@ public class LogRecord extends BaseType {
 
     public LogRecord(final DateTime timestamp, final LogStatus datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(0, datum);
+        choice = new Choice(0, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final Boolean datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(1, datum);
+        choice = new Choice(1, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final boolean timeChange, final Real datum,
             final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(timeChange ? 9 : 2, datum);
+        choice = new Choice(timeChange ? 9 : 2, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final Enumerated datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(3, datum);
+        choice = new Choice(3, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final UnsignedInteger datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(4, datum);
+        choice = new Choice(4, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final SignedInteger datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(5, datum);
+        choice = new Choice(5, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final BitString datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(6, datum);
+        choice = new Choice(6, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final Null datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(7, datum);
+        choice = new Choice(7, datum, choiceOptions);
     }
 
-    public LogRecord(final DateTime timestamp, final BACnetError datum, final StatusFlags statusFlags) {
+    public LogRecord(final DateTime timestamp, final ErrorClassAndCode datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(8, datum);
+        choice = new Choice(8, datum, choiceOptions);
     }
 
     public LogRecord(final DateTime timestamp, final Encodable datum, final StatusFlags statusFlags) {
         this(timestamp, statusFlags);
-        choice = new Choice(10, datum);
+        choice = new Choice(10, datum, choiceOptions);
     }
 
     @Override
@@ -171,21 +167,17 @@ public class LogRecord extends BaseType {
         return (Null) choice.getDatum();
     }
 
-    public BACnetError getBACnetError() {
-        return (BACnetError) choice.getDatum();
+    public ErrorClassAndCode getBACnetError() {
+        return (ErrorClassAndCode) choice.getDatum();
     }
 
     public Encodable getEncodable() {
         return choice.getDatum();
     }
 
-    public int getChoiceType() {
-        return choice.getContextId();
-    }
-
     public LogRecord(final ByteQueue queue) throws BACnetException {
         timestamp = read(queue, DateTime.class, 0);
-        choice = new Choice(queue, classes, 1);
+        choice = new Choice(queue, choiceOptions, 1);
         statusFlags = readOptional(queue, StatusFlags.class, 2);
     }
 

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -35,38 +35,31 @@ import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfReliability extends NotificationParameters {
-    private static final long serialVersionUID = 5709169262769859118L;
-
+public class ChangeOfReliability extends NotificationParameter {
     public static final byte TYPE_ID = 19;
 
     private final Reliability reliability;
     private final StatusFlags statusFlags;
     private final SequenceOf<PropertyValue> propertyValues;
 
-    public ChangeOfReliability(Reliability reliability, StatusFlags statusFlags,
-            SequenceOf<PropertyValue> propertyValues) {
+    public ChangeOfReliability(final Reliability reliability, final StatusFlags statusFlags,
+            final SequenceOf<PropertyValue> propertyValues) {
         this.reliability = reliability;
         this.statusFlags = statusFlags;
         this.propertyValues = propertyValues;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, reliability, 0);
         write(queue, statusFlags, 1);
         write(queue, propertyValues, 2);
     }
 
-    public ChangeOfReliability(ByteQueue queue) throws BACnetException {
+    public ChangeOfReliability(final ByteQueue queue) throws BACnetException {
         reliability = read(queue, Reliability.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         propertyValues = readSequenceOf(queue, PropertyValue.class, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public Reliability getReliability() {
@@ -91,38 +84,35 @@ public class ChangeOfReliability extends NotificationParameters {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((propertyValues == null) ? 0 : propertyValues.hashCode());
-        result = prime * result + ((reliability == null) ? 0 : reliability.hashCode());
-        result = prime * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = prime * result + (propertyValues == null ? 0 : propertyValues.hashCode());
+        result = prime * result + (reliability == null ? 0 : reliability.hashCode());
+        result = prime * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfReliability other = (ChangeOfReliability) obj;
+        final ChangeOfReliability other = (ChangeOfReliability) obj;
         if (propertyValues == null) {
             if (other.propertyValues != null)
                 return false;
-        }
-        else if (!propertyValues.equals(other.propertyValues))
+        } else if (!propertyValues.equals(other.propertyValues))
             return false;
         if (reliability == null) {
             if (other.reliability != null)
                 return false;
-        }
-        else if (!reliability.equals(other.reliability))
+        } else if (!reliability.equals(other.reliability))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

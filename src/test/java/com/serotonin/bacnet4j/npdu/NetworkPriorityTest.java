@@ -24,6 +24,7 @@ import com.serotonin.bacnet4j.type.enumerated.MessagePriority;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfBitString;
+import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
@@ -67,8 +68,9 @@ public class NetworkPriorityTest {
                 new TimeStamp(new DateTime()), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
-                new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
-                        new StatusFlags(true, false, false, false)));
+                new NotificationParameters(
+                        new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
+                                new StatusFlags(true, false, false, false))));
         final ConfirmedRequest apdu = new ConfirmedRequest(false, false, true, MaxSegments.MORE_THAN_64,
                 MaxApduLength.UP_TO_1476, (byte) 45, 0, 5, req);
         return getNetworkPriority(apdu);
@@ -80,8 +82,9 @@ public class NetworkPriorityTest {
                 new TimeStamp(new DateTime()), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
-                new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
-                        new StatusFlags(true, false, false, false)));
+                new NotificationParameters(
+                        new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
+                                new StatusFlags(true, false, false, false))));
 
         final UnconfirmedRequest apdu = new UnconfirmedRequest(req);
 

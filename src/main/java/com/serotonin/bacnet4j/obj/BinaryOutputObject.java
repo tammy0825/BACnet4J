@@ -1,14 +1,16 @@
 /*
- * ================================import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
-import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.type.constructed.StatusFlags;
-import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
-import com.serotonin.bacnet4j.type.enumerated.EventState;
-import com.serotonin.bacnet4j.type.enumerated.ObjectType;
-import com.serotonin.bacnet4j.type.enumerated.Polarity;
-import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
-e that it will be useful,
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -21,7 +23,7 @@ e that it will be useful,
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
@@ -39,13 +41,13 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 public class BinaryOutputObject extends BACnetObject {
     private static final long serialVersionUID = 8595160980372725336L;
 
-    public BinaryOutputObject(int instanceNumber, String name, BinaryPV presentValue, boolean outOfService,
-            Polarity polarity, BinaryPV relinquishDefault) {
+    public BinaryOutputObject(final int instanceNumber, final String name, final BinaryPV presentValue,
+            final boolean outOfService, final Polarity polarity, final BinaryPV relinquishDefault) {
         super(ObjectType.binaryOutput, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyInternal(PropertyIdentifier.outOfService, new com.serotonin.bacnet4j.type.primitive.Boolean(
-                outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService,
+                new com.serotonin.bacnet4j.type.primitive.Boolean(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins

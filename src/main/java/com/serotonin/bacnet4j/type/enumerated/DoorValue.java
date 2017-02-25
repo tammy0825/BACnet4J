@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * @author Matthew Lohbihler
  */
 public class DoorValue extends Enumerated {
-    private static final long serialVersionUID = -2200245400075159155L;
     public static final DoorValue lock = new DoorValue(0);
     public static final DoorValue unlock = new DoorValue(1);
     public static final DoorValue pulseUnlock = new DoorValue(2);

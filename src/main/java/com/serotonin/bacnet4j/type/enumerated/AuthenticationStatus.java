@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AuthenticationStatus extends Enumerated {
-    private static final long serialVersionUID = -9153277407804672743L;
-
     public static final AuthenticationStatus notReady = new AuthenticationStatus(0);
     public static final AuthenticationStatus ready = new AuthenticationStatus(1);
     public static final AuthenticationStatus disabled = new AuthenticationStatus(2);
@@ -45,17 +43,17 @@ public class AuthenticationStatus extends Enumerated {
     public static final AuthenticationStatus[] ALL = { notReady, ready, disabled, waitingForAuthenticationFactor,
             waitingForAccompaniment, waitingForVerification, inProgress, };
 
-    public AuthenticationStatus(int value) {
+    public AuthenticationStatus(final int value) {
         super(value);
     }
 
-    public AuthenticationStatus(ByteQueue queue) {
+    public AuthenticationStatus(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == notReady.intValue())
             return "notReady";
         if (type == ready.intValue())

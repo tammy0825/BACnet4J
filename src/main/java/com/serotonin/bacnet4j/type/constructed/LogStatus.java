@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LogStatus extends BitString {
-    private static final long serialVersionUID = 2623926749486653669L;
-
     public LogStatus(final boolean logDisabled, final boolean bufferPurged, final boolean logInterrupted) {
         super(new boolean[] { logDisabled, bufferPurged, logInterrupted });
     }

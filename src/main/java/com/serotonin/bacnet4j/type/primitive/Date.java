@@ -38,8 +38,6 @@ import com.serotonin.bacnet4j.type.DateMatchable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Date extends Primitive implements Comparable<Date>, DateMatchable {
-    private static final long serialVersionUID = -5981590660136837990L;
-
     public static final Date MINIMUM_DATE = new Date(0, Month.JANUARY, 1, null);
     public static final Date MAXIMUM_DATE = new Date(254, Month.DECEMBER, 31, null);
 

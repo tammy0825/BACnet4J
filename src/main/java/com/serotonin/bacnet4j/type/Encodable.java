@@ -28,9 +28,10 @@
  */
 package com.serotonin.bacnet4j.type;
 
-import java.io.Serializable;
+import static com.serotonin.bacnet4j.util.BACnetUtils.toInt;
+import static com.serotonin.bacnet4j.util.BACnetUtils.toLong;
+
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Map;
 
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
@@ -42,6 +43,7 @@ import com.serotonin.bacnet4j.obj.PropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
@@ -49,16 +51,12 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.RejectReason;
-import com.serotonin.bacnet4j.type.eventParameter.EventParameter;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
-import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-abstract public class Encodable implements Serializable {
-    private static final long serialVersionUID = -4378016931626697698L;
-
+abstract public class Encodable {
     abstract public void write(ByteQueue queue);
 
     abstract public void write(ByteQueue queue, int contextId);
@@ -77,26 +75,29 @@ abstract public class Encodable implements Serializable {
         int peekIndex = 0;
         final byte b = queue.peek(peekIndex++);
         tagData.tagNumber = (b & 0xff) >> 4;
-        tagData.contextSpecific = (b & 8) != 0;
+        tagData.contextSpecific = (b & 8) == 8;
         tagData.length = b & 7;
 
         if (tagData.tagNumber == 0xf)
             // Extended tag.
-            tagData.tagNumber = BACnetUtils.toInt(queue.peek(peekIndex++));
+            tagData.tagNumber = toInt(queue.peek(peekIndex++));
 
         if (tagData.length == 5) {
-            tagData.length = BACnetUtils.toInt(queue.peek(peekIndex++));
+            tagData.length = toInt(queue.peek(peekIndex++));
             if (tagData.length == 254)
-                tagData.length = BACnetUtils.toInt(queue.peek(peekIndex++)) << 8
-                        | BACnetUtils.toInt(queue.peek(peekIndex++));
+                tagData.length = toInt(queue.peek(peekIndex++)) << 8 | toInt(queue.peek(peekIndex++));
             else if (tagData.length == 255)
-                tagData.length = BACnetUtils.toLong(queue.peek(peekIndex++)) << 24
-                        | BACnetUtils.toLong(queue.peek(peekIndex++)) << 16
-                        | BACnetUtils.toLong(queue.peek(peekIndex++)) << 8
-                        | BACnetUtils.toLong(queue.peek(peekIndex++));
+                tagData.length = toLong(queue.peek(peekIndex++)) << 24 | toLong(queue.peek(peekIndex++)) << 16
+                        | toLong(queue.peek(peekIndex++)) << 8 | toLong(queue.peek(peekIndex++));
         }
 
         tagData.tagLength = peekIndex;
+    }
+
+    protected static boolean isContextTag(final ByteQueue queue) {
+        if (queue.size() == 0)
+            return false;
+        return (queue.peek(0) & 8) == 8;
     }
 
     protected static int peekTagNumber(final ByteQueue queue) {
@@ -104,15 +105,18 @@ abstract public class Encodable implements Serializable {
             return -1;
 
         // Take a peek at the tag number.
-        int tagNumber = (queue.peek(0) & 0xff) >> 4;
+        int tagNumber = toInt(queue.peek(0)) >> 4;
         if (tagNumber == 15)
-            tagNumber = queue.peek(1) & 0xff;
+            tagNumber = toInt(queue.peek(1));
         return tagNumber;
     }
 
     //
     // Write context tags for base types.
     protected void writeContextTag(final ByteQueue queue, final int contextId, final boolean start) {
+        if (contextId < 0 || contextId > 254)
+            throw new RuntimeException("Invalid context id: " + contextId);
+
         if (contextId <= 14)
             queue.push(contextId << 4 | (start ? 0xe : 0xf));
         else {
@@ -127,11 +131,11 @@ abstract public class Encodable implements Serializable {
         if (queue.size() == 0)
             return -1;
 
-        final int b = queue.peek(0) & 0xff;
+        final int b = toInt(queue.peek(0));
         if ((b & 0xf) != 0xe)
             return -1;
         if ((b & 0xf0) == 0xf0)
-            return queue.peek(1);
+            return toInt(queue.peek(1));
         return b >> 4;
     }
 
@@ -155,11 +159,11 @@ abstract public class Encodable implements Serializable {
     protected static int readEnd(final ByteQueue queue) {
         if (queue.size() == 0)
             return -1;
-        final int b = queue.peek(0) & 0xff;
+        final int b = toInt(queue.peek(0));
         if ((b & 0xf) != 0xf)
             return -1;
         if ((b & 0xf0) == 0xf0)
-            return queue.peek(1);
+            return toInt(queue.peek(1));
         return b >> 4;
     }
 
@@ -188,22 +192,20 @@ abstract public class Encodable implements Serializable {
     }
 
     //
-    // Basic read and write. Pretty trivial.
-    protected static void write(final ByteQueue queue, final Encodable type) {
-        type.write(queue);
-    }
+    // Reading
+    //
 
     @SuppressWarnings("unchecked")
-    protected static <T extends Encodable> T read(final ByteQueue queue, final Class<T> clazz) throws BACnetException {
+    public static <T extends Encodable> T read(final ByteQueue queue, final Class<T> clazz) throws BACnetException {
         if (clazz == Primitive.class)
             return (T) Primitive.createPrimitive(queue);
 
         try {
             return clazz.getConstructor(new Class[] { ByteQueue.class }).newInstance(new Object[] { queue });
         } catch (final NoSuchMethodException e) {
-            // Check if this is an EventParameter
-            if (clazz == EventParameter.class)
-                return (T) EventParameter.createEventParameter(queue);
+            //            // Check if this is an EventParameter
+            //            if (clazz == EventParameter.class)
+            //                return (T) EventParameter.createEventParameter(queue);
             throw new BACnetException(e);
         } catch (final InvocationTargetException e) {
             // Check if there is a wrapped BACnet exception
@@ -217,32 +219,15 @@ abstract public class Encodable implements Serializable {
 
     //
     // Read and write with context id.
-    protected static <T extends Encodable> T read(final ByteQueue queue, final Class<T> clazz, final int contextId)
+    public static <T extends Encodable> T read(final ByteQueue queue, final Class<T> clazz, final int contextId)
             throws BACnetException {
         if (!matchNonEndTag(queue, contextId))
             throw new BACnetErrorException(ErrorClass.property, ErrorCode.missingRequiredParameter);
 
-        if (Primitive.class.isAssignableFrom(clazz))
+        if (Primitive.class.isAssignableFrom(clazz)) {
             return read(queue, clazz);
+        }
         return readWrapped(queue, clazz, contextId);
-    }
-
-    protected static void write(final ByteQueue queue, final Encodable type, final int contextId) {
-        type.write(queue, contextId);
-    }
-
-    //
-    // Optional read and write.
-    protected static void writeOptional(final ByteQueue queue, final Encodable type) {
-        if (type == null)
-            return;
-        write(queue, type);
-    }
-
-    protected static void writeOptional(final ByteQueue queue, final Encodable type, final int contextId) {
-        if (type == null)
-            return;
-        write(queue, type, contextId);
     }
 
     protected static <T extends Encodable> T readOptional(final ByteQueue queue, final Class<T> clazz,
@@ -250,6 +235,37 @@ abstract public class Encodable implements Serializable {
         if (!matchNonEndTag(queue, contextId))
             return null;
         return read(queue, clazz, contextId);
+    }
+
+    //
+    // Read choices
+    protected static Choice readChoice(final ByteQueue queue, final ChoiceOptions choiceOptions)
+            throws BACnetException {
+        return new Choice(queue, choiceOptions);
+    }
+
+    protected static Choice readChoice(final ByteQueue queue, final ChoiceOptions choiceOptions, final int contextId)
+            throws BACnetException {
+        popStart(queue, contextId);
+        try {
+            return readChoice(queue, choiceOptions);
+        } finally {
+            popEnd(queue, 0);
+        }
+    }
+
+    protected static Choice readOptionalChoice(final ByteQueue queue, final ChoiceOptions choiceOptions)
+            throws BACnetException {
+        if (peekTagNumber(queue) == -1)
+            return null;
+        return readChoice(queue, choiceOptions);
+    }
+
+    protected static Choice readOptionalChoice(final ByteQueue queue, final ChoiceOptions choiceOptions,
+            final int contextId) throws BACnetException {
+        if (!matchNonEndTag(queue, contextId))
+            return null;
+        return readChoice(queue, choiceOptions);
     }
 
     //
@@ -286,12 +302,12 @@ abstract public class Encodable implements Serializable {
         return result;
     }
 
-    protected static SequenceOf<Choice> readSequenceOfChoice(final ByteQueue queue,
-            final List<Class<? extends Encodable>> classes, final int contextId) throws BACnetException {
+    protected static SequenceOf<Choice> readSequenceOfChoice(final ByteQueue queue, final ChoiceOptions choiceOptions,
+            final int contextId) throws BACnetException {
         popStart(queue, contextId);
         final SequenceOf<Choice> result = new SequenceOf<>();
         while (readEnd(queue) != contextId)
-            result.add(new Choice(queue, classes));
+            result.add(new Choice(queue, choiceOptions));
         popEnd(queue, contextId);
         return result;
     }
@@ -311,15 +327,7 @@ abstract public class Encodable implements Serializable {
         return result;
     }
 
-    // Read and write encodable
-    protected static void writeEncodable(final ByteQueue queue, final Encodable type, final int contextId) {
-        if (Primitive.class.isAssignableFrom(type.getClass()))
-            ((Primitive) type).writeEncodable(queue, contextId);
-        else
-            type.write(queue, contextId);
-    }
-
-    protected static Encodable readEncodable(final ByteQueue queue, final ObjectType objectType,
+    protected static Encodable readANY(final ByteQueue queue, final ObjectType objectType,
             final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex, final int contextId)
             throws BACnetException {
         // A property array index of 0 indicates a request for the length of an array.
@@ -359,14 +367,14 @@ abstract public class Encodable implements Serializable {
         return readWrapped(queue, def.getClazz(), contextId);
     }
 
-    protected static Encodable readOptionalEncodable(final ByteQueue queue, final ObjectType objectType,
+    protected static Encodable readOptionalANY(final ByteQueue queue, final ObjectType objectType,
             final PropertyIdentifier propertyIdentifier, final int contextId) throws BACnetException {
         if (readStart(queue) != contextId)
             return null;
-        return readEncodable(queue, objectType, propertyIdentifier, null, contextId);
+        return readANY(queue, objectType, propertyIdentifier, null, contextId);
     }
 
-    protected static SequenceOf<? extends Encodable> readSequenceOfEncodable(final ByteQueue queue,
+    protected static SequenceOf<? extends Encodable> readSequenceOfANY(final ByteQueue queue,
             final ObjectType objectType, final PropertyIdentifier propertyIdentifier, final int contextId)
             throws BACnetException {
         final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectType, propertyIdentifier);
@@ -396,5 +404,39 @@ abstract public class Encodable implements Serializable {
         final T result = read(queue, clazz);
         popEnd(queue, contextId);
         return result;
+    }
+
+    //
+    // Writing
+    //
+
+    public static void write(final ByteQueue queue, final Encodable type) {
+        type.write(queue);
+    }
+
+    public static void write(final ByteQueue queue, final Encodable type, final int contextId) {
+        type.write(queue, contextId);
+    }
+
+    //
+    // Optional read and write.
+    protected static void writeOptional(final ByteQueue queue, final Encodable type) {
+        if (type == null)
+            return;
+        write(queue, type);
+    }
+
+    protected static void writeOptional(final ByteQueue queue, final Encodable type, final int contextId) {
+        if (type == null)
+            return;
+        write(queue, type, contextId);
+    }
+
+    // Read and write encodable
+    protected static void writeANY(final ByteQueue queue, final Encodable type, final int contextId) {
+        if (Primitive.class.isAssignableFrom(type.getClass()))
+            ((Primitive) type).writeWithContextTag(queue, contextId);
+        else
+            type.write(queue, contextId);
     }
 }

@@ -23,35 +23,40 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.error.BACnetError;
 import com.serotonin.bacnet4j.type.error.BaseError;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 /**
  * The BACnet-Error-PDU is used to convey the information contained in a service response primitive ('Result(-)') that
  * indicates the reason why a previous confirmed service request failed in its entirety.
- * 
+ *
  * @author mlohbihler
  */
 public class Error extends AckAPDU {
-    private static final long serialVersionUID = 1062847933272895140L;
-
     public static final byte TYPE_ID = 5;
 
+    private final int errorChoice;
     /**
      * This parameter, of type BACnet-Error, indicates the reason the indicated service request could not be carried
      * out. This parameter shall be encoded according to the rules of 20.2.
      */
     private final BaseError error;
 
-    public Error(byte originalInvokeId, BaseError error) {
+    public Error(final byte originalInvokeId, final int errorChoice, final BaseError error) {
         this.originalInvokeId = originalInvokeId;
+        this.errorChoice = errorChoice;
         this.error = error;
+    }
+
+    public Error(final byte originalInvokeId, final BACnetError bacnetError) {
+        this(originalInvokeId, bacnetError.getChoice(), bacnetError.getError());
     }
 
     @Override
@@ -60,16 +65,18 @@ public class Error extends AckAPDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID));
         queue.push(originalInvokeId);
+        queue.push(errorChoice);
         error.write(queue);
     }
 
-    Error(ByteQueue queue) throws BACnetException {
+    Error(final ByteQueue queue) throws BACnetException {
         queue.pop(); // Ignore the first byte. No news there.
         originalInvokeId = queue.pop();
-        error = BaseError.createBaseError(queue);
+        errorChoice = queue.popU1B();
+        error = BaseError.createBaseError(errorChoice, queue);
     }
 
     @Override
@@ -85,13 +92,13 @@ public class Error extends AckAPDU {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((error == null) ? 0 : error.hashCode());
+        result = PRIME * result + (error == null ? 0 : error.hashCode());
         result = PRIME * result + originalInvokeId;
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -102,8 +109,7 @@ public class Error extends AckAPDU {
         if (error == null) {
             if (other.error != null)
                 return false;
-        }
-        else if (!error.equals(other.error))
+        } else if (!error.equals(other.error))
             return false;
         if (originalInvokeId != other.originalInvokeId)
             return false;

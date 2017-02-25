@@ -311,10 +311,10 @@ public class IntrinsicReportingMixin extends AbstractMixin {
                 for (final PropertyIdentifier pid : changeOfReliabilityProperties)
                     propertyValues.add(new PropertyValue(pid, get(pid)));
 
-                eventValues = new ChangeOfReliability( //
+                eventValues = new NotificationParameters(new ChangeOfReliability( //
                         (Reliability) get(PropertyIdentifier.reliability), //
                         (StatusFlags) get(PropertyIdentifier.statusFlags), //
-                        propertyValues);
+                        propertyValues));
             } else {
                 eventType = eventAlgo.getEventType();
                 eventValues = eventAlgo.getEventValues(fromState, toState);

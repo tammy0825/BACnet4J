@@ -23,25 +23,92 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.ObjectTypePropertyReference;
+import com.serotonin.bacnet4j.type.ThreadLocalObjectTypePropertyReferenceStack;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Choice extends BaseType {
-    private static final long serialVersionUID = 7942157718147383894L;
+    static final Logger LOG = LoggerFactory.getLogger(Choice.class);
+
     private int contextId;
     private Encodable datum;
+    private final ChoiceOptions choiceOptions;
 
-    public Choice(int contextId, Encodable datum) {
+    public Choice(final Encodable datum, final ChoiceOptions choiceOptions) {
+        this(-1, datum, choiceOptions);
+    }
+
+    public Choice(final int contextId, final Encodable datum, final ChoiceOptions choiceOptions) {
         this.contextId = contextId;
         this.datum = datum;
+        this.choiceOptions = choiceOptions;
+    }
+
+    @Override
+    public void write(final ByteQueue queue) {
+        if (contextId == -1)
+            write(queue, datum);
+        else if (choiceOptions.getContextualClass(contextId) == AmbiguousValue.class)
+            writeANY(queue, datum, contextId);
+        else
+            write(queue, datum, contextId);
+    }
+
+    public Choice(final ByteQueue queue, final ChoiceOptions choiceOptions) throws BACnetException {
+        this.choiceOptions = choiceOptions;
+        read(queue);
+    }
+
+    public Choice(final ByteQueue queue, final ChoiceOptions choiceOptions, final int contextId)
+            throws BACnetException {
+        this.choiceOptions = choiceOptions;
+        popStart(queue, contextId);
+        read(queue);
+        popEnd(queue, contextId);
+    }
+
+    private void read(final ByteQueue queue) throws BACnetException {
+        if (isContextTag(queue)) {
+            contextId = peekTagNumber(queue);
+            final Class<? extends Encodable> clazz = choiceOptions.getContextualClass(contextId);
+            if (clazz == null) {
+                LOG.warn("Could not associated choice context tag with class: {}", contextId);
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+            }
+
+            if (clazz == AmbiguousValue.class) {
+                final ObjectTypePropertyReference ref = ThreadLocalObjectTypePropertyReferenceStack.get();
+                datum = readANY(queue, ref.getObjectType(), ref.getPropertyIdentifier(), ref.getPropertyArrayIndex(),
+                        contextId);
+            } else {
+                datum = read(queue, clazz, contextId);
+            }
+        } else {
+            contextId = -1;
+            // Decode a primitive
+            final Primitive primitive = read(queue, Primitive.class);
+            // Validate that this primitive is allowed.
+            if (!choiceOptions.containsPrimitive(primitive.getClass())) {
+                LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+            }
+            datum = primitive;
+        }
     }
 
     public int getContextId() {
@@ -53,24 +120,8 @@ public class Choice extends BaseType {
         return (T) datum;
     }
 
-    @Override
-    public void write(ByteQueue queue) {
-        write(queue, datum, contextId);
-    }
-
-    public Choice(ByteQueue queue, List<Class<? extends Encodable>> classes) throws BACnetException {
-        read(queue, classes);
-    }
-
-    public Choice(ByteQueue queue, List<Class<? extends Encodable>> classes, int contextId) throws BACnetException {
-        popStart(queue, contextId);
-        read(queue, classes);
-        popEnd(queue, contextId);
-    }
-
-    public void read(ByteQueue queue, List<Class<? extends Encodable>> classes) throws BACnetException {
-        contextId = peekTagNumber(queue);
-        datum = read(queue, classes.get(contextId), contextId);
+    public boolean isa(final Class<?> clazz) {
+        return clazz.isAssignableFrom(datum.getClass());
     }
 
     @Override
@@ -83,12 +134,12 @@ public class Choice extends BaseType {
         final int PRIME = 31;
         int result = 1;
         result = PRIME * result + contextId;
-        result = PRIME * result + ((datum == null) ? 0 : datum.hashCode());
+        result = PRIME * result + (datum == null ? 0 : datum.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -101,8 +152,7 @@ public class Choice extends BaseType {
         if (datum == null) {
             if (other.datum != null)
                 return false;
-        }
-        else if (!datum.equals(other.datum))
+        } else if (!datum.equals(other.datum))
             return false;
         return true;
     }

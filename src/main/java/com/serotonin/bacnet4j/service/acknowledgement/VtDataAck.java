@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -34,14 +34,12 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtDataAck extends AcknowledgementService {
-    private static final long serialVersionUID = -178402574862840705L;
-
     public static final byte TYPE_ID = 23;
 
     private final Boolean allNewDataAccepted;
     private final UnsignedInteger acceptedOctetCount;
 
-    public VtDataAck(Boolean allNewDataAccepted, UnsignedInteger acceptedOctetCount) {
+    public VtDataAck(final Boolean allNewDataAccepted, final UnsignedInteger acceptedOctetCount) {
         this.allNewDataAccepted = allNewDataAccepted;
         this.acceptedOctetCount = acceptedOctetCount;
     }
@@ -52,12 +50,12 @@ public class VtDataAck extends AcknowledgementService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, allNewDataAccepted, 0);
         writeOptional(queue, acceptedOctetCount, 1);
     }
 
-    VtDataAck(ByteQueue queue) throws BACnetException {
+    VtDataAck(final ByteQueue queue) throws BACnetException {
         allNewDataAccepted = read(queue, Boolean.class, 0);
         acceptedOctetCount = readOptional(queue, UnsignedInteger.class, 1);
     }
@@ -74,13 +72,13 @@ public class VtDataAck extends AcknowledgementService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((acceptedOctetCount == null) ? 0 : acceptedOctetCount.hashCode());
-        result = PRIME * result + ((allNewDataAccepted == null) ? 0 : allNewDataAccepted.hashCode());
+        result = PRIME * result + (acceptedOctetCount == null ? 0 : acceptedOctetCount.hashCode());
+        result = PRIME * result + (allNewDataAccepted == null ? 0 : allNewDataAccepted.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -91,14 +89,12 @@ public class VtDataAck extends AcknowledgementService {
         if (acceptedOctetCount == null) {
             if (other.acceptedOctetCount != null)
                 return false;
-        }
-        else if (!acceptedOctetCount.equals(other.acceptedOctetCount))
+        } else if (!acceptedOctetCount.equals(other.acceptedOctetCount))
             return false;
         if (allNewDataAccepted == null) {
             if (other.allNewDataAccepted != null)
                 return false;
-        }
-        else if (!allNewDataAccepted.equals(other.allNewDataAccepted))
+        } else if (!allNewDataAccepted.equals(other.allNewDataAccepted))
             return false;
         return true;
     }

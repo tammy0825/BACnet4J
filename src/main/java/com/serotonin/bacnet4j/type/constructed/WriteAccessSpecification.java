@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -34,28 +34,27 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WriteAccessSpecification extends BaseType {
-    private static final long serialVersionUID = -676251352183146270L;
     private final ObjectIdentifier objectIdentifier;
     private final SequenceOf<PropertyValue> listOfProperties;
 
-    public WriteAccessSpecification(ObjectIdentifier objectIdentifier, SequenceOf<PropertyValue> listOfProperties) {
+    public WriteAccessSpecification(final ObjectIdentifier objectIdentifier,
+            final SequenceOf<PropertyValue> listOfProperties) {
         this.objectIdentifier = objectIdentifier;
         this.listOfProperties = listOfProperties;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, objectIdentifier, 0);
         write(queue, listOfProperties, 1);
     }
 
-    public WriteAccessSpecification(ByteQueue queue) throws BACnetException {
+    public WriteAccessSpecification(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         try {
             ThreadLocalObjectTypeStack.set(objectIdentifier.getObjectType());
             listOfProperties = readSequenceOf(queue, PropertyValue.class, 1);
-        }
-        finally {
+        } finally {
             ThreadLocalObjectTypeStack.remove();
         }
     }
@@ -72,13 +71,13 @@ public class WriteAccessSpecification extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((listOfProperties == null) ? 0 : listOfProperties.hashCode());
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (listOfProperties == null ? 0 : listOfProperties.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -89,14 +88,12 @@ public class WriteAccessSpecification extends BaseType {
         if (listOfProperties == null) {
             if (other.listOfProperties != null)
                 return false;
-        }
-        else if (!listOfProperties.equals(other.listOfProperties))
+        } else if (!listOfProperties.equals(other.listOfProperties))
             return false;
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         return true;
     }

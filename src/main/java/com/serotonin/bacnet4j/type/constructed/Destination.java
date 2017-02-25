@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -36,7 +36,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Destination extends BaseType {
-    private static final long serialVersionUID = 5382539059135665624L;
     private final DaysOfWeek validDays;
     private final Time fromTime;
     private final Time toTime;
@@ -45,8 +44,9 @@ public class Destination extends BaseType {
     private final Boolean issueConfirmedNotifications;
     private final EventTransitionBits transitions;
 
-    public Destination(DaysOfWeek validDays, Time fromTime, Time toTime, Recipient recipient,
-            UnsignedInteger processIdentifier, Boolean issueConfirmedNotifications, EventTransitionBits transitions) {
+    public Destination(final DaysOfWeek validDays, final Time fromTime, final Time toTime, final Recipient recipient,
+            final UnsignedInteger processIdentifier, final Boolean issueConfirmedNotifications,
+            final EventTransitionBits transitions) {
         this.validDays = validDays;
         this.fromTime = fromTime;
         this.toTime = toTime;
@@ -56,8 +56,8 @@ public class Destination extends BaseType {
         this.transitions = transitions;
     }
 
-    public Destination(Recipient recipient, UnsignedInteger processIdentifier, Boolean issueConfirmedNotifications,
-            EventTransitionBits transitions) {
+    public Destination(final Recipient recipient, final UnsignedInteger processIdentifier,
+            final Boolean issueConfirmedNotifications, final EventTransitionBits transitions) {
         this.validDays = new DaysOfWeek(true);
         this.fromTime = new Time(0, 0, 0, 0);
         this.toTime = new Time(23, 59, 59, 99);
@@ -68,7 +68,7 @@ public class Destination extends BaseType {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, validDays);
         write(queue, fromTime);
         write(queue, toTime);
@@ -78,7 +78,7 @@ public class Destination extends BaseType {
         write(queue, transitions);
     }
 
-    public Destination(ByteQueue queue) throws BACnetException {
+    public Destination(final ByteQueue queue) throws BACnetException {
         validDays = read(queue, DaysOfWeek.class);
         fromTime = read(queue, Time.class);
         toTime = read(queue, Time.class);
@@ -88,7 +88,7 @@ public class Destination extends BaseType {
         transitions = read(queue, EventTransitionBits.class);
     }
 
-    public boolean isSuitableForEvent(TimeStamp timeStamp, EventState toState) {
+    public boolean isSuitableForEvent(final TimeStamp timeStamp, final EventState toState) {
         // Only check date fields if the timestamp is not a sequence number.
         if (!timeStamp.isSequenceNumber()) {
             // Check if the timestamp day of week is in the valid days of week list.
@@ -136,18 +136,18 @@ public class Destination extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((fromTime == null) ? 0 : fromTime.hashCode());
-        result = PRIME * result + ((issueConfirmedNotifications == null) ? 0 : issueConfirmedNotifications.hashCode());
-        result = PRIME * result + ((processIdentifier == null) ? 0 : processIdentifier.hashCode());
-        result = PRIME * result + ((recipient == null) ? 0 : recipient.hashCode());
-        result = PRIME * result + ((toTime == null) ? 0 : toTime.hashCode());
-        result = PRIME * result + ((transitions == null) ? 0 : transitions.hashCode());
-        result = PRIME * result + ((validDays == null) ? 0 : validDays.hashCode());
+        result = PRIME * result + (fromTime == null ? 0 : fromTime.hashCode());
+        result = PRIME * result + (issueConfirmedNotifications == null ? 0 : issueConfirmedNotifications.hashCode());
+        result = PRIME * result + (processIdentifier == null ? 0 : processIdentifier.hashCode());
+        result = PRIME * result + (recipient == null ? 0 : recipient.hashCode());
+        result = PRIME * result + (toTime == null ? 0 : toTime.hashCode());
+        result = PRIME * result + (transitions == null ? 0 : transitions.hashCode());
+        result = PRIME * result + (validDays == null ? 0 : validDays.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -158,44 +158,37 @@ public class Destination extends BaseType {
         if (fromTime == null) {
             if (other.fromTime != null)
                 return false;
-        }
-        else if (!fromTime.equals(other.fromTime))
+        } else if (!fromTime.equals(other.fromTime))
             return false;
         if (issueConfirmedNotifications == null) {
             if (other.issueConfirmedNotifications != null)
                 return false;
-        }
-        else if (!issueConfirmedNotifications.equals(other.issueConfirmedNotifications))
+        } else if (!issueConfirmedNotifications.equals(other.issueConfirmedNotifications))
             return false;
         if (processIdentifier == null) {
             if (other.processIdentifier != null)
                 return false;
-        }
-        else if (!processIdentifier.equals(other.processIdentifier))
+        } else if (!processIdentifier.equals(other.processIdentifier))
             return false;
         if (recipient == null) {
             if (other.recipient != null)
                 return false;
-        }
-        else if (!recipient.equals(other.recipient))
+        } else if (!recipient.equals(other.recipient))
             return false;
         if (toTime == null) {
             if (other.toTime != null)
                 return false;
-        }
-        else if (!toTime.equals(other.toTime))
+        } else if (!toTime.equals(other.toTime))
             return false;
         if (transitions == null) {
             if (other.transitions != null)
                 return false;
-        }
-        else if (!transitions.equals(other.transitions))
+        } else if (!transitions.equals(other.transitions))
             return false;
         if (validDays == null) {
             if (other.validDays != null)
                 return false;
-        }
-        else if (!validDays.equals(other.validDays))
+        } else if (!validDays.equals(other.validDays))
             return false;
         return true;
     }

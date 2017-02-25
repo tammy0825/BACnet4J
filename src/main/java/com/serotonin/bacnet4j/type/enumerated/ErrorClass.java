@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ErrorClass extends Enumerated {
-    private static final long serialVersionUID = 1756743535333051828L;
     public static final ErrorClass device = new ErrorClass(0);
     public static final ErrorClass object = new ErrorClass(1);
     public static final ErrorClass property = new ErrorClass(2);
@@ -45,17 +44,17 @@ public class ErrorClass extends Enumerated {
     public static final ErrorClass[] ALL = { device, object, property, resources, security, services, vt,
             communication, };
 
-    public ErrorClass(int value) {
+    public ErrorClass(final int value) {
         super(value);
     }
 
-    public ErrorClass(ByteQueue queue) {
+    public ErrorClass(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == device.intValue())
             return "Device";
         if (type == object.intValue())

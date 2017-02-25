@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin.intrinsicReporting;
@@ -47,19 +47,19 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class OutOfRangeAlgo extends EventAlgorithm {
     static final Logger LOG = LoggerFactory.getLogger(OutOfRangeAlgo.class);
 
-    public OutOfRangeAlgo(BACnetObject bo) {
+    public OutOfRangeAlgo(final BACnetObject bo) {
         super(bo);
     }
 
     @Override
     protected StateTransition evaluateEventState() {
-        EventState currentState = get(PropertyIdentifier.eventState);
-        float monitoredValue = ((Real) get(PropertyIdentifier.presentValue)).floatValue();
-        float highLimit = ((Real) get(PropertyIdentifier.highLimit)).floatValue();
-        float lowLimit = ((Real) get(PropertyIdentifier.lowLimit)).floatValue();
-        float deadband = ((Real) get(PropertyIdentifier.deadband)).floatValue();
-        LimitEnable limitEnable = get(PropertyIdentifier.limitEnable);
-        UnsignedInteger timeDelay = get(PropertyIdentifier.timeDelay);
+        final EventState currentState = get(PropertyIdentifier.eventState);
+        final float monitoredValue = ((Real) get(PropertyIdentifier.presentValue)).floatValue();
+        final float highLimit = ((Real) get(PropertyIdentifier.highLimit)).floatValue();
+        final float lowLimit = ((Real) get(PropertyIdentifier.lowLimit)).floatValue();
+        final float deadband = ((Real) get(PropertyIdentifier.deadband)).floatValue();
+        final LimitEnable limitEnable = get(PropertyIdentifier.limitEnable);
+        final UnsignedInteger timeDelay = get(PropertyIdentifier.timeDelay);
         UnsignedInteger timeDelayNormal = get(PropertyIdentifier.timeDelayNormal);
         if (timeDelayNormal == null)
             timeDelayNormal = timeDelay;
@@ -79,7 +79,7 @@ public class OutOfRangeAlgo extends EventAlgorithm {
         if (currentState.equals(EventState.highLimit) && limitEnable.isLowLimitEnable() && monitoredValue < lowLimit)
             return new StateTransition(EventState.lowLimit, timeDelay);
 
-        if (currentState.equals(EventState.highLimit) && monitoredValue < (highLimit - deadband))
+        if (currentState.equals(EventState.highLimit) && monitoredValue < highLimit - deadband)
             return new StateTransition(EventState.normal, timeDelayNormal);
 
         if (currentState.equals(EventState.lowLimit) && !limitEnable.isLowLimitEnable())
@@ -88,7 +88,7 @@ public class OutOfRangeAlgo extends EventAlgorithm {
         if (currentState.equals(EventState.lowLimit) && limitEnable.isHighLimitEnable() && monitoredValue > highLimit)
             return new StateTransition(EventState.highLimit, timeDelay);
 
-        if (currentState.equals(EventState.lowLimit) && monitoredValue > (lowLimit + deadband))
+        if (currentState.equals(EventState.lowLimit) && monitoredValue > lowLimit + deadband)
             return new StateTransition(EventState.normal, timeDelayNormal);
 
         return null;
@@ -100,23 +100,23 @@ public class OutOfRangeAlgo extends EventAlgorithm {
     }
 
     @Override
-    protected NotificationParameters getEventValues(EventState fromState, EventState toState) {
+    protected NotificationParameters getEventValues(final EventState fromState, final EventState toState) {
         Real exceededLimit;
         if (EventState.lowLimit.equals(toState) //
-                || (EventState.lowLimit.equals(fromState) && EventState.normal.equals(toState)))
+                || EventState.lowLimit.equals(fromState) && EventState.normal.equals(toState))
             exceededLimit = get(PropertyIdentifier.lowLimit);
         else if (EventState.highLimit.equals(toState) //
-                || (EventState.highLimit.equals(fromState) && EventState.normal.equals(toState)))
+                || EventState.highLimit.equals(fromState) && EventState.normal.equals(toState))
             exceededLimit = get(PropertyIdentifier.highLimit);
         else
             throw new BACnetRuntimeException("Invalid state transition: " + toState + " to " + fromState);
 
         LOG.debug("Notification parameters: from={}, to={}, exceededLimit={}", fromState, toState, exceededLimit);
 
-        return new OutOfRange( //
+        return new NotificationParameters(new OutOfRange( //
                 (Real) get(PropertyIdentifier.presentValue), //
                 (StatusFlags) get(PropertyIdentifier.statusFlags), //
                 (Real) get(PropertyIdentifier.deadband), //
-                exceededLimit);
+                exceededLimit));
     }
 }

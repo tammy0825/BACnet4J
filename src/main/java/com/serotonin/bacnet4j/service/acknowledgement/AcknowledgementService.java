@@ -33,8 +33,6 @@ import com.serotonin.bacnet4j.service.Service;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class AcknowledgementService extends Service {
-    private static final long serialVersionUID = 3837098889443642001L;
-
     public static AcknowledgementService createAcknowledgementService(final byte type, final ByteQueue queue)
             throws BACnetException {
 

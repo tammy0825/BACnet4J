@@ -39,7 +39,6 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class GetAlarmSummaryRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 7026623260581737268L;
     public static final byte TYPE_ID = 3;
 
     @Override

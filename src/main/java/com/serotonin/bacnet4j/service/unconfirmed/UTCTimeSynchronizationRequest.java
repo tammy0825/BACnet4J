@@ -35,8 +35,6 @@ import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class UTCTimeSynchronizationRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = 495223700432185701L;
-
     public static final byte TYPE_ID = 9;
 
     private final DateTime time;

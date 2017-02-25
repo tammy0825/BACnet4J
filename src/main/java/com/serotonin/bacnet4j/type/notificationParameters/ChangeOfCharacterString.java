@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -33,37 +33,31 @@ import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfCharacterString extends NotificationParameters {
-    private static final long serialVersionUID = -5167623090526672369L;
-
+public class ChangeOfCharacterString extends NotificationParameter {
     public static final byte TYPE_ID = 17;
 
     private final CharacterString changedValue;
     private final StatusFlags statusFlags;
     private final CharacterString alarmValues;
 
-    public ChangeOfCharacterString(CharacterString changedValue, StatusFlags statusFlags, CharacterString alarmValues) {
+    public ChangeOfCharacterString(final CharacterString changedValue, final StatusFlags statusFlags,
+            final CharacterString alarmValues) {
         this.changedValue = changedValue;
         this.statusFlags = statusFlags;
         this.alarmValues = alarmValues;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, changedValue, 0);
         write(queue, statusFlags, 1);
         write(queue, alarmValues, 2);
     }
 
-    public ChangeOfCharacterString(ByteQueue queue) throws BACnetException {
+    public ChangeOfCharacterString(final ByteQueue queue) throws BACnetException {
         changedValue = read(queue, CharacterString.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         alarmValues = read(queue, CharacterString.class, 2);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public CharacterString getChangedValue() {
@@ -82,38 +76,35 @@ public class ChangeOfCharacterString extends NotificationParameters {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((alarmValues == null) ? 0 : alarmValues.hashCode());
-        result = prime * result + ((changedValue == null) ? 0 : changedValue.hashCode());
-        result = prime * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = prime * result + (alarmValues == null ? 0 : alarmValues.hashCode());
+        result = prime * result + (changedValue == null ? 0 : changedValue.hashCode());
+        result = prime * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfCharacterString other = (ChangeOfCharacterString) obj;
+        final ChangeOfCharacterString other = (ChangeOfCharacterString) obj;
         if (alarmValues == null) {
             if (other.alarmValues != null)
                 return false;
-        }
-        else if (!alarmValues.equals(other.alarmValues))
+        } else if (!alarmValues.equals(other.alarmValues))
             return false;
         if (changedValue == null) {
             if (other.changedValue != null)
                 return false;
-        }
-        else if (!changedValue.equals(other.changedValue))
+        } else if (!changedValue.equals(other.changedValue))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

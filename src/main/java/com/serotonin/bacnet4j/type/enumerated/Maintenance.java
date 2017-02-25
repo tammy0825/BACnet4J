@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Maintenance extends Enumerated {
-    private static final long serialVersionUID = -8105102280345072070L;
     public static final Maintenance none = new Maintenance(0);
     public static final Maintenance periodicTest = new Maintenance(1);
     public static final Maintenance needServiceOperational = new Maintenance(2);
@@ -40,11 +39,11 @@ public class Maintenance extends Enumerated {
 
     public static final Maintenance[] ALL = { none, periodicTest, needServiceOperational, needServiceInoperative, };
 
-    public Maintenance(int value) {
+    public Maintenance(final int value) {
         super(value);
     }
 
-    public Maintenance(ByteQueue queue) {
+    public Maintenance(final ByteQueue queue) {
         super(queue);
     }
 }

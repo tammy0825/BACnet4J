@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtClass extends Enumerated {
-    private static final long serialVersionUID = 8557805107090951917L;
     public static final VtClass defaultTerminal = new VtClass(0);
     public static final VtClass ansi_x3_64 = new VtClass(1);
     public static final VtClass dec_vt52 = new VtClass(2);
@@ -44,11 +43,11 @@ public class VtClass extends Enumerated {
     public static final VtClass[] ALL = { defaultTerminal, ansi_x3_64, dec_vt52, dec_vt100, dec_vt220, hp_700_94,
             ibm_3130, };
 
-    public VtClass(int value) {
+    public VtClass(final int value) {
         super(value);
     }
 
-    public VtClass(ByteQueue queue) {
+    public VtClass(final ByteQueue queue) {
         super(queue);
     }
 }

@@ -28,33 +28,26 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Scale extends BaseType {
-    private static final long serialVersionUID = 5351842576726308269L;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(0, Real.class);
+        choiceOptions.addContextual(1, SignedInteger.class);
+    }
 
     private final Choice scale;
 
-    private static List<Class<? extends Encodable>> classes;
-    static {
-        classes = new ArrayList<>();
-        classes.add(Real.class);
-        classes.add(SignedInteger.class);
-    }
-
     public Scale(final Real scale) {
-        this.scale = new Choice(0, scale);
+        this.scale = new Choice(0, scale, choiceOptions);
     }
 
     public Scale(final SignedInteger scale) {
-        this.scale = new Choice(1, scale);
+        this.scale = new Choice(1, scale, choiceOptions);
     }
 
     @Override
@@ -63,11 +56,19 @@ public class Scale extends BaseType {
     }
 
     public Scale(final ByteQueue queue) throws BACnetException {
-        scale = new Choice(queue, classes);
+        scale = new Choice(queue, choiceOptions);
+    }
+
+    public Choice getScale() {
+        return scale;
     }
 
     public boolean isReal() {
-        return scale.getContextId() == 0;
+        return scale.getDatum() instanceof Real;
+    }
+
+    public boolean isSignedInteger() {
+        return scale.getDatum() instanceof SignedInteger;
     }
 
     public Real getReal() {
@@ -80,9 +81,9 @@ public class Scale extends BaseType {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
+        final int prime = 31;
         int result = 1;
-        result = PRIME * result + (scale == null ? 0 : scale.hashCode());
+        result = prime * result + (scale == null ? 0 : scale.hashCode());
         return result;
     }
 

@@ -45,8 +45,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ConfirmedEventNotificationRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 1213823870240071042L;
-
     public static final byte TYPE_ID = 2;
 
     private final UnsignedInteger processIdentifier; // 0
@@ -133,7 +131,7 @@ public class ConfirmedEventNotificationRequest extends ConfirmedRequestService {
         ackRequired = readOptional(queue, Boolean.class, 9);
         fromState = readOptional(queue, EventState.class, 10);
         toState = read(queue, EventState.class, 11);
-        eventValues = NotificationParameters.createNotificationParametersOptional(queue, 12);
+        eventValues = readOptional(queue, NotificationParameters.class, 12);
     }
 
     @Override

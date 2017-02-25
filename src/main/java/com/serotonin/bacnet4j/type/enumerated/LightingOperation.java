@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LightingOperation extends Enumerated {
-    private static final long serialVersionUID = -7585094616691021512L;
-
     public static final LightingOperation none = new LightingOperation(0);
     public static final LightingOperation fadeTo = new LightingOperation(1);
     public static final LightingOperation rampTo = new LightingOperation(2);
@@ -49,17 +47,17 @@ public class LightingOperation extends Enumerated {
     public static final LightingOperation[] ALL = { none, fadeTo, rampTo, stepUp, stepDown, stepOn, stepOff, warn,
             warnOff, warnRelinquish, stop, };
 
-    public LightingOperation(int value) {
+    public LightingOperation(final int value) {
         super(value);
     }
 
-    public LightingOperation(ByteQueue queue) {
+    public LightingOperation(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
 
         if (type == none.intValue())
             return "none";

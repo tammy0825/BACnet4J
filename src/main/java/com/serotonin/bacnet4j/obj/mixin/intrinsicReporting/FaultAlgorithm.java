@@ -1,9 +1,11 @@
 /*
- * =========================================================import com.serotonin.bacnet4j.obj.BACnetObject;
-import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
-import com.serotonin.bacnet4j.type.enumerated.Reliability;
-program is free software: you can redistribute it and/or modify
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -21,7 +23,7 @@ program is free software: you can redistribute it and/or modify
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj.mixin.intrinsicReporting;
@@ -34,12 +36,12 @@ import com.serotonin.bacnet4j.type.enumerated.Reliability;
 abstract public class FaultAlgorithm {
     private final BACnetObject bo;
 
-    public FaultAlgorithm(BACnetObject bo) {
+    public FaultAlgorithm(final BACnetObject bo) {
         this.bo = bo;
     }
 
     @SuppressWarnings("unchecked")
-    protected final <T extends Encodable> T get(PropertyIdentifier pid) {
+    protected final <T extends Encodable> T get(final PropertyIdentifier pid) {
         return (T) bo.get(pid);
     }
 

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
+import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
@@ -37,6 +38,8 @@ import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.WriteAccessSpecification;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -102,7 +105,6 @@ public class MessagingTest {
         // Create the remote proxy for device 2.
         final RemoteDevice r2 = d1.getRemoteDevice(2).get();
 
-        //        final RemoteDevice r2 = new RemoteDevice(2, a2);
         r2.setDeviceProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
         final ServicesSupported ss = new ServicesSupported();
         ss.setAll(true);
@@ -322,6 +324,31 @@ public class MessagingTest {
 
         // Try the request again.
         d1.send(rd2, new ReadPropertyMultipleRequest(listOfReadAccessSpecs)).get();
+    }
+
+    @Test
+    public void readError() throws Exception {
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+        d1.initialize();
+
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
+        d2.initialize();
+
+        final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+
+        // Read properties from d2 that don't exist.
+        final SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs = new SequenceOf<>( //
+                new ReadAccessSpecification(new ObjectIdentifier(ObjectType.analogValue, 0),
+                        new SequenceOf<>( //
+                                new PropertyReference(PropertyIdentifier.presentValue), //
+                                new PropertyReference(PropertyIdentifier.units), //
+                                new PropertyReference(PropertyIdentifier.statusFlags))));
+        try {
+            d1.send(rd2, new ReadPropertyMultipleRequest(listOfReadAccessSpecs)).get();
+        } catch (final ErrorAPDUException e) {
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.unknownObject, e.getError().getErrorCode());
+        }
     }
 
     private static BACnetObject createAnalogValue(final int id) {

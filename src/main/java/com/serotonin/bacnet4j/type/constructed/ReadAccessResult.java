@@ -29,16 +29,18 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.ObjectTypePropertyReference;
+import com.serotonin.bacnet4j.type.ThreadLocalObjectTypePropertyReferenceStack;
 import com.serotonin.bacnet4j.type.ThreadLocalObjectTypeStack;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadAccessResult extends BaseType {
-    private static final long serialVersionUID = -5046824677263394587L;
-
     private final ObjectIdentifier objectIdentifier;
     private final SequenceOf<Result> listOfResults;
 
@@ -77,23 +79,28 @@ public class ReadAccessResult extends BaseType {
     }
 
     public static class Result extends BaseType {
-        private static final long serialVersionUID = -2539614773155916196L;
+        private static ChoiceOptions choiceOptions = new ChoiceOptions();
+        static {
+            choiceOptions.addContextual(4, AmbiguousValue.class);
+            choiceOptions.addContextual(5, ErrorClassAndCode.class);
+        }
+
         private final PropertyIdentifier propertyIdentifier;
         private final UnsignedInteger propertyArrayIndex;
-        private Choice readResult;
+        private final Choice readResult;
 
         public Result(final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex,
                 final Encodable readResult) {
             this.propertyIdentifier = propertyIdentifier;
             this.propertyArrayIndex = propertyArrayIndex;
-            this.readResult = new Choice(4, readResult);
+            this.readResult = new Choice(4, readResult, choiceOptions);
         }
 
         public Result(final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex,
-                final BACnetError readResult) {
+                final ErrorClassAndCode readResult) {
             this.propertyIdentifier = propertyIdentifier;
             this.propertyArrayIndex = propertyArrayIndex;
-            this.readResult = new Choice(5, readResult);
+            this.readResult = new Choice(5, readResult, choiceOptions);
         }
 
         public UnsignedInteger getPropertyArrayIndex() {
@@ -105,7 +112,7 @@ public class ReadAccessResult extends BaseType {
         }
 
         public boolean isError() {
-            return readResult.getContextId() == 5;
+            return readResult.isa(ErrorClassAndCode.class);
         }
 
         public Choice getReadResult() {
@@ -122,21 +129,19 @@ public class ReadAccessResult extends BaseType {
         public void write(final ByteQueue queue) {
             write(queue, propertyIdentifier, 2);
             writeOptional(queue, propertyArrayIndex, 3);
-            if (readResult.getContextId() == 4)
-                writeEncodable(queue, readResult.getDatum(), 4);
-            else
-                write(queue, readResult.getDatum(), 5);
+            write(queue, readResult);
         }
 
         public Result(final ByteQueue queue) throws BACnetException {
             propertyIdentifier = read(queue, PropertyIdentifier.class, 2);
             propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 3);
-            final int contextId = peekTagNumber(queue);
-            if (contextId == 4)
-                readResult = new Choice(4, readEncodable(queue, ThreadLocalObjectTypeStack.get(), propertyIdentifier,
-                        propertyArrayIndex, 4));
-            else
-                readResult = new Choice(5, read(queue, BACnetError.class, 5));
+            try {
+                ThreadLocalObjectTypePropertyReferenceStack.set(new ObjectTypePropertyReference(
+                        ThreadLocalObjectTypeStack.get(), propertyIdentifier, propertyArrayIndex));
+                readResult = readChoice(queue, choiceOptions);
+            } finally {
+                ThreadLocalObjectTypePropertyReferenceStack.remove();
+            }
         }
 
         @Override

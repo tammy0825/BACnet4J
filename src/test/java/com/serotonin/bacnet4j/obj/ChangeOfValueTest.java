@@ -48,8 +48,8 @@ public class ChangeOfValueTest extends AbstractTest {
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.unknownObject, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.unknownObject, e.getError().getErrorCode());
         }
 
         final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
@@ -60,8 +60,8 @@ public class ChangeOfValueTest extends AbstractTest {
                     new UnsignedInteger(1000))).get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getError().getErrorCode());
         }
 
         av.supportCovReporting(4);
@@ -80,8 +80,8 @@ public class ChangeOfValueTest extends AbstractTest {
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.unknownObject, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.unknownObject, e.getError().getErrorCode());
         }
 
         final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
@@ -95,8 +95,8 @@ public class ChangeOfValueTest extends AbstractTest {
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getError().getErrorCode());
         }
 
         av.supportCovReporting(4);
@@ -109,8 +109,8 @@ public class ChangeOfValueTest extends AbstractTest {
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getBACnetError().getErrorClass());
-            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getBACnetError().getErrorCode());
+            assertEquals(ErrorClass.object, e.getError().getErrorClass());
+            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getError().getErrorCode());
         }
 
         d2.send(rd1,

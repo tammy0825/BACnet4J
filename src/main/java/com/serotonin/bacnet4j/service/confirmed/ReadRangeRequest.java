@@ -28,17 +28,14 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -47,60 +44,40 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadRangeRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 7357639261721076121L;
-
     public static final byte TYPE_ID = 26;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(Encodable.class);
-        classes.add(Encodable.class);
-        classes.add(Encodable.class);
-        classes.add(ByPosition.class);
-        classes.add(Encodable.class);
-        classes.add(Encodable.class);
-        classes.add(BySequenceNumber.class);
-        classes.add(ByTime.class);
+        choiceOptions.addContextual(3, ByPosition.class);
+        choiceOptions.addContextual(6, BySequenceNumber.class);
+        choiceOptions.addContextual(7, ByTime.class);
     }
     private final ObjectIdentifier objectIdentifier;
     private final PropertyIdentifier propertyIdentifier;
     private final UnsignedInteger propertyArrayIndex;
-    private Choice range;
-
-    private ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
-            final UnsignedInteger propertyArrayIndex) {
-        this.objectIdentifier = objectIdentifier;
-        this.propertyIdentifier = propertyIdentifier;
-        this.propertyArrayIndex = propertyArrayIndex;
-    }
+    private final Choice range;
 
     public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
             final UnsignedInteger propertyArrayIndex, final ByPosition range) {
-        this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
-        this.range = new Choice(3, range);
+        this(objectIdentifier, propertyIdentifier, propertyArrayIndex, new Choice(3, range, choiceOptions));
     }
 
     public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
             final UnsignedInteger propertyArrayIndex, final BySequenceNumber range) {
-        this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
-        this.range = new Choice(6, range);
+        this(objectIdentifier, propertyIdentifier, propertyArrayIndex, new Choice(6, range, choiceOptions));
     }
 
     public ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
             final UnsignedInteger propertyArrayIndex, final ByTime range) {
-        this(objectIdentifier, propertyIdentifier, propertyArrayIndex);
-        this.range = new Choice(7, range);
+        this(objectIdentifier, propertyIdentifier, propertyArrayIndex, new Choice(7, range, choiceOptions));
     }
 
-    @Override
-    public byte getChoiceId() {
-        return TYPE_ID;
-    }
-
-    @Override
-    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
-        throw new NotImplementedException();
+    private ReadRangeRequest(final ObjectIdentifier objectIdentifier, final PropertyIdentifier propertyIdentifier,
+            final UnsignedInteger propertyArrayIndex, final Choice range) {
+        this.objectIdentifier = objectIdentifier;
+        this.propertyIdentifier = propertyIdentifier;
+        this.propertyArrayIndex = propertyArrayIndex;
+        this.range = range;
     }
 
     @Override
@@ -111,88 +88,57 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         writeOptional(queue, range);
     }
 
-    ReadRangeRequest(final ByteQueue queue) throws BACnetException {
+    public ReadRangeRequest(final ByteQueue queue) throws BACnetException {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        if (peekTagNumber(queue) != -1)
-            range = new Choice(queue, classes);
+        range = readOptionalChoice(queue, choiceOptions);
     }
 
-    abstract public static class Range extends BaseType {
-        private static final long serialVersionUID = 7079223629723797175L;
-        protected SignedInteger count;
-
-        public Range(final SignedInteger count) {
-            this.count = count;
-        }
-
-        Range() {
-            // no op
-        }
+    @Override
+    public byte getChoiceId() {
+        return TYPE_ID;
     }
 
-    public static class ByPosition extends Range {
-        private static final long serialVersionUID = 4251374814674312091L;
-        private final UnsignedInteger referenceIndex;
-
-        public ByPosition(final UnsignedInteger referenceIndex, final SignedInteger count) {
-            super(count);
-            this.referenceIndex = referenceIndex;
-        }
-
-        @Override
-        public void write(final ByteQueue queue) {
-            write(queue, referenceIndex);
-            write(queue, count);
-        }
-
-        ByPosition(final ByteQueue queue) throws BACnetException {
-            referenceIndex = read(queue, UnsignedInteger.class);
-            count = read(queue, SignedInteger.class);
-        }
+    public ObjectIdentifier getObjectIdentifier() {
+        return objectIdentifier;
     }
 
-    public static class BySequenceNumber extends Range {
-        private static final long serialVersionUID = 4218886072119156278L;
-        private final UnsignedInteger referenceIndex;
-
-        public BySequenceNumber(final UnsignedInteger referenceIndex, final SignedInteger count) {
-            super(count);
-            this.referenceIndex = referenceIndex;
-        }
-
-        @Override
-        public void write(final ByteQueue queue) {
-            write(queue, referenceIndex);
-            write(queue, count);
-        }
-
-        BySequenceNumber(final ByteQueue queue) throws BACnetException {
-            referenceIndex = read(queue, UnsignedInteger.class);
-            count = read(queue, SignedInteger.class);
-        }
+    public PropertyIdentifier getPropertyIdentifier() {
+        return propertyIdentifier;
     }
 
-    public static class ByTime extends Range {
-        private static final long serialVersionUID = 6322007580214441250L;
-        private final DateTime referenceTime;
+    public UnsignedInteger getPropertyArrayIndex() {
+        return propertyArrayIndex;
+    }
 
-        public ByTime(final DateTime referenceTime, final SignedInteger count) {
-            super(count);
-            this.referenceTime = referenceTime;
-        }
+    public boolean isByPosition() {
+        return range.getContextId() == 3;
+    }
 
-        @Override
-        public void write(final ByteQueue queue) {
-            write(queue, referenceTime);
-            write(queue, count);
-        }
+    public ByPosition getByPosition() {
+        return range.getDatum();
+    }
 
-        ByTime(final ByteQueue queue) throws BACnetException {
-            referenceTime = read(queue, DateTime.class);
-            count = read(queue, SignedInteger.class);
-        }
+    public boolean isBySequenceNumber() {
+        return range.getContextId() == 6;
+    }
+
+    public ByPosition getBySequenceNumber() {
+        return range.getDatum();
+    }
+
+    public boolean isByTime() {
+        return range.getContextId() == 7;
+    }
+
+    public ByPosition getByTime() {
+        return range.getDatum();
+    }
+
+    @Override
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        throw new NotImplementedException();
     }
 
     @Override
@@ -236,5 +182,193 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         } else if (!range.equals(other.range))
             return false;
         return true;
+    }
+
+    abstract public static class Range extends BaseType {
+        protected SignedInteger count;
+
+        public Range(final SignedInteger count) {
+            this.count = count;
+        }
+
+        Range() {
+            // no op
+        }
+
+        public SignedInteger getCount() {
+            return count;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (count == null ? 0 : count.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final Range other = (Range) obj;
+            if (count == null) {
+                if (other.count != null)
+                    return false;
+            } else if (!count.equals(other.count))
+                return false;
+            return true;
+        }
+    }
+
+    public static class ByPosition extends Range {
+        private final UnsignedInteger referenceIndex;
+
+        public ByPosition(final UnsignedInteger referenceIndex, final SignedInteger count) {
+            super(count);
+            this.referenceIndex = referenceIndex;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, referenceIndex);
+            write(queue, count);
+        }
+
+        public ByPosition(final ByteQueue queue) throws BACnetException {
+            referenceIndex = read(queue, UnsignedInteger.class);
+            count = read(queue, SignedInteger.class);
+        }
+
+        public UnsignedInteger getReferenceIndex() {
+            return referenceIndex;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + (referenceIndex == null ? 0 : referenceIndex.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ByPosition other = (ByPosition) obj;
+            if (referenceIndex == null) {
+                if (other.referenceIndex != null)
+                    return false;
+            } else if (!referenceIndex.equals(other.referenceIndex))
+                return false;
+            return true;
+        }
+    }
+
+    public static class BySequenceNumber extends Range {
+        private final UnsignedInteger referenceIndex;
+
+        public BySequenceNumber(final UnsignedInteger referenceIndex, final SignedInteger count) {
+            super(count);
+            this.referenceIndex = referenceIndex;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, referenceIndex);
+            write(queue, count);
+        }
+
+        public BySequenceNumber(final ByteQueue queue) throws BACnetException {
+            referenceIndex = read(queue, UnsignedInteger.class);
+            count = read(queue, SignedInteger.class);
+        }
+
+        public UnsignedInteger getReferenceIndex() {
+            return referenceIndex;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + (referenceIndex == null ? 0 : referenceIndex.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final BySequenceNumber other = (BySequenceNumber) obj;
+            if (referenceIndex == null) {
+                if (other.referenceIndex != null)
+                    return false;
+            } else if (!referenceIndex.equals(other.referenceIndex))
+                return false;
+            return true;
+        }
+    }
+
+    public static class ByTime extends Range {
+        private final DateTime referenceTime;
+
+        public ByTime(final DateTime referenceTime, final SignedInteger count) {
+            super(count);
+            this.referenceTime = referenceTime;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, referenceTime);
+            write(queue, count);
+        }
+
+        public ByTime(final ByteQueue queue) throws BACnetException {
+            referenceTime = read(queue, DateTime.class);
+            count = read(queue, SignedInteger.class);
+        }
+
+        public DateTime getReferenceTime() {
+            return referenceTime;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + (referenceTime == null ? 0 : referenceTime.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ByTime other = (ByTime) obj;
+            if (referenceTime == null) {
+                if (other.referenceTime != null)
+                    return false;
+            } else if (!referenceTime.equals(other.referenceTime))
+                return false;
+            return true;
+        }
     }
 }

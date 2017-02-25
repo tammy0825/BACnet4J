@@ -32,13 +32,12 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class PropertyAccessResult extends BaseType {
-    private static final long serialVersionUID = 397336258375319137L;
-
     private final ObjectIdentifier objectIdentifier;
     private final PropertyIdentifier propertyIdentifier;
     private final UnsignedInteger propertyArrayIndex;
@@ -80,7 +79,7 @@ public class PropertyAccessResult extends BaseType {
         write(queue, propertyIdentifier, 1);
         writeOptional(queue, propertyArrayIndex, 2);
         writeOptional(queue, deviceIdentifier, 3);
-        if (result instanceof BACnetError)
+        if (result instanceof ErrorClassAndCode)
             write(queue, result, 4);
         else
             write(queue, result, 5);
@@ -92,7 +91,7 @@ public class PropertyAccessResult extends BaseType {
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
         deviceIdentifier = readOptional(queue, ObjectIdentifier.class, 3);
 
-        final Encodable result = readOptional(queue, BACnetError.class, 4);
+        final Encodable result = readOptional(queue, ErrorClassAndCode.class, 4);
         if (result == null)
             this.result = result;
         else

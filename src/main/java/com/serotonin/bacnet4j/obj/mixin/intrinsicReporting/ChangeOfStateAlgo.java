@@ -104,7 +104,7 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
 
     @Override
     protected NotificationParameters getEventValues(final EventState fromState, final EventState toState) {
-        return new ChangeOfState(new PropertyStates(get(monitoredValueProperty)),
-                (StatusFlags) get(PropertyIdentifier.statusFlags));
+        return new NotificationParameters(new ChangeOfState(new PropertyStates(get(monitoredValueProperty)),
+                (StatusFlags) get(PropertyIdentifier.statusFlags)));
     }
 }

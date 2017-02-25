@@ -36,8 +36,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WhoIsRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = 4853007370475322913L;
-
     public static final byte TYPE_ID = 8;
 
     private UnsignedInteger deviceInstanceRangeLowLimit;

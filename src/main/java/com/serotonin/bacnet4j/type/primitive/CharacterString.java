@@ -37,7 +37,6 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CharacterString extends Primitive {
-    private static final long serialVersionUID = -3146333907363025078L;
     public static final byte TYPE_ID = 7;
 
     public interface Encodings {

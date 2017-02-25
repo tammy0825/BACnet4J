@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -35,8 +35,6 @@ import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class UnconfirmedRequest extends APDU {
-    private static final long serialVersionUID = 1606568334137370062L;
-
     public static final byte TYPE_ID = 1;
 
     private byte serviceChoice;
@@ -54,7 +52,7 @@ public class UnconfirmedRequest extends APDU {
      */
     private UnconfirmedRequestService service;
 
-    public UnconfirmedRequest(UnconfirmedRequestService service) {
+    public UnconfirmedRequest(final UnconfirmedRequestService service) {
         this.service = service;
     }
 
@@ -73,13 +71,13 @@ public class UnconfirmedRequest extends APDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID));
         queue.push(service.getChoiceId());
         service.write(queue);
     }
 
-    UnconfirmedRequest(ServicesSupported services, ByteQueue queue) throws BACnetException {
+    UnconfirmedRequest(final ServicesSupported services, final ByteQueue queue) throws BACnetException {
         queue.pop();
         serviceChoice = queue.pop();
         serviceData = new ByteQueue(queue.popAll());
@@ -97,12 +95,12 @@ public class UnconfirmedRequest extends APDU {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((service == null) ? 0 : service.hashCode());
+        result = PRIME * result + (service == null ? 0 : service.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -113,8 +111,7 @@ public class UnconfirmedRequest extends APDU {
         if (service == null) {
             if (other.service != null)
                 return false;
-        }
-        else if (!service.equals(other.service))
+        } else if (!service.equals(other.service))
             return false;
         return true;
     }

@@ -37,8 +37,6 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BACnetArray<E extends Encodable> extends SequenceOf<E> {
-    private static final long serialVersionUID = 7930010486564820089L;
-
     @SuppressWarnings("unchecked")
     public BACnetArray(final int size) {
         super((List<E>) nullList(size));

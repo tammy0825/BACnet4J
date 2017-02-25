@@ -39,20 +39,18 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.error.ChangeListError;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class RemoveListElementRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 5047207667417777074L;
-
     public static final byte TYPE_ID = 9;
 
     private final ObjectIdentifier objectIdentifier;
@@ -148,8 +146,8 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
 
     private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
             final UnsignedInteger firstFailedElementNumber) {
-        return new BACnetErrorException(
-                new ChangeListError(getChoiceId(), new BACnetError(errorClass, errorCode), firstFailedElementNumber));
+        return new BACnetErrorException(getChoiceId(),
+                new ChangeListError(new ErrorClassAndCode(errorClass, errorCode), firstFailedElementNumber));
     }
 
     @Override

@@ -44,7 +44,6 @@ import com.serotonin.bacnet4j.util.DiscoveryUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class IAmRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = -5896735458454994754L;
     static final Logger LOG = LoggerFactory.getLogger(IAmRequest.class);
 
     public static final byte TYPE_ID = 0;

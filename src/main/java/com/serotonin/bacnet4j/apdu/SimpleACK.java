@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
@@ -31,8 +31,6 @@ package com.serotonin.bacnet4j.apdu;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SimpleACK extends AckAPDU {
-    private static final long serialVersionUID = -4585349985375271438L;
-
     public static final byte TYPE_ID = 2;
 
     /**
@@ -41,7 +39,7 @@ public class SimpleACK extends AckAPDU {
      */
     private final int serviceAckChoice;
 
-    public SimpleACK(byte originalInvokeId, int serviceAckChoice) {
+    public SimpleACK(final byte originalInvokeId, final int serviceAckChoice) {
         this.originalInvokeId = originalInvokeId;
         this.serviceAckChoice = serviceAckChoice;
     }
@@ -52,13 +50,13 @@ public class SimpleACK extends AckAPDU {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         queue.push(getShiftedTypeId(TYPE_ID));
         queue.push(originalInvokeId);
         queue.push(serviceAckChoice);
     }
 
-    public SimpleACK(ByteQueue queue) {
+    public SimpleACK(final ByteQueue queue) {
         queue.pop(); // no news here
         originalInvokeId = queue.pop();
         serviceAckChoice = queue.popU1B();
@@ -74,7 +72,7 @@ public class SimpleACK extends AckAPDU {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

@@ -12,13 +12,13 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.obj.BinaryValueObject;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
@@ -143,7 +143,7 @@ public class PropertyUtilsTest {
                 .add(4, ObjectType.device, 4, PropertyIdentifier.objectList, 2,
                         new ObjectIdentifier(ObjectType.binaryValue, 0)) //
                 .add(4, ObjectType.device, 4, PropertyIdentifier.objectName, 2,
-                        new BACnetError(ErrorClass.property, ErrorCode.propertyIsNotAnArray)) //
+                        new ErrorClassAndCode(ErrorClass.property, ErrorCode.propertyIsNotAnArray)) //
                 .add(4, ObjectType.binaryValue, 0, PropertyIdentifier.inactiveText, null, str("inactiveText")) //
                 .add(4, ObjectType.binaryValue, 0, PropertyIdentifier.activeText, null, str("activeText")) //
                 .add(4, ObjectType.binaryValue, 1, PropertyIdentifier.inactiveText, null, str("inactiveText")) //
@@ -275,7 +275,7 @@ public class PropertyUtilsTest {
         final DevicesObjectPropertyValues expectedValues = new DevicesObjectPropertyValues() //
                 .add(6, ObjectType.device, 6, PropertyIdentifier.objectName, null, str("d6")) //
                 .add(7, ObjectType.device, 7, PropertyIdentifier.objectName, null,
-                        new BACnetError(ErrorClass.device, ErrorCode.timeout));
+                        new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
 
         final DevicesObjectPropertyValues actualValues = PropertyUtils.readProperties(d1, refs, callback, 1200);
 

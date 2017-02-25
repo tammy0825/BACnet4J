@@ -23,43 +23,37 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfStatusFlags extends EventParameter {
-    private static final long serialVersionUID = 7768277135027100194L;
-
+public class ChangeOfStatusFlags extends BaseType {
     public static final byte TYPE_ID = 18;
 
     private final UnsignedInteger timeDelay;
     private final StatusFlags selectedFlags;
 
-    public ChangeOfStatusFlags(UnsignedInteger timeDelay, StatusFlags selectedFlags) {
+    public ChangeOfStatusFlags(final UnsignedInteger timeDelay, final StatusFlags selectedFlags) {
         this.timeDelay = timeDelay;
         this.selectedFlags = selectedFlags;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, selectedFlags, 1);
     }
 
-    public ChangeOfStatusFlags(ByteQueue queue) throws BACnetException {
+    public ChangeOfStatusFlags(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
         selectedFlags = read(queue, StatusFlags.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {
@@ -74,31 +68,29 @@ public class ChangeOfStatusFlags extends EventParameter {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((selectedFlags == null) ? 0 : selectedFlags.hashCode());
-        result = prime * result + ((timeDelay == null) ? 0 : timeDelay.hashCode());
+        result = prime * result + (selectedFlags == null ? 0 : selectedFlags.hashCode());
+        result = prime * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ChangeOfStatusFlags other = (ChangeOfStatusFlags) obj;
+        final ChangeOfStatusFlags other = (ChangeOfStatusFlags) obj;
         if (selectedFlags == null) {
             if (other.selectedFlags != null)
                 return false;
-        }
-        else if (!selectedFlags.equals(other.selectedFlags))
+        } else if (!selectedFlags.equals(other.selectedFlags))
             return false;
         if (timeDelay == null) {
             if (other.timeDelay != null)
                 return false;
-        }
-        else if (!timeDelay.equals(other.timeDelay))
+        } else if (!timeDelay.equals(other.timeDelay))
             return false;
         return true;
     }

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -33,29 +33,22 @@ import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ComplexEventType extends NotificationParameters {
-    private static final long serialVersionUID = -5125532863892322124L;
-
+public class ComplexEventType extends NotificationParameter {
     public static final byte TYPE_ID = 6;
 
     private final SequenceOf<PropertyValue> values;
 
-    public ComplexEventType(SequenceOf<PropertyValue> values) {
+    public ComplexEventType(final SequenceOf<PropertyValue> values) {
         this.values = values;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, values);
     }
 
-    public ComplexEventType(ByteQueue queue) throws BACnetException {
+    public ComplexEventType(final ByteQueue queue) throws BACnetException {
         values = readSequenceOf(queue, PropertyValue.class);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public SequenceOf<PropertyValue> getValues() {
@@ -66,12 +59,12 @@ public class ComplexEventType extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((values == null) ? 0 : values.hashCode());
+        result = PRIME * result + (values == null ? 0 : values.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -82,8 +75,7 @@ public class ComplexEventType extends NotificationParameters {
         if (values == null) {
             if (other.values != null)
                 return false;
-        }
-        else if (!values.equals(other.values))
+        } else if (!values.equals(other.values))
             return false;
         return true;
     }

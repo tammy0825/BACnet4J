@@ -28,27 +28,22 @@
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfValue extends EventParameter {
-    private static final long serialVersionUID = 2660470709377346618L;
-
+public class ChangeOfValue extends BaseType {
     public static final byte TYPE_ID = 2;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(BitString.class);
-        classes.add(Real.class);
+        choiceOptions.addContextual(0, BitString.class);
+        choiceOptions.addContextual(1, Real.class);
     }
 
     private final UnsignedInteger timeDelay;
@@ -56,28 +51,23 @@ public class ChangeOfValue extends EventParameter {
 
     public ChangeOfValue(final UnsignedInteger timeDelay, final BitString bitmask) {
         this.timeDelay = timeDelay;
-        this.newValue = new Choice(0, bitmask);
+        this.newValue = new Choice(0, bitmask, choiceOptions);
     }
 
     public ChangeOfValue(final UnsignedInteger timeDelay, final Real referencedPropertyIncrement) {
         this.timeDelay = timeDelay;
-        this.newValue = new Choice(1, referencedPropertyIncrement);
+        this.newValue = new Choice(1, referencedPropertyIncrement, choiceOptions);
     }
 
     public ChangeOfValue(final ByteQueue queue) throws BACnetException {
         timeDelay = read(queue, UnsignedInteger.class, 0);
-        newValue = new Choice(queue, classes, 1);
+        newValue = new Choice(queue, choiceOptions, 1);
     }
 
     @Override
-    protected void writeImpl(final ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timeDelay, 0);
         write(queue, newValue, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public UnsignedInteger getTimeDelay() {

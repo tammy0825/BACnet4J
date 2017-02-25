@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -33,22 +33,21 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class MessagePriority extends Enumerated {
-    private static final long serialVersionUID = 2123880793993301090L;
     public static final MessagePriority normal = new MessagePriority(0);
     public static final MessagePriority urgent = new MessagePriority(1);
 
     public static final MessagePriority[] ALL = { normal, urgent, };
 
-    public MessagePriority(int value) {
+    public MessagePriority(final int value) {
         super(value);
     }
 
-    public MessagePriority(ByteQueue queue) {
+    public MessagePriority(final ByteQueue queue) {
         super(queue);
     }
 
     public NetworkPriority getNetworkPriority() {
-        int type = intValue();
+        final int type = intValue();
         if (type == urgent.intValue())
             return NetworkPriority.urgent;
         return NetworkPriority.normal;

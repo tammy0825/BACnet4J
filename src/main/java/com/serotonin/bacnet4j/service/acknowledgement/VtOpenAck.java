@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -33,13 +33,11 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class VtOpenAck extends AcknowledgementService {
-    private static final long serialVersionUID = 6959632953423207763L;
-
     public static final byte TYPE_ID = 21;
 
     private final UnsignedInteger remoteVTSessionIdentifier;
 
-    public VtOpenAck(UnsignedInteger remoteVTSessionIdentifier) {
+    public VtOpenAck(final UnsignedInteger remoteVTSessionIdentifier) {
         this.remoteVTSessionIdentifier = remoteVTSessionIdentifier;
     }
 
@@ -49,11 +47,11 @@ public class VtOpenAck extends AcknowledgementService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, remoteVTSessionIdentifier);
     }
 
-    VtOpenAck(ByteQueue queue) throws BACnetException {
+    VtOpenAck(final ByteQueue queue) throws BACnetException {
         remoteVTSessionIdentifier = read(queue, UnsignedInteger.class);
     }
 
@@ -65,12 +63,12 @@ public class VtOpenAck extends AcknowledgementService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((remoteVTSessionIdentifier == null) ? 0 : remoteVTSessionIdentifier.hashCode());
+        result = PRIME * result + (remoteVTSessionIdentifier == null ? 0 : remoteVTSessionIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -81,8 +79,7 @@ public class VtOpenAck extends AcknowledgementService {
         if (remoteVTSessionIdentifier == null) {
             if (other.remoteVTSessionIdentifier != null)
                 return false;
-        }
-        else if (!remoteVTSessionIdentifier.equals(other.remoteVTSessionIdentifier))
+        } else if (!remoteVTSessionIdentifier.equals(other.remoteVTSessionIdentifier))
             return false;
         return true;
     }

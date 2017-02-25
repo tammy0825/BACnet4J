@@ -28,10 +28,10 @@
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
@@ -40,34 +40,25 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AtomicReadFileAck extends AcknowledgementService {
-    private static final long serialVersionUID = 7850183659621947037L;
-
     public static final byte TYPE_ID = 6;
 
-    private final Boolean endOfFile;
-    private final SignedInteger fileStartPosition;
-    private final OctetString fileData;
-    private final UnsignedInteger returnedRecordCount;
-    private final SequenceOf<OctetString> fileRecordData;
-
-    public AtomicReadFileAck(final Boolean endOfFile, final SignedInteger fileStartPosition,
-            final OctetString fileData) {
-        super();
-        this.endOfFile = endOfFile;
-        this.fileStartPosition = fileStartPosition;
-        this.fileData = fileData;
-        returnedRecordCount = null;
-        fileRecordData = null;
+    private static final ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(0, StreamAccessAck.class);
+        choiceOptions.addContextual(1, RecordAccessAck.class);
     }
 
-    public AtomicReadFileAck(final Boolean endOfFile, final SignedInteger fileStartPosition,
-            final UnsignedInteger returnedRecordCount, final SequenceOf<OctetString> fileRecordData) {
-        super();
+    private final Boolean endOfFile;
+    private final Choice accessMethod;
+
+    public AtomicReadFileAck(final Boolean endOfFile, final StreamAccessAck streamAccess) {
         this.endOfFile = endOfFile;
-        this.fileStartPosition = fileStartPosition;
-        fileData = null;
-        this.returnedRecordCount = returnedRecordCount;
-        this.fileRecordData = fileRecordData;
+        this.accessMethod = new Choice(0, streamAccess, choiceOptions);
+    }
+
+    public AtomicReadFileAck(final Boolean endOfFile, final RecordAccessAck recordAccess) {
+        this.endOfFile = endOfFile;
+        this.accessMethod = new Choice(1, recordAccess, choiceOptions);
     }
 
     @Override
@@ -78,69 +69,32 @@ public class AtomicReadFileAck extends AcknowledgementService {
     @Override
     public void write(final ByteQueue queue) {
         write(queue, endOfFile);
-        if (fileData != null) {
-            writeContextTag(queue, 0, true);
-            write(queue, fileStartPosition);
-            write(queue, fileData);
-            writeContextTag(queue, 0, false);
-        } else {
-            writeContextTag(queue, 1, true);
-            write(queue, fileStartPosition);
-            write(queue, returnedRecordCount);
-            write(queue, fileRecordData);
-            writeContextTag(queue, 1, false);
-        }
+        write(queue, accessMethod);
     }
 
     AtomicReadFileAck(final ByteQueue queue) throws BACnetException {
         endOfFile = read(queue, Boolean.class);
-        if (popStart(queue) == 0) {
-            fileStartPosition = read(queue, SignedInteger.class);
-            fileData = read(queue, OctetString.class);
-            returnedRecordCount = null;
-            fileRecordData = null;
-            popEnd(queue, 0);
-        } else {
-            fileStartPosition = read(queue, SignedInteger.class);
-            returnedRecordCount = read(queue, UnsignedInteger.class);
-            fileData = null;
-            final List<OctetString> records = new ArrayList<>();
-            for (int i = 0; i < returnedRecordCount.intValue(); i++)
-                records.add(read(queue, OctetString.class));
-            fileRecordData = new SequenceOf<>(records);
-            popEnd(queue, 1);
-        }
+        accessMethod = readChoice(queue, choiceOptions);
     }
 
     public Boolean getEndOfFile() {
         return endOfFile;
     }
 
-    public SignedInteger getFileStartPosition() {
-        return fileStartPosition;
+    public StreamAccessAck getStreamAccess() {
+        return accessMethod.getDatum();
     }
 
-    public OctetString getFileData() {
-        return fileData;
-    }
-
-    public UnsignedInteger getReturnedRecordCount() {
-        return returnedRecordCount;
-    }
-
-    public SequenceOf<OctetString> getFileRecordData() {
-        return fileRecordData;
+    public RecordAccessAck getRecordAccess() {
+        return accessMethod.getDatum();
     }
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
+        final int prime = 31;
         int result = 1;
-        result = PRIME * result + (endOfFile == null ? 0 : endOfFile.hashCode());
-        result = PRIME * result + (fileData == null ? 0 : fileData.hashCode());
-        result = PRIME * result + (fileRecordData == null ? 0 : fileRecordData.hashCode());
-        result = PRIME * result + (fileStartPosition == null ? 0 : fileStartPosition.hashCode());
-        result = PRIME * result + (returnedRecordCount == null ? 0 : returnedRecordCount.hashCode());
+        result = prime * result + (accessMethod == null ? 0 : accessMethod.hashCode());
+        result = prime * result + (endOfFile == null ? 0 : endOfFile.hashCode());
         return result;
     }
 
@@ -153,31 +107,151 @@ public class AtomicReadFileAck extends AcknowledgementService {
         if (getClass() != obj.getClass())
             return false;
         final AtomicReadFileAck other = (AtomicReadFileAck) obj;
+        if (accessMethod == null) {
+            if (other.accessMethod != null)
+                return false;
+        } else if (!accessMethod.equals(other.accessMethod))
+            return false;
         if (endOfFile == null) {
             if (other.endOfFile != null)
                 return false;
         } else if (!endOfFile.equals(other.endOfFile))
             return false;
-        if (fileData == null) {
-            if (other.fileData != null)
-                return false;
-        } else if (!fileData.equals(other.fileData))
-            return false;
-        if (fileRecordData == null) {
-            if (other.fileRecordData != null)
-                return false;
-        } else if (!fileRecordData.equals(other.fileRecordData))
-            return false;
-        if (fileStartPosition == null) {
-            if (other.fileStartPosition != null)
-                return false;
-        } else if (!fileStartPosition.equals(other.fileStartPosition))
-            return false;
-        if (returnedRecordCount == null) {
-            if (other.returnedRecordCount != null)
-                return false;
-        } else if (!returnedRecordCount.equals(other.returnedRecordCount))
-            return false;
         return true;
+    }
+
+    public static class StreamAccessAck extends BaseType {
+        private final SignedInteger fileStartPosition;
+        private final OctetString fileData;
+
+        public StreamAccessAck(final SignedInteger fileStartPosition, final OctetString fileData) {
+            this.fileStartPosition = fileStartPosition;
+            this.fileData = fileData;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, fileStartPosition);
+            write(queue, fileData);
+        }
+
+        public StreamAccessAck(final ByteQueue queue) throws BACnetException {
+            fileStartPosition = read(queue, SignedInteger.class);
+            fileData = read(queue, OctetString.class);
+        }
+
+        public SignedInteger getFileStartPosition() {
+            return fileStartPosition;
+        }
+
+        public OctetString getFileData() {
+            return fileData;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (fileData == null ? 0 : fileData.hashCode());
+            result = prime * result + (fileStartPosition == null ? 0 : fileStartPosition.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final StreamAccessAck other = (StreamAccessAck) obj;
+            if (fileData == null) {
+                if (other.fileData != null)
+                    return false;
+            } else if (!fileData.equals(other.fileData))
+                return false;
+            if (fileStartPosition == null) {
+                if (other.fileStartPosition != null)
+                    return false;
+            } else if (!fileStartPosition.equals(other.fileStartPosition))
+                return false;
+            return true;
+        }
+    }
+
+    public static class RecordAccessAck extends BaseType {
+        private final SignedInteger fileStartRecord;
+        private final UnsignedInteger returnedRecordCount;
+        private final SequenceOf<OctetString> fileRecordData;
+
+        public RecordAccessAck(final SignedInteger fileStartRecord, final UnsignedInteger returnedRecordCount,
+                final SequenceOf<OctetString> fileRecordData) {
+            this.fileStartRecord = fileStartRecord;
+            this.returnedRecordCount = returnedRecordCount;
+            this.fileRecordData = fileRecordData;
+        }
+
+        @Override
+        public void write(final ByteQueue queue) {
+            write(queue, fileStartRecord);
+            write(queue, returnedRecordCount);
+            write(queue, fileRecordData);
+        }
+
+        public RecordAccessAck(final ByteQueue queue) throws BACnetException {
+            fileStartRecord = read(queue, SignedInteger.class);
+            returnedRecordCount = read(queue, UnsignedInteger.class);
+            fileRecordData = readSequenceOf(queue, returnedRecordCount.intValue(), OctetString.class);
+        }
+
+        public SignedInteger getFileStartRecord() {
+            return fileStartRecord;
+        }
+
+        public UnsignedInteger getReturnedRecordCount() {
+            return returnedRecordCount;
+        }
+
+        public SequenceOf<OctetString> getFileRecordData() {
+            return fileRecordData;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (fileRecordData == null ? 0 : fileRecordData.hashCode());
+            result = prime * result + (fileStartRecord == null ? 0 : fileStartRecord.hashCode());
+            result = prime * result + (returnedRecordCount == null ? 0 : returnedRecordCount.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final RecordAccessAck other = (RecordAccessAck) obj;
+            if (fileRecordData == null) {
+                if (other.fileRecordData != null)
+                    return false;
+            } else if (!fileRecordData.equals(other.fileRecordData))
+                return false;
+            if (fileStartRecord == null) {
+                if (other.fileStartRecord != null)
+                    return false;
+            } else if (!fileStartRecord.equals(other.fileStartRecord))
+                return false;
+            if (returnedRecordCount == null) {
+                if (other.returnedRecordCount != null)
+                    return false;
+            } else if (!returnedRecordCount.equals(other.returnedRecordCount))
+                return false;
+            return true;
+        }
     }
 }

@@ -56,7 +56,6 @@ import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.WritePropertyMultipleRequest;
 import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -69,6 +68,7 @@ import com.serotonin.bacnet4j.type.enumerated.AbortReason;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
@@ -92,8 +92,8 @@ public class RequestUtils {
         final Map<PropertyIdentifier, Encodable> map = getProperties(localDevice, d, oid, null, pid);
 
         final Encodable value = map.get(pid);
-        if (value instanceof BACnetError) {
-            final BACnetError e = (BACnetError) value;
+        if (value instanceof ErrorClassAndCode) {
+            final ErrorClassAndCode e = (ErrorClassAndCode) value;
             throw new BACnetErrorException(e.getErrorClass(), e.getErrorCode());
         }
 
@@ -194,7 +194,7 @@ public class RequestUtils {
             }
             throw e;
         } catch (final ErrorAPDUException e) {
-            if (e.getBACnetError().equals(ErrorClass.property, ErrorCode.unknownProperty))
+            if (e.getError().equals(ErrorClass.property, ErrorCode.unknownProperty))
                 return null;
             throw e;
         }
@@ -350,9 +350,9 @@ public class RequestUtils {
                         throw e;
                     }
                     // Otherwise, populate the properties with errors.
-                    populateWithError(d, properties, updater, new BACnetError(ErrorClass.device, ErrorCode.timeout));
+                    populateWithError(d, properties, updater, new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
                 } catch (final ErrorAPDUException e) {
-                    populateWithError(d, properties, updater, e.getBACnetError());
+                    populateWithError(d, properties, updater, e.getError());
                 } catch (final BACnetException e) {
                     throw new BACnetException("Completed " + counter + " requests. Excepted on: " + request, e);
                 }
@@ -369,7 +369,7 @@ public class RequestUtils {
 
     public static void populateWithError(final RemoteDevice d,
             final Map<ObjectIdentifier, List<PropertyReference>> properties, final RequestListenerUpdater updater,
-            final BACnetError error) {
+            final ErrorClassAndCode error) {
         for (final ObjectIdentifier oid : properties.keySet()) {
             for (final PropertyReference ref : properties.get(oid))
                 updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(), ref.getPropertyArrayIndex(),
@@ -399,10 +399,10 @@ public class RequestUtils {
                         throw e;
                     }
                     updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(),
-                            ref.getPropertyArrayIndex(), new BACnetError(ErrorClass.device, ErrorCode.timeout));
+                            ref.getPropertyArrayIndex(), new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
                 } catch (final ErrorAPDUException e) {
                     updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(),
-                            ref.getPropertyArrayIndex(), e.getBACnetError());
+                            ref.getPropertyArrayIndex(), e.getError());
                 }
 
                 first = false;

@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,21 +32,19 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class DaysOfWeek extends BitString {
-    private static final long serialVersionUID = -7381461753680751900L;
-
     public DaysOfWeek() {
         super(new boolean[7]);
     }
 
-    public DaysOfWeek(boolean defaultValue) {
+    public DaysOfWeek(final boolean defaultValue) {
         super(7, defaultValue);
     }
 
-    public DaysOfWeek(ByteQueue queue) {
+    public DaysOfWeek(final ByteQueue queue) {
         super(queue);
     }
 
-    public boolean contains(int day) {
+    public boolean contains(final int day) {
         return getValue()[day];
     }
 
@@ -54,7 +52,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[0];
     }
 
-    public void setMonday(boolean monday) {
+    public void setMonday(final boolean monday) {
         getValue()[0] = monday;
     }
 
@@ -62,7 +60,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[1];
     }
 
-    public void setTuesday(boolean tuesday) {
+    public void setTuesday(final boolean tuesday) {
         getValue()[1] = tuesday;
     }
 
@@ -70,7 +68,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[2];
     }
 
-    public void setWednesday(boolean wednesday) {
+    public void setWednesday(final boolean wednesday) {
         getValue()[2] = wednesday;
     }
 
@@ -78,7 +76,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[3];
     }
 
-    public void setThursday(boolean thursday) {
+    public void setThursday(final boolean thursday) {
         getValue()[3] = thursday;
     }
 
@@ -86,7 +84,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[4];
     }
 
-    public void setFriday(boolean friday) {
+    public void setFriday(final boolean friday) {
         getValue()[4] = friday;
     }
 
@@ -94,7 +92,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[5];
     }
 
-    public void setSaturday(boolean saturday) {
+    public void setSaturday(final boolean saturday) {
         getValue()[5] = saturday;
     }
 
@@ -102,7 +100,7 @@ public class DaysOfWeek extends BitString {
         return getValue()[6];
     }
 
-    public void setSunday(boolean sunday) {
+    public void setSunday(final boolean sunday) {
         getValue()[6] = sunday;
     }
 }

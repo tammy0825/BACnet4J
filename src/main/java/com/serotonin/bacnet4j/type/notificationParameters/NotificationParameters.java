@@ -23,92 +23,83 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-abstract public class NotificationParameters extends BaseType {
-    private static final long serialVersionUID = 7902337844295486044L;
-
-    public static NotificationParameters createNotificationParameters(ByteQueue queue, int contextId)
-            throws BACnetException {
-        popStart(queue, contextId);
-        NotificationParameters result = createNotificationParameters(queue);
-        popEnd(queue, contextId);
-        return result;
+public class NotificationParameters extends BaseType {
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(ChangeOfBitString.TYPE_ID & 0xff, ChangeOfBitString.class); // 0
+        choiceOptions.addContextual(ChangeOfState.TYPE_ID & 0xff, ChangeOfState.class); // 1
+        choiceOptions.addContextual(ChangeOfValue.TYPE_ID & 0xff, ChangeOfValue.class); // 2
+        choiceOptions.addContextual(CommandFailure.TYPE_ID & 0xff, CommandFailure.class); // 3
+        choiceOptions.addContextual(FloatingLimit.TYPE_ID & 0xff, FloatingLimit.class); // 4
+        choiceOptions.addContextual(OutOfRange.TYPE_ID & 0xff, OutOfRange.class); // 5
+        choiceOptions.addContextual(ComplexEventType.TYPE_ID & 0xff, ComplexEventType.class); // 6
+        choiceOptions.addContextual(ChangeOfLifeSafety.TYPE_ID & 0xff, ChangeOfLifeSafety.class); // 8
+        choiceOptions.addContextual(Extended.TYPE_ID & 0xff, Extended.class); // 9
+        choiceOptions.addContextual(BufferReady.TYPE_ID & 0xff, BufferReady.class); // 10
+        choiceOptions.addContextual(UnsignedRange.TYPE_ID & 0xff, UnsignedRange.class); // 11
+        choiceOptions.addContextual(AccessEvent.TYPE_ID & 0xff, AccessEvent.class); // 13
+        choiceOptions.addContextual(DoubleOutOfRange.TYPE_ID & 0xff, DoubleOutOfRange.class); // 14
+        choiceOptions.addContextual(SignedOutOfRange.TYPE_ID & 0xff, SignedOutOfRange.class); // 15
+        choiceOptions.addContextual(UnsignedOutOfRange.TYPE_ID & 0xff, UnsignedOutOfRange.class); // 16
+        choiceOptions.addContextual(ChangeOfCharacterString.TYPE_ID & 0xff, ChangeOfCharacterString.class); // 17
+        choiceOptions.addContextual(ChangeOfStatusFlags.TYPE_ID & 0xff, ChangeOfStatusFlags.class); // 18
+        choiceOptions.addContextual(ChangeOfReliability.TYPE_ID & 0xff, ChangeOfReliability.class); // 19
+        choiceOptions.addContextual(ChangeOfDiscreteValue.TYPE_ID & 0xff, ChangeOfDiscreteValue.class); // 21
+        choiceOptions.addContextual(ChangeOfTimer.TYPE_ID & 0xff, ChangeOfTimer.class); // 22
     }
 
-    public static NotificationParameters createNotificationParametersOptional(ByteQueue queue, int contextId)
-            throws BACnetException {
-        if (readStart(queue) != contextId)
-            return null;
-        return createNotificationParameters(queue, contextId);
+    private final Choice choice;
+
+    public NotificationParameters(final NotificationParameter parameters) {
+        choice = new Choice(choiceOptions.getContextId(parameters.getClass()), parameters, choiceOptions);
     }
 
-    public static NotificationParameters createNotificationParameters(ByteQueue queue) throws BACnetException {
-        // Get the first byte. It will tell us what the service type is.
-        int type = popStart(queue);
+    @Override
+    public void write(final ByteQueue queue) {
+        write(queue, choice);
+    }
 
-        NotificationParameters result;
-        if (type == ChangeOfBitString.TYPE_ID) // 0
-            result = new ChangeOfBitString(queue);
-        else if (type == ChangeOfState.TYPE_ID) // 1
-            result = new ChangeOfState(queue);
-        else if (type == ChangeOfValue.TYPE_ID) // 2
-            result = new ChangeOfValue(queue);
-        else if (type == CommandFailure.TYPE_ID) // 3
-            result = new CommandFailure(queue);
-        else if (type == FloatingLimit.TYPE_ID) // 4
-            result = new FloatingLimit(queue);
-        else if (type == OutOfRange.TYPE_ID) // 5
-            result = new OutOfRange(queue);
-        else if (type == ComplexEventType.TYPE_ID) // 6
-            result = new ComplexEventType(queue);
-        else if (type == ChangeOfLifeSafety.TYPE_ID) // 8
-            result = new ChangeOfLifeSafety(queue);
-        else if (type == Extended.TYPE_ID) // 9
-            result = new Extended(queue);
-        else if (type == BufferReady.TYPE_ID) // 10
-            result = new BufferReady(queue);
-        else if (type == UnsignedRange.TYPE_ID) // 11
-            result = new UnsignedRange(queue);
-        else if (type == AccessEvent.TYPE_ID) // 13
-            result = new AccessEvent(queue);
-        else if (type == DoubleOutOfRange.TYPE_ID) // 14
-            result = new DoubleOutOfRange(queue);
-        else if (type == SignedOutOfRange.TYPE_ID) // 15
-            result = new SignedOutOfRange(queue);
-        else if (type == UnsignedOutOfRange.TYPE_ID) // 16
-            result = new UnsignedOutOfRange(queue);
-        else if (type == ChangeOfCharacterString.TYPE_ID) // 17
-            result = new ChangeOfCharacterString(queue);
-        else if (type == ChangeOfStatusFlags.TYPE_ID) // 18
-            result = new ChangeOfStatusFlags(queue);
-        else if (type == ChangeOfReliability.TYPE_ID) // 19
-            result = new ChangeOfReliability(queue);
-        else
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+    public NotificationParameters(final ByteQueue queue) throws BACnetException {
+        choice = readChoice(queue, choiceOptions);
+    }
 
-        popEnd(queue, type);
+    public NotificationParameter getParameter() {
+        return choice.getDatum();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
         return result;
     }
 
     @Override
-    final public void write(ByteQueue queue) {
-        writeContextTag(queue, getTypeId(), true);
-        writeImpl(queue);
-        writeContextTag(queue, getTypeId(), false);
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final NotificationParameters other = (NotificationParameters) obj;
+        if (choice == null) {
+            if (other.choice != null)
+                return false;
+        } else if (!choice.equals(other.choice))
+            return false;
+        return true;
     }
-
-    abstract protected int getTypeId();
-
-    abstract protected void writeImpl(ByteQueue queue);
 }

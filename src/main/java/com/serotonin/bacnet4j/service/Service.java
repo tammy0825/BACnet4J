@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.npdu.NPCI.NetworkPriority;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 
 abstract public class Service extends BaseType {
-    private static final long serialVersionUID = 6310521953905282247L;
-
     abstract public byte getChoiceId();
 
     public NetworkPriority getNetworkPriority() {

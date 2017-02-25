@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ObjectType extends Enumerated {
-    private static final long serialVersionUID = 5428575132396799009L;
-
     public static final ObjectType analogInput = new ObjectType(0);
     public static final ObjectType analogOutput = new ObjectType(1);
     public static final ObjectType analogValue = new ObjectType(2);
@@ -65,6 +63,7 @@ public class ObjectType extends Enumerated {
     public static final ObjectType loadControl = new ObjectType(28);
     public static final ObjectType structuredView = new ObjectType(29);
     public static final ObjectType accessDoor = new ObjectType(30);
+    public static final ObjectType timer = new ObjectType(31);
     public static final ObjectType accessCredential = new ObjectType(32);
     public static final ObjectType accessPoint = new ObjectType(33);
     public static final ObjectType accessRights = new ObjectType(34);
@@ -88,16 +87,21 @@ public class ObjectType extends Enumerated {
     public static final ObjectType alertEnrollment = new ObjectType(52);
     public static final ObjectType channel = new ObjectType(53);
     public static final ObjectType lightingOutput = new ObjectType(54);
+    public static final ObjectType binaryLightingOutput = new ObjectType(55);
+    public static final ObjectType networkPort = new ObjectType(56);
+    public static final ObjectType elevatorGroup = new ObjectType(57);
+    public static final ObjectType escalator = new ObjectType(58);
+    public static final ObjectType lift = new ObjectType(59);
 
     public static final ObjectType[] ALL = { analogInput, analogOutput, analogValue, binaryInput, binaryOutput,
             binaryValue, calendar, command, device, eventEnrollment, file, group, loop, multiStateInput,
             multiStateOutput, notificationClass, program, schedule, averaging, multiStateValue, trendLog,
             lifeSafetyPoint, lifeSafetyZone, accumulator, pulseConverter, eventLog, globalGroup, trendLogMultiple,
-            loadControl, structuredView, accessDoor, accessCredential, accessPoint, accessRights, accessUser,
+            loadControl, structuredView, accessDoor, timer, accessCredential, accessPoint, accessRights, accessUser,
             accessZone, credentialDataInput, networkSecurity, bitstringValue, characterstringValue, datePatternValue,
             dateValue, datetimePatternValue, datetimeValue, integerValue, largeAnalogValue, octetstringValue,
             positiveIntegerValue, timePatternValue, timeValue, notificationForwarder, alertEnrollment, channel,
-            lightingOutput, };
+            lightingOutput, binaryLightingOutput, networkPort, elevatorGroup, escalator, lift, };
 
     public ObjectType(final int value) {
         super(value);
@@ -172,6 +176,8 @@ public class ObjectType extends Enumerated {
             return "Structured View";
         if (type == accessDoor.intValue())
             return "Access Door";
+        if (type == timer.intValue())
+            return "Timer";
         if (type == accessCredential.intValue())
             return "Access Credential";
         if (type == accessPoint.intValue())
@@ -218,6 +224,16 @@ public class ObjectType extends Enumerated {
             return "Channel";
         if (type == lightingOutput.intValue())
             return "Lighting Output";
+        if (type == binaryLightingOutput.intValue())
+            return "Binary Lighting Output";
+        if (type == networkPort.intValue())
+            return "Network Port";
+        if (type == elevatorGroup.intValue())
+            return "Elevator Group";
+        if (type == escalator.intValue())
+            return "Escalator";
+        if (type == lift.intValue())
+            return "Lift";
         return "Vendor Specific (" + type + ")";
     }
 }

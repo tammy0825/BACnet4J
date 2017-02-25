@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ObjectIdentifier extends Primitive {
-    private static final long serialVersionUID = 4171263406246161971L;
-
     public static final int UNINITIALIZED = 4194303;
     public static final byte TYPE_ID = 12;
 

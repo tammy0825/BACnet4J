@@ -36,8 +36,6 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class Primitive extends Encodable {
-    private static final long serialVersionUID = 611651273642455709L;
-
     public static Primitive createPrimitive(final ByteQueue queue) throws BACnetErrorException {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
         byte type = queue.peek(0);
@@ -113,7 +111,7 @@ abstract public class Primitive extends Encodable {
         writeImpl(queue);
     }
 
-    final public void writeEncodable(final ByteQueue queue, final int contextId) {
+    final public void writeWithContextTag(final ByteQueue queue, final int contextId) {
         writeContextTag(queue, contextId, true);
         write(queue);
         writeContextTag(queue, contextId, false);

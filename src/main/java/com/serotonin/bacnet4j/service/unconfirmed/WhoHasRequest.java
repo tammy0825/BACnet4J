@@ -28,16 +28,13 @@
  */
 package com.serotonin.bacnet4j.service.unconfirmed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -45,17 +42,12 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WhoHasRequest extends UnconfirmedRequestService {
-    private static final long serialVersionUID = -3261764708955375488L;
-
     public static final byte TYPE_ID = 7;
 
-    private static List<Class<? extends Encodable>> classes;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        classes = new ArrayList<>();
-        classes.add(Encodable.class);
-        classes.add(Encodable.class);
-        classes.add(ObjectIdentifier.class);
-        classes.add(CharacterString.class);
+        choiceOptions.addContextual(2, ObjectIdentifier.class);
+        choiceOptions.addContextual(3, CharacterString.class);
     }
 
     private final Limits limits;
@@ -63,12 +55,12 @@ public class WhoHasRequest extends UnconfirmedRequestService {
 
     public WhoHasRequest(final Limits limits, final ObjectIdentifier identifier) {
         this.limits = limits;
-        object = new Choice(2, identifier);
+        object = new Choice(2, identifier, choiceOptions);
     }
 
     public WhoHasRequest(final Limits limits, final CharacterString name) {
         this.limits = limits;
-        object = new Choice(3, name);
+        object = new Choice(3, name, choiceOptions);
     }
 
     @Override
@@ -88,10 +80,10 @@ public class WhoHasRequest extends UnconfirmedRequestService {
 
         // Check if we have the thing being looking for.
         BACnetObject result;
-        if (object.getContextId() == 2) {
+        if (object.isa(ObjectIdentifier.class)) {
             final ObjectIdentifier oid = (ObjectIdentifier) object.getDatum();
             result = localDevice.getObject(oid);
-        } else if (object.getContextId() == 3) {
+        } else if (object.isa(CharacterString.class)) {
             final String name = ((CharacterString) object.getDatum()).toString();
             result = localDevice.getObject(name);
         } else
@@ -114,11 +106,10 @@ public class WhoHasRequest extends UnconfirmedRequestService {
     public WhoHasRequest(final ByteQueue queue) throws BACnetException {
         final Limits l = new Limits(queue);
         limits = l.getDeviceInstanceRangeLowLimit() == null ? null : l;
-        object = new Choice(queue, classes);
+        object = readChoice(queue, choiceOptions);
     }
 
     public static class Limits extends BaseType {
-        private static final long serialVersionUID = -2736168226229323897L;
         private UnsignedInteger deviceInstanceRangeLowLimit;
         private UnsignedInteger deviceInstanceRangeHighLimit;
 

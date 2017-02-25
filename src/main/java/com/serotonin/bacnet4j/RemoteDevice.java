@@ -33,12 +33,12 @@ import java.io.Serializable;
 import com.serotonin.bacnet4j.cache.RemoteEntityCache;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -155,8 +155,8 @@ public class RemoteDevice implements Serializable {
 
     public void setObjectProperty(final ObjectIdentifier oid, final PropertyIdentifier pid, final UnsignedInteger pin,
             final Encodable value) {
-        if (value instanceof BACnetError) {
-            final BACnetError e = (BACnetError) value;
+        if (value instanceof ErrorClassAndCode) {
+            final ErrorClassAndCode e = (ErrorClassAndCode) value;
             if (ErrorClass.object.equals(e.getErrorClass())) {
                 // Don't create objects if the error is about the object. In fact, delete the cached object.
                 remoteObjectCache.removeEntity(oid);

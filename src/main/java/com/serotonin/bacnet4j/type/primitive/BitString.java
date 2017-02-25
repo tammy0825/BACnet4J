@@ -34,8 +34,6 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BitString extends Primitive {
-    private static final long serialVersionUID = 8795578212108935279L;
-
     public static final byte TYPE_ID = 8;
 
     private boolean[] value;

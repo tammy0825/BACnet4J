@@ -28,74 +28,53 @@
  */
 package com.serotonin.bacnet4j.type.eventParameter;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.constructed.Choice;
+import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-abstract public class EventParameter extends BaseType {
-    private static final long serialVersionUID = -8202182792179896645L;
+public class EventParameter extends BaseType {
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addContextual(ChangeOfBitString.TYPE_ID & 0xff, ChangeOfBitString.class); // 0
+        choiceOptions.addContextual(ChangeOfState.TYPE_ID & 0xff, ChangeOfState.class); // 1
+        choiceOptions.addContextual(ChangeOfValue.TYPE_ID & 0xff, ChangeOfValue.class); // 2
+        choiceOptions.addContextual(CommandFailure.TYPE_ID & 0xff, CommandFailure.class); // 3
+        choiceOptions.addContextual(FloatingLimit.TYPE_ID & 0xff, FloatingLimit.class); // 4
+        choiceOptions.addContextual(OutOfRange.TYPE_ID & 0xff, OutOfRange.class); // 5
+        choiceOptions.addContextual(ChangeOfLifeSafety.TYPE_ID & 0xff, ChangeOfLifeSafety.class); // 8
+        choiceOptions.addContextual(Extended.TYPE_ID & 0xff, Extended.class); // 9
+        choiceOptions.addContextual(BufferReady.TYPE_ID & 0xff, BufferReady.class); // 10
+        choiceOptions.addContextual(UnsignedRange.TYPE_ID & 0xff, UnsignedRange.class); // 11
+        choiceOptions.addContextual(AccessEvent.TYPE_ID & 0xff, AccessEvent.class); // 13
+        choiceOptions.addContextual(DoubleOutOfRange.TYPE_ID & 0xff, DoubleOutOfRange.class); // 14
+        choiceOptions.addContextual(SignedOutOfRange.TYPE_ID & 0xff, SignedOutOfRange.class); // 15
+        choiceOptions.addContextual(UnsignedOutOfRange.TYPE_ID & 0xff, UnsignedOutOfRange.class); // 16
+        choiceOptions.addContextual(ChangeOfCharacterString.TYPE_ID & 0xff, ChangeOfCharacterString.class); // 17
+        choiceOptions.addContextual(ChangeOfStatusFlags.TYPE_ID & 0xff, ChangeOfStatusFlags.class); // 18
+        choiceOptions.addContextual(20, Null.class); // 20
+        choiceOptions.addContextual(ChangeOfDiscreteValue.TYPE_ID & 0xff, ChangeOfDiscreteValue.class); // 21
+        choiceOptions.addContextual(ChangeOfTimer.TYPE_ID & 0xff, ChangeOfTimer.class); // 22
+    }
 
-    @SuppressWarnings("unused")
-    public static EventParameter createEventParameter(final ByteQueue queue) throws BACnetException {
-        // Get the first byte. It will tell us what the parameter type is.
-        final int type = popStart(queue);
+    private final Choice choice;
 
-        EventParameter result;
-        if (type == ChangeOfBitString.TYPE_ID) // 0
-            result = new ChangeOfBitString(queue);
-        else if (type == ChangeOfState.TYPE_ID) // 1
-            result = new ChangeOfState(queue);
-        else if (type == ChangeOfValue.TYPE_ID) // 2
-            result = new ChangeOfValue(queue);
-        else if (type == CommandFailure.TYPE_ID) // 3
-            result = new CommandFailure(queue);
-        else if (type == FloatingLimit.TYPE_ID) // 4
-            result = new FloatingLimit(queue);
-        else if (type == OutOfRange.TYPE_ID) // 5
-            result = new OutOfRange(queue);
-        else if (type == ChangeOfLifeSafety.TYPE_ID) // 8
-            result = new ChangeOfLifeSafety(queue);
-        else if (type == Extended.TYPE_ID) // 9
-            result = new Extended(queue);
-        else if (type == BufferReady.TYPE_ID) // 10
-            result = new BufferReady(queue);
-        else if (type == UnsignedRange.TYPE_ID) // 11
-            result = new UnsignedRange(queue);
-        else if (type == AccessEvent.TYPE_ID) // 13
-            result = new AccessEvent(queue);
-        else if (type == DoubleOutOfRange.TYPE_ID) // 14
-            result = new DoubleOutOfRange(queue);
-        else if (type == SignedOutOfRange.TYPE_ID) // 15
-            result = new SignedOutOfRange(queue);
-        else if (type == UnsignedOutOfRange.TYPE_ID) // 16
-            result = new UnsignedOutOfRange(queue);
-        else if (type == ChangeOfCharacterString.TYPE_ID) // 17
-            result = new ChangeOfCharacterString(queue);
-        else if (type == ChangeOfStatusFlags.TYPE_ID) // 18
-            result = new ChangeOfStatusFlags(queue);
-        else if (type == 20) {
-            // Create the Null object to remove the bytes from the queue, but don't use it for anything.
-            new Null(queue);
-            result = null;
-        } else
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
-
-        popEnd(queue, type);
-        return result;
+    public EventParameter(final Choice choice) {
+        this.choice = choice;
     }
 
     @Override
-    final public void write(final ByteQueue queue) {
-        writeContextTag(queue, getTypeId(), true);
-        writeImpl(queue);
-        writeContextTag(queue, getTypeId(), false);
+    public void write(final ByteQueue queue) {
+        write(queue, choice);
     }
 
-    abstract protected int getTypeId();
+    public EventParameter(final ByteQueue queue) throws BACnetException {
+        choice = readChoice(queue, choiceOptions);
+    }
 
-    abstract protected void writeImpl(ByteQueue queue);
+    public Choice getChoice() {
+        return choice;
+    }
 }

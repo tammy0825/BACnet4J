@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.acknowledgement;
@@ -37,13 +37,11 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class GetAlarmSummaryAck extends AcknowledgementService {
-    private static final long serialVersionUID = 6838220512669552863L;
-
     public static final byte TYPE_ID = 3;
 
     private final SequenceOf<AlarmSummary> values;
 
-    public GetAlarmSummaryAck(SequenceOf<AlarmSummary> values) {
+    public GetAlarmSummaryAck(final SequenceOf<AlarmSummary> values) {
         this.values = values;
     }
 
@@ -53,11 +51,11 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, values);
     }
 
-    GetAlarmSummaryAck(ByteQueue queue) throws BACnetException {
+    GetAlarmSummaryAck(final ByteQueue queue) throws BACnetException {
         values = readSequenceOf(queue, AlarmSummary.class);
     }
 
@@ -66,26 +64,25 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
     }
 
     public static class AlarmSummary extends BaseType {
-        private static final long serialVersionUID = -3442490797564872769L;
         private final ObjectIdentifier objectIdentifier;
         private final EventState alarmState;
         private final EventTransitionBits acknowledgedTransitions;
 
-        public AlarmSummary(ObjectIdentifier objectIdentifier, EventState alarmState,
-                EventTransitionBits acknowledgedTransitions) {
+        public AlarmSummary(final ObjectIdentifier objectIdentifier, final EventState alarmState,
+                final EventTransitionBits acknowledgedTransitions) {
             this.objectIdentifier = objectIdentifier;
             this.alarmState = alarmState;
             this.acknowledgedTransitions = acknowledgedTransitions;
         }
 
         @Override
-        public void write(ByteQueue queue) {
+        public void write(final ByteQueue queue) {
             objectIdentifier.write(queue);
             alarmState.write(queue);
             acknowledgedTransitions.write(queue);
         }
 
-        public AlarmSummary(ByteQueue queue) throws BACnetException {
+        public AlarmSummary(final ByteQueue queue) throws BACnetException {
             objectIdentifier = read(queue, ObjectIdentifier.class);
             alarmState = read(queue, EventState.class);
             acknowledgedTransitions = read(queue, EventTransitionBits.class);
@@ -107,14 +104,14 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
-            result = PRIME * result + ((acknowledgedTransitions == null) ? 0 : acknowledgedTransitions.hashCode());
-            result = PRIME * result + ((alarmState == null) ? 0 : alarmState.hashCode());
-            result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
+            result = PRIME * result + (acknowledgedTransitions == null ? 0 : acknowledgedTransitions.hashCode());
+            result = PRIME * result + (alarmState == null ? 0 : alarmState.hashCode());
+            result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -125,20 +122,17 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
             if (acknowledgedTransitions == null) {
                 if (other.acknowledgedTransitions != null)
                     return false;
-            }
-            else if (!acknowledgedTransitions.equals(other.acknowledgedTransitions))
+            } else if (!acknowledgedTransitions.equals(other.acknowledgedTransitions))
                 return false;
             if (alarmState == null) {
                 if (other.alarmState != null)
                     return false;
-            }
-            else if (!alarmState.equals(other.alarmState))
+            } else if (!alarmState.equals(other.alarmState))
                 return false;
             if (objectIdentifier == null) {
                 if (other.objectIdentifier != null)
                     return false;
-            }
-            else if (!objectIdentifier.equals(other.objectIdentifier))
+            } else if (!objectIdentifier.equals(other.objectIdentifier))
                 return false;
             return true;
         }
@@ -148,12 +142,12 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((values == null) ? 0 : values.hashCode());
+        result = PRIME * result + (values == null ? 0 : values.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -164,8 +158,7 @@ public class GetAlarmSummaryAck extends AcknowledgementService {
         if (values == null) {
             if (other.values != null)
                 return false;
-        }
-        else if (!values.equals(other.values))
+        } else if (!values.equals(other.values))
             return false;
         return true;
     }

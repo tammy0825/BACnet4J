@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,25 +32,23 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessPassbackMode extends Enumerated {
-    private static final long serialVersionUID = -9153277407804672743L;
-
     public static final AccessPassbackMode passbackOff = new AccessPassbackMode(0);
     public static final AccessPassbackMode hardPassback = new AccessPassbackMode(1);
     public static final AccessPassbackMode softPassback = new AccessPassbackMode(2);
 
     public static final AccessPassbackMode[] ALL = { passbackOff, hardPassback, softPassback, };
 
-    public AccessPassbackMode(int value) {
+    public AccessPassbackMode(final int value) {
         super(value);
     }
 
-    public AccessPassbackMode(ByteQueue queue) {
+    public AccessPassbackMode(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == passbackOff.intValue())
             return "passbackOff";
         if (type == hardPassback.intValue())

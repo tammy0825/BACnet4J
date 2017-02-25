@@ -41,20 +41,18 @@ import com.serotonin.bacnet4j.obj.PropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 1994873785772969841L;
-
     public static final byte TYPE_ID = 14;
 
     private final SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs;
@@ -163,7 +161,7 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
             try {
                 results.add(new Result(pid, pin, obj.getPropertyRequired(pid, pin)));
             } catch (final BACnetServiceException e) {
-                results.add(new Result(pid, pin, new BACnetError(e.getErrorClass(), e.getErrorCode())));
+                results.add(new Result(pid, pin, new ErrorClassAndCode(e.getErrorClass(), e.getErrorCode())));
             }
         }
     }

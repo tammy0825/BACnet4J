@@ -39,8 +39,6 @@ import com.serotonin.bacnet4j.type.SequenceDefinition.ElementSpecification;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Sequence extends BaseType {
-    private static final long serialVersionUID = -6678747788242195805L;
-
     private final SequenceDefinition definition;
     private final Map<String, Encodable> values;
 

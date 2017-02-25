@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessCredentialDisableReason extends Enumerated {
-    private static final long serialVersionUID = 5503231556407385733L;
-
     public static final AccessCredentialDisableReason disabled = new AccessCredentialDisableReason(0);
     public static final AccessCredentialDisableReason disabledNeedsProvisioning = new AccessCredentialDisableReason(1);
     public static final AccessCredentialDisableReason disabledUnassigned = new AccessCredentialDisableReason(2);
@@ -45,21 +43,21 @@ public class AccessCredentialDisableReason extends Enumerated {
     public static final AccessCredentialDisableReason disabledInactivity = new AccessCredentialDisableReason(8);
     public static final AccessCredentialDisableReason disabledManual = new AccessCredentialDisableReason(9);
 
-    public static final AccessCredentialDisableReason[] ALL = { disabled, disabledNeedsProvisioning,
-            disabledUnassigned, disabledNotYetActive, disabledExpired, disabledLockout, disabledMaxDays,
-            disabledMaxUses, disabledInactivity, disabledManual, };
+    public static final AccessCredentialDisableReason[] ALL = { disabled, disabledNeedsProvisioning, disabledUnassigned,
+            disabledNotYetActive, disabledExpired, disabledLockout, disabledMaxDays, disabledMaxUses,
+            disabledInactivity, disabledManual, };
 
-    public AccessCredentialDisableReason(int value) {
+    public AccessCredentialDisableReason(final int value) {
         super(value);
     }
 
-    public AccessCredentialDisableReason(ByteQueue queue) {
+    public AccessCredentialDisableReason(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == disabled.intValue())
             return "disabled";
         if (type == disabledNeedsProvisioning.intValue())

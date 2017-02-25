@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -40,20 +40,19 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ConfirmedPrivateTransferRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = 621779506703151368L;
-
     public static final byte TYPE_ID = 18;
 
     private final UnsignedInteger vendorId;
     private final UnsignedInteger serviceNumber;
     private final Encodable serviceParameters;
 
-    public ConfirmedPrivateTransferRequest(int vendorId, int serviceNumber, Encodable serviceParameters) {
+    public ConfirmedPrivateTransferRequest(final int vendorId, final int serviceNumber,
+            final Encodable serviceParameters) {
         this(new UnsignedInteger(vendorId), new UnsignedInteger(serviceNumber), serviceParameters);
     }
 
-    public ConfirmedPrivateTransferRequest(UnsignedInteger vendorId, UnsignedInteger serviceNumber,
-            Encodable serviceParameters) {
+    public ConfirmedPrivateTransferRequest(final UnsignedInteger vendorId, final UnsignedInteger serviceNumber,
+            final Encodable serviceParameters) {
         this.vendorId = vendorId;
         this.serviceNumber = serviceNumber;
         this.serviceParameters = serviceParameters;
@@ -65,20 +64,20 @@ public class ConfirmedPrivateTransferRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) {
         localDevice.getEventHandler().firePrivateTransfer(from, vendorId, serviceNumber, (Sequence) serviceParameters);
         // TODO the handler should return the result block, rather than using null here.
         return new ConfirmedPrivateTransferAck(vendorId, serviceNumber, new Null());
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, vendorId, 0);
         write(queue, serviceNumber, 1);
         writeOptional(queue, serviceParameters, 2);
     }
 
-    ConfirmedPrivateTransferRequest(ByteQueue queue) throws BACnetException {
+    ConfirmedPrivateTransferRequest(final ByteQueue queue) throws BACnetException {
         vendorId = read(queue, UnsignedInteger.class, 0);
         serviceNumber = read(queue, UnsignedInteger.class, 1);
         serviceParameters = readVendorSpecific(queue, vendorId, serviceNumber,
@@ -101,14 +100,14 @@ public class ConfirmedPrivateTransferRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((serviceNumber == null) ? 0 : serviceNumber.hashCode());
-        result = PRIME * result + ((serviceParameters == null) ? 0 : serviceParameters.hashCode());
-        result = PRIME * result + ((vendorId == null) ? 0 : vendorId.hashCode());
+        result = PRIME * result + (serviceNumber == null ? 0 : serviceNumber.hashCode());
+        result = PRIME * result + (serviceParameters == null ? 0 : serviceParameters.hashCode());
+        result = PRIME * result + (vendorId == null ? 0 : vendorId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -119,20 +118,17 @@ public class ConfirmedPrivateTransferRequest extends ConfirmedRequestService {
         if (serviceNumber == null) {
             if (other.serviceNumber != null)
                 return false;
-        }
-        else if (!serviceNumber.equals(other.serviceNumber))
+        } else if (!serviceNumber.equals(other.serviceNumber))
             return false;
         if (serviceParameters == null) {
             if (other.serviceParameters != null)
                 return false;
-        }
-        else if (!serviceParameters.equals(other.serviceParameters))
+        } else if (!serviceParameters.equals(other.serviceParameters))
             return false;
         if (vendorId == null) {
             if (other.vendorId != null)
                 return false;
-        }
-        else if (!vendorId.equals(other.vendorId))
+        } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
     }

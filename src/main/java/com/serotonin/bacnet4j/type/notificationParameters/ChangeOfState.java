@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.notificationParameters;
@@ -33,33 +33,26 @@ import com.serotonin.bacnet4j.type.constructed.PropertyStates;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfState extends NotificationParameters {
-    private static final long serialVersionUID = -3581834332371728769L;
-
+public class ChangeOfState extends NotificationParameter {
     public static final byte TYPE_ID = 1;
 
     private final PropertyStates newState;
     private final StatusFlags statusFlags;
 
-    public ChangeOfState(PropertyStates newState, StatusFlags statusFlags) {
+    public ChangeOfState(final PropertyStates newState, final StatusFlags statusFlags) {
         this.newState = newState;
         this.statusFlags = statusFlags;
     }
 
     @Override
-    protected void writeImpl(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, newState, 0);
         write(queue, statusFlags, 1);
     }
 
-    public ChangeOfState(ByteQueue queue) throws BACnetException {
+    public ChangeOfState(final ByteQueue queue) throws BACnetException {
         newState = read(queue, PropertyStates.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
-    }
-
-    @Override
-    protected int getTypeId() {
-        return TYPE_ID;
     }
 
     public PropertyStates getNewState() {
@@ -79,13 +72,13 @@ public class ChangeOfState extends NotificationParameters {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((newState == null) ? 0 : newState.hashCode());
-        result = PRIME * result + ((statusFlags == null) ? 0 : statusFlags.hashCode());
+        result = PRIME * result + (newState == null ? 0 : newState.hashCode());
+        result = PRIME * result + (statusFlags == null ? 0 : statusFlags.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -96,14 +89,12 @@ public class ChangeOfState extends NotificationParameters {
         if (newState == null) {
             if (other.newState != null)
                 return false;
-        }
-        else if (!newState.equals(other.newState))
+        } else if (!newState.equals(other.newState))
             return false;
         if (statusFlags == null) {
             if (other.statusFlags != null)
                 return false;
-        }
-        else if (!statusFlags.equals(other.statusFlags))
+        } else if (!statusFlags.equals(other.statusFlags))
             return false;
         return true;
     }

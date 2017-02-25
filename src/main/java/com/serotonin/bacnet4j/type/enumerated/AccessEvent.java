@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessEvent extends Enumerated {
-    private static final long serialVersionUID = -7727581470800473291L;
-
     public static final AccessEvent none = new AccessEvent(0);
     public static final AccessEvent granted = new AccessEvent(1);
     public static final AccessEvent muster = new AccessEvent(2);
@@ -104,17 +102,17 @@ public class AccessEvent extends Enumerated {
             deniedCredentialInactivity, deniedCredentialDisabled, deniedNoAccompaniment, deniedIncorrectAccompaniment,
             deniedLockout, deniedVerificationFailed, deniedVerificationTimeout, deniedOther, };
 
-    public AccessEvent(int value) {
+    public AccessEvent(final int value) {
         super(value);
     }
 
-    public AccessEvent(ByteQueue queue) {
+    public AccessEvent(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == none.intValue())
             return "none";
         if (type == granted.intValue())

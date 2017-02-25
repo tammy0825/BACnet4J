@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LifeSafetyMode extends Enumerated {
-    private static final long serialVersionUID = -4939675355903263402L;
     public static final LifeSafetyMode off = new LifeSafetyMode(0);
     public static final LifeSafetyMode on = new LifeSafetyMode(1);
     public static final LifeSafetyMode test = new LifeSafetyMode(2);
@@ -49,14 +48,14 @@ public class LifeSafetyMode extends Enumerated {
     public static final LifeSafetyMode automaticReleaseDisabled = new LifeSafetyMode(13);
     public static final LifeSafetyMode defaultMode = new LifeSafetyMode(14);
 
-    public static final LifeSafetyMode[] ALL = { off, on, test, manned, unmanned, armed, disarmed, prearmed, slow,
-            fast, disconnected, enabled, disabled, automaticReleaseDisabled, defaultMode, };
+    public static final LifeSafetyMode[] ALL = { off, on, test, manned, unmanned, armed, disarmed, prearmed, slow, fast,
+            disconnected, enabled, disabled, automaticReleaseDisabled, defaultMode, };
 
-    public LifeSafetyMode(int value) {
+    public LifeSafetyMode(final int value) {
         super(value);
     }
 
-    public LifeSafetyMode(ByteQueue queue) {
+    public LifeSafetyMode(final ByteQueue queue) {
         super(queue);
     }
 }

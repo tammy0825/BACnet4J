@@ -35,10 +35,10 @@ import java.util.Map;
 
 import com.serotonin.bacnet4j.exception.PropertyValueException;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
@@ -59,8 +59,8 @@ public class PropertyValues implements Iterable<ObjectPropertyReference>, Serial
     public Encodable get(final ObjectPropertyReference opr) throws PropertyValueException {
         final Encodable e = getNoErrorCheck(opr);
 
-        if (e instanceof BACnetError)
-            throw new PropertyValueException((BACnetError) e);
+        if (e instanceof ErrorClassAndCode)
+            throw new PropertyValueException((ErrorClassAndCode) e);
 
         return e;
     }
@@ -102,13 +102,13 @@ public class PropertyValues implements Iterable<ObjectPropertyReference>, Serial
     }
 
     public static String getString(final Encodable value, final String defaultValue) {
-        if (value == null || value instanceof BACnetError)
+        if (value == null || value instanceof ErrorClassAndCode)
             return defaultValue;
         return value.toString();
     }
 
     public static Encodable getNullOnError(final Encodable value) {
-        if (value instanceof BACnetError)
+        if (value instanceof ErrorClassAndCode)
             return null;
         return value;
     }

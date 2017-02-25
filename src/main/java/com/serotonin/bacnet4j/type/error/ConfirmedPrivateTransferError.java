@@ -36,23 +36,21 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.SequenceDefinition;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ConfirmedPrivateTransferError extends BaseError {
-    private static final long serialVersionUID = -4736829685989649711L;
-
     public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResolutions = new HashMap<>();
 
+    private final ErrorClassAndCode errorType;
     private final UnsignedInteger vendorId;
     private final UnsignedInteger serviceNumber;
     private final Encodable errorParameters;
 
-    public ConfirmedPrivateTransferError(final byte choice, final BACnetError error, final UnsignedInteger vendorId,
+    public ConfirmedPrivateTransferError(final ErrorClassAndCode errorType, final UnsignedInteger vendorId,
             final UnsignedInteger serviceNumber, final BaseType errorParameters) {
-        super(choice, error);
+        this.errorType = errorType;
         this.vendorId = vendorId;
         this.serviceNumber = serviceNumber;
         this.errorParameters = errorParameters;
@@ -60,28 +58,49 @@ public class ConfirmedPrivateTransferError extends BaseError {
 
     @Override
     public void write(final ByteQueue queue) {
-        queue.push(choice);
-        write(queue, error, 0);
+        write(queue, errorType, 0);
         write(queue, vendorId, 1);
         write(queue, serviceNumber, 2);
         writeOptional(queue, errorParameters, 3);
     }
 
-    ConfirmedPrivateTransferError(final byte choice, final ByteQueue queue) throws BACnetException {
-        super(choice, queue, 0);
+    public ConfirmedPrivateTransferError(final ByteQueue queue) throws BACnetException {
+        errorType = read(queue, ErrorClassAndCode.class, 0);
         vendorId = read(queue, UnsignedInteger.class, 1);
         serviceNumber = read(queue, UnsignedInteger.class, 2);
         errorParameters = readVendorSpecific(queue, vendorId, serviceNumber,
                 LocalDevice.vendorServiceRequestResolutions, 3);
     }
 
+    public ErrorClassAndCode getErrorType() {
+        return errorType;
+    }
+
+    public UnsignedInteger getVendorId() {
+        return vendorId;
+    }
+
+    public UnsignedInteger getServiceNumber() {
+        return serviceNumber;
+    }
+
+    public Encodable getErrorParameters() {
+        return errorParameters;
+    }
+
+    @Override
+    public ErrorClassAndCode getErrorClassAndCode() {
+        return errorType;
+    }
+
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = super.hashCode();
-        result = PRIME * result + (errorParameters == null ? 0 : errorParameters.hashCode());
-        result = PRIME * result + (serviceNumber == null ? 0 : serviceNumber.hashCode());
-        result = PRIME * result + (vendorId == null ? 0 : vendorId.hashCode());
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (errorParameters == null ? 0 : errorParameters.hashCode());
+        result = prime * result + (errorType == null ? 0 : errorType.hashCode());
+        result = prime * result + (serviceNumber == null ? 0 : serviceNumber.hashCode());
+        result = prime * result + (vendorId == null ? 0 : vendorId.hashCode());
         return result;
     }
 
@@ -89,7 +108,7 @@ public class ConfirmedPrivateTransferError extends BaseError {
     public boolean equals(final Object obj) {
         if (this == obj)
             return true;
-        if (!super.equals(obj))
+        if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
@@ -98,6 +117,11 @@ public class ConfirmedPrivateTransferError extends BaseError {
             if (other.errorParameters != null)
                 return false;
         } else if (!errorParameters.equals(other.errorParameters))
+            return false;
+        if (errorType == null) {
+            if (other.errorType != null)
+                return false;
+        } else if (!errorType.equals(other.errorType))
             return false;
         if (serviceNumber == null) {
             if (other.serviceNumber != null)

@@ -32,10 +32,8 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ObjectTypesSupported extends BitString {
-    private static final long serialVersionUID = 4916909530588071979L;
-
     public ObjectTypesSupported() {
-        super(new boolean[55]);
+        super(new boolean[60]);
     }
 
     public ObjectTypesSupported(final ByteQueue queue) {
@@ -290,6 +288,14 @@ public class ObjectTypesSupported extends BitString {
         getValue()[30] = accessDoor;
     }
 
+    public boolean isTimer() {
+        return getArrayValue(31);
+    }
+
+    public void setTimer(final boolean timer) {
+        getValue()[31] = timer;
+    }
+
     public boolean isAccessCredential() {
         return getArrayValue(32);
     }
@@ -472,5 +478,45 @@ public class ObjectTypesSupported extends BitString {
 
     public void setLightingOutput(final boolean lightingOutput) {
         getValue()[54] = lightingOutput;
+    }
+
+    public boolean isBinaryLightingOutput() {
+        return getArrayValue(55);
+    }
+
+    public void setBinaryLightingOutput(final boolean binaryLightingOutput) {
+        getValue()[55] = binaryLightingOutput;
+    }
+
+    public boolean isNetworkPort() {
+        return getArrayValue(56);
+    }
+
+    public void setNetworkPort(final boolean networkPort) {
+        getValue()[56] = networkPort;
+    }
+
+    public boolean isElevatorGroup() {
+        return getArrayValue(57);
+    }
+
+    public void setElevatorGroup(final boolean elevatorGroup) {
+        getValue()[57] = elevatorGroup;
+    }
+
+    public boolean isEscalator() {
+        return getArrayValue(58);
+    }
+
+    public void setEscalator(final boolean escalator) {
+        getValue()[58] = escalator;
+    }
+
+    public boolean isLift() {
+        return getArrayValue(59);
+    }
+
+    public void setLift(final boolean lift) {
+        getValue()[59] = lift;
     }
 }

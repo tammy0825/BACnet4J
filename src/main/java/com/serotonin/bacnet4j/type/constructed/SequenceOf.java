@@ -40,7 +40,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class SequenceOf<E extends Encodable> extends BaseType implements Iterable<E> {
-    private static final long serialVersionUID = -5118339248636778224L;
     protected final List<E> values;
 
     public SequenceOf() {

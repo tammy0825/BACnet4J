@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.service.confirmed;
@@ -40,8 +40,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LifeSafetyOperationRequest extends ConfirmedRequestService {
-    private static final long serialVersionUID = -4852452672635267599L;
-
     public static final byte TYPE_ID = 27;
 
     private final UnsignedInteger requestingProcessIdentifier;
@@ -49,8 +47,9 @@ public class LifeSafetyOperationRequest extends ConfirmedRequestService {
     private final LifeSafetyOperation request;
     private final ObjectIdentifier objectIdentifier;
 
-    public LifeSafetyOperationRequest(UnsignedInteger requestingProcessIdentifier, CharacterString requestingSource,
-            LifeSafetyOperation request, ObjectIdentifier objectIdentifier) {
+    public LifeSafetyOperationRequest(final UnsignedInteger requestingProcessIdentifier,
+            final CharacterString requestingSource, final LifeSafetyOperation request,
+            final ObjectIdentifier objectIdentifier) {
         this.requestingProcessIdentifier = requestingProcessIdentifier;
         this.requestingSource = requestingSource;
         this.request = request;
@@ -63,19 +62,19 @@ public class LifeSafetyOperationRequest extends ConfirmedRequestService {
     }
 
     @Override
-    public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException {
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, requestingProcessIdentifier, 0);
         write(queue, requestingSource, 1);
         write(queue, request, 2);
         writeOptional(queue, objectIdentifier, 3);
     }
 
-    LifeSafetyOperationRequest(ByteQueue queue) throws BACnetException {
+    LifeSafetyOperationRequest(final ByteQueue queue) throws BACnetException {
         requestingProcessIdentifier = read(queue, UnsignedInteger.class, 0);
         requestingSource = read(queue, CharacterString.class, 1);
         request = read(queue, LifeSafetyOperation.class, 2);
@@ -86,15 +85,15 @@ public class LifeSafetyOperationRequest extends ConfirmedRequestService {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((objectIdentifier == null) ? 0 : objectIdentifier.hashCode());
-        result = PRIME * result + ((request == null) ? 0 : request.hashCode());
-        result = PRIME * result + ((requestingProcessIdentifier == null) ? 0 : requestingProcessIdentifier.hashCode());
-        result = PRIME * result + ((requestingSource == null) ? 0 : requestingSource.hashCode());
+        result = PRIME * result + (objectIdentifier == null ? 0 : objectIdentifier.hashCode());
+        result = PRIME * result + (request == null ? 0 : request.hashCode());
+        result = PRIME * result + (requestingProcessIdentifier == null ? 0 : requestingProcessIdentifier.hashCode());
+        result = PRIME * result + (requestingSource == null ? 0 : requestingSource.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -105,26 +104,22 @@ public class LifeSafetyOperationRequest extends ConfirmedRequestService {
         if (objectIdentifier == null) {
             if (other.objectIdentifier != null)
                 return false;
-        }
-        else if (!objectIdentifier.equals(other.objectIdentifier))
+        } else if (!objectIdentifier.equals(other.objectIdentifier))
             return false;
         if (request == null) {
             if (other.request != null)
                 return false;
-        }
-        else if (!request.equals(other.request))
+        } else if (!request.equals(other.request))
             return false;
         if (requestingProcessIdentifier == null) {
             if (other.requestingProcessIdentifier != null)
                 return false;
-        }
-        else if (!requestingProcessIdentifier.equals(other.requestingProcessIdentifier))
+        } else if (!requestingProcessIdentifier.equals(other.requestingProcessIdentifier))
             return false;
         if (requestingSource == null) {
             if (other.requestingSource != null)
                 return false;
-        }
-        else if (!requestingSource.equals(other.requestingSource))
+        } else if (!requestingSource.equals(other.requestingSource))
             return false;
         return true;
     }

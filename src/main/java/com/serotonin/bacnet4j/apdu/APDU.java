@@ -23,12 +23,10 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.apdu;
-
-import java.io.Serializable;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.IllegalPduTypeException;
@@ -36,10 +34,8 @@ import com.serotonin.bacnet4j.npdu.NPCI.NetworkPriority;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-abstract public class APDU implements Serializable {
-    private static final long serialVersionUID = -5844093063653180470L;
-
-    public static APDU createAPDU(ServicesSupported services, ByteQueue queue) throws BACnetException {
+abstract public class APDU {
+    public static APDU createAPDU(final ServicesSupported services, final ByteQueue queue) throws BACnetException {
         // Get the first byte. The 4 high-order bits will tell us the type of PDU this is.
         byte type = queue.peek(0);
         type = (byte) ((type & 0xff) >> 4);
@@ -67,7 +63,7 @@ abstract public class APDU implements Serializable {
 
     abstract public void write(ByteQueue queue);
 
-    protected int getShiftedTypeId(byte typeId) {
+    protected int getShiftedTypeId(final byte typeId) {
         return typeId << 4;
     }
 

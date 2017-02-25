@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AuthenticationFactorType extends Enumerated {
-    private static final long serialVersionUID = -665947098579814279L;
-
     public static final AuthenticationFactorType undefined = new AuthenticationFactorType(0);
     public static final AuthenticationFactorType error = new AuthenticationFactorType(1);
     public static final AuthenticationFactorType custom = new AuthenticationFactorType(2);

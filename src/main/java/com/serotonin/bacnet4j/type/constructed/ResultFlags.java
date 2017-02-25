@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,13 +32,11 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ResultFlags extends BitString {
-    private static final long serialVersionUID = 7657134249555371620L;
-
-    public ResultFlags(boolean firstItem, boolean lastItem, boolean moreItems) {
+    public ResultFlags(final boolean firstItem, final boolean lastItem, final boolean moreItems) {
         super(new boolean[] { firstItem, lastItem, moreItems });
     }
 
-    public ResultFlags(ByteQueue queue) {
+    public ResultFlags(final ByteQueue queue) {
         super(queue);
     }
 

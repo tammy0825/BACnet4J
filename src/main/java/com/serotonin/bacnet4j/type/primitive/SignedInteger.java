@@ -36,8 +36,6 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  * Represents the INTERGER type
  */
 public class SignedInteger extends Primitive {
-    private static final long serialVersionUID = 3344404709705407437L;
-
     public static final byte TYPE_ID = 3;
 
     private int smallValue;

@@ -23,56 +23,63 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.exception;
 
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.error.BACnetError;
 import com.serotonin.bacnet4j.type.error.BaseError;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 
 public class BACnetErrorException extends BACnetException {
     private static final long serialVersionUID = -1;
 
-    private final BaseError error;
+    private final BACnetError bacnetError;
 
-    public BACnetErrorException(byte choice, ErrorClass errorClass, ErrorCode errorCode) {
-        super(getBaseMessage(errorClass, errorCode, null));
-        error = new BaseError(choice, new BACnetError(errorClass, errorCode));
+    public BACnetErrorException(final byte choice, final BaseError baseError) {
+        super(getBaseMessage(baseError.getErrorClassAndCode().getErrorClass(),
+                baseError.getErrorClassAndCode().getErrorCode(), null));
+        bacnetError = new BACnetError(choice, baseError);
     }
 
-    public BACnetErrorException(byte choice, BACnetServiceException e) {
+    public BACnetErrorException(final byte choice, final ErrorClass errorClass, final ErrorCode errorCode) {
+        super(getBaseMessage(errorClass, errorCode, null));
+        bacnetError = new BACnetError(choice, new ErrorClassAndCode(errorClass, errorCode));
+    }
+
+    public BACnetErrorException(final byte choice, final BACnetServiceException e) {
         super(e);
-        error = new BaseError(choice, new BACnetError(e.getErrorClass(), e.getErrorCode()));
+        bacnetError = new BACnetError(choice, new ErrorClassAndCode(e.getErrorClass(), e.getErrorCode()));
     }
 
-    public BACnetErrorException(ErrorClass errorClass, ErrorCode errorCode) {
+    public BACnetErrorException(final ErrorClass errorClass, final ErrorCode errorCode) {
         super(getBaseMessage(errorClass, errorCode, null));
-        error = new BaseError((byte) 127, new BACnetError(errorClass, errorCode));
+        bacnetError = new BACnetError(127, new ErrorClassAndCode(errorClass, errorCode));
     }
 
-    public BACnetErrorException(BACnetServiceException e) {
+    public BACnetErrorException(final BACnetServiceException e) {
         super(e.getMessage());
-        error = new BaseError((byte) 127, new BACnetError(e.getErrorClass(), e.getErrorCode()));
+        bacnetError = new BACnetError(127, new ErrorClassAndCode(e.getErrorClass(), e.getErrorCode()));
     }
 
-    public BACnetErrorException(ErrorClass errorClass, ErrorCode errorCode, String message) {
+    public BACnetErrorException(final ErrorClass errorClass, final ErrorCode errorCode, final String message) {
         super(getBaseMessage(errorClass, errorCode, message));
-        error = new BaseError((byte) 127, new BACnetError(errorClass, errorCode));
+        bacnetError = new BACnetError(127, new ErrorClassAndCode(errorClass, errorCode));
     }
 
-    public BACnetErrorException(BaseError error) {
-        this.error = error;
+    public BACnetErrorException(final BACnetError bacnetError) {
+        this.bacnetError = bacnetError;
     }
 
-    public BaseError getError() {
-        return error;
+    public BACnetError getBacnetError() {
+        return bacnetError;
     }
 
-    private static String getBaseMessage(ErrorClass errorClass, ErrorCode errorCode, String message) {
-        StringBuilder sb = new StringBuilder();
+    private static String getBaseMessage(final ErrorClass errorClass, final ErrorCode errorCode, final String message) {
+        final StringBuilder sb = new StringBuilder();
         sb.append(errorClass.toString());
         sb.append(": ");
         sb.append(errorCode.toString());

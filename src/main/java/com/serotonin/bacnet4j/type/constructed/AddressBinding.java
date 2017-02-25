@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -33,22 +33,21 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AddressBinding extends BaseType {
-    private static final long serialVersionUID = -3619507415957976531L;
     private final ObjectIdentifier deviceObjectIdentifier;
     private final Address deviceAddress;
 
-    public AddressBinding(ObjectIdentifier deviceObjectIdentifier, Address deviceAddress) {
+    public AddressBinding(final ObjectIdentifier deviceObjectIdentifier, final Address deviceAddress) {
         this.deviceObjectIdentifier = deviceObjectIdentifier;
         this.deviceAddress = deviceAddress;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, deviceObjectIdentifier);
         write(queue, deviceAddress);
     }
 
-    public AddressBinding(ByteQueue queue) throws BACnetException {
+    public AddressBinding(final ByteQueue queue) throws BACnetException {
         deviceObjectIdentifier = read(queue, ObjectIdentifier.class);
         deviceAddress = read(queue, Address.class);
     }
@@ -65,13 +64,13 @@ public class AddressBinding extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((deviceAddress == null) ? 0 : deviceAddress.hashCode());
-        result = PRIME * result + ((deviceObjectIdentifier == null) ? 0 : deviceObjectIdentifier.hashCode());
+        result = PRIME * result + (deviceAddress == null ? 0 : deviceAddress.hashCode());
+        result = PRIME * result + (deviceObjectIdentifier == null ? 0 : deviceObjectIdentifier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -82,14 +81,12 @@ public class AddressBinding extends BaseType {
         if (deviceAddress == null) {
             if (other.deviceAddress != null)
                 return false;
-        }
-        else if (!deviceAddress.equals(other.deviceAddress))
+        } else if (!deviceAddress.equals(other.deviceAddress))
             return false;
         if (deviceObjectIdentifier == null) {
             if (other.deviceObjectIdentifier != null)
                 return false;
-        }
-        else if (!deviceObjectIdentifier.equals(other.deviceObjectIdentifier))
+        } else if (!deviceObjectIdentifier.equals(other.deviceObjectIdentifier))
             return false;
         return true;
     }

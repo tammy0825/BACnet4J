@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,17 +32,16 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LogMultipleRecord extends BaseType {
-    private static final long serialVersionUID = 3817374635968734673L;
     private final DateTime timestamp;
     private final LogData logData;
 
-    public LogMultipleRecord(DateTime timestamp, LogData logData) {
+    public LogMultipleRecord(final DateTime timestamp, final LogData logData) {
         this.timestamp = timestamp;
         this.logData = logData;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, timestamp, 0);
         write(queue, logData, 1);
     }
@@ -55,7 +54,7 @@ public class LogMultipleRecord extends BaseType {
         return logData;
     }
 
-    public LogMultipleRecord(ByteQueue queue) throws BACnetException {
+    public LogMultipleRecord(final ByteQueue queue) throws BACnetException {
         timestamp = read(queue, DateTime.class, 0);
         logData = read(queue, LogData.class, 1);
     }
@@ -64,13 +63,13 @@ public class LogMultipleRecord extends BaseType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((logData == null) ? 0 : logData.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = prime * result + (logData == null ? 0 : logData.hashCode());
+        result = prime * result + (timestamp == null ? 0 : timestamp.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -81,14 +80,12 @@ public class LogMultipleRecord extends BaseType {
         if (logData == null) {
             if (other.logData != null)
                 return false;
-        }
-        else if (!logData.equals(other.logData))
+        } else if (!logData.equals(other.logData))
             return false;
         if (timestamp == null) {
             if (other.timestamp != null)
                 return false;
-        }
-        else if (!timestamp.equals(other.timestamp))
+        } else if (!timestamp.equals(other.timestamp))
             return false;
         return true;
     }

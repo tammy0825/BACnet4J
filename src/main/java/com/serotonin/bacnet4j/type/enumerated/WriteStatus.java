@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,8 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WriteStatus extends Enumerated {
-    private static final long serialVersionUID = -1825768763307283055L;
-
     public static final WriteStatus idle = new WriteStatus(0);
     public static final WriteStatus inProgress = new WriteStatus(1);
     public static final WriteStatus successful = new WriteStatus(2);
@@ -41,17 +39,17 @@ public class WriteStatus extends Enumerated {
 
     public static final WriteStatus[] ALL = { idle, inProgress, successful, failed, };
 
-    public WriteStatus(int value) {
+    public WriteStatus(final int value) {
         super(value);
     }
 
-    public WriteStatus(ByteQueue queue) {
+    public WriteStatus(final ByteQueue queue) {
         super(queue);
     }
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == idle.intValue())
             return "idle";
         if (type == inProgress.intValue())

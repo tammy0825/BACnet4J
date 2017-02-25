@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -34,22 +34,21 @@ import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class TimeValue extends BaseType {
-    private static final long serialVersionUID = 6449737212397369712L;
     private final Time time;
     private final Primitive value;
 
-    public TimeValue(Time time, Primitive value) {
+    public TimeValue(final Time time, final Primitive value) {
         this.time = time;
         this.value = value;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, time);
         write(queue, value);
     }
 
-    public TimeValue(ByteQueue queue) throws BACnetException {
+    public TimeValue(final ByteQueue queue) throws BACnetException {
         time = read(queue, Time.class);
         value = read(queue, Primitive.class);
     }
@@ -66,13 +65,13 @@ public class TimeValue extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((time == null) ? 0 : time.hashCode());
-        result = PRIME * result + ((value == null) ? 0 : value.hashCode());
+        result = PRIME * result + (time == null ? 0 : time.hashCode());
+        result = PRIME * result + (value == null ? 0 : value.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -83,14 +82,12 @@ public class TimeValue extends BaseType {
         if (time == null) {
             if (other.time != null)
                 return false;
-        }
-        else if (!time.equals(other.time))
+        } else if (!time.equals(other.time))
             return false;
         if (value == null) {
             if (other.value != null)
                 return false;
-        }
-        else if (!value.equals(other.value))
+        } else if (!value.equals(other.value))
             return false;
         return true;
     }

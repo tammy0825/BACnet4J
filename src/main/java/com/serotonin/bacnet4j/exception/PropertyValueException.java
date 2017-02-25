@@ -28,7 +28,7 @@
  */
 package com.serotonin.bacnet4j.exception;
 
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 
 /**
  * @author Matthew Lohbihler
@@ -36,13 +36,13 @@ import com.serotonin.bacnet4j.type.constructed.BACnetError;
 public class PropertyValueException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    private final BACnetError error;
+    private final ErrorClassAndCode error;
 
-    public PropertyValueException(BACnetError error) {
+    public PropertyValueException(ErrorClassAndCode error) {
         this.error = error;
     }
 
-    public BACnetError getError() {
+    public ErrorClassAndCode getError() {
         return error;
     }
 }

@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Polarity extends Enumerated {
-    private static final long serialVersionUID = -1843145729195555092L;
     public static final Polarity normal = new Polarity(0);
     public static final Polarity reverse = new Polarity(1);
 

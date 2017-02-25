@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -33,22 +33,21 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Prescale extends BaseType {
-    private static final long serialVersionUID = -4499669866775224187L;
     private final UnsignedInteger multiplier;
     private final UnsignedInteger moduloDivide;
 
-    public Prescale(UnsignedInteger multiplier, UnsignedInteger moduloDivide) {
+    public Prescale(final UnsignedInteger multiplier, final UnsignedInteger moduloDivide) {
         this.multiplier = multiplier;
         this.moduloDivide = moduloDivide;
     }
 
     @Override
-    public void write(ByteQueue queue) {
+    public void write(final ByteQueue queue) {
         write(queue, multiplier, 0);
         write(queue, moduloDivide, 1);
     }
 
-    public Prescale(ByteQueue queue) throws BACnetException {
+    public Prescale(final ByteQueue queue) throws BACnetException {
         multiplier = read(queue, UnsignedInteger.class, 0);
         moduloDivide = read(queue, UnsignedInteger.class, 1);
     }
@@ -65,13 +64,13 @@ public class Prescale extends BaseType {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((moduloDivide == null) ? 0 : moduloDivide.hashCode());
-        result = PRIME * result + ((multiplier == null) ? 0 : multiplier.hashCode());
+        result = PRIME * result + (moduloDivide == null ? 0 : moduloDivide.hashCode());
+        result = PRIME * result + (multiplier == null ? 0 : multiplier.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -82,14 +81,12 @@ public class Prescale extends BaseType {
         if (moduloDivide == null) {
             if (other.moduloDivide != null)
                 return false;
-        }
-        else if (!moduloDivide.equals(other.moduloDivide))
+        } else if (!moduloDivide.equals(other.moduloDivide))
             return false;
         if (multiplier == null) {
             if (other.multiplier != null)
                 return false;
-        }
-        else if (!multiplier.equals(other.multiplier))
+        } else if (!multiplier.equals(other.multiplier))
             return false;
         return true;
     }

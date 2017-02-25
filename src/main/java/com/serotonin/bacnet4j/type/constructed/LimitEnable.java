@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.constructed;
@@ -32,13 +32,11 @@ import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class LimitEnable extends BitString {
-    private static final long serialVersionUID = -8754983228968085042L;
-
-    public LimitEnable(boolean lowLimitEnable, boolean highLimitEnable) {
+    public LimitEnable(final boolean lowLimitEnable, final boolean highLimitEnable) {
         super(new boolean[] { lowLimitEnable, highLimitEnable });
     }
 
-    public LimitEnable(ByteQueue queue) {
+    public LimitEnable(final ByteQueue queue) {
         super(queue);
     }
 

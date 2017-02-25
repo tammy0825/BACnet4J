@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BackupState extends Enumerated {
-    private static final long serialVersionUID = -4811672152182130623L;
     public static final BackupState idle = new BackupState(0);
     public static final BackupState preparingForBackup = new BackupState(1);
     public static final BackupState preparingForRestore = new BackupState(2);
@@ -44,11 +43,31 @@ public class BackupState extends Enumerated {
     public static final BackupState[] ALL = { idle, preparingForBackup, preparingForRestore, performingABackup,
             performingARestore, backupFailure, restoreFailure, };
 
-    public BackupState(int value) {
+    public BackupState(final int value) {
         super(value);
     }
 
-    public BackupState(ByteQueue queue) {
+    public BackupState(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        final int type = intValue();
+        if (type == idle.intValue())
+            return "idle";
+        if (type == preparingForBackup.intValue())
+            return "preparingForBackup";
+        if (type == preparingForRestore.intValue())
+            return "preparingForRestore";
+        if (type == performingABackup.intValue())
+            return "performingABackup";
+        if (type == performingARestore.intValue())
+            return "performingARestore";
+        if (type == backupFailure.intValue())
+            return "backupFailure";
+        if (type == restoreFailure.intValue())
+            return "restoreFailure";
+        return "Unknown(" + type + ")";
     }
 }

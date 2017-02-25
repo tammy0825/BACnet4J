@@ -65,12 +65,11 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.constructed.BACnetError;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
-import com.serotonin.bacnet4j.type.error.BaseError;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
@@ -509,7 +508,7 @@ public class DefaultTransport implements Transport, Runnable {
                 ConfirmedRequestService.checkConfirmedRequestService(servicesSupported, confAPDU.getServiceChoice());
             } catch (final BACnetErrorException e) {
                 final com.serotonin.bacnet4j.apdu.Error error = new com.serotonin.bacnet4j.apdu.Error(
-                        confAPDU.getInvokeId(), e.getError());
+                        confAPDU.getInvokeId(), e.getBacnetError());
                 try {
                     network.sendAPDU(from, linkService, error, false);
                 } catch (final BACnetException e1) {
@@ -536,8 +535,8 @@ public class DefaultTransport implements Transport, Runnable {
                 } catch (final BACnetException e) {
                     LOG.warn("Error handling incoming request", e);
                     final com.serotonin.bacnet4j.apdu.Error error = new com.serotonin.bacnet4j.apdu.Error(
-                            confAPDU.getInvokeId(), new BaseError((byte) 127,
-                                    new BACnetError(ErrorClass.services, ErrorCode.operationalProblem)));
+                            confAPDU.getInvokeId(), 127,
+                            new ErrorClassAndCode(ErrorClass.services, ErrorCode.operationalProblem));
                     try {
                         network.sendAPDU(from, linkService, error, false);
                     } catch (final BACnetException e1) {
@@ -716,15 +715,15 @@ public class DefaultTransport implements Transport, Runnable {
                         confAPDU.getServiceRequest());
                 sendConfirmedResponse(address, linkService, confAPDU, ackService);
             } catch (final BACnetErrorException e) {
-                network.sendAPDU(address, linkService, new com.serotonin.bacnet4j.apdu.Error(invokeId, e.getError()),
-                        false);
+                network.sendAPDU(address, linkService,
+                        new com.serotonin.bacnet4j.apdu.Error(invokeId, e.getBacnetError()), false);
             } catch (final BACnetRejectException e) {
                 network.sendAPDU(address, linkService, new Reject(invokeId, e.getRejectReason()), false);
             } catch (final BACnetException e) {
                 LOG.warn("Error handling incoming request", e);
                 final com.serotonin.bacnet4j.apdu.Error error = new com.serotonin.bacnet4j.apdu.Error(
-                        confAPDU.getInvokeId(),
-                        new BaseError((byte) 127, new BACnetError(ErrorClass.services, ErrorCode.operationalProblem)));
+                        confAPDU.getInvokeId(), 127,
+                        new ErrorClassAndCode(ErrorClass.services, ErrorCode.operationalProblem));
                 network.sendAPDU(address, linkService, error, false);
                 localDevice.getExceptionDispatcher().fireReceivedException(e);
             }

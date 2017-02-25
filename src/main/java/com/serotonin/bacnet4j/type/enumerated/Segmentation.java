@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.type.enumerated;
@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Segmentation extends Enumerated {
-    private static final long serialVersionUID = -7301676227213297779L;
     public static final Segmentation segmentedBoth = new Segmentation(0);
     public static final Segmentation segmentedTransmit = new Segmentation(1);
     public static final Segmentation segmentedReceive = new Segmentation(2);
@@ -40,11 +39,11 @@ public class Segmentation extends Enumerated {
 
     public static final Segmentation[] ALL = { segmentedBoth, segmentedTransmit, segmentedReceive, noSegmentation, };
 
-    public Segmentation(int value) {
+    public Segmentation(final int value) {
         super(value);
     }
 
-    public Segmentation(ByteQueue queue) {
+    public Segmentation(final ByteQueue queue) {
         super(queue);
     }
 
@@ -58,7 +57,7 @@ public class Segmentation extends Enumerated {
 
     @Override
     public String toString() {
-        int type = intValue();
+        final int type = intValue();
         if (type == segmentedBoth.intValue())
             return "both";
         if (type == segmentedTransmit.intValue())

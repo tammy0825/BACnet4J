@@ -1,146 +1,149 @@
+/*
+ * ============================================================================
+ * GNU General Public License
+ * ============================================================================
+ *
+ * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * When signing a commercial license with Infinite Automation Software,
+ * the following extension to GPL is made. A special exception to the GPL is
+ * included to allow you to distribute a combined work that includes BAcnet4J
+ * without being obliged to provide the source code for any proprietary components.
+ *
+ * See www.infiniteautomation.com for commercial license options.
+ *
+ * @author Matthew Lohbihler
+ */
 package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.primitive.BitString;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
+import com.serotonin.bacnet4j.type.primitive.Date;
+import com.serotonin.bacnet4j.type.primitive.Double;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.Null;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.type.primitive.Real;
+import com.serotonin.bacnet4j.type.primitive.SignedInteger;
+import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class ChannelValue extends BaseType {
-    private static final long serialVersionUID = -2620538935921657482L;
+    private static ChoiceOptions choiceOptions = new ChoiceOptions();
+    static {
+        choiceOptions.addPrimitive(Null.class);
+        choiceOptions.addPrimitive(Real.class);
+        choiceOptions.addPrimitive(Enumerated.class);
+        choiceOptions.addPrimitive(UnsignedInteger.class);
+        choiceOptions.addPrimitive(Boolean.class);
+        choiceOptions.addPrimitive(SignedInteger.class);
+        choiceOptions.addPrimitive(Double.class);
+        choiceOptions.addPrimitive(Time.class);
+        choiceOptions.addPrimitive(CharacterString.class);
+        choiceOptions.addPrimitive(OctetString.class);
+        choiceOptions.addPrimitive(BitString.class);
+        choiceOptions.addPrimitive(Date.class);
+        choiceOptions.addPrimitive(ObjectIdentifier.class);
+        choiceOptions.addContextual(0, LightingCommand.class);
+    }
 
-    private Null nullValue;
-    private Real realValue;
-    private BinaryPV binaryValue;
-    private UnsignedInteger integerValue;
-    private LightingCommand lightingCommand;
+    private final Choice choice;
 
     public ChannelValue(final Null nullValue) {
-        this.nullValue = nullValue;
+        this.choice = new Choice(nullValue, choiceOptions);
     }
 
     public ChannelValue(final Real realValue) {
-        this.realValue = realValue;
+        this.choice = new Choice(realValue, choiceOptions);
     }
 
-    public ChannelValue(final BinaryPV binaryValue) {
-        this.binaryValue = binaryValue;
+    public ChannelValue(final Enumerated enumeratedValue) {
+        this.choice = new Choice(enumeratedValue, choiceOptions);
     }
 
-    public ChannelValue(final UnsignedInteger integerValue) {
-        this.integerValue = integerValue;
+    public ChannelValue(final UnsignedInteger unsignedValue) {
+        this.choice = new Choice(unsignedValue, choiceOptions);
     }
 
-    public ChannelValue(final LightingCommand lightingCommand) {
-        this.lightingCommand = lightingCommand;
+    public ChannelValue(final Boolean booleanValue) {
+        this.choice = new Choice(booleanValue, choiceOptions);
     }
 
-    public Null getNullValue() {
-        return nullValue;
+    public ChannelValue(final SignedInteger integerValue) {
+        this.choice = new Choice(integerValue, choiceOptions);
     }
 
-    public Real getRealValue() {
-        return realValue;
+    public ChannelValue(final Double doubleValue) {
+        this.choice = new Choice(doubleValue, choiceOptions);
     }
 
-    public BinaryPV getBinaryValue() {
-        return binaryValue;
+    public ChannelValue(final Time timeValue) {
+        this.choice = new Choice(timeValue, choiceOptions);
     }
 
-    public UnsignedInteger getIntegerValue() {
-        return integerValue;
+    public ChannelValue(final CharacterString characterStringValue) {
+        this.choice = new Choice(characterStringValue, choiceOptions);
     }
 
-    public LightingCommand getLightingCommand() {
-        return lightingCommand;
+    public ChannelValue(final OctetString octetStringValue) {
+        this.choice = new Choice(octetStringValue, choiceOptions);
     }
 
-    public boolean isNull() {
-        return nullValue != null;
+    public ChannelValue(final BitString bitStringValue) {
+        this.choice = new Choice(bitStringValue, choiceOptions);
     }
 
-    public Encodable getValue() {
-        if (nullValue != null)
-            return nullValue;
-        if (realValue != null)
-            return realValue;
-        if (binaryValue != null)
-            return binaryValue;
-        if (integerValue != null)
-            return integerValue;
-        return lightingCommand;
+    public ChannelValue(final Date dateValue) {
+        this.choice = new Choice(dateValue, choiceOptions);
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("PriorityValue(");
-        if (nullValue != null)
-            sb.append("nullValue=").append(nullValue);
-        else if (realValue != null)
-            sb.append("realValue=").append(realValue);
-        else if (binaryValue != null)
-            sb.append("binaryValue=").append(binaryValue);
-        else if (integerValue != null)
-            sb.append("integerValue=").append(integerValue);
-        else if (lightingCommand != null)
-            sb.append("constructedValue=").append(lightingCommand);
-        sb.append(")");
-        return sb.toString();
+    public ChannelValue(final ObjectIdentifier objectIdentifierValue) {
+        this.choice = new Choice(objectIdentifierValue, choiceOptions);
+    }
+
+    public ChannelValue(final LightingCommand lightingCommandValue) {
+        this.choice = new Choice(0, lightingCommandValue, choiceOptions);
+    }
+
+    public Choice getChoice() {
+        return choice;
+    }
+
+    public <T extends Encodable> T getValue() {
+        return choice.getDatum();
     }
 
     @Override
     public void write(final ByteQueue queue) {
-        if (nullValue != null)
-            nullValue.write(queue);
-        else if (realValue != null)
-            realValue.write(queue);
-        else if (binaryValue != null)
-            binaryValue.write(queue);
-        else if (integerValue != null)
-            integerValue.write(queue);
-        else
-            lightingCommand.write(queue, 0);
+        write(queue, choice);
     }
 
     public ChannelValue(final ByteQueue queue) throws BACnetException {
-        // Sweet Jesus...
-        int tag = queue.peek(0) & 0xff;
-        if ((tag & 8) == 8) {
-            // A class tag, so this is a constructed value.
-            lightingCommand = read(queue, LightingCommand.class, 0);
-        } else {
-            // A primitive value
-            tag = tag >> 4;
-            if (tag == Null.TYPE_ID)
-                nullValue = new Null(queue);
-            else if (tag == Real.TYPE_ID)
-                realValue = new Real(queue);
-            else if (tag == Enumerated.TYPE_ID)
-                binaryValue = new BinaryPV(queue);
-            else if (tag == UnsignedInteger.TYPE_ID)
-                integerValue = new UnsignedInteger(queue);
-            else
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType,
-                        "Unsupported primitive id: " + tag);
-        }
+        choice = readChoice(queue, choiceOptions);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (binaryValue == null ? 0 : binaryValue.hashCode());
-        result = prime * result + (integerValue == null ? 0 : integerValue.hashCode());
-        result = prime * result + (lightingCommand == null ? 0 : lightingCommand.hashCode());
-        result = prime * result + (nullValue == null ? 0 : nullValue.hashCode());
-        result = prime * result + (realValue == null ? 0 : realValue.hashCode());
+        result = prime * result + (choice == null ? 0 : choice.hashCode());
         return result;
     }
 
@@ -153,30 +156,10 @@ public class ChannelValue extends BaseType {
         if (getClass() != obj.getClass())
             return false;
         final ChannelValue other = (ChannelValue) obj;
-        if (binaryValue == null) {
-            if (other.binaryValue != null)
+        if (choice == null) {
+            if (other.choice != null)
                 return false;
-        } else if (!binaryValue.equals(other.binaryValue))
-            return false;
-        if (integerValue == null) {
-            if (other.integerValue != null)
-                return false;
-        } else if (!integerValue.equals(other.integerValue))
-            return false;
-        if (lightingCommand == null) {
-            if (other.lightingCommand != null)
-                return false;
-        } else if (!lightingCommand.equals(other.lightingCommand))
-            return false;
-        if (nullValue == null) {
-            if (other.nullValue != null)
-                return false;
-        } else if (!nullValue.equals(other.nullValue))
-            return false;
-        if (realValue == null) {
-            if (other.realValue != null)
-                return false;
-        } else if (!realValue.equals(other.realValue))
+        } else if (!choice.equals(other.choice))
             return false;
         return true;
     }
