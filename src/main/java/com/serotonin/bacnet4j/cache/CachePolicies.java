@@ -53,8 +53,8 @@ public class CachePolicies {
     public CachePolicies() {
         // Set up the default policies.
 
-        // All devices never expire. Override as required.
-        devicePolicies.put(new RemoteDeviceIdentifier(null), RemoteEntityCachePolicy.NEVER_EXPIRE);
+        // All devices expire after 15 minutes. Override as required.
+        devicePolicies.put(new RemoteDeviceIdentifier(null), RemoteEntityCachePolicy.EXPIRE_15_MINUTES);
 
         // Objects within all devices never expire, assuming that object lists in devices never change. Override
         // as required.
