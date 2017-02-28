@@ -88,6 +88,13 @@ public class CovSubscription extends BaseType {
     }
 
     @Override
+    public String toString() {
+        return "CovSubscription [recipient=" + recipient + ", monitoredPropertyReference=" + monitoredPropertyReference
+                + ", issueConfirmedNotifications=" + issueConfirmedNotifications + ", timeRemaining=" + timeRemaining
+                + ", covIncrement=" + covIncrement + "]";
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
