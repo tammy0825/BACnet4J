@@ -81,6 +81,8 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         try {
             final BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
+
+            // TODO Ensure that these two parameter are either both null, or both not null.
             if (issueConfirmedNotifications == null && lifetime == null)
                 obj.removeCovSubscription(from, subscriberProcessIdentifier);
             else
