@@ -8,10 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -88,7 +88,7 @@ public class LocalDeviceTest {
         final RemoteDevice rd23 = d1.getRemoteDevice(2).get();
 
         // Device is cached, so it will still be the same instance.
-        Assert.assertTrue(rd21.getValue() == rd23);
+        assertTrue(rd21.getValue() == rd23);
     }
 
     @Test(expected = BACnetTimeoutException.class)
@@ -117,5 +117,19 @@ public class LocalDeviceTest {
 
         LOG.info("Local device initialized with device id {}", ld.getConfiguration().getInstanceId());
         assertNotEquals(ObjectIdentifier.UNINITIALIZED, ld.getConfiguration().getInstanceId());
+    }
+
+    @Test
+    public void getRemoteDeviceWithCallback() throws InterruptedException {
+        assertNull(d1.getCachedRemoteDevice(2));
+
+        // Ask for device 2 in a different thread.
+        final MutableObject<RemoteDevice> rd21 = new MutableObject<>();
+        d1.getRemoteDevice(2, (rd) -> rd21.setValue(rd), null, null, 1, TimeUnit.SECONDS);
+
+        Thread.sleep(1000);
+
+        assertNotNull(rd21.getValue());
+        assertTrue(rd21.getValue() == d1.getCachedRemoteDevice(2));
     }
 }
