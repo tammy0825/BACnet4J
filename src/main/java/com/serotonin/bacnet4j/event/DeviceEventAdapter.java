@@ -44,6 +44,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.MessagePriority;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -93,8 +94,8 @@ public class DeviceEventAdapter implements DeviceEventListener {
             final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier eventObjectIdentifier,
             final TimeStamp timeStamp, final UnsignedInteger notificationClass, final UnsignedInteger priority,
             final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
-            final com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, final EventState fromState,
-            final EventState toState, final NotificationParameters eventValues) {
+            final Boolean ackRequired, final EventState fromState, final EventState toState,
+            final NotificationParameters eventValues) {
         // Override as required
     }
 

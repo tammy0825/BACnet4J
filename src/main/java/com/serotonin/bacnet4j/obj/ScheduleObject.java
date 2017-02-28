@@ -117,8 +117,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.listOfObjectPropertyReferences, listOfObjectPropertyReferences);
         writePropertyInternal(PropertyIdentifier.priorityForWriting, new UnsignedInteger(priorityForWriting));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
-        writePropertyInternal(PropertyIdentifier.outOfService,
-                new com.serotonin.bacnet4j.type.primitive.Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         addMixin(new HasStatusFlagsMixin(this));

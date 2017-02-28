@@ -64,6 +64,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Null;
@@ -264,9 +265,9 @@ public class BACnetObject implements Serializable {
     //
     // COV
     public void addCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier,
-            final com.serotonin.bacnet4j.type.primitive.Boolean issueConfirmedNotifications,
-            final UnsignedInteger lifetime, final PropertyReference monitoredPropertyIdentifier,
-            final Real covIncrement) throws BACnetServiceException {
+            final Boolean issueConfirmedNotifications, final UnsignedInteger lifetime,
+            final PropertyReference monitoredPropertyIdentifier, final Real covIncrement)
+            throws BACnetServiceException {
         if (changeOfValueMixin == null)
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.optionalFunctionalityNotSupported);
         changeOfValueMixin.addCovSubscription(from, subscriberProcessIdentifier, issueConfirmedNotifications, lifetime,

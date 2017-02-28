@@ -50,6 +50,7 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -113,9 +114,9 @@ public class CovReportingMixin extends AbstractMixin {
     }
 
     public void addCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier,
-            final com.serotonin.bacnet4j.type.primitive.Boolean issueConfirmedNotifications,
-            final UnsignedInteger lifetime, final PropertyReference monitoredPropertyIdentifier,
-            final Real covIncrement) throws BACnetServiceException {
+            final Boolean issueConfirmedNotifications, final UnsignedInteger lifetime,
+            final PropertyReference monitoredPropertyIdentifier, final Real covIncrement)
+            throws BACnetServiceException {
         synchronized (covSubscriptions) {
             ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
 

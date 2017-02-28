@@ -37,6 +37,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.Polarity;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 
 public class BinaryOutputObject extends BACnetObject {
     private static final long serialVersionUID = 8595160980372725336L;
@@ -46,8 +47,7 @@ public class BinaryOutputObject extends BACnetObject {
         super(ObjectType.binaryOutput, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyInternal(PropertyIdentifier.outOfService,
-                new com.serotonin.bacnet4j.type.primitive.Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
 
         // Mixins

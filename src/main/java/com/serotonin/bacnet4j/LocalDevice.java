@@ -90,6 +90,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Unsigned16;
@@ -595,10 +596,10 @@ public class LocalDevice {
             // Provide it to the callback in this thread.
             callback.accept(rd);
         } else {
-            LOG.debug("Requesting the remove device from the remote device finder: {}", instanceNumber);
+            LOG.debug("Requesting the remote device from the remote device finder: {}", instanceNumber);
             RemoteDeviceFinder.findDevice(this, instanceNumber, (cbrd) -> {
                 // Cache the device.
-                remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                remoteDeviceCache.putEntity(instanceNumber, cbrd, cachePolicies.getDevicePolicy(instanceNumber));
 
                 // Notify the client callback
                 callback.accept(cbrd);
@@ -857,10 +858,11 @@ public class LocalDevice {
         return rd.removeObjectProperty(oid, pid, pin);
     }
 
-    //
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Message sending
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ServiceFuture send(final RemoteDevice d, final ConfirmedRequestService serviceRequest) {
         //        validateSupportedService(d, serviceRequest);
         return transport.send(d.getAddress(), d.getMaxAPDULengthAccepted(), d.getSegmentationSupported(),
@@ -960,11 +962,11 @@ public class LocalDevice {
 
         // Get the required properties from the notification class object.
         SequenceOf<Destination> recipientList = null;
-        com.serotonin.bacnet4j.type.primitive.Boolean ackRequired = null;
+        Boolean ackRequired = null;
         UnsignedInteger priority = null;
         try {
             recipientList = (SequenceOf<Destination>) nc.getPropertyRequired(PropertyIdentifier.recipientList);
-            ackRequired = new com.serotonin.bacnet4j.type.primitive.Boolean(
+            ackRequired = new Boolean(
                     ((EventTransitionBits) nc.getPropertyRequired(PropertyIdentifier.ackRequired)).contains(toState));
 
             // Determine which priority value to use based upon the toState.

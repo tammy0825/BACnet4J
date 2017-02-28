@@ -47,7 +47,7 @@ public class SubscribeCOVPropertyRequest extends ConfirmedRequestService {
 
     private final UnsignedInteger subscriberProcessIdentifier;
     private final ObjectIdentifier monitoredObjectIdentifier;
-    private final com.serotonin.bacnet4j.type.primitive.Boolean issueConfirmedNotifications; // optional
+    private final Boolean issueConfirmedNotifications; // optional
     private final UnsignedInteger lifetime; // optional
     private final PropertyReference monitoredPropertyIdentifier;
     private final Real covIncrement; // optional
@@ -92,6 +92,8 @@ public class SubscribeCOVPropertyRequest extends ConfirmedRequestService {
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         try {
             final BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
+
+            // TODO Ensure that these two parameter are either both null, or both not null.
             if (issueConfirmedNotifications == null && lifetime == null)
                 obj.removeCovSubscription(from, subscriberProcessIdentifier);
             else
