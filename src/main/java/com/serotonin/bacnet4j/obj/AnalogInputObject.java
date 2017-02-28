@@ -51,7 +51,7 @@ public class AnalogInputObject extends BACnetObject {
 
     public AnalogInputObject(final int instanceNumber, final String name, final float presentValue,
             final EngineeringUnits units, final boolean outOfService) {
-        super(ObjectType.analogValue, instanceNumber, name);
+        super(ObjectType.analogInput, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.presentValue, new Real(presentValue));
