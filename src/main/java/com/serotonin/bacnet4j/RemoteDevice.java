@@ -159,6 +159,10 @@ public class RemoteDevice implements Serializable {
             final ErrorClassAndCode e = (ErrorClassAndCode) value;
             if (ErrorClass.object.equals(e.getErrorClass())) {
                 // Don't create objects if the error is about the object.
+                // But don't remove the object because it is possible to get error responses on objects that
+                // didn't cause the error. For example, a read multiple request can contain requests for properties
+                // of multiple objects. But if only one of these objects doesn't exist, an error is returned for the
+                // whole request, and this error can be assigned to the objects that do exist.
                 return;
             }
         }

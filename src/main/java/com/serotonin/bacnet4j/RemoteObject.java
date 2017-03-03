@@ -90,6 +90,7 @@ public class RemoteObject implements Serializable {
             final RemoteEntityCachePolicy policy) {
         if (value instanceof ErrorClassAndCode) {
             // Don't cache errors. In fact, remove whatever is currently there.
+            // TODO this may not be a good thing to do for the same reason as why we don't remove remote objects.
             propertyCache.removeEntity(pid);
             return;
         }
