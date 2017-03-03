@@ -984,7 +984,7 @@ public class ObjectProperties {
         add(ObjectType.datetimeValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
         add(ObjectType.datetimeValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
-        // DateTime pattern - 12.46
+        // DateTime pattern value - 12.46
         add(ObjectType.datetimePatternValue, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
         add(ObjectType.datetimePatternValue, PropertyIdentifier.objectName, CharacterString.class, false, true);
         add(ObjectType.datetimePatternValue, PropertyIdentifier.objectType, ObjectType.class, false, true);
