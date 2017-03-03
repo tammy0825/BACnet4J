@@ -64,6 +64,6 @@ public class PropertyListMixin extends AbstractMixin {
                 pids.add(p);
         }
 
-        writePropertyImpl(propertyList, new SequenceOf<>(pids));
+        writePropertyInternal(propertyList, new SequenceOf<>(pids));
     }
 }

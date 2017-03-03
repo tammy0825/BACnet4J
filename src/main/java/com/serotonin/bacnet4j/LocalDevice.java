@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,6 +61,9 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.obj.BACnetObject;
+import com.serotonin.bacnet4j.obj.mixin.ActiveCovSubscriptionMixin;
+import com.serotonin.bacnet4j.obj.mixin.CovContext;
+import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
@@ -104,8 +108,8 @@ import lohbihler.warp.WarpUtils;
 
 /**
  * Enhancements:
+ * - Optional persistence of COV subscriptions
  * - default character string encoding
- * - better handling of choice objects
  * - BIBBs (B-OWS) (services to implement)
  * - AE-N-A
  * - AE-ACK-A
@@ -123,16 +127,11 @@ import lohbihler.warp.WarpUtils;
  * - DM-BR-A
  * - NM-CE-A
  */
-public class LocalDevice {
+public class LocalDevice extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
     private static final int VENDOR_ID = 236; // Serotonin Software
 
     private final Transport transport;
-
-    /**
-     * The device objects configuration, i.e. it's list of properties.
-     */
-    private final BACnetObject configuration;
 
     /**
      * The other objects contained by this device.
@@ -161,6 +160,11 @@ public class LocalDevice {
      */
     private String password = "";
 
+    /**
+     * The list of all COV subscriptions currently active in the device.
+     */
+    private final Map<ObjectIdentifier, List<CovContext>> covContexts = new ConcurrentHashMap<>();
+
     // Event listeners
     private final DeviceEventHandler eventHandler = new DeviceEventHandler();
     private final ExceptionDispatcher exceptionDispatcher = new ExceptionDispatcher();
@@ -171,28 +175,31 @@ public class LocalDevice {
     public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResultResolutions = new HashMap<>();
 
     public LocalDevice(final int deviceId, final Transport transport) {
+        super(new ObjectIdentifier(ObjectType.device, deviceId));
+
         this.transport = transport;
         transport.setLocalDevice(this);
+        setLocalDevice(this);
+        remoteDeviceCache = new RemoteEntityCache<>(this);
 
-        configuration = new BACnetObject(ObjectType.device, deviceId, "Device " + deviceId);
-        configuration.setLocalDevice(this);
-        configuration.writeProperty(PropertyIdentifier.maxApduLengthAccepted, new UnsignedInteger(1476));
-        configuration.writeProperty(PropertyIdentifier.vendorIdentifier, new Unsigned16(VENDOR_ID));
-        configuration.writeProperty(PropertyIdentifier.vendorName,
+        writePropertyInternal(PropertyIdentifier.objectName, new CharacterString("Device " + deviceId));
+        writePropertyInternal(PropertyIdentifier.maxApduLengthAccepted,
+                new UnsignedInteger(MaxApduLength.UP_TO_1476.getMaxLengthInt()));
+        writePropertyInternal(PropertyIdentifier.vendorIdentifier, new Unsigned16(VENDOR_ID));
+        writePropertyInternal(PropertyIdentifier.vendorName,
                 new CharacterString("Serotonin Software Technologies, Inc."));
-        configuration.writeProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
-        configuration.writeProperty(PropertyIdentifier.maxSegmentsAccepted, new UnsignedInteger(1000));
-        configuration.writeProperty(PropertyIdentifier.apduSegmentTimeout,
+        writePropertyInternal(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+        writePropertyInternal(PropertyIdentifier.maxSegmentsAccepted, new UnsignedInteger(1000));
+        writePropertyInternal(PropertyIdentifier.apduSegmentTimeout,
                 new UnsignedInteger(Transport.DEFAULT_SEG_TIMEOUT));
-        configuration.writeProperty(PropertyIdentifier.apduTimeout, new UnsignedInteger(Transport.DEFAULT_TIMEOUT));
-        configuration.writeProperty(PropertyIdentifier.numberOfApduRetries,
-                new UnsignedInteger(Transport.DEFAULT_RETRIES));
-        configuration.writeProperty(PropertyIdentifier.deviceAddressBinding, new SequenceOf<AddressBinding>());
-        configuration.writeProperty(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
+        writePropertyInternal(PropertyIdentifier.apduTimeout, new UnsignedInteger(Transport.DEFAULT_TIMEOUT));
+        writePropertyInternal(PropertyIdentifier.numberOfApduRetries, new UnsignedInteger(Transport.DEFAULT_RETRIES));
+        writePropertyInternal(PropertyIdentifier.deviceAddressBinding, new SequenceOf<AddressBinding>());
+        writePropertyInternal(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
 
         final SequenceOf<ObjectIdentifier> objectList = new SequenceOf<>();
-        objectList.add(configuration.getId());
-        configuration.writeProperty(PropertyIdentifier.objectList, objectList);
+        objectList.add(getId());
+        writePropertyInternal(PropertyIdentifier.objectList, objectList);
 
         // Set up the supported services indicators. Remove lines as services get implemented.
         final ServicesSupported servicesSupported = new ServicesSupported();
@@ -238,24 +245,26 @@ public class LocalDevice {
         servicesSupported.setConfirmedCovNotificationMultiple(true);
         servicesSupported.setUnconfirmedCovNotificationMultiple(true);
 
-        configuration.writeProperty(PropertyIdentifier.protocolServicesSupported, servicesSupported);
+        writePropertyInternal(PropertyIdentifier.protocolServicesSupported, servicesSupported);
 
         // Set up the object types supported.
         final ObjectTypesSupported objectTypesSupported = new ObjectTypesSupported();
         objectTypesSupported.setAll(true);
-        configuration.writeProperty(PropertyIdentifier.protocolObjectTypesSupported, objectTypesSupported);
+        writePropertyInternal(PropertyIdentifier.protocolObjectTypesSupported, objectTypesSupported);
 
         // Set some other required values to defaults
-        configuration.writeProperty(PropertyIdentifier.objectName, new CharacterString("BACnet4J device"));
-        configuration.writeProperty(PropertyIdentifier.systemStatus, DeviceStatus.operational);
-        configuration.writeProperty(PropertyIdentifier.modelName, new CharacterString("BACnet4J"));
-        configuration.writeProperty(PropertyIdentifier.firmwareRevision, new CharacterString("not set"));
-        configuration.writeProperty(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("4.0.0"));
-        configuration.writeProperty(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
-        configuration.writeProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(19));
-        configuration.writeProperty(PropertyIdentifier.databaseRevision, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.objectName, new CharacterString("BACnet4J device"));
+        writePropertyInternal(PropertyIdentifier.systemStatus, DeviceStatus.operational);
+        writePropertyInternal(PropertyIdentifier.modelName, new CharacterString("BACnet4J"));
+        writePropertyInternal(PropertyIdentifier.firmwareRevision, new CharacterString("not set"));
+        writePropertyInternal(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("4.0.0"));
+        writePropertyInternal(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
+        writePropertyInternal(PropertyIdentifier.protocolRevision, new UnsignedInteger(19));
+        writePropertyInternal(PropertyIdentifier.databaseRevision, new UnsignedInteger(0));
 
-        remoteDeviceCache = new RemoteEntityCache<>(this);
+        // Mixins
+        addMixin(new ActiveCovSubscriptionMixin(this));
+        addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.activeCovSubscriptions));
     }
 
     public Clock getClock() {
@@ -276,6 +285,10 @@ public class LocalDevice {
 
     public CachePolicies getCachePolicies() {
         return cachePolicies;
+    }
+
+    public Map<ObjectIdentifier, List<CovContext>> getCovContexts() {
+        return covContexts;
     }
 
     /**
@@ -299,7 +312,7 @@ public class LocalDevice {
         initialized = true;
 
         // If the device id is uninitialized, try to find an available number to use.
-        if (configuration.getInstanceId() == ObjectIdentifier.UNINITIALIZED) {
+        if (getInstanceId() == ObjectIdentifier.UNINITIALIZED) {
             final int attempts = 10;
             final int rangeSize = 20;
 
@@ -327,7 +340,7 @@ public class LocalDevice {
 
                 if (!idList.isEmpty()) {
                     LOG.info("Found {} ids that are still available. Choosing {}", idList.size(), idList.get(0));
-                    configuration.writePropertyInternal(PropertyIdentifier.objectIdentifier,
+                    writePropertyInternal(PropertyIdentifier.objectIdentifier,
                             new ObjectIdentifier(ObjectType.device, idList.get(0)));
                     break;
                 }
@@ -356,10 +369,6 @@ public class LocalDevice {
 
     public boolean isInitialized() {
         return initialized;
-    }
-
-    public BACnetObject getConfiguration() {
-        return configuration;
     }
 
     public DeviceEventHandler getEventHandler() {
@@ -450,8 +459,8 @@ public class LocalDevice {
     public BACnetObject getObject(final ObjectIdentifier id) {
         if (id.getObjectType().intValue() == ObjectType.device.intValue()) {
             // Check if we need to look into the local device.
-            if (id.getInstanceNumber() == 0x3FFFFF || id.getInstanceNumber() == configuration.getInstanceId())
-                return configuration;
+            if (id.getInstanceNumber() == 0x3FFFFF || id.getInstanceNumber() == getInstanceId())
+                return this;
         }
 
         for (final BACnetObject obj : localObjects) {
@@ -463,8 +472,8 @@ public class LocalDevice {
 
     public BACnetObject getObject(final String name) {
         // Check if we need to look into the local device.
-        if (name.equals(configuration.getObjectName()))
-            return configuration;
+        if (name.equals(getObjectName()))
+            return this;
 
         for (final BACnetObject obj : localObjects) {
             if (name.equals(obj.getObjectName()))
@@ -534,7 +543,7 @@ public class LocalDevice {
     @SuppressWarnings("unchecked")
     private SequenceOf<ObjectIdentifier> getObjectList() {
         try {
-            return (SequenceOf<ObjectIdentifier>) configuration.getProperty(PropertyIdentifier.objectList);
+            return (SequenceOf<ObjectIdentifier>) getProperty(PropertyIdentifier.objectList);
         } catch (final BACnetServiceException e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
@@ -542,7 +551,7 @@ public class LocalDevice {
     }
 
     public ServicesSupported getServicesSupported() throws BACnetServiceException {
-        return (ServicesSupported) getConfiguration().getProperty(PropertyIdentifier.protocolServicesSupported);
+        return (ServicesSupported) getProperty(PropertyIdentifier.protocolServicesSupported);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -671,7 +680,7 @@ public class LocalDevice {
      *             if anything goes wrong, including timeout.
      */
     public RemoteDevice getRemoteDeviceBlocking(final int instanceNumber) throws BACnetException {
-        return getRemoteDeviceBlocking(instanceNumber, 0);
+        return getRemoteDeviceBlocking(instanceNumber, transport.getTimeout());
     }
 
     /**
@@ -991,7 +1000,7 @@ public class LocalDevice {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
                 if (destination.getIssueConfirmedNotifications().booleanValue()) {
                     final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(
-                            destination.getProcessIdentifier(), configuration.getId(), eventObjectIdentifier, timeStamp,
+                            destination.getProcessIdentifier(), getId(), eventObjectIdentifier, timeStamp,
                             new UnsignedInteger(notificationClassId), priority, eventType, messageText, notifyType,
                             ackRequired, fromState, toState, eventValues);
 
@@ -1015,9 +1024,9 @@ public class LocalDevice {
 
                     if (address != null) {
                         final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(
-                                destination.getProcessIdentifier(), configuration.getId(), eventObjectIdentifier,
-                                timeStamp, new UnsignedInteger(notificationClassId), priority, eventType, messageText,
-                                notifyType, ackRequired, fromState, toState, eventValues);
+                                destination.getProcessIdentifier(), getId(), eventObjectIdentifier, timeStamp,
+                                new UnsignedInteger(notificationClassId), priority, eventType, messageText, notifyType,
+                                ackRequired, fromState, toState, eventValues);
                         transport.send(address, req, false);
                     }
                 }
@@ -1039,10 +1048,9 @@ public class LocalDevice {
 
     public IAmRequest getIAm() {
         try {
-            return new IAmRequest(configuration.getId(),
-                    (UnsignedInteger) configuration.getProperty(PropertyIdentifier.maxApduLengthAccepted),
-                    (Segmentation) configuration.getProperty(PropertyIdentifier.segmentationSupported),
-                    (Unsigned16) configuration.getProperty(PropertyIdentifier.vendorIdentifier));
+            return new IAmRequest(getId(), (UnsignedInteger) getProperty(PropertyIdentifier.maxApduLengthAccepted),
+                    (Segmentation) getProperty(PropertyIdentifier.segmentationSupported),
+                    (Unsigned16) getProperty(PropertyIdentifier.vendorIdentifier));
         } catch (final BACnetServiceException e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
@@ -1051,6 +1059,6 @@ public class LocalDevice {
 
     @Override
     public String toString() {
-        return "" + configuration.getInstanceId() + ": " + configuration.getObjectName();
+        return "" + getInstanceId() + ": " + getObjectName();
     }
 }

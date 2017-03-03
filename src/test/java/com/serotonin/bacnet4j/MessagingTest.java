@@ -120,14 +120,14 @@ public class MessagingTest {
 
         assertEquals(1, ack.getListOfReadAccessResults().getCount());
         final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
-        assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
+        assertEquals(d2.getId(), readResult.getObjectIdentifier());
         assertEquals(1, readResult.getListOfResults().getCount());
         final Result result = readResult.getListOfResults().get(1);
         assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
         final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
         assertEquals(2, idList.getCount());
-        assertEquals(d2.getConfiguration().getId(), idList.get(1));
+        assertEquals(d2.getId(), idList.get(1));
         assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), idList.get(2));
 
         // Send the same request, but with a null consumer.
@@ -171,14 +171,14 @@ public class MessagingTest {
 
         assertEquals(1, ack.getListOfReadAccessResults().getCount());
         final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
-        assertEquals(d2.getConfiguration().getId(), readResult.getObjectIdentifier());
+        assertEquals(d2.getId(), readResult.getObjectIdentifier());
         assertEquals(1, readResult.getListOfResults().getCount());
         final Result result = readResult.getListOfResults().get(1);
         assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
         final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
         assertEquals(1001, idList.getCount());
-        assertEquals(d2.getConfiguration().getId(), idList.get(1));
+        assertEquals(d2.getId(), idList.get(1));
         //        Assert.assertEquals(av0, idList.get(2));
 
         // Send the same request, but with a null consumer.

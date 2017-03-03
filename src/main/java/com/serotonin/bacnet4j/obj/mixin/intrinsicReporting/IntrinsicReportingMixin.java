@@ -111,17 +111,17 @@ public class IntrinsicReportingMixin extends AbstractMixin {
             throw new BACnetRuntimeException("Notification class with id " + ncId + " does not exist");
 
         // Defaulted properties
-        writePropertyImpl(PropertyIdentifier.ackedTransitions, new EventTransitionBits(true, true, true));
-        writePropertyImpl(PropertyIdentifier.eventTimeStamps, new BACnetArray<>(TimeStamp.UNSPECIFIED_DATETIME,
+        writePropertyInternal(PropertyIdentifier.ackedTransitions, new EventTransitionBits(true, true, true));
+        writePropertyInternal(PropertyIdentifier.eventTimeStamps, new BACnetArray<>(TimeStamp.UNSPECIFIED_DATETIME,
                 TimeStamp.UNSPECIFIED_DATETIME, TimeStamp.UNSPECIFIED_DATETIME));
-        writePropertyImpl(PropertyIdentifier.eventMessageTexts,
+        writePropertyInternal(PropertyIdentifier.eventMessageTexts,
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
-        writePropertyImpl(PropertyIdentifier.eventMessageTextsConfig,
+        writePropertyInternal(PropertyIdentifier.eventMessageTextsConfig,
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
         //writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibitRef, new ObjectPropertyReference()); Not supported
-        writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
-        writePropertyImpl(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
-        writePropertyImpl(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
+        writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
 
         // Update the state with the current values in the object.
         for (final PropertyIdentifier pid : triggerProperties)
@@ -169,7 +169,7 @@ public class IntrinsicReportingMixin extends AbstractMixin {
                 if (newReli != null) {
                     // After setting this value there is nothing else that need be done since this method will be
                     // called again due to the property change, and the reliability code above will handle it.
-                    writePropertyImpl(PropertyIdentifier.reliability, newReli);
+                    writePropertyInternal(PropertyIdentifier.reliability, newReli);
                     fault = true;
                 }
             }
@@ -254,13 +254,13 @@ public class IntrinsicReportingMixin extends AbstractMixin {
         //
         // Perform the state change. 13.2.2.1.4
         //
-        writePropertyImpl(PropertyIdentifier.eventState, toState);
+        writePropertyInternal(PropertyIdentifier.eventState, toState);
 
         BACnetArray<TimeStamp> ets = get(PropertyIdentifier.eventTimeStamps);
         // Make a copy in which to make the change so that the write property method works properly.
         ets = new BACnetArray<>(ets);
         ets.set(toState.getTransitionIndex(), new TimeStamp(new DateTime()));
-        writePropertyImpl(PropertyIdentifier.eventTimeStamps, ets);
+        writePropertyInternal(PropertyIdentifier.eventTimeStamps, ets);
 
         // Not implemented
         //BACnetArray<CharacterString> emt = get(PropertyIdentifier.eventMessageTexts);
@@ -284,7 +284,7 @@ public class IntrinsicReportingMixin extends AbstractMixin {
         // cleared, otherwise it is set.
         final boolean isAckRequired = ackRequired.contains(toState);
         ackedTransitions.setValue(toState.getTransitionIndex(), !isAckRequired);
-        writePropertyImpl(PropertyIdentifier.ackedTransitions, ackedTransitions);
+        writePropertyInternal(PropertyIdentifier.ackedTransitions, ackedTransitions);
 
         //
         // Event notification distribution. 13.2.5
@@ -377,7 +377,7 @@ public class IntrinsicReportingMixin extends AbstractMixin {
         // Make a copy in which to make the change so that the write property method works properly.
         ackedTransitions = new EventTransitionBits(ackedTransitions);
         ackedTransitions.setValue(eventStateAcknowledged.getTransitionIndex(), true);
-        writePropertyImpl(PropertyIdentifier.ackedTransitions, ackedTransitions);
+        writePropertyInternal(PropertyIdentifier.ackedTransitions, ackedTransitions);
 
         //
         // Event notification distribution.
@@ -547,7 +547,7 @@ public class IntrinsicReportingMixin extends AbstractMixin {
                 LOG.debug("Sending {} to {}", notifyType, destination.getRecipient());
 
                 final UnsignedInteger processIdentifier = destination.getProcessIdentifier();
-                final ObjectIdentifier initiatingDeviceIdentifier = getLocalDevice().getConfiguration().getId();
+                final ObjectIdentifier initiatingDeviceIdentifier = getLocalDevice().getId();
                 final ObjectIdentifier eventObjectIdentifier = (ObjectIdentifier) get(
                         PropertyIdentifier.objectIdentifier);
                 final UnsignedInteger notificationClass = (UnsignedInteger) nc

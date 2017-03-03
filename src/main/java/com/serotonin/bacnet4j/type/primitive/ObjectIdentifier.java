@@ -39,7 +39,7 @@ public class ObjectIdentifier extends Primitive {
     private int instanceNumber;
 
     public ObjectIdentifier(final int objectType, final int instanceNumber) {
-        this(new ObjectType(objectType), instanceNumber);
+        this(ObjectType.forId(objectType), instanceNumber);
     }
 
     public ObjectIdentifier(final ObjectType objectType, final int instanceNumber) {
@@ -73,7 +73,7 @@ public class ObjectIdentifier extends Primitive {
         final int i = queue.popU1B();
         objectType |= i >> 6;
 
-        this.objectType = new ObjectType(objectType);
+        this.objectType = ObjectType.forId(objectType);
 
         instanceNumber = (i & 0x3f) << 16;
         instanceNumber |= queue.popU1B() << 8;

@@ -36,6 +36,7 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 
 /**
  * Mixins allow different objects to share functionality that is otherwise common between them. Functionality that is
@@ -68,7 +69,11 @@ public class AbstractMixin {
         }
     }
 
-    protected final void writePropertyImpl(final PropertyIdentifier pid, final Encodable value) {
+    protected void setLocalDeviceNotify() {
+        // Override as required.
+    }
+
+    protected final void writePropertyInternal(final PropertyIdentifier pid, final Encodable value) {
         bo.writePropertyInternal(pid, value);
     }
 
@@ -78,6 +83,10 @@ public class AbstractMixin {
 
     protected final LocalDevice getLocalDevice() {
         return bo.getLocalDevice();
+    }
+
+    protected final ObjectIdentifier getId() {
+        return bo.getId();
     }
 
     //

@@ -38,7 +38,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class PropertyValue extends BaseType {
     private final PropertyIdentifier propertyIdentifier; // 0
     private final UnsignedInteger propertyArrayIndex; // 1 optional
-    private Encodable value; // 2
+    private final Encodable value; // 2
     private final UnsignedInteger priority; // 3 optional
 
     public PropertyValue(final PropertyIdentifier propertyIdentifier, final Encodable value) {
@@ -67,10 +67,6 @@ public class PropertyValue extends BaseType {
 
     public Encodable getValue() {
         return value;
-    }
-
-    public void setValue(final Encodable value) {
-        this.value = value;
     }
 
     @Override
@@ -136,4 +132,15 @@ public class PropertyValue extends BaseType {
             return false;
         return true;
     }
+    //
+    //    public static class Builder {
+    //        private final PropertyIdentifier propertyIdentifier; // 0
+    //        private UnsignedInteger propertyArrayIndex; // 1 optional
+    //        private final Encodable value; // 2
+    //        private UnsignedInteger priority; // 3 optional
+    //
+    //        public Builder(PropertyIdentifier propertyIdentifier, Encodable value) {
+    //            
+    //        }
+    //    }
 }

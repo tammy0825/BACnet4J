@@ -108,7 +108,7 @@ public class RequestUtilsTest {
         final PropertyReferences refs = new PropertyReferences();
         final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.analogInput, 0);
         for (int i = 0; i < 1000; i++) {
-            refs.add(oid, new PropertyIdentifier(i));
+            refs.add(oid, PropertyIdentifier.forId(i));
         }
 
         final PropertyValues pvs = RequestUtils.readProperties(d, rd, refs, null);
@@ -116,7 +116,7 @@ public class RequestUtilsTest {
         assertEquals(9, exceptionCount.get());
 
         for (int i = 0; i < 1000; i++) {
-            assertEquals(BinaryPV.active, pvs.getNoErrorCheck(oid, new PropertyIdentifier(i)));
+            assertEquals(BinaryPV.active, pvs.getNoErrorCheck(oid, PropertyIdentifier.forId(i)));
         }
     }
 }

@@ -115,8 +115,8 @@ public class LocalDeviceTest {
         }).start();
         ld.initialize();
 
-        LOG.info("Local device initialized with device id {}", ld.getConfiguration().getInstanceId());
-        assertNotEquals(ObjectIdentifier.UNINITIALIZED, ld.getConfiguration().getInstanceId());
+        LOG.info("Local device initialized with device id {}", ld.getInstanceId());
+        assertNotEquals(ObjectIdentifier.UNINITIALIZED, ld.getInstanceId());
     }
 
     @Test

@@ -55,8 +55,14 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class PropertyUtils {
     static final Logger LOG = LoggerFactory.getLogger(PropertyUtils.class);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Reading properties
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public static DevicesObjectPropertyValues readProperties(final LocalDevice localDevice,
-            final DeviceObjectPropertyReferences refs, final RequestListener callback) {
+            final DeviceObjectPropertyReferences refs, final ReadListener callback) {
         return readProperties(localDevice, refs, callback, 0);
     }
 
@@ -77,13 +83,16 @@ public class PropertyUtils {
      * @return
      */
     public static DevicesObjectPropertyValues readProperties(final LocalDevice localDevice,
-            final DeviceObjectPropertyReferences refs, final RequestListener callback, final long deviceTimeout) {
+            final DeviceObjectPropertyReferences refs, final ReadListener callback, final long deviceTimeout) {
         final DevicesObjectPropertyValues result = new DevicesObjectPropertyValues();
 
         final Map<Integer, PropertyReferences> properties = refs.getProperties();
 
         final AtomicInteger completedProperties = new AtomicInteger();
         final double totalProperties = refs.size();
+
+        // TODO should get the device first and then look for cached properties, since the retrieval of the device
+        // will fill in some of its properties.
 
         // Find the properties that we already have. Use iterators so that we can remove as we go the properties that
         // are found in the cache.
@@ -141,6 +150,7 @@ public class PropertyUtils {
             final PropertyReferences propRefs = dev.getValue();
 
             // Check if the remote device is already cached.
+            // TODO: don't need to check for a cached rd here because the ld will do that anyway.
             final RemoteDevice rd = localDevice.getCachedRemoteDevice(deviceId);
             Runnable runnable;
             if (rd == null) {
@@ -181,7 +191,7 @@ public class PropertyUtils {
     }
 
     private static void requestPropertiesFromDevice(final LocalDevice localDevice, final int deviceId,
-            final long deviceTimeout, final PropertyReferences propRefs, final RequestListener callback,
+            final long deviceTimeout, final PropertyReferences propRefs, final ReadListener callback,
             final DevicesObjectPropertyValues result, final AtomicInteger completedProperties,
             final double totalProperties) {
         try {
@@ -205,37 +215,40 @@ public class PropertyUtils {
         }
     }
 
-    private static void updateResultAndCallback(final DevicesObjectPropertyValues result,
-            final RequestListener callback, final int did, final ObjectIdentifier oid, final PropertyIdentifier pid,
-            final UnsignedInteger pin, final Encodable value, final AtomicInteger completedProperties,
-            final double totalProperties) {
+    private static void updateResultAndCallback(final DevicesObjectPropertyValues result, final ReadListener callback,
+            final int did, final ObjectIdentifier oid, final PropertyIdentifier pid, final UnsignedInteger pin,
+            final Encodable value, final AtomicInteger completedProperties, final double totalProperties) {
         // Add it to the result list.
-        result.add(did, oid, pid, pin, value);
+        synchronized (result) {
+            result.add(did, oid, pid, pin, value);
+        }
 
         if (callback != null) {
             // Notify the callback
             final double progress = completedProperties.incrementAndGet() / totalProperties;
-            callback.requestProgress(progress, did, oid, pid, pin, value);
+            callback.progress(progress, did, oid, pid, pin, value);
         }
     }
 
     private static void requestRemoteDeviceProperties(final LocalDevice localDevice, final RemoteDevice rd,
-            final PropertyReferences refs, final RequestListener callback, final AtomicInteger completedProperties,
+            final PropertyReferences refs, final ReadListener callback, final AtomicInteger completedProperties,
             final double totalProperties, final DevicesObjectPropertyValues result) throws BACnetTimeoutException {
         LOG.info("Properties to read from {}: {}", rd.getInstanceNumber(), refs.size());
 
         final AtomicInteger remaining = new AtomicInteger(refs.size());
         try {
-            RequestListener deviceCallback = null;
-            deviceCallback = new RequestListener() {
+            ReadListener deviceCallback = null;
+            deviceCallback = new ReadListener() {
                 @Override
-                public boolean requestProgress(final double deviceProgress, final int did, final ObjectIdentifier oid,
+                public boolean progress(final double deviceProgress, final int did, final ObjectIdentifier oid,
                         final PropertyIdentifier pid, final UnsignedInteger pin, final Encodable value) {
                     // Notify the callback
                     remaining.decrementAndGet();
 
                     // Add to the result list.
-                    result.add(did, oid, pid, pin, value);
+                    synchronized (result) {
+                        result.add(did, oid, pid, pin, value);
+                    }
 
                     // Cache the retrieve objects and properties.
                     rd.setObjectProperty(oid, pid, pin, value);
@@ -243,7 +256,7 @@ public class PropertyUtils {
                     final double progress = completedProperties.incrementAndGet() / totalProperties;
                     if (callback == null)
                         return false;
-                    return callback.requestProgress(progress, did, oid, pid, pin, value);
+                    return callback.progress(progress, did, oid, pid, pin, value);
                 }
             };
 
@@ -256,4 +269,100 @@ public class PropertyUtils {
             LOG.error("Exception while getting properties for device {}", rd.getInstanceNumber(), ex);
         }
     }
+    //
+    //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    // Writing properties
+    //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //    public static void writeProperties(final LocalDevice localDevice,
+    //            final DeviceObjectPropertyReferenceValues values) {
+    //        return writeProperties(localDevice, values, 0);
+    //    }
+    //
+    //    public static Map<Integer, BACnetException> writeProperties(final LocalDevice localDevice,
+    //            final DeviceObjectPropertyReferenceValues values, final long deviceTimeout) {
+    //        final Map<Integer, BACnetException> result = new HashMap<>();
+    //
+    //        final List<Future<?>> futures = new ArrayList<>();
+    //
+    //        for (final Map.Entry<Integer, PropertyReferenceValues> dev : values.getProperties().entrySet()) {
+    //            final Integer deviceId = dev.getKey();
+    //            final PropertyReferenceValues propRefs = dev.getValue();
+    //
+    //            // Check if the remote device is already cached.
+    //            final RemoteDevice rd = localDevice.getCachedRemoteDevice(deviceId);
+    //            final Runnable runnable;
+    //            if (rd == null) {
+    //                // Initiate a device lookup
+    //                runnable = () -> {
+    //                    writePropertiesToDevice(localDevice, deviceId, deviceTimeout, propRefs, callback, result,
+    //                            completedProperties, totalProperties);
+    //                };
+    //            } else {
+    //                //                runnable = () -> {
+    //                //                    // Try to get the properties from the cached device.
+    //                //                    try {
+    //                //                        requestRemoteDeviceProperties(localDevice, rd, propRefs, callback, completedProperties,
+    //                //                                totalProperties, result);
+    //                //                    } catch (@SuppressWarnings("unused") final BACnetTimeoutException e) {
+    //                //                        // The cached device appears to be offline. Remove it from the cache, and try discovering it
+    //                //                        // again in case its address changed.
+    //                //                        localDevice.removeCachedRemoteDevice(deviceId);
+    //                //                        requestPropertiesFromDevice(localDevice, deviceId, deviceTimeout, propRefs, callback, result,
+    //                //                                completedProperties, totalProperties);
+    //                //                    }
+    //                //                };
+    //            }
+    //
+    //            //            futures.add(localDevice.submit(runnable));
+    //        }
+    //
+    //        //        // Wait on the futures
+    //        //        for (final Future<?> future : futures) {
+    //        //            try {
+    //        //                future.get();
+    //        //            } catch (final Exception e) {
+    //        //                LOG.error("Error in future", e);
+    //        //            }
+    //        //        }
+    //
+    //        return result;
+    //    }
+    //
+    //    private static void writePropertiesToDevice(final LocalDevice localDevice, final int deviceId,
+    //            final long deviceTimeout, final PropertyReferenceValues values,
+    //            final Map<Integer, BACnetException> result) {
+    //        try {
+    //            final RemoteDevice r = localDevice.getRemoteDevice(deviceId).get(deviceTimeout);
+    //            writeRemoteDeviceProperties(localDevice, r, values, result);
+    //        } catch (final BACnetException e) {
+    //            if (e instanceof BACnetTimeoutException) {
+    //                // Clear the remote device from the cache
+    //                localDevice.removeCachedRemoteDevice(deviceId);
+    //            }
+    //
+    //            synchronized (result) {
+    //                result.put(deviceId, e);
+    //            }
+    //            LOG.error("Exception while finding device {}", deviceId, e);
+    //        }
+    //    }
+    //
+    //    private static void writeRemoteDeviceProperties(final LocalDevice localDevice, final RemoteDevice rd,
+    //            final PropertyReferenceValues values, final Map<Integer, BACnetException> result) throws BACnetTimeoutException {
+    //        LOG.info("Properties to write to {}: {}", rd.getInstanceNumber(), values.size());
+    //
+    //        try {
+    //            WriteAccessSpecification
+    //
+    //            RequestUtils.writeProperties(localDevice, rd, values., deviceCallback);
+    //        } catch (final BACnetTimeoutException ex) {
+    ////            throw ex;
+    //        } catch (final BACnetException ex) {
+    ////            completedProperties.addAndGet(remaining.get());
+    ////            LOG.error("Exception while getting properties for device {}", rd.getInstanceNumber(), ex);
+    //        }
+    //    }
 }

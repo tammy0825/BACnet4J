@@ -36,13 +36,13 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RequestListenerUpdater {
-    private final RequestListener callback;
+    private final ReadListener callback;
     private final PropertyValues propertyValues;
     private final int max;
     private final AtomicInteger current = new AtomicInteger(0);
     private boolean cancelled;
 
-    public RequestListenerUpdater(final RequestListener callback, final PropertyValues propertyValues, final int max) {
+    public RequestListenerUpdater(final ReadListener callback, final PropertyValues propertyValues, final int max) {
         this.callback = callback;
         this.propertyValues = propertyValues;
         this.max = max;
@@ -52,7 +52,7 @@ public class RequestListenerUpdater {
             final UnsignedInteger pin, final Encodable value) {
         final int cur = current.incrementAndGet();
         if (callback != null)
-            cancelled = callback.requestProgress((double) cur / max, deviceId, oid, pid, pin, value);
+            cancelled = callback.progress((double) cur / max, deviceId, oid, pid, pin, value);
         propertyValues.add(oid, pid, pin, value);
     }
 

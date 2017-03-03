@@ -28,7 +28,6 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin.CovReportingCriteria;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
@@ -76,9 +74,7 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 /**
  * @author Matthew
  */
-public class BACnetObject implements Serializable {
-    private static final long serialVersionUID = 569892306207282576L;
-
+public class BACnetObject {
     private final ObjectType objectType;
     protected final Map<PropertyIdentifier, Encodable> properties = new ConcurrentHashMap<>();
     private final List<BACnetObjectListener> listeners = new CopyOnWriteArrayList<>();
@@ -122,6 +118,11 @@ public class BACnetObject implements Serializable {
 
     public void setLocalDevice(final LocalDevice localDevice) {
         this.localDevice = localDevice;
+
+        // Notify the mixins
+        for (final AbstractMixin mixin : mixins) {
+            mixin.setLocalDeviceNotify();
+        }
     }
 
     //
@@ -192,6 +193,9 @@ public class BACnetObject implements Serializable {
             intrinsicReportingMixin = (IntrinsicReportingMixin) mixin;
         else if (mixin instanceof CovReportingMixin)
             changeOfValueMixin = (CovReportingMixin) mixin;
+
+        if (localDevice != null)
+            mixin.setLocalDeviceNotify();
     }
 
     public void setOverridden(final boolean b) {
@@ -236,8 +240,8 @@ public class BACnetObject implements Serializable {
 
     //
     // COVs
-    public void supportCovReporting(final CovReportingCriteria criteria, final Real covIncrement) {
-        addMixin(new CovReportingMixin(this, criteria, covIncrement));
+    public void supportCovReporting(final Real covIncrement) {
+        addMixin(new CovReportingMixin(this, covIncrement));
     }
 
     public AlarmSummary getAlarmSummary() {
@@ -274,9 +278,10 @@ public class BACnetObject implements Serializable {
                 monitoredPropertyIdentifier, covIncrement);
     }
 
-    public void removeCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier) {
+    public void removeCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier,
+            final PropertyReference monitoredPropertyIdentifier) {
         if (changeOfValueMixin != null)
-            changeOfValueMixin.removeCovSubscription(from, subscriberProcessIdentifier);
+            changeOfValueMixin.removeCovSubscription(from, subscriberProcessIdentifier, monitoredPropertyIdentifier);
     }
 
     //

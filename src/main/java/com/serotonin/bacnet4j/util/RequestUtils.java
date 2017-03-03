@@ -71,9 +71,16 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.sero.Utils;
 
 public class RequestUtils {
     static final Logger LOG = LoggerFactory.getLogger(RequestUtils.class);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Read properties
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Does not work with aggregate PIDs like "all".
@@ -110,12 +117,12 @@ public class RequestUtils {
     }
 
     public static Map<PropertyIdentifier, Encodable> getProperties(final LocalDevice localDevice, final RemoteDevice d,
-            final RequestListener callback, final PropertyIdentifier... pids) throws BACnetException {
+            final ReadListener callback, final PropertyIdentifier... pids) throws BACnetException {
         return getProperties(localDevice, d, d.getObjectIdentifier(), callback, pids);
     }
 
     public static Map<PropertyIdentifier, Encodable> getProperties(final LocalDevice localDevice, final RemoteDevice d,
-            final ObjectIdentifier obj, final RequestListener callback, final PropertyIdentifier... pids)
+            final ObjectIdentifier obj, final ReadListener callback, final PropertyIdentifier... pids)
             throws BACnetException {
         final List<ObjectPropertyReference> refs = new ArrayList<>(pids.length);
         for (int i = 0; i < pids.length; i++)
@@ -124,7 +131,7 @@ public class RequestUtils {
     }
 
     private static Map<PropertyIdentifier, Encodable> getProperties(final LocalDevice localDevice, final RemoteDevice d,
-            final RequestListener callback, final List<ObjectPropertyReference> refs) throws BACnetException {
+            final ReadListener callback, final List<ObjectPropertyReference> refs) throws BACnetException {
         final List<Pair<ObjectPropertyReference, Encodable>> values = readProperties(localDevice, d, refs, callback);
 
         final Map<PropertyIdentifier, Encodable> map = new HashMap<>(values.size());
@@ -145,7 +152,7 @@ public class RequestUtils {
 
     @SuppressWarnings("unchecked")
     public static SequenceOf<ObjectIdentifier> getObjectList(final LocalDevice localDevice, final RemoteDevice d,
-            final RequestListener callback) throws BACnetException {
+            final ReadListener callback) throws BACnetException {
         return (SequenceOf<ObjectIdentifier>) sendReadPropertyAllowNull(localDevice, d, d.getObjectIdentifier(),
                 PropertyIdentifier.objectList, null, callback);
     }
@@ -156,12 +163,12 @@ public class RequestUtils {
      */
     public static Encodable sendReadPropertyAllowNull(final LocalDevice localDevice, final RemoteDevice d,
             final ObjectIdentifier oid, final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex,
-            final RequestListener callback) throws BACnetException {
+            final ReadListener callback) throws BACnetException {
         try {
             final ReadPropertyAck ack = (ReadPropertyAck) localDevice
                     .send(d, new ReadPropertyRequest(oid, pid, propertyArrayIndex)).get();
             if (callback != null)
-                callback.requestProgress(1, d.getInstanceNumber(), oid, pid, propertyArrayIndex, ack.getValue());
+                callback.progress(1, d.getInstanceNumber(), oid, pid, propertyArrayIndex, ack.getValue());
             return ack.getValue();
         } catch (final AbortAPDUException e) {
             if (e.getApdu().getAbortReason() == AbortReason.bufferOverflow.intValue()
@@ -233,7 +240,7 @@ public class RequestUtils {
      * @throws BACnetException
      */
     public static List<Pair<ObjectPropertyReference, Encodable>> readProperties(final LocalDevice localDevice,
-            final RemoteDevice d, final List<ObjectPropertyReference> oprs, final RequestListener callback)
+            final RemoteDevice d, final List<ObjectPropertyReference> oprs, final ReadListener callback)
             throws BACnetException {
         final PropertyReferences refs = new PropertyReferences();
         for (final ObjectPropertyReference opr : oprs)
@@ -250,7 +257,7 @@ public class RequestUtils {
     }
 
     public static PropertyValues readProperties(final LocalDevice localDevice, final RemoteDevice d,
-            final PropertyReferences refs, final RequestListener callback) throws BACnetException {
+            final PropertyReferences refs, final ReadListener callback) throws BACnetException {
         Map<ObjectIdentifier, List<PropertyReference>> properties;
         final PropertyValues propertyValues = new PropertyValues();
         final RequestListenerUpdater updater = new RequestListenerUpdater(callback, propertyValues, refs.size());
@@ -350,9 +357,12 @@ public class RequestUtils {
                         throw e;
                     }
                     // Otherwise, populate the properties with errors.
-                    populateWithError(d, properties, updater, new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
+                    populateWithError(d, properties, updater,
+                            new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
+                    partitions.remove(0);
                 } catch (final ErrorAPDUException e) {
                     populateWithError(d, properties, updater, e.getError());
+                    partitions.remove(0);
                 } catch (final BACnetException e) {
                     throw new BACnetException("Completed " + counter + " requests. Excepted on: " + request, e);
                 }
@@ -429,7 +439,7 @@ public class RequestUtils {
     //    }
 
     public static PropertyValues readOidPresentValues(final LocalDevice localDevice, final RemoteDevice d,
-            final List<ObjectIdentifier> oids, final RequestListener callback) throws BACnetException {
+            final List<ObjectIdentifier> oids, final ReadListener callback) throws BACnetException {
         if (oids.size() == 0)
             return new PropertyValues();
 
@@ -440,10 +450,17 @@ public class RequestUtils {
         return readProperties(localDevice, d, refs, callback);
     }
 
-    //
-    //
-    // Write requests
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Write properties
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static void writePresentValue(final LocalDevice localDevice, final RemoteDevice d,
+            final ObjectIdentifier oid, final Encodable value) throws BACnetException {
+        writeProperty(localDevice, d, oid, PropertyIdentifier.presentValue, value);
+    }
+
     public static void writeProperty(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
             final PropertyIdentifier pid, final Encodable value) throws BACnetException {
         localDevice.send(d, new WritePropertyRequest(oid, pid, null, value, null)).get();
@@ -452,11 +469,6 @@ public class RequestUtils {
     public static void writeProperty(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
             final PropertyIdentifier pid, final Encodable value, final int priority) throws BACnetException {
         localDevice.send(d, new WritePropertyRequest(oid, pid, null, value, new UnsignedInteger(priority))).get();
-    }
-
-    public static void writePresentValue(final LocalDevice localDevice, final RemoteDevice d,
-            final ObjectIdentifier oid, final Encodable value) throws BACnetException {
-        writeProperty(localDevice, d, oid, PropertyIdentifier.presentValue, value);
     }
 
     public static void writeProperty(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
@@ -480,51 +492,53 @@ public class RequestUtils {
     public static void writeProperty(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
             final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex, final Encodable value,
             final UnsignedInteger priority) throws BACnetException {
-        if (d.getServicesSupported().isWriteProperty())
-            localDevice.send(d, new WritePropertyRequest(oid, pid, propertyArrayIndex, value, priority)).get();
-        else if (d.getServicesSupported().isWritePropertyMultiple()) {
-            final List<WriteAccessSpecification> specs = new ArrayList<>();
-            final List<PropertyValue> props = new ArrayList<>();
-            props.add(new PropertyValue(pid, propertyArrayIndex, value, priority));
-            specs.add(new WriteAccessSpecification(oid, new SequenceOf<>(props)));
-            final WritePropertyMultipleRequest req = new WritePropertyMultipleRequest(new SequenceOf<>(specs));
-            localDevice.send(d, req).get();
-        } else
-            throw new BACnetException("Device does not support writeProperty nor writePropertyMultiple");
+        writeProperties(localDevice, d, Utils.toList(new WriteAccessSpecification(oid,
+                new SequenceOf<>(new PropertyValue(pid, propertyArrayIndex, value, priority)))));
     }
 
     public static void writeProperties(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
             final List<PropertyValue> props) throws BACnetException {
-        if (d.getServicesSupported().isWritePropertyMultiple()) {
-            final List<WriteAccessSpecification> specs = new ArrayList<>();
-            specs.add(new WriteAccessSpecification(oid, new SequenceOf<>(props)));
-            localDevice.send(d, new WritePropertyMultipleRequest(new SequenceOf<>(specs))).get();
-        } else if (d.getServicesSupported().isWriteProperty()) {
-            for (final PropertyValue pv : props)
-                localDevice.send(d, new WritePropertyRequest(oid, pv.getPropertyIdentifier(),
-                        pv.getPropertyArrayIndex(), pv.getValue(), pv.getPriority())).get();
-        } else
-            throw new BACnetException("Device does not support writeProperty nor writePropertyMultiple");
+        writeProperties(localDevice, d, Utils.toList(new WriteAccessSpecification(oid, new SequenceOf<>(props))));
     }
 
     public static void writeProperties(final LocalDevice localDevice, final RemoteDevice d,
             final List<WriteAccessSpecification> specs) throws BACnetException {
-        if (d.getServicesSupported().isWritePropertyMultiple())
+        int sum = 0;
+        for (final WriteAccessSpecification spec : specs)
+            sum += spec.size();
+
+        if (sum == 0)
+            return;
+        if (!d.getServicesSupported().isWriteProperty() && !d.getServicesSupported().isWritePropertyMultiple())
+            throw new BACnetException("Unable to write. Device " + d.getInstanceNumber()
+                    + " does not support writeProperty nor writePropertyMultiple");
+
+        boolean multiple = false;
+        if (sum > 1 && d.getServicesSupported().isWritePropertyMultiple())
+            multiple = true;
+        else if (sum == 1 && !d.getServicesSupported().isWriteProperty())
+            // Only one property to write, but a single write is not supported.
+            multiple = true;
+
+        if (multiple) {
+            // TODO We could be sending more specs than the device will accept at once. If an error is returned
+            // indicating such, and write single is supported, we can try writing one at a time.
             localDevice.send(d, new WritePropertyMultipleRequest(new SequenceOf<>(specs))).get();
-        else if (d.getServicesSupported().isWriteProperty()) {
+        } else {
             for (final WriteAccessSpecification spec : specs) {
                 for (final PropertyValue pv : spec.getListOfProperties())
                     localDevice.send(d, new WritePropertyRequest(spec.getObjectIdentifier(), pv.getPropertyIdentifier(),
                             pv.getPropertyArrayIndex(), pv.getValue(), pv.getPriority())).get();
             }
-        } else
-            throw new BACnetException("Device does not support writeProperty nor writePropertyMultiple");
+        }
     }
 
-    //
-    //
-    // List element requests
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // List element write requests
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public static void addListElement(final LocalDevice localDevice, final RemoteDevice d, final ObjectIdentifier oid,
             final PropertyIdentifier pid, final Encodable value) throws BACnetException {
         if (d.getServicesSupported().isAddListElement()) {

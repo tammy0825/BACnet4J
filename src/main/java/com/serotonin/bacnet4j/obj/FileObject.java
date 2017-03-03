@@ -49,8 +49,6 @@ import com.serotonin.bacnet4j.util.sero.StreamUtils;
  * @author Matthew Lohbihler
  */
 public class FileObject extends BACnetObject {
-    private static final long serialVersionUID = 1089963077847602732L;
-
     /**
      * The actual file that this object represents.
      */

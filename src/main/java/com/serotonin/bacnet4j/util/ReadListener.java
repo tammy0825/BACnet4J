@@ -34,7 +34,7 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 @FunctionalInterface
-public interface RequestListener {
+public interface ReadListener {
     /**
      * Provides the current progress from 0 (which is a value that is never actually sent to the method) up to 1
      * (finished and will not called again) as well as an opportunity for the client to cancel the request. Other
@@ -54,6 +54,6 @@ public interface RequestListener {
      *            the value of the property that was received
      * @return true if the request should be cancelled.
      */
-    boolean requestProgress(double progress, int deviceId, ObjectIdentifier oid, PropertyIdentifier pid,
+    boolean progress(double progress, int deviceId, ObjectIdentifier oid, PropertyIdentifier pid,
             UnsignedInteger pin, Encodable value);
 }

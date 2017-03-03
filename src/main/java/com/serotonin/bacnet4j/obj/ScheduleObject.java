@@ -76,7 +76,6 @@ import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class ScheduleObject<T extends Primitive> extends BACnetObject {
-    private static final long serialVersionUID = 1660874501874089852L;
     static final Logger LOG = LoggerFactory.getLogger(ScheduleObject.class);
 
     private ScheduledFuture<?> presentValueRefersher;

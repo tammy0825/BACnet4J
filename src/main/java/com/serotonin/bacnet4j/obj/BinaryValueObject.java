@@ -23,13 +23,12 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.obj;
 
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
@@ -44,9 +43,8 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class BinaryValueObject extends BACnetObject {
-    private static final long serialVersionUID = 6513179724432379974L;
-
-    public BinaryValueObject(int instanceNumber, String name, BinaryPV presentValue, boolean outOfService) {
+    public BinaryValueObject(final int instanceNumber, final String name, final BinaryPV presentValue,
+            final boolean outOfService) {
         super(ObjectType.binaryValue, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
@@ -60,8 +58,8 @@ public class BinaryValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
     }
 
-    public void supportIntrinsicReporting(int timeDelay, int notificationClass, BinaryPV alarmValue,
-            EventTransitionBits eventEnable, NotifyType notifyType, int timeDelayNormal) {
+    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final BinaryPV alarmValue,
+            final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
         writePropertyInternal(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
@@ -71,7 +69,7 @@ public class BinaryValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
 
-        ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
+        final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValue);
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, null,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue },
@@ -83,6 +81,6 @@ public class BinaryValueObject extends BACnetObject {
     }
 
     public void supportCovReporting() {
-        supportCovReporting(CovReportingMixin.criteria13_1_4, null);
+        supportCovReporting(null);
     }
 }

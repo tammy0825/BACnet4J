@@ -108,8 +108,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
             }
 
             // Check for status (backup/restore)
-            final BackupState bsOld = (BackupState) localDevice.getConfiguration()
-                    .getProperty(PropertyIdentifier.backupAndRestoreState);
+            final BackupState bsOld = (BackupState) localDevice.getProperty(PropertyIdentifier.backupAndRestoreState);
             if (bsOld.intValue() == BackupState.preparingForBackup.intValue()
                     || bsOld.intValue() == BackupState.preparingForRestore.intValue())
                 // Send error: device configuration in progress as response

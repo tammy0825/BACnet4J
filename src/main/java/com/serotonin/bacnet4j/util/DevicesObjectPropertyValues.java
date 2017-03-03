@@ -78,6 +78,11 @@ public class DevicesObjectPropertyValues {
     }
 
     @Override
+    public String toString() {
+        return "DevicesObjectPropertyValues [values=" + values + "]";
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

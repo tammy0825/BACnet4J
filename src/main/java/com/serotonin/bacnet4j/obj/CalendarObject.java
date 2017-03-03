@@ -48,8 +48,6 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
 
 public class CalendarObject extends BACnetObject {
-    private static final long serialVersionUID = 4337001513572175841L;
-
     private int timeTolerance = 0;
     private final Clock clock;
 

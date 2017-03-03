@@ -29,7 +29,6 @@
 package com.serotonin.bacnet4j.obj;
 
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
@@ -40,8 +39,6 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 
 public class BinaryOutputObject extends BACnetObject {
-    private static final long serialVersionUID = 8595160980372725336L;
-
     public BinaryOutputObject(final int instanceNumber, final String name, final BinaryPV presentValue,
             final boolean outOfService, final Polarity polarity, final BinaryPV relinquishDefault) {
         super(ObjectType.binaryOutput, instanceNumber, name);
@@ -61,6 +58,6 @@ public class BinaryOutputObject extends BACnetObject {
     }
 
     public void supportCovReporting() {
-        supportCovReporting(CovReportingMixin.criteria13_1_4, null);
+        supportCovReporting(null);
     }
 }

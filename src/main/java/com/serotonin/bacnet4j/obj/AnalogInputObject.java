@@ -28,7 +28,6 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.WritablePropertyOutOfServiceMixin;
@@ -47,8 +46,6 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class AnalogInputObject extends BACnetObject {
-    private static final long serialVersionUID = -8949077782702961039L;
-
     public AnalogInputObject(final int instanceNumber, final String name, final float presentValue,
             final EngineeringUnits units, final boolean outOfService) {
         super(ObjectType.analogInput, instanceNumber, name);
@@ -89,6 +86,6 @@ public class AnalogInputObject extends BACnetObject {
     }
 
     public void supportCovReporting(final float covIncrement) {
-        supportCovReporting(CovReportingMixin.criteria13_1_3, new Real(covIncrement));
+        supportCovReporting(new Real(covIncrement));
     }
 }

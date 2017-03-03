@@ -122,7 +122,7 @@ public class CommandableMixin extends AbstractMixin {
             final Boolean oos = get(outOfService);
             if (oos.booleanValue()) {
                 // Writable while the object is out of service.
-                writePropertyImpl(presentValue, value.getValue());
+                writePropertyInternal(presentValue, value.getValue());
                 return true;
             }
 
@@ -213,7 +213,7 @@ public class CommandableMixin extends AbstractMixin {
             //        is made as a result of a value at a lower priority.
         }
 
-        writePropertyImpl(presentValue, newValue);
+        writePropertyInternal(presentValue, newValue);
     }
 
     private Encodable calculatePresentValue(final PriorityArray priorityArray) {

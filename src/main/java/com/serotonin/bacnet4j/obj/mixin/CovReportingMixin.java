@@ -29,7 +29,10 @@
 package com.serotonin.bacnet4j.obj.mixin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
@@ -40,15 +43,12 @@ import com.serotonin.bacnet4j.service.confirmed.ConfirmedCovNotificationRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedCovNotificationRequest;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.constructed.CovSubscription;
-import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.Recipient;
-import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -62,13 +62,21 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  */
 public class CovReportingMixin extends AbstractMixin {
     private final CovReportingCriteria criteria;
-    private final List<ObjectCovSubscription> covSubscriptions = new ArrayList<>();
 
-    public CovReportingMixin(final BACnetObject bo, final CovReportingCriteria criteria, final Real covIncrement) {
+    public CovReportingMixin(final BACnetObject bo, final Real covIncrement) {
         super(bo);
-        this.criteria = criteria;
+        criteria = objectTypeCriteria.get(bo.getId().getObjectType());
+        if (criteria == null)
+            throw new RuntimeException(
+                    "COV reporting not supported for this object type: " + bo.getId().getObjectType());
         if (covIncrement != null)
-            writePropertyImpl(PropertyIdentifier.covIncrement, covIncrement);
+            writePropertyInternal(PropertyIdentifier.covIncrement, covIncrement);
+    }
+
+    @Override
+    protected void setLocalDeviceNotify() {
+        super.setLocalDeviceNotify();
+        getLocalDevice().getCovContexts().put(getId(), new ArrayList<>());
     }
 
     @Override
@@ -85,30 +93,66 @@ public class CovReportingMixin extends AbstractMixin {
     @Override
     protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
             final Encodable newValue) {
-        if (pid.isOneOf(criteria.monitoredProperties)) {
-            final long now = getLocalDevice().getClock().millis();
-            synchronized (covSubscriptions) {
-                List<ObjectCovSubscription> expired = null;
-                for (final ObjectCovSubscription subscription : covSubscriptions) {
-                    if (subscription.hasExpired(now)) {
-                        if (expired == null)
-                            expired = new ArrayList<>();
-                        expired.add(subscription);
-                    } else {
+        final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
+        final long now = getLocalDevice().getClock().millis();
+        synchronized (ctxs) {
+            List<CovContext> expired = null;
+            for (final CovContext ctx : ctxs) {
+                // Check for expired contexts.
+                if (ctx.hasExpired(now)) {
+                    if (expired == null)
+                        expired = new ArrayList<>();
+                    expired.add(ctx);
+                } else {
+                    // At this point we know that the subscription is still valid, and applies to this object.
+                    // Try to find a reason to send the notification.
+
+                    boolean sent = false;
+
+                    // Table 13-1
+                    if (pid.isOneOf(criteria.monitoredProperties)) {
                         boolean send = true;
                         if (pid.equals(criteria.incrementProperty))
-                            send = incrementChange(subscription, newValue);
+                            // Check if the increment property has changed enough for a notification to be sent.
+                            send = incrementChange(ctx, newValue);
                         if (send) {
-                            if (pid.equals(subscription.getMonitoredProperty()))
-                                sendPropertyNotification(subscription, now, pid);
-                            else if (subscription.getMonitoredProperty() == null)
-                                sendObjectNotification(subscription, now);
+                            // We send an object notification in any case because the property that changed is one
+                            // of the monitored properties in 13-1. So, send to all object subscriptions, and property
+                            // subscriptions where the monitored property is one of the criteria's monitored properties.
+                            if (ctx.isObjectSubscription()
+                                    || ctx.getMonitoredProperty().isOneOf(criteria.monitoredProperties)) {
+                                sendObjectNotification(ctx, now);
+                                sent = true;
+                            }
                         }
                     }
-                }
 
-                if (expired != null)
-                    covSubscriptions.removeAll(expired);
+                    if (!sent) {
+                        // Rows in Table 13-1a are not distinguished because currently no alternative increment
+                        // value is supported.
+                        if (pid.isOneOf(PropertyIdentifier.statusFlags) //
+                                || ctx.getMonitoredProperty() != null && pid.equals(ctx.getMonitoredProperty())) {
+                            final SequenceOf<PropertyValue> values = new SequenceOf<>();
+                            addPropertyValues(ctx, values, ctx.getMonitoredProperty(), PropertyIdentifier.statusFlags);
+                            sendNotification(ctx, now, values);
+                            sent = true;
+                        }
+                    }
+
+                    // Too difficult to figure out what Table 13-1a-2 is trying to say.
+                    //                    if (!sent && pid.equals(PropertyIdentifier.valueSource)) {
+                    //                        // Table 13-1a-2
+                    //                        if (get(PropertyIdentifier.priorityArray) != null) {
+                    //
+                    //                        } else {
+                    //
+                    //                        }
+                    //                    }
+                }
+            }
+
+            if (expired != null) {
+                ctxs.removeAll(expired);
             }
         }
     }
@@ -117,10 +161,13 @@ public class CovReportingMixin extends AbstractMixin {
             final Boolean issueConfirmedNotifications, final UnsignedInteger lifetime,
             final PropertyReference monitoredPropertyIdentifier, final Real covIncrement)
             throws BACnetServiceException {
-        synchronized (covSubscriptions) {
-            ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
+        final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
+        synchronized (ctxs) {
+            final PropertyIdentifier monitored = monitoredPropertyIdentifier == null ? null
+                    : monitoredPropertyIdentifier.getPropertyIdentifier();
 
-            if (sub == null) {
+            CovContext ctx = findCovSubscription(ctxs, from, subscriberProcessIdentifier, monitored);
+            if (ctx == null) {
                 // Ensure that this object is valid for COV notifications.
                 if (monitoredPropertyIdentifier != null) {
                     // Don't allow a subscription on a sequence index
@@ -134,34 +181,23 @@ public class CovReportingMixin extends AbstractMixin {
                                 ErrorCode.optionalFunctionalityNotSupported);
                 }
 
-                sub = new ObjectCovSubscription(getLocalDevice().getClock(), from, subscriberProcessIdentifier, //
-                        monitoredPropertyIdentifier == null ? null
-                                : monitoredPropertyIdentifier.getPropertyIdentifier());
+                final PropertyIdentifier exposed = monitored == null ? criteria.exposedMonitoredProperty : monitored;
 
-                covSubscriptions.add(sub);
+                ctx = new CovContext(getLocalDevice().getClock(), from, subscriberProcessIdentifier, monitored,
+                        exposed);
+
+                ctxs.add(ctx);
             }
 
-            sub.setIssueConfirmedNotifications(issueConfirmedNotifications.booleanValue());
-            sub.setExpiryTime(lifetime.intValue());
-            sub.setCovIncrement(covIncrement);
-
-            // Remove from device list.
-            final RecipientProcess rp = new RecipientProcess(new Recipient(from), subscriberProcessIdentifier);
-            removeFromDeviceList(rp);
-
-            // Add to the device list.
-            final ObjectPropertyReference opr = new ObjectPropertyReference(
-                    (ObjectIdentifier) get(PropertyIdentifier.objectIdentifier),
-                    monitoredPropertyIdentifier == null ? null : monitoredPropertyIdentifier.getPropertyIdentifier(),
-                    monitoredPropertyIdentifier == null ? null : monitoredPropertyIdentifier.getPropertyArrayIndex());
-            final CovSubscription cs = new CovSubscription(rp, opr, issueConfirmedNotifications, lifetime,
-                    covIncrement);
-            final SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration()
-                    .get(PropertyIdentifier.activeCovSubscriptions);
-            deviceList.add(cs);
+            ctx.setIssueConfirmedNotifications(issueConfirmedNotifications.booleanValue());
+            if (lifetime == null)
+                ctx.setExpiryTime(0);
+            else
+                ctx.setExpiryTime(lifetime.intValue());
+            ctx.setCovIncrement(covIncrement);
 
             // "Immediately" send a notification
-            final ObjectCovSubscription subscription = sub;
+            final CovContext subscription = ctx;
             getLocalDevice().schedule(() -> {
                 final long now = getLocalDevice().getClock().millis();
                 if (subscription.getMonitoredProperty() != null)
@@ -172,113 +208,90 @@ public class CovReportingMixin extends AbstractMixin {
         }
     }
 
-    public void removeCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier) {
-        synchronized (covSubscriptions) {
-            final ObjectCovSubscription sub = findCovSubscription(from, subscriberProcessIdentifier);
-            if (sub != null)
-                covSubscriptions.remove(sub);
+    public void removeCovSubscription(final Address from, final UnsignedInteger subscriberProcessIdentifier,
+            final PropertyReference monitoredPropertyIdentifier) {
+        final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
+        if (ctxs != null) {
+            synchronized (ctxs) {
+                final PropertyIdentifier monitored = monitoredPropertyIdentifier == null ? null
+                        : monitoredPropertyIdentifier.getPropertyIdentifier();
 
-            removeFromDeviceList(new RecipientProcess(new Recipient(from), subscriberProcessIdentifier));
-        }
-    }
-
-    private ObjectCovSubscription findCovSubscription(final Address from,
-            final UnsignedInteger subscriberProcessIdentifier) {
-        for (final ObjectCovSubscription sub : covSubscriptions) {
-            if (sub.getAddress().equals(from)
-                    && sub.getSubscriberProcessIdentifier().equals(subscriberProcessIdentifier))
-                return sub;
-        }
-        return null;
-    }
-
-    private void removeFromDeviceList(final RecipientProcess rp) {
-        final SequenceOf<CovSubscription> deviceList = getLocalDevice().getConfiguration()
-                .get(PropertyIdentifier.activeCovSubscriptions);
-        for (final CovSubscription cs : deviceList) {
-            if (cs.getRecipient().equals(rp)) {
-                deviceList.remove(cs);
-                break;
+                final CovContext sub = findCovSubscription(ctxs, from, subscriberProcessIdentifier, monitored);
+                if (sub != null)
+                    ctxs.remove(sub);
             }
         }
     }
 
-    void sendObjectNotification(final ObjectCovSubscription subscription, final long now) {
-        final SequenceOf<PropertyValue> values = new SequenceOf<>();
-        for (final PropertyIdentifier pid : criteria.propertiesReported) {
-            final Encodable value = get(pid);
-            if (pid.equals(criteria.incrementProperty))
-                subscription.setLastCovIncrementValue(value);
-            values.add(new PropertyValue(pid, value));
+    private static CovContext findCovSubscription(final List<CovContext> ctxs, final Address from,
+            final UnsignedInteger subscriberProcessIdentifier, final PropertyIdentifier pid) {
+        for (final CovContext ctx : ctxs) {
+            if (ctx.getAddress().equals(from)
+                    && ctx.getSubscriberProcessIdentifier().equals(subscriberProcessIdentifier)
+                    && Objects.equals(ctx.getMonitoredProperty(), pid))
+                return ctx;
         }
-        sendNotification(subscription, now, values);
+        return null;
     }
 
-    void sendPropertyNotification(final ObjectCovSubscription subscription, final long now,
-            final PropertyIdentifier pid) {
-        final Encodable value = get(pid);
-        if (pid.equals(criteria.incrementProperty))
-            subscription.setLastCovIncrementValue(value);
-        sendNotification(subscription, now, new SequenceOf<>(new PropertyValue(pid, value)));
+    private void sendObjectNotification(final CovContext ctx, final long now) {
+        final SequenceOf<PropertyValue> values = new SequenceOf<>();
+        addPropertyValues(ctx, values, criteria.propertiesReported);
+        sendNotification(ctx, now, values);
     }
 
-    private void sendNotification(final ObjectCovSubscription subscription, final long now,
-            final SequenceOf<PropertyValue> values) {
-        final ObjectIdentifier deviceId = getLocalDevice().getConfiguration().getId();
+    private void sendPropertyNotification(final CovContext ctx, final long now, final PropertyIdentifier pid) {
+        final SequenceOf<PropertyValue> values = new SequenceOf<>();
+
+        if (pid.equals(PropertyIdentifier.valueSource)) {
+            // Table 13-1a-2
+
+        } else {
+            // Table 13-1a
+            addPropertyValues(ctx, values, pid, PropertyIdentifier.statusFlags);
+        }
+
+        sendNotification(ctx, now, values);
+    }
+
+    private void addPropertyValues(final CovContext ctx, final SequenceOf<PropertyValue> values,
+            final PropertyIdentifier... pids) {
+        for (final PropertyIdentifier pid : pids) {
+            final Encodable value = get(pid);
+            if (value != null) {
+                if (pid.equals(criteria.incrementProperty))
+                    ctx.setLastCovIncrementValue(value);
+                values.add(new PropertyValue(pid, value));
+            }
+        }
+    }
+
+    private void sendNotification(final CovContext ctx, final long now, final SequenceOf<PropertyValue> values) {
+        final ObjectIdentifier deviceId = getLocalDevice().getId();
         final ObjectIdentifier id = get(PropertyIdentifier.objectIdentifier);
-        final UnsignedInteger timeLeft = new UnsignedInteger(subscription.getTimeRemaining(now));
+        final UnsignedInteger timeLeft = new UnsignedInteger(ctx.getSecondsRemaining(now));
 
-        if (subscription.isIssueConfirmedNotifications()) {
+        if (ctx.isIssueConfirmedNotifications()) {
             final ConfirmedCovNotificationRequest req = new ConfirmedCovNotificationRequest( //
-                    subscription.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
-            getLocalDevice().send(subscription.getAddress(), req, null);
+                    ctx.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
+            getLocalDevice().send(ctx.getAddress(), req, null);
         } else {
             final UnconfirmedCovNotificationRequest req = new UnconfirmedCovNotificationRequest(
-                    subscription.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
-            getLocalDevice().send(subscription.getAddress(), req);
+                    ctx.getSubscriberProcessIdentifier(), deviceId, id, timeLeft, values);
+            getLocalDevice().send(ctx.getAddress(), req);
         }
     }
 
-    //
-    //
-    // COV reporting criteria
-    //
-    public static class CovReportingCriteria {
-        final PropertyIdentifier[] monitoredProperties;
-        final PropertyIdentifier[] propertiesReported;
-        final PropertyIdentifier incrementProperty;
-
-        public CovReportingCriteria(final PropertyIdentifier[] monitoredProperties,
-                final PropertyIdentifier[] propertiesReported, final PropertyIdentifier incrementProperty) {
-            this.monitoredProperties = monitoredProperties;
-            this.propertiesReported = propertiesReported;
-            this.incrementProperty = incrementProperty;
-        }
-    }
-
-    // For: Analog Input, Analog Output, Analog Value, Large Analog Value, Integer Value, Positive Integer Value,
-    // Lighting Output
-    public static final CovReportingCriteria criteria13_1_3 = new CovReportingCriteria( //
-            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
-            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
-            PropertyIdentifier.presentValue);
-
-    // For: Binary Input, Binary Output, Binary Value, Life Safety Point, Life Safety Zone, Multi-state Input,
-    // Multi-state Output, Multi-state Value, OctetString Value, CharacterString Value, Time Value, DateTime Value,
-    // Date Value, Time Pattern Value, Date Pattern Value, DateTime Pattern Value
-    public static final CovReportingCriteria criteria13_1_4 = new CovReportingCriteria( //
-            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
-            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
-            null);
-
-    boolean incrementChange(final ObjectCovSubscription subscription, final Encodable value) {
+    private boolean incrementChange(final CovContext subscription, final Encodable value) {
         final Encodable lastValue = subscription.getLastCovIncrementValue();
         if (lastValue == null)
             return true;
 
         Encodable covIncrement = subscription.getCovIncrement();
-        if (covIncrement == null)
+        if (covIncrement == null && subscription.isObjectSubscription())
             covIncrement = get(PropertyIdentifier.covIncrement);
+        if (covIncrement == null)
+            covIncrement = new Real(0);
 
         double increment, last, newValue;
         if (value instanceof Real) {
@@ -295,5 +308,117 @@ public class CovReportingMixin extends AbstractMixin {
             return true;
 
         return false;
+    }
+
+    //
+    //
+    // COV reporting criteria. These are defined in Table 13-1 in the spec.
+    //
+    public static class CovReportingCriteria {
+        final PropertyIdentifier[] monitoredProperties;
+        final PropertyIdentifier[] propertiesReported;
+        final PropertyIdentifier incrementProperty;
+        final PropertyIdentifier exposedMonitoredProperty;
+
+        public CovReportingCriteria(final PropertyIdentifier[] monitoredProperties,
+                final PropertyIdentifier[] propertiesReported, final PropertyIdentifier incrementProperty,
+                final PropertyIdentifier exposedMonitoredProperty) {
+            this.monitoredProperties = monitoredProperties;
+            this.propertiesReported = propertiesReported;
+            this.incrementProperty = incrementProperty;
+            this.exposedMonitoredProperty = exposedMonitoredProperty;
+        }
+    }
+
+    public static final CovReportingCriteria criteria13_1_1 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.doorAlarmState }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.doorAlarmState }, //
+            null, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_2 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.accessEventTime, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.accessEvent, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.accessEventTag, PropertyIdentifier.accessEventTime,
+                    PropertyIdentifier.accessEventCredential, PropertyIdentifier.accessEventAuthenticationFactor }, //
+            null, PropertyIdentifier.accessEvent);
+
+    public static final CovReportingCriteria criteria13_1_3 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            PropertyIdentifier.presentValue, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_4 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            null, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_5 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.updateTime, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.updateTime }, //
+            null, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_6 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.requestedShedLevel, PropertyIdentifier.startTime,
+                    PropertyIdentifier.shedDuration, PropertyIdentifier.dutyWindow }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.requestedShedLevel, PropertyIdentifier.startTime,
+                    PropertyIdentifier.shedDuration, PropertyIdentifier.dutyWindow }, //
+            null, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_7 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.setpoint, PropertyIdentifier.controlledVariableValue }, //
+            PropertyIdentifier.presentValue, PropertyIdentifier.presentValue);
+
+    public static final CovReportingCriteria criteria13_1_8 = new CovReportingCriteria( //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags }, //
+            new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.statusFlags,
+                    PropertyIdentifier.updateTime }, //
+            PropertyIdentifier.presentValue, PropertyIdentifier.presentValue);
+
+    private static final Map<ObjectType, CovReportingCriteria> objectTypeCriteria = new HashMap<>();
+    static {
+        objectTypeCriteria.put(ObjectType.accessDoor, criteria13_1_1);
+
+        objectTypeCriteria.put(ObjectType.accessPoint, criteria13_1_2);
+
+        objectTypeCriteria.put(ObjectType.analogInput, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.analogOutput, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.analogValue, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.integerValue, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.largeAnalogValue, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.lightingOutput, criteria13_1_3);
+        objectTypeCriteria.put(ObjectType.positiveIntegerValue, criteria13_1_3);
+
+        objectTypeCriteria.put(ObjectType.binaryInput, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.binaryLightingOutput, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.binaryOutput, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.binaryValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.characterstringValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.dateValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.datePatternValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.datetimeValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.datetimePatternValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.lifeSafetyPoint, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.lifeSafetyZone, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.multiStateInput, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.multiStateOutput, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.multiStateValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.octetstringValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.timeValue, criteria13_1_4);
+        objectTypeCriteria.put(ObjectType.timePatternValue, criteria13_1_4);
+
+        objectTypeCriteria.put(ObjectType.credentialDataInput, criteria13_1_5);
+
+        objectTypeCriteria.put(ObjectType.loadControl, criteria13_1_6);
+
+        objectTypeCriteria.put(ObjectType.loop, criteria13_1_7);
+
+        objectTypeCriteria.put(ObjectType.pulseConverter, criteria13_1_8);
     }
 }

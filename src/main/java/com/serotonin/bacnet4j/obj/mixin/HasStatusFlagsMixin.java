@@ -78,7 +78,7 @@ public class HasStatusFlagsMixin extends AbstractMixin {
                 reliability == null ? false : !Reliability.noFaultDetected.equals(reliability), //
                 overridden, //
                 outOfService.booleanValue());
-        writePropertyImpl(PropertyIdentifier.statusFlags, statusFlags);
+        writePropertyInternal(PropertyIdentifier.statusFlags, statusFlags);
     }
 
     public boolean isOverridden() {

@@ -14,6 +14,7 @@ import com.serotonin.bacnet4j.obj.BinaryValueObject;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
+import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -51,8 +52,8 @@ public class PropertyUtilsTest {
     }
 
     private static void addObjects(final LocalDevice d) throws Exception {
-        final int id = d.getConfiguration().getInstanceId();
-        d.getConfiguration().writePropertyInternal(PropertyIdentifier.objectName, str("d" + id));
+        final int id = d.getInstanceId();
+        d.writePropertyInternal(PropertyIdentifier.objectName, str("d" + id));
         d.addObject(new BinaryValueObject(0, "ai0", BinaryPV.active, false)
                 .writePropertyInternal(PropertyIdentifier.inactiveText, str("inactiveText"))
                 .writePropertyInternal(PropertyIdentifier.activeText, str("activeText")));
@@ -93,7 +94,7 @@ public class PropertyUtilsTest {
     @Test
     public void happy() {
         final DevicesObjectPropertyValues callbackValues = new DevicesObjectPropertyValues();
-        final RequestListener callback = (progress, deviceId, oid, pid, pin, value) -> {
+        final ReadListener callback = (progress, deviceId, oid, pid, pin, value) -> {
             callbackValues.add(deviceId, oid, pid, pin, value);
             //            System.out.println("progress=" + progress + ", did=" + deviceId + ", oid=" + oid + ", pid=" + pid + ", pin="
             //                    + pin + ", value=" + value);
@@ -259,7 +260,7 @@ public class PropertyUtilsTest {
     @Test
     public void timeout() {
         final DevicesObjectPropertyValues callbackValues = new DevicesObjectPropertyValues();
-        final RequestListener callback = (progress, deviceId, oid, pid, pin, value) -> {
+        final ReadListener callback = (progress, deviceId, oid, pid, pin, value) -> {
             callbackValues.add(deviceId, oid, pid, pin, value);
             //            System.out.println("progress=" + progress + ", did=" + deviceId + ", oid=" + oid + ", pid=" + pid + ", pin="
             //                    + pin + ", value=" + value);
@@ -338,7 +339,7 @@ public class PropertyUtilsTest {
         // Change the network address of the device.
         d6.terminate();
         d6 = new LocalDevice(6, new DefaultTransport(new TestNetwork(16, 70))).initialize();
-        d6.getConfiguration().writePropertyInternal(PropertyIdentifier.objectName, str("d6"));
+        d6.writePropertyInternal(PropertyIdentifier.objectName, str("d6"));
 
         // Try getting a different property from the device.
         refs.clear();
@@ -358,5 +359,43 @@ public class PropertyUtilsTest {
         assertEquals(str("d6"),
                 d1.getCachedRemoteProperty(6, oid(ObjectType.device, 6), PropertyIdentifier.objectName));
         assertEquals(new OctetString(new byte[] { 16 }), d1.getCachedRemoteDevice(6).getAddress().getMacAddress());
+    }
+
+    @Test
+    public void deviceProperties() {
+        final DeviceObjectPropertyReferences refs = new DeviceObjectPropertyReferences() //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.vendorName);
+
+        final DevicesObjectPropertyValues expectedValues = new DevicesObjectPropertyValues() //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus, null, DeviceStatus.operational) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted, null, new UnsignedInteger(1476)) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.vendorName, null,
+                        str("Serotonin Software Technologies, Inc."));
+
+        final DevicesObjectPropertyValues actualValues = PropertyUtils.readProperties(d1, refs, null, 3000);
+
+        assertEquals(expectedValues, actualValues);
+    }
+
+    @Test
+    public void unknownObjectInReadMultiple() {
+        final DeviceObjectPropertyReferences refs = new DeviceObjectPropertyReferences() //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted) //
+                .add(2, ObjectType.analogInput, 2, PropertyIdentifier.vendorName);
+
+        final DevicesObjectPropertyValues expectedValues = new DevicesObjectPropertyValues() //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus, null,
+                        new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject)) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted, null,
+                        new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject)) //
+                .add(2, ObjectType.analogInput, 2, PropertyIdentifier.vendorName, null,
+                        new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject));
+
+        final DevicesObjectPropertyValues actualValues = PropertyUtils.readProperties(d1, refs, null, 3000);
+
+        assertEquals(expectedValues, actualValues);
     }
 }

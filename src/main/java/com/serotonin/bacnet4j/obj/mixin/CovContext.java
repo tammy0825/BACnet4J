@@ -36,13 +36,17 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class ObjectCovSubscription {
+public class CovContext {
     private final Clock clock;
 
     // Identifying properties.
     private final Address address;
     private final UnsignedInteger subscriberProcessIdentifier;
-    private final PropertyIdentifier monitoredProperty; // Can be null.
+    // This is the property that was requested to be monitored in the subscription request. Can be null.
+    private final PropertyIdentifier monitoredProperty;
+    // This is the property that will be reported as being monitored in the active COV subscriptions property in the
+    // device. Cannot be null.
+    private final PropertyIdentifier exposedMonitoredProperty;
 
     // Mutable properties.
     private boolean issueConfirmedNotifications;
@@ -52,12 +56,13 @@ public class ObjectCovSubscription {
     // Runtime values.
     private Encodable lastCovIncrementValue;
 
-    public ObjectCovSubscription(final Clock clock, final Address address,
-            final UnsignedInteger subscriberProcessIdentifier, final PropertyIdentifier monitoredProperty) {
+    public CovContext(final Clock clock, final Address address, final UnsignedInteger subscriberProcessIdentifier,
+            final PropertyIdentifier monitoredProperty, final PropertyIdentifier exposedMonitoredProperty) {
         this.clock = clock;
         this.address = address;
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.monitoredProperty = monitoredProperty;
+        this.exposedMonitoredProperty = exposedMonitoredProperty;
     }
 
     public Address getAddress() {
@@ -70,6 +75,14 @@ public class ObjectCovSubscription {
 
     public PropertyIdentifier getMonitoredProperty() {
         return monitoredProperty;
+    }
+
+    public boolean isObjectSubscription() {
+        return monitoredProperty == null;
+    }
+
+    public PropertyIdentifier getExposedMonitoredProperty() {
+        return exposedMonitoredProperty;
     }
 
     public boolean isIssueConfirmedNotifications() {
@@ -109,10 +122,10 @@ public class ObjectCovSubscription {
         this.lastCovIncrementValue = lastCovIncrementValue;
     }
 
-    public int getTimeRemaining(final long now) {
+    public int getSecondsRemaining(final long now) {
         if (expiryTime == -1)
             return 0;
-        final int left = (int) ((expiryTime - now) / 1000);
+        final int left = (int) ((expiryTime - now + 500) / 1000);
         if (left < 1)
             return 1;
         return left;

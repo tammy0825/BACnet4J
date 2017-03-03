@@ -67,6 +67,10 @@ public class WriteAccessSpecification extends BaseType {
         return objectIdentifier;
     }
 
+    public int size() {
+        return listOfProperties.getCount();
+    }
+
     @Override
     public int hashCode() {
         final int PRIME = 31;

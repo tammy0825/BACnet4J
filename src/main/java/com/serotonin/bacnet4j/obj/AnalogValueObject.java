@@ -29,7 +29,6 @@
 package com.serotonin.bacnet4j.obj;
 
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
-import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
@@ -47,8 +46,6 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class AnalogValueObject extends BACnetObject {
-    private static final long serialVersionUID = -919281684940144433L;
-
     public AnalogValueObject(final int instanceNumber, final String name, final float presentValue,
             final EngineeringUnits units, final boolean outOfService) {
         super(ObjectType.analogValue, instanceNumber, name);
@@ -65,8 +62,8 @@ public class AnalogValueObject extends BACnetObject {
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
     }
 
-    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final float highLimit,
-            final float lowLimit, final float deadband, final LimitEnable limitEnable,
+    public AnalogValueObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,
+            final float highLimit, final float lowLimit, final float deadband, final LimitEnable limitEnable,
             final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
 
         // Prepare the object with all of the properties that intrinsic reporting will need.
@@ -86,9 +83,12 @@ public class AnalogValueObject extends BACnetObject {
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.highLimit,
                         PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable, },
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
+
+        return this;
     }
 
-    public void supportCovReporting(final float covIncrement) {
-        supportCovReporting(CovReportingMixin.criteria13_1_3, new Real(covIncrement));
+    public AnalogValueObject supportCovReporting(final float covIncrement) {
+        supportCovReporting(new Real(covIncrement));
+        return this;
     }
 }

@@ -49,8 +49,6 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class NotificationClassObject extends BACnetObject {
-    private static final long serialVersionUID = -3881883402727466774L;
-
     private final List<NotificationClassListener> eventListeners = new CopyOnWriteArrayList<>();
 
     public NotificationClassObject(final int instanceNumber, final String name, final int toOffnormalPriority,
