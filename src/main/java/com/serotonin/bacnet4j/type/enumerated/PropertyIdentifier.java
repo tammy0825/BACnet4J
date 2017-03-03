@@ -281,7 +281,7 @@ public class PropertyIdentifier extends Enumerated {
     public static final PropertyIdentifier daysRemaining = new PropertyIdentifier(267);
     public static final PropertyIdentifier entryPoints = new PropertyIdentifier(268);
     public static final PropertyIdentifier exitPoints = new PropertyIdentifier(269);
-    public static final PropertyIdentifier expiryTime = new PropertyIdentifier(270);
+    public static final PropertyIdentifier expirationTime = new PropertyIdentifier(270);
     public static final PropertyIdentifier extendedTimeEnable = new PropertyIdentifier(271);
     public static final PropertyIdentifier failedAttemptEvents = new PropertyIdentifier(272);
     public static final PropertyIdentifier failedAttempts = new PropertyIdentifier(273);

@@ -41,12 +41,15 @@ import com.serotonin.bacnet4j.type.constructed.AccumulatorRecord;
 import com.serotonin.bacnet4j.type.constructed.ActionList;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
 import com.serotonin.bacnet4j.type.constructed.AssignedAccessRights;
+import com.serotonin.bacnet4j.type.constructed.AssignedLandingCalls;
 import com.serotonin.bacnet4j.type.constructed.AuthenticationFactor;
 import com.serotonin.bacnet4j.type.constructed.AuthenticationFactorFormat;
 import com.serotonin.bacnet4j.type.constructed.AuthenticationPolicy;
+import com.serotonin.bacnet4j.type.constructed.BDTEntry;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
 import com.serotonin.bacnet4j.type.constructed.ChannelValue;
 import com.serotonin.bacnet4j.type.constructed.ClientCov;
+import com.serotonin.bacnet4j.type.constructed.CovMultipleSubscription;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.CredentialAuthenticationFactor;
 import com.serotonin.bacnet4j.type.constructed.DailySchedule;
@@ -58,15 +61,25 @@ import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.EventLogRecord;
 import com.serotonin.bacnet4j.type.constructed.EventNotificationSubscription;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
+import com.serotonin.bacnet4j.type.constructed.FDTEntry;
 import com.serotonin.bacnet4j.type.constructed.FaultParameter;
+import com.serotonin.bacnet4j.type.constructed.HostNPort;
+import com.serotonin.bacnet4j.type.constructed.LandingCallStatus;
+import com.serotonin.bacnet4j.type.constructed.LandingDoorStatus;
+import com.serotonin.bacnet4j.type.constructed.LiftCarCallList;
 import com.serotonin.bacnet4j.type.constructed.LightingCommand;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
 import com.serotonin.bacnet4j.type.constructed.LogMultipleRecord;
 import com.serotonin.bacnet4j.type.constructed.LogRecord;
+import com.serotonin.bacnet4j.type.constructed.NameValue;
+import com.serotonin.bacnet4j.type.constructed.NameValueCollection;
 import com.serotonin.bacnet4j.type.constructed.NetworkSecurityPolicy;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
+import com.serotonin.bacnet4j.type.constructed.OptionalBinaryPV;
 import com.serotonin.bacnet4j.type.constructed.OptionalCharacterString;
+import com.serotonin.bacnet4j.type.constructed.OptionalReal;
+import com.serotonin.bacnet4j.type.constructed.OptionalUnsigned;
 import com.serotonin.bacnet4j.type.constructed.PortPermission;
 import com.serotonin.bacnet4j.type.constructed.Prescale;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
@@ -75,6 +88,7 @@ import com.serotonin.bacnet4j.type.constructed.PropertyAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
+import com.serotonin.bacnet4j.type.constructed.RouterEntry;
 import com.serotonin.bacnet4j.type.constructed.Scale;
 import com.serotonin.bacnet4j.type.constructed.SecurityKeySet;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
@@ -83,6 +97,9 @@ import com.serotonin.bacnet4j.type.constructed.ShedLevel;
 import com.serotonin.bacnet4j.type.constructed.SpecialEvent;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.TimerStateChangeValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
+import com.serotonin.bacnet4j.type.constructed.VmacEntry;
 import com.serotonin.bacnet4j.type.constructed.VtSession;
 import com.serotonin.bacnet4j.type.enumerated.AccessCredentialDisable;
 import com.serotonin.bacnet4j.type.enumerated.AccessCredentialDisableReason;
@@ -95,6 +112,7 @@ import com.serotonin.bacnet4j.type.enumerated.AuthenticationStatus;
 import com.serotonin.bacnet4j.type.enumerated.AuthorizationExemption;
 import com.serotonin.bacnet4j.type.enumerated.AuthorizationMode;
 import com.serotonin.bacnet4j.type.enumerated.BackupState;
+import com.serotonin.bacnet4j.type.enumerated.BinaryLightingPV;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
 import com.serotonin.bacnet4j.type.enumerated.DoorAlarmState;
@@ -104,18 +122,31 @@ import com.serotonin.bacnet4j.type.enumerated.DoorValue;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.EscalatorFault;
+import com.serotonin.bacnet4j.type.enumerated.EscalatorMode;
+import com.serotonin.bacnet4j.type.enumerated.EscalatorOperationDirection;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.FaultType;
 import com.serotonin.bacnet4j.type.enumerated.FileAccessMethod;
+import com.serotonin.bacnet4j.type.enumerated.IPMode;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyMode;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyOperation;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyState;
+import com.serotonin.bacnet4j.type.enumerated.LiftCarDirection;
+import com.serotonin.bacnet4j.type.enumerated.LiftCarDoorCommand;
+import com.serotonin.bacnet4j.type.enumerated.LiftCarDriveStatus;
+import com.serotonin.bacnet4j.type.enumerated.LiftCarMode;
+import com.serotonin.bacnet4j.type.enumerated.LiftFault;
+import com.serotonin.bacnet4j.type.enumerated.LiftGroupMode;
 import com.serotonin.bacnet4j.type.enumerated.LightingInProgress;
 import com.serotonin.bacnet4j.type.enumerated.LightingTransition;
 import com.serotonin.bacnet4j.type.enumerated.LockStatus;
 import com.serotonin.bacnet4j.type.enumerated.LoggingType;
 import com.serotonin.bacnet4j.type.enumerated.Maintenance;
+import com.serotonin.bacnet4j.type.enumerated.NetworkNumberQuality;
+import com.serotonin.bacnet4j.type.enumerated.NetworkPortCommand;
+import com.serotonin.bacnet4j.type.enumerated.NetworkType;
 import com.serotonin.bacnet4j.type.enumerated.NodeType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -124,12 +155,16 @@ import com.serotonin.bacnet4j.type.enumerated.ProgramError;
 import com.serotonin.bacnet4j.type.enumerated.ProgramRequest;
 import com.serotonin.bacnet4j.type.enumerated.ProgramState;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.ProtocolLevel;
+import com.serotonin.bacnet4j.type.enumerated.Relationship;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.enumerated.RestartReason;
 import com.serotonin.bacnet4j.type.enumerated.SecurityLevel;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
 import com.serotonin.bacnet4j.type.enumerated.ShedState;
 import com.serotonin.bacnet4j.type.enumerated.SilencedState;
+import com.serotonin.bacnet4j.type.enumerated.TimerState;
+import com.serotonin.bacnet4j.type.enumerated.TimerTransition;
 import com.serotonin.bacnet4j.type.enumerated.VtClass;
 import com.serotonin.bacnet4j.type.enumerated.WriteStatus;
 import com.serotonin.bacnet4j.type.eventParameter.EventParameter;
@@ -262,7 +297,7 @@ public class ObjectProperties {
         add(ObjectType.accessCredential, PropertyIdentifier.authenticationFactors, CredentialAuthenticationFactor.class,
                 true, true);
         add(ObjectType.accessCredential, PropertyIdentifier.activationTime, DateTime.class, false, true);
-        add(ObjectType.accessCredential, PropertyIdentifier.expiryTime, DateTime.class, false, true);
+        add(ObjectType.accessCredential, PropertyIdentifier.expirationTime, DateTime.class, false, true);
         add(ObjectType.accessCredential, PropertyIdentifier.credentialDisable, AccessCredentialDisable.class, false,
                 true);
         add(ObjectType.accessCredential, PropertyIdentifier.daysRemaining, SignedInteger.class, false, false);
@@ -281,6 +316,8 @@ public class ObjectProperties {
                 false);
         add(ObjectType.accessCredential, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessCredential, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessCredential, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessCredential, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessCredential, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Access door - 12.26
@@ -323,6 +360,13 @@ public class ObjectProperties {
         add(ObjectType.accessDoor, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.accessDoor, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessDoor, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessDoor, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.accessDoor, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.accessDoor, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.accessDoor, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.accessDoor, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.accessDoor, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessDoor, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessDoor, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Access point - 12.31
@@ -382,6 +426,8 @@ public class ObjectProperties {
         add(ObjectType.accessPoint, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
         add(ObjectType.accessPoint, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessPoint, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessPoint, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessPoint, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessPoint, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Access rights - 12.34
@@ -398,6 +444,8 @@ public class ObjectProperties {
         add(ObjectType.accessRights, PropertyIdentifier.accompaniment, DeviceObjectReference.class, false, false);
         add(ObjectType.accessRights, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessRights, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessRights, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessRights, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessRights, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Access user - 12.33
@@ -417,6 +465,8 @@ public class ObjectProperties {
         add(ObjectType.accessUser, PropertyIdentifier.credentials, DeviceObjectReference.class, true, true);
         add(ObjectType.accessUser, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessUser, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessUser, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessUser, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessUser, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Access zone - 12.32
@@ -460,9 +510,11 @@ public class ObjectProperties {
         add(ObjectType.accessZone, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.accessZone, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accessZone, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accessZone, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accessZone, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accessZone, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
-        // Accumulator - 12.1
+        // Accumulator - 12.61
         add(ObjectType.accumulator, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
         add(ObjectType.accumulator, PropertyIdentifier.objectName, CharacterString.class, false, true);
         add(ObjectType.accumulator, PropertyIdentifier.objectType, ObjectType.class, false, true);
@@ -502,6 +554,10 @@ public class ObjectProperties {
         add(ObjectType.accumulator, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.accumulator, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.accumulator, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.accumulator, PropertyIdentifier.faultHighLimit, Real.class, false, false);
+        add(ObjectType.accumulator, PropertyIdentifier.faultLowLimit, Real.class, false, false);
+        add(ObjectType.accumulator, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.accumulator, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.accumulator, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Alert enrollment - 12.52
@@ -523,6 +579,8 @@ public class ObjectProperties {
                 false, false);
         add(ObjectType.alertEnrollment, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
         add(ObjectType.alertEnrollment, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.alertEnrollment, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.alertEnrollment, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.alertEnrollment, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Analog input - 12.2
@@ -561,13 +619,11 @@ public class ObjectProperties {
         add(ObjectType.analogInput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.analogInput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.analogInput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
-
-        //        add(ObjectType.analogInput, PropertyIdentifier.interfaceValue, OptionalReal.class, false, false);
-        //        add(ObjectType.analogInput, PropertyIdentifier.faultHighLimit, Real.class, false, false);
-        //        add(ObjectType.analogInput, PropertyIdentifier.faultLowLimit, Real.class, false, false);
-        //        add(ObjectType.analogInput, PropertyIdentifier.tags, NameValue.class, true, false);
-        //        add(ObjectType.analogInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
-
+        add(ObjectType.analogInput, PropertyIdentifier.interfaceValue, OptionalReal.class, false, false);
+        add(ObjectType.analogInput, PropertyIdentifier.faultHighLimit, Real.class, false, false);
+        add(ObjectType.analogInput, PropertyIdentifier.faultLowLimit, Real.class, false, false);
+        add(ObjectType.analogInput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.analogInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.analogInput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Analog output - 12.3
@@ -607,6 +663,14 @@ public class ObjectProperties {
         add(ObjectType.analogOutput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.analogOutput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.analogOutput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.analogOutput, PropertyIdentifier.interfaceValue, OptionalReal.class, false, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.analogOutput, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.analogOutput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.analogOutput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Analog value - 12.4
@@ -645,6 +709,15 @@ public class ObjectProperties {
         add(ObjectType.analogValue, PropertyIdentifier.maxPresValue, Real.class, false, false);
         add(ObjectType.analogValue, PropertyIdentifier.resolution, Real.class, false, false);
         add(ObjectType.analogValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.analogValue, PropertyIdentifier.faultHighLimit, Real.class, false, false);
+        add(ObjectType.analogValue, PropertyIdentifier.faultLowLimit, Real.class, false, false);
+        add(ObjectType.analogValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.analogValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.analogValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.analogValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.analogValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.analogValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.analogValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.analogValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Averaging - 12.5
@@ -665,6 +738,8 @@ public class ObjectProperties {
         add(ObjectType.averaging, PropertyIdentifier.windowInterval, UnsignedInteger.class, false, true);
         add(ObjectType.averaging, PropertyIdentifier.windowSamples, UnsignedInteger.class, false, true);
         add(ObjectType.averaging, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.averaging, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.averaging, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.averaging, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Binary input - 12.6
@@ -702,7 +777,54 @@ public class ObjectProperties {
         add(ObjectType.binaryInput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.binaryInput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.binaryInput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.binaryInput, PropertyIdentifier.interfaceValue, OptionalBinaryPV.class, false, false);
+        add(ObjectType.binaryInput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.binaryInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.binaryInput, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Binary lighting output - 12.55
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.presentValue, BinaryLightingPV.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.outOfService, Boolean.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.blinkWarnEnable, Boolean.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.egressTime, UnsignedInteger.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.egressActive, Boolean.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.feedbackValue, Real.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.priorityArray, PriorityArray.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.relinquishDefault, Real.class, false, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.power, Real.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.polarity, Polarity.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.elapsedActiveTime, UnsignedInteger.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.timeOfActiveTimeReset, DateTime.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.strikeCount, UnsignedInteger.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.timeOfStrikeCountReset, DateTime.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false,
+                false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true,
+                false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false,
+                false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.binaryLightingOutput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Binary output - 12.7
         add(ObjectType.binaryOutput, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
@@ -743,6 +865,14 @@ public class ObjectProperties {
         add(ObjectType.binaryOutput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.binaryOutput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.binaryOutput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.binaryOutput, PropertyIdentifier.interfaceValue, OptionalBinaryPV.class, false, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.binaryOutput, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.binaryOutput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.binaryOutput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Binary value - 12.8
@@ -782,9 +912,16 @@ public class ObjectProperties {
         add(ObjectType.binaryValue, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.binaryValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.binaryValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.binaryValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.binaryValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.binaryValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.binaryValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.binaryValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.binaryValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.binaryValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.binaryValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
-        // BitString value - 12.39
+        // BitString value - 12.40
         add(ObjectType.bitstringValue, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
         add(ObjectType.bitstringValue, PropertyIdentifier.objectName, CharacterString.class, false, true);
         add(ObjectType.bitstringValue, PropertyIdentifier.objectType, ObjectType.class, false, true);
@@ -814,6 +951,13 @@ public class ObjectProperties {
         add(ObjectType.bitstringValue, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.bitstringValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.bitstringValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.bitstringValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.bitstringValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.bitstringValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.bitstringValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.bitstringValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.bitstringValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.bitstringValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.bitstringValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Calendar - 12.9
@@ -824,6 +968,8 @@ public class ObjectProperties {
         add(ObjectType.calendar, PropertyIdentifier.presentValue, Boolean.class, false, true);
         add(ObjectType.calendar, PropertyIdentifier.dateList, CalendarEntry.class, true, true);
         add(ObjectType.calendar, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.calendar, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.calendar, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.calendar, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Channel - 12.53
@@ -854,6 +1000,9 @@ public class ObjectProperties {
         add(ObjectType.channel, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
         add(ObjectType.channel, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.channel, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.channel, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.channel, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.channel, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.channel, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // CharacterString value - 12.37
@@ -890,6 +1039,14 @@ public class ObjectProperties {
         add(ObjectType.characterstringValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false,
                 false);
         add(ObjectType.characterstringValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.characterstringValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.characterstringValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.characterstringValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.characterstringValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.characterstringValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.characterstringValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.characterstringValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.characterstringValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Command - 12.10
@@ -903,6 +1060,21 @@ public class ObjectProperties {
         add(ObjectType.command, PropertyIdentifier.action, ActionList.class, true, true);
         add(ObjectType.command, PropertyIdentifier.actionText, CharacterString.class, true, false);
         add(ObjectType.command, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.command, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.command, PropertyIdentifier.eventState, EventState.class, false, true);
+        add(ObjectType.command, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.command, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.command, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.command, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.command, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.command, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.command, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Credential Data Input - 12.36
@@ -933,6 +1105,8 @@ public class ObjectProperties {
         add(ObjectType.credentialDataInput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false,
                 false);
         add(ObjectType.credentialDataInput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.credentialDataInput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.credentialDataInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.credentialDataInput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Date value - 12.45
@@ -949,6 +1123,21 @@ public class ObjectProperties {
         add(ObjectType.dateValue, PropertyIdentifier.relinquishDefault, Date.class, false, false);
         add(ObjectType.dateValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.dateValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.dateValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.dateValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.dateValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.dateValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.dateValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Date pattern value - 12.48
@@ -965,6 +1154,23 @@ public class ObjectProperties {
         add(ObjectType.datePatternValue, PropertyIdentifier.relinquishDefault, Date.class, false, false);
         add(ObjectType.datePatternValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.datePatternValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.datePatternValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true,
+                false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.datePatternValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.datePatternValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.datePatternValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // DateTime value - 12.38
@@ -982,6 +1188,21 @@ public class ObjectProperties {
         add(ObjectType.datetimeValue, PropertyIdentifier.isUtc, Boolean.class, false, false);
         add(ObjectType.datetimeValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.datetimeValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.datetimeValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.datetimeValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.datetimeValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.datetimeValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // DateTime pattern value - 12.46
@@ -1000,6 +1221,24 @@ public class ObjectProperties {
         add(ObjectType.datetimePatternValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false,
                 false);
         add(ObjectType.datetimePatternValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false,
+                false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true,
+                false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.datetimePatternValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.datetimePatternValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Device - 12.11
@@ -1046,10 +1285,6 @@ public class ObjectProperties {
         add(ObjectType.device, PropertyIdentifier.restoreCompletionTime, Unsigned16.class, false, false);
         add(ObjectType.device, PropertyIdentifier.backupAndRestoreState, BackupState.class, false, true);
         add(ObjectType.device, PropertyIdentifier.activeCovSubscriptions, CovSubscription.class, true, true);
-        add(ObjectType.device, PropertyIdentifier.slaveProxyEnable, Boolean.class, true, false);
-        add(ObjectType.device, PropertyIdentifier.manualSlaveAddressBinding, AddressBinding.class, true, false);
-        add(ObjectType.device, PropertyIdentifier.autoSlaveDiscovery, Boolean.class, true, false);
-        add(ObjectType.device, PropertyIdentifier.slaveAddressBinding, AddressBinding.class, true, false);
         add(ObjectType.device, PropertyIdentifier.lastRestartReason, RestartReason.class, false, false);
         add(ObjectType.device, PropertyIdentifier.timeOfDeviceRestart, TimeStamp.class, false, false);
         add(ObjectType.device, PropertyIdentifier.restartNotificationRecipients, Recipient.class, true, false);
@@ -1059,7 +1294,79 @@ public class ObjectProperties {
         add(ObjectType.device, PropertyIdentifier.intervalOffset, UnsignedInteger.class, false, false);
         add(ObjectType.device, PropertyIdentifier.serialNumber, CharacterString.class, false, false);
         add(ObjectType.device, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.device, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.device, PropertyIdentifier.eventState, EventState.class, false, true);
+        add(ObjectType.device, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.device, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.device, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.device, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.activeCovMultipleSubscriptions, CovMultipleSubscription.class, true,
+                false);
+        add(ObjectType.device, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.device, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.device, PropertyIdentifier.deployedProfileLocation, CharacterString.class, false, false);
         add(ObjectType.device, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Elevator group - 12.58
+        add(ObjectType.elevatorGroup, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.machineRoomId, ObjectIdentifier.class, false, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.groupId, Unsigned8.class, false, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.groupMembers, ObjectIdentifier.class, true, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.groupMode, LiftGroupMode.class, false, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.landingCalls, LandingCallStatus.class, true, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.landingCallControl, LandingCallStatus.class, false, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.elevatorGroup, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Escalator - 12.60
+        add(ObjectType.escalator, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.elevatorGroup, ObjectIdentifier.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.groupId, Unsigned8.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.installationId, Unsigned8.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.powerMode, Boolean.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.operationDirection, EscalatorOperationDirection.class, false,
+                true);
+        add(ObjectType.escalator, PropertyIdentifier.escalatorMode, EscalatorMode.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.energyMeter, Real.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.energyMeterRef, DeviceObjectReference.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.outOfService, Boolean.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.faultSignals, EscalatorFault.class, true, false);
+        add(ObjectType.escalator, PropertyIdentifier.passengerAlarm, Boolean.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.timeDelay, UnsignedInteger.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventState, EventState.class, false, true);
+        add(ObjectType.escalator, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.eventAlgorithmInhibitRef, ObjectPropertyReference.class, false,
+                false);
+        add(ObjectType.escalator, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.escalator, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.escalator, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.escalator, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Event enrollment - 12.12
         add(ObjectType.eventEnrollment, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
@@ -1089,6 +1396,8 @@ public class ObjectProperties {
         add(ObjectType.eventEnrollment, PropertyIdentifier.faultParameters, FaultParameter.class, false, false);
         add(ObjectType.eventEnrollment, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.eventEnrollment, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.eventEnrollment, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.eventEnrollment, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.eventEnrollment, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Event log - 12.27
@@ -1123,6 +1432,8 @@ public class ObjectProperties {
                 false);
         add(ObjectType.eventLog, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
         add(ObjectType.eventLog, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.eventLog, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.eventLog, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.eventLog, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // File - 12.13
@@ -1138,6 +1449,8 @@ public class ObjectProperties {
         add(ObjectType.file, PropertyIdentifier.fileAccessMethod, FileAccessMethod.class, false, true);
         add(ObjectType.file, PropertyIdentifier.recordCount, UnsignedInteger.class, false, false);
         add(ObjectType.file, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.file, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.file, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.file, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Group - 12.14
@@ -1148,6 +1461,8 @@ public class ObjectProperties {
         add(ObjectType.group, PropertyIdentifier.listOfGroupMembers, ReadAccessSpecification.class, true, true);
         add(ObjectType.group, PropertyIdentifier.presentValue, ReadAccessResult.class, true, true);
         add(ObjectType.group, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.group, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.group, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.group, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Global group - 12.50
@@ -1184,6 +1499,8 @@ public class ObjectProperties {
         add(ObjectType.globalGroup, PropertyIdentifier.covuRecipients, Recipient.class, true, false);
         add(ObjectType.globalGroup, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.globalGroup, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.globalGroup, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.globalGroup, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.globalGroup, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Integer value - 12.43
@@ -1222,9 +1539,18 @@ public class ObjectProperties {
         add(ObjectType.integerValue, PropertyIdentifier.maxPresValue, SignedInteger.class, false, false);
         add(ObjectType.integerValue, PropertyIdentifier.resolution, SignedInteger.class, false, false);
         add(ObjectType.integerValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.integerValue, PropertyIdentifier.faultHighLimit, SignedInteger.class, false, false);
+        add(ObjectType.integerValue, PropertyIdentifier.faultLowLimit, SignedInteger.class, false, false);
+        add(ObjectType.integerValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, false);
+        add(ObjectType.integerValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.integerValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.integerValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.integerValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.integerValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.integerValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.integerValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
-        // Large analog value - 12.38
+        // Large analog value - 12.39
         add(ObjectType.largeAnalogValue, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
         add(ObjectType.largeAnalogValue, PropertyIdentifier.objectName, CharacterString.class, false, true);
         add(ObjectType.largeAnalogValue, PropertyIdentifier.objectType, ObjectType.class, false, true);
@@ -1261,6 +1587,17 @@ public class ObjectProperties {
         add(ObjectType.largeAnalogValue, PropertyIdentifier.maxPresValue, Double.class, false, false);
         add(ObjectType.largeAnalogValue, PropertyIdentifier.resolution, Double.class, false, false);
         add(ObjectType.largeAnalogValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.faultHighLimit, Double.class, false, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.faultLowLimit, Double.class, false, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.largeAnalogValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.largeAnalogValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Life safety point - 12.15
@@ -1302,6 +1639,9 @@ public class ObjectProperties {
         add(ObjectType.lifeSafetyPoint, PropertyIdentifier.units, EngineeringUnits.class, false, true);
         add(ObjectType.lifeSafetyPoint, PropertyIdentifier.memberOf, DeviceObjectReference.class, true, false);
         add(ObjectType.lifeSafetyPoint, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.lifeSafetyPoint, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.lifeSafetyPoint, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.lifeSafetyPoint, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.lifeSafetyPoint, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Life safety zone - 12.16
@@ -1341,7 +1681,63 @@ public class ObjectProperties {
         add(ObjectType.lifeSafetyZone, PropertyIdentifier.zoneMembers, DeviceObjectReference.class, true, true);
         add(ObjectType.lifeSafetyZone, PropertyIdentifier.memberOf, DeviceObjectReference.class, true, false);
         add(ObjectType.lifeSafetyZone, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.lifeSafetyZone, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.lifeSafetyZone, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.lifeSafetyZone, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.lifeSafetyZone, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Lift - 12.59
+        add(ObjectType.lift, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.elevatorGroup, ObjectIdentifier.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.groupId, Unsigned8.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.installationId, Unsigned8.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.floorText, CharacterString.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.carDoorText, CharacterString.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.assignedLandingCalls, AssignedLandingCalls.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.makingCarCall, Unsigned8.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.registeredCarCall, LiftCarCallList.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.carPosition, Unsigned8.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.carMovingDirection, LiftCarDirection.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.carAssignedDirection, LiftCarDirection.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.carDoorStatus, DoorStatus.class, true, true);
+        add(ObjectType.lift, PropertyIdentifier.carDoorCommand, LiftCarDoorCommand.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.carDoorZone, Boolean.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.carMode, LiftCarMode.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.carLoad, Real.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.carLoadUnits, EngineeringUnits.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.nextStoppingFloor, Unsigned8.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.passengerAlarm, Boolean.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.timeDelay, UnsignedInteger.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.energyMeter, Real.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.energyMeterRef, DeviceObjectReference.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.outOfService, Boolean.class, false, true);
+        add(ObjectType.lift, PropertyIdentifier.carDriveStatus, LiftCarDriveStatus.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.faultSignals, LiftFault.class, true, true);
+        add(ObjectType.lift, PropertyIdentifier.landingDoorStatus, LandingDoorStatus.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.higherDeck, ObjectIdentifier.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.lowerDeck, ObjectIdentifier.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.eventState, EventState.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.eventAlgorithmInhibitRef, ObjectPropertyReference.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.lift, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.lift, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.lift, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Lighting output - 12.54
         add(ObjectType.lightingOutput, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
@@ -1374,6 +1770,13 @@ public class ObjectProperties {
         add(ObjectType.lightingOutput, PropertyIdentifier.covIncrement, Real.class, false, false);
         add(ObjectType.lightingOutput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.lightingOutput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.lightingOutput, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.lightingOutput, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.lightingOutput, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.lightingOutput, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.lightingOutput, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.lightingOutput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.lightingOutput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.lightingOutput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Load control - 12.28
@@ -1411,6 +1814,9 @@ public class ObjectProperties {
         add(ObjectType.loadControl, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.loadControl, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.loadControl, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.loadControl, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.loadControl, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.loadControl, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.loadControl, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Loop - 12.17
@@ -1461,6 +1867,9 @@ public class ObjectProperties {
         add(ObjectType.loop, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.loop, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.loop, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.loop, PropertyIdentifier.lowDiffLimit, OptionalReal.class, false, false);
+        add(ObjectType.loop, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.loop, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.loop, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Multi state input - 12.18
@@ -1493,6 +1902,9 @@ public class ObjectProperties {
         add(ObjectType.multiStateInput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.multiStateInput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.multiStateInput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.multiStateInput, PropertyIdentifier.interfaceValue, OptionalUnsigned.class, false, false);
+        add(ObjectType.multiStateInput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.multiStateInput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.multiStateInput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Multi state output - 12.19
@@ -1527,6 +1939,15 @@ public class ObjectProperties {
         add(ObjectType.multiStateOutput, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.multiStateOutput, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.multiStateOutput, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.interfaceValue, OptionalUnsigned.class, false, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.multiStateOutput, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.multiStateOutput, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Multi state value - 12.20
@@ -1560,7 +1981,88 @@ public class ObjectProperties {
         add(ObjectType.multiStateValue, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.multiStateValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.multiStateValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.multiStateValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.multiStateValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.multiStateValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.multiStateValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.multiStateValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.multiStateValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.multiStateValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.multiStateValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Network port - 12.56
+        add(ObjectType.networkPort, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.outOfService, Boolean.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.networkType, NetworkType.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.protocolLevel, ProtocolLevel.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.referencePort, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.networkNumber, Unsigned16.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.networkNumberQuality, NetworkNumberQuality.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.changesPending, Boolean.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.command, NetworkPortCommand.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.macAddress, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.apduLength, UnsignedInteger.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.linkSpeed, Real.class, false, true);
+        add(ObjectType.networkPort, PropertyIdentifier.linkSpeeds, Real.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.linkSpeedAutonegotiate, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.networkInterfaceName, CharacterString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpMode, IPMode.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipAddress, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpUdpPort, Unsigned16.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipSubnetMask, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDefaultGateway, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpMulticastAddress, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDnsServer, OctetString.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDhcpEnable, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDhcpLeaseTime, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDhcpLeaseTimeRemaining, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipDhcpServer, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpNatTraversal, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpGlobalAddress, HostNPort.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bbmdBroadcastDistributionTable, BDTEntry.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bbmdAcceptFdRegistrations, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bbmdForeignDeviceTable, FDTEntry.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.fdBbmdAddress, HostNPort.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.fdSubscriptionLifetime, Unsigned16.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpv6Mode, IPMode.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6Address, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6PrefixLength, Unsigned8.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpv6UdpPort, Unsigned16.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6DefaultGateway, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.bacnetIpv6MulticastAddress, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6DnsServer, OctetString.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6AutoAddressingEnable, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6DhcpLeaseTime, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6DhcpLeaseTimeRemaining, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6DhcpServer, OctetString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ipv6ZoneIndex, CharacterString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.maxMaster, Unsigned8.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.maxInfoFrames, Unsigned8.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.slaveProxyEnable, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.manualSlaveAddressBinding, AddressBinding.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.autoSlaveDiscovery, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.slaveAddressBinding, AddressBinding.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.virtualMacAddressTable, VmacEntry.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.routingTable, RouterEntry.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.eventState, EventState.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.networkPort, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.networkPort, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.networkPort, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Network security - 12.49
         add(ObjectType.networkSecurity, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
@@ -1580,6 +2082,8 @@ public class ObjectProperties {
         add(ObjectType.networkSecurity, PropertyIdentifier.supportedSecurityAlgorithms, Unsigned8.class, true, true);
         add(ObjectType.networkSecurity, PropertyIdentifier.doNotHide, Boolean.class, false, true);
         add(ObjectType.networkSecurity, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.networkSecurity, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.networkSecurity, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.networkSecurity, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Notification class - 12.21
@@ -1592,6 +2096,20 @@ public class ObjectProperties {
         add(ObjectType.notificationClass, PropertyIdentifier.ackRequired, EventTransitionBits.class, false, true);
         add(ObjectType.notificationClass, PropertyIdentifier.recipientList, Destination.class, true, true);
         add(ObjectType.notificationClass, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.notificationClass, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventState, EventState.class, false, true);
+        add(ObjectType.notificationClass, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true,
+                false);
+        add(ObjectType.notificationClass, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.notificationClass, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.notificationClass, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Notification forwarder - 12.51
@@ -1612,9 +2130,11 @@ public class ObjectProperties {
         add(ObjectType.notificationForwarder, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false,
                 false);
         add(ObjectType.notificationForwarder, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.notificationForwarder, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.notificationForwarder, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.notificationForwarder, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
-        // OctetString value - 12.40
+        // OctetString value - 12.41
         add(ObjectType.octetstringValue, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
         add(ObjectType.octetstringValue, PropertyIdentifier.objectName, CharacterString.class, false, true);
         add(ObjectType.octetstringValue, PropertyIdentifier.objectType, ObjectType.class, false, true);
@@ -1628,6 +2148,14 @@ public class ObjectProperties {
         add(ObjectType.octetstringValue, PropertyIdentifier.relinquishDefault, OctetString.class, false, false);
         add(ObjectType.octetstringValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.octetstringValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.octetstringValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.octetstringValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.octetstringValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.octetstringValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.octetstringValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.octetstringValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.octetstringValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.octetstringValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Positive integer value - 12.44
@@ -1669,6 +2197,16 @@ public class ObjectProperties {
         add(ObjectType.positiveIntegerValue, PropertyIdentifier.maxPresValue, UnsignedInteger.class, false, false);
         add(ObjectType.positiveIntegerValue, PropertyIdentifier.resolution, UnsignedInteger.class, false, false);
         add(ObjectType.positiveIntegerValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.faultHighLimit, UnsignedInteger.class, false, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.faultLowLimit, UnsignedInteger.class, false, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.positiveIntegerValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.positiveIntegerValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Program - 12.22
@@ -1696,6 +2234,8 @@ public class ObjectProperties {
         add(ObjectType.program, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
         add(ObjectType.program, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.program, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.program, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.program, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.program, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Pulse converter - 12.23
@@ -1737,6 +2277,8 @@ public class ObjectProperties {
         add(ObjectType.pulseConverter, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
         add(ObjectType.pulseConverter, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.pulseConverter, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.pulseConverter, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.pulseConverter, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.pulseConverter, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Schedule - 12.24
@@ -1766,6 +2308,8 @@ public class ObjectProperties {
         add(ObjectType.schedule, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
         add(ObjectType.schedule, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.schedule, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.schedule, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.schedule, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.schedule, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Structured View - 12.29
@@ -1778,6 +2322,14 @@ public class ObjectProperties {
         add(ObjectType.structuredView, PropertyIdentifier.subordinateList, DeviceObjectReference.class, true, true);
         add(ObjectType.structuredView, PropertyIdentifier.subordinateAnnotations, CharacterString.class, true, false);
         add(ObjectType.structuredView, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.structuredView, PropertyIdentifier.subordinateTags, NameValueCollection.class, true, false);
+        add(ObjectType.structuredView, PropertyIdentifier.subordinateNodeTypes, NodeType.class, true, false);
+        add(ObjectType.structuredView, PropertyIdentifier.subordinateRelationships, Relationship.class, true, false);
+        add(ObjectType.structuredView, PropertyIdentifier.defaultSubordinateRelationship, Relationship.class, false,
+                false);
+        add(ObjectType.structuredView, PropertyIdentifier.represents, DeviceObjectReference.class, false, false);
+        add(ObjectType.structuredView, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.structuredView, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.structuredView, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Time value - 12.42
@@ -1794,6 +2346,21 @@ public class ObjectProperties {
         add(ObjectType.timeValue, PropertyIdentifier.relinquishDefault, Time.class, false, false);
         add(ObjectType.timeValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.timeValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.timeValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false, true);
+        add(ObjectType.timeValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.timeValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.timeValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.timeValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Time pattern value - 12.47
@@ -1810,7 +2377,67 @@ public class ObjectProperties {
         add(ObjectType.timePatternValue, PropertyIdentifier.relinquishDefault, Time.class, false, false);
         add(ObjectType.timePatternValue, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.timePatternValue, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.timePatternValue, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true,
+                false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.currentCommandPriority, OptionalUnsigned.class, false,
+                true);
+        add(ObjectType.timePatternValue, PropertyIdentifier.valueSource, ValueSource.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.valueSourceArray, ValueSource.class, true, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.lastCommandTime, TimeStamp.class, false, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.commandTimeArray, TimeStamp.class, true, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.timePatternValue, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.timePatternValue, PropertyIdentifier.profileName, CharacterString.class, false, false);
+
+        // Timer - 12.57
+        add(ObjectType.timer, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.objectName, CharacterString.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.objectType, ObjectType.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.description, CharacterString.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.presentValue, Time.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.statusFlags, StatusFlags.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.eventState, EventState.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.reliability, Reliability.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.outOfService, Boolean.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.timerState, TimerState.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.timerRunning, Boolean.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.updateTime, DateTime.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.lastStateChange, TimerTransition.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.expirationTime, DateTime.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.initialTimeout, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.defaultTimeout, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.minPresValue, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.maxPresValue, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.resolution, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.stateChangeValues, TimerStateChangeValue.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.listOfObjectPropertyReferences, DeviceObjectPropertyReference.class,
+                true, false);
+        add(ObjectType.timer, PropertyIdentifier.priorityForWriting, UnsignedInteger.class, false, true);
+        add(ObjectType.timer, PropertyIdentifier.eventDetectionEnable, Boolean.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.notificationClass, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.timeDelay, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.timeDelayNormal, UnsignedInteger.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.alarmValues, TimerState.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.eventEnable, EventTransitionBits.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.ackedTransitions, EventTransitionBits.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.notifyType, NotifyType.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.eventTimeStamps, TimeStamp.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.eventMessageTexts, CharacterString.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.eventMessageTextsConfig, CharacterString.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.eventAlgorithmInhibitRef, ObjectPropertyReference.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.timer, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.timer, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
+        add(ObjectType.timer, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Trend log - 12.25
         add(ObjectType.trendLog, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, false, true);
@@ -1853,6 +2480,8 @@ public class ObjectProperties {
         add(ObjectType.trendLog, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
         add(ObjectType.trendLog, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.trendLog, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
+        add(ObjectType.trendLog, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.trendLog, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.trendLog, PropertyIdentifier.profileName, CharacterString.class, false, false);
 
         // Trend log multiple - 12.30
@@ -1896,7 +2525,8 @@ public class ObjectProperties {
         add(ObjectType.trendLogMultiple, PropertyIdentifier.eventAlgorithmInhibit, Boolean.class, false, false);
         add(ObjectType.trendLogMultiple, PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.class, false, false);
         add(ObjectType.trendLogMultiple, PropertyIdentifier.propertyList, PropertyIdentifier.class, true, true);
-
+        add(ObjectType.trendLogMultiple, PropertyIdentifier.tags, NameValue.class, true, false);
+        add(ObjectType.trendLogMultiple, PropertyIdentifier.profileLocation, CharacterString.class, false, false);
         add(ObjectType.trendLogMultiple, PropertyIdentifier.profileName, CharacterString.class, false, false);
     }
 }
