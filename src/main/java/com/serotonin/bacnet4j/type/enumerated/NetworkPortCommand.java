@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,10 +45,34 @@ public class NetworkPortCommand extends Enumerated {
     public static final NetworkPortCommand disconnect = new NetworkPortCommand(6);
     public static final NetworkPortCommand restartPort = new NetworkPortCommand(7);
 
-    public static final NetworkPortCommand[] ALL = { idle, discardChanges, renewFdRegistration, restartSlaveDiscovery,
-            renewDhcp, restartAutorenegotiation, disconnect, restartPort, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public NetworkPortCommand(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static NetworkPortCommand forId(final int id) {
+        NetworkPortCommand e = (NetworkPortCommand) idMap.get(id);
+        if (e == null)
+            e = new NetworkPortCommand(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static NetworkPortCommand forName(final String name) {
+        return (NetworkPortCommand) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private NetworkPortCommand(final int value) {
         super(value);
     }
 
@@ -54,23 +82,6 @@ public class NetworkPortCommand extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == idle.intValue())
-            return "idle";
-        if (type == discardChanges.intValue())
-            return "discardChanges";
-        if (type == renewFdRegistration.intValue())
-            return "renewFdRegistration";
-        if (type == restartSlaveDiscovery.intValue())
-            return "restartSlaveDiscovery";
-        if (type == renewDhcp.intValue())
-            return "renewDhcp";
-        if (type == restartAutorenegotiation.intValue())
-            return "restartAutorenegotiation";
-        if (type == disconnect.intValue())
-            return "disconnect";
-        if (type == restartPort.intValue())
-            return "restartPort";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

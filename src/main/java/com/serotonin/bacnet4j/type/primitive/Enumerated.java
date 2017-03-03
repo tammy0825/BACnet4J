@@ -28,20 +28,47 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigInteger;
+import java.util.Map;
 
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class Enumerated extends UnsignedInteger {
-    @SuppressWarnings("hiding")
+public class Enumerated extends Primitive {
     public static final byte TYPE_ID = 9;
 
+    private int smallValue;
+    private BigInteger bigValue;
+
     public Enumerated(final int value) {
-        super(value);
+        if (value < 0)
+            throw new IllegalArgumentException("Value cannot be less than zero");
+        smallValue = value;
     }
 
     public Enumerated(final BigInteger value) {
-        super(value);
+        if (value.signum() == -1)
+            throw new IllegalArgumentException("Value cannot be less than zero");
+        bigValue = value;
+    }
+
+    public int intValue() {
+        if (bigValue == null)
+            return smallValue;
+        return bigValue.intValue();
+    }
+
+    //    public long longValue() {
+    //        if (bigValue == null)
+    //            return smallValue;
+    //        return bigValue.longValue();
+    //    }
+
+    public BigInteger bigIntegerValue() {
+        if (bigValue == null)
+            return BigInteger.valueOf(smallValue);
+        return bigValue;
     }
 
     public byte byteValue() {
@@ -71,11 +98,115 @@ public class Enumerated extends UnsignedInteger {
     // Reading and writing
     //
     public Enumerated(final ByteQueue queue) {
-        super(queue);
+        int length = (int) readTag(queue);
+        if (length < 4) {
+            while (length > 0)
+                smallValue |= (queue.pop() & 0xff) << --length * 8;
+        } else {
+            final byte[] bytes = new byte[length + 1];
+            queue.pop(bytes, 1, length);
+            bigValue = new BigInteger(bytes);
+        }
+    }
+
+    @Override
+    protected void writeImpl(final ByteQueue queue) {
+        int length = (int) getLength();
+        if (bigValue == null) {
+            while (length > 0)
+                queue.push(smallValue >> --length * 8);
+        } else {
+            final byte[] bytes = new byte[length];
+
+            for (int i = 0; i < bigValue.bitLength(); i++) {
+                if (bigValue.testBit(i))
+                    bytes[length - i / 8 - 1] |= 1 << i % 8;
+            }
+
+            queue.push(bytes);
+        }
+    }
+
+    @Override
+    protected long getLength() {
+        if (bigValue == null) {
+            int length;
+            if (smallValue < 0x100)
+                length = 1;
+            else if (smallValue < 0x10000)
+                length = 2;
+            else if (smallValue < 0x1000000)
+                length = 3;
+            else
+                length = 4;
+
+            return length;
+        }
+
+        if (bigValue.intValue() == 0)
+            return 1;
+        return (bigValue.bitLength() + 7) / 8;
     }
 
     @Override
     protected byte getTypeId() {
         return TYPE_ID;
+    }
+
+    //
+    // Initialization
+    //
+    protected static void init(final Class<?> clazz, final Map<Integer, Enumerated> idMap,
+            final Map<String, Enumerated> nameMap, final Map<Integer, String> prettyMap) {
+        try {
+            final Field[] fields = clazz.getFields();
+            for (final Field field : fields) {
+                if (Modifier.isPublic(field.getModifiers()) //
+                        && Modifier.isStatic(field.getModifiers()) //
+                        && Modifier.isFinal(field.getModifiers()) //
+                        && field.getType() == clazz) {
+                    final Enumerated e = (Enumerated) field.get(null);
+                    final String name = field.getName();
+                    idMap.put(e.intValue(), e);
+
+                    // Replace all capital letters in the name with dash and lower case.
+                    final StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < name.length(); i++) {
+                        final char c = name.charAt(i);
+                        if (Character.isUpperCase(c)) {
+                            sb.append('-').append(Character.toLowerCase(c));
+                        } else {
+                            sb.append(c);
+                        }
+                    }
+
+                    nameMap.put(sb.toString(), e);
+                    prettyMap.put(e.intValue(), sb.toString());
+                }
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + (bigValue == null ? 0 : bigValue.hashCode());
+        result = PRIME * result + smallValue;
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Enumerated other = (Enumerated) obj;
+        return bigIntegerValue().equals(other.bigIntegerValue());
     }
 }

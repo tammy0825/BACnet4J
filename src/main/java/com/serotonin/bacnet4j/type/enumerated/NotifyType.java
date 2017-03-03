@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class NotifyType extends Enumerated {
     public static final NotifyType event = new NotifyType(1);
     public static final NotifyType ackNotification = new NotifyType(2);
 
-    public static final NotifyType[] ALL = { alarm, event, ackNotification, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public NotifyType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static NotifyType forId(final int id) {
+        NotifyType e = (NotifyType) idMap.get(id);
+        if (e == null)
+            e = new NotifyType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static NotifyType forName(final String name) {
+        return (NotifyType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private NotifyType(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class NotifyType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == alarm.intValue())
-            return "alarm";
-        if (type == event.intValue())
-            return "event";
-        if (type == ackNotification.intValue())
-            return "ackNotification";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

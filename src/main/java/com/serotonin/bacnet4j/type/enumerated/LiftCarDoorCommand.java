@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class LiftCarDoorCommand extends Enumerated {
     public static final LiftCarDoorCommand open = new LiftCarDoorCommand(1);
     public static final LiftCarDoorCommand close = new LiftCarDoorCommand(2);
 
-    public static final LiftCarDoorCommand[] ALL = { none, open, close, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftCarDoorCommand(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftCarDoorCommand forId(final int id) {
+        LiftCarDoorCommand e = (LiftCarDoorCommand) idMap.get(id);
+        if (e == null)
+            e = new LiftCarDoorCommand(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftCarDoorCommand forName(final String name) {
+        return (LiftCarDoorCommand) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftCarDoorCommand(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class LiftCarDoorCommand extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == open.intValue())
-            return "open";
-        if (type == close.intValue())
-            return "close";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

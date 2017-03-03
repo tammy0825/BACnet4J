@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class TimerState extends Enumerated {
     public static final TimerState running = new TimerState(1);
     public static final TimerState expired = new TimerState(2);
 
-    public static final TimerState[] ALL = { idle, running, expired, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public TimerState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static TimerState forId(final int id) {
+        TimerState e = (TimerState) idMap.get(id);
+        if (e == null)
+            e = new TimerState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static TimerState forName(final String name) {
+        return (TimerState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private TimerState(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class TimerState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == idle.intValue())
-            return "idle";
-        if (type == running.intValue())
-            return "running";
-        if (type == expired.intValue())
-            return "expired";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class IPMode extends Enumerated {
     public static final IPMode foreign = new IPMode(1);
     public static final IPMode bbmd = new IPMode(2);
 
-    public static final IPMode[] ALL = { normal, foreign, bbmd, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public IPMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static IPMode forId(final int id) {
+        IPMode e = (IPMode) idMap.get(id);
+        if (e == null)
+            e = new IPMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static IPMode forName(final String name) {
+        return (IPMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private IPMode(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class IPMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == normal.intValue())
-            return "normal";
-        if (type == foreign.intValue())
-            return "foreign";
-        if (type == bbmd.intValue())
-            return "bbmd";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

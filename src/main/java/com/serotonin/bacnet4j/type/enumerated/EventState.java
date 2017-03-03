@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,18 +43,8 @@ public class EventState extends Enumerated {
     public static final EventState lowLimit = new EventState(4);
     public static final EventState lifeSafetyAlarm = new EventState(5);
 
-    public static final EventState[] ALL = { normal, fault, offnormal, highLimit, lowLimit, lifeSafetyAlarm, };
-
-    public EventState(final int value) {
-        super(value);
-    }
-
-    public EventState(final ByteQueue queue) {
-        super(queue);
-    }
-
     public boolean isOffNormal() {
-        return equals(offnormal) || equals(highLimit) || equals(lowLimit) || equals(lifeSafetyAlarm);
+        return isOneOf(offnormal, highLimit, lowLimit, lifeSafetyAlarm);
     }
 
     public int getTransitionIndex() {
@@ -61,21 +55,43 @@ public class EventState extends Enumerated {
         return 3;
     }
 
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static EventState forId(final int id) {
+        EventState e = (EventState) idMap.get(id);
+        if (e == null)
+            e = new EventState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static EventState forName(final String name) {
+        return (EventState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private EventState(final int value) {
+        super(value);
+    }
+
+    public EventState(final ByteQueue queue) {
+        super(queue);
+    }
+
     @Override
     public String toString() {
-        final int value = intValue();
-        if (value == 0)
-            return "normal";
-        if (value == 1)
-            return "fault";
-        if (value == 2)
-            return "offnormal";
-        if (value == 3)
-            return "highLimit";
-        if (value == 4)
-            return "lowLimit";
-        if (value == 5)
-            return "lifeSafetyAlarm";
-        return "Unknown(" + value + ")";
+        return prettyMap.get(intValue());
     }
 }

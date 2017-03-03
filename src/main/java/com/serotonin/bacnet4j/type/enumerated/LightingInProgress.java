@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -38,9 +42,34 @@ public class LightingInProgress extends Enumerated {
     public static final LightingInProgress notControlled = new LightingInProgress(3);
     public static final LightingInProgress other = new LightingInProgress(4);
 
-    public static final LightingInProgress[] ALL = { idle, fadeActive, rampActive, notControlled, other, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LightingInProgress(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LightingInProgress forId(final int id) {
+        LightingInProgress e = (LightingInProgress) idMap.get(id);
+        if (e == null)
+            e = new LightingInProgress(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LightingInProgress forName(final String name) {
+        return (LightingInProgress) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LightingInProgress(final int value) {
         super(value);
     }
 
@@ -50,17 +79,6 @@ public class LightingInProgress extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == idle.intValue())
-            return "idle";
-        if (type == fadeActive.intValue())
-            return "fadeActive";
-        if (type == rampActive.intValue())
-            return "rampActive";
-        if (type == notControlled.intValue())
-            return "notControlled";
-        if (type == other.intValue())
-            return "other";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

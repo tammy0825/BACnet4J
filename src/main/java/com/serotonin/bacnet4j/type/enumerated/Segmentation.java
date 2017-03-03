@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,16 +41,6 @@ public class Segmentation extends Enumerated {
     public static final Segmentation segmentedReceive = new Segmentation(2);
     public static final Segmentation noSegmentation = new Segmentation(3);
 
-    public static final Segmentation[] ALL = { segmentedBoth, segmentedTransmit, segmentedReceive, noSegmentation, };
-
-    public Segmentation(final int value) {
-        super(value);
-    }
-
-    public Segmentation(final ByteQueue queue) {
-        super(queue);
-    }
-
     public boolean hasTransmitSegmentation() {
         return this.equals(segmentedBoth) || this.equals(segmentedTransmit);
     }
@@ -55,17 +49,43 @@ public class Segmentation extends Enumerated {
         return this.equals(segmentedBoth) || this.equals(segmentedReceive);
     }
 
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Segmentation forId(final int id) {
+        Segmentation e = (Segmentation) idMap.get(id);
+        if (e == null)
+            e = new Segmentation(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Segmentation forName(final String name) {
+        return (Segmentation) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Segmentation(final int value) {
+        super(value);
+    }
+
+    public Segmentation(final ByteQueue queue) {
+        super(queue);
+    }
+
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == segmentedBoth.intValue())
-            return "both";
-        if (type == segmentedTransmit.intValue())
-            return "transmit";
-        if (type == segmentedReceive.intValue())
-            return "receive";
-        if (type == noSegmentation.intValue())
-            return "none";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

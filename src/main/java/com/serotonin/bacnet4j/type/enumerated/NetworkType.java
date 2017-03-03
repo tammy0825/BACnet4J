@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -43,10 +47,34 @@ public class NetworkType extends Enumerated {
     public static final NetworkType ipv6 = new NetworkType(9);
     public static final NetworkType serial = new NetworkType(10);
 
-    public static final NetworkType[] ALL = { ethernet, arcnet, mstp, ptp, lontalk, ipv4, zigbee, virtual, ipv6,
-            serial, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public NetworkType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static NetworkType forId(final int id) {
+        NetworkType e = (NetworkType) idMap.get(id);
+        if (e == null)
+            e = new NetworkType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static NetworkType forName(final String name) {
+        return (NetworkType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private NetworkType(final int value) {
         super(value);
     }
 
@@ -56,27 +84,6 @@ public class NetworkType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == ethernet.intValue())
-            return "ethernet";
-        if (type == arcnet.intValue())
-            return "arcnet";
-        if (type == mstp.intValue())
-            return "mstp";
-        if (type == ptp.intValue())
-            return "ptp";
-        if (type == lontalk.intValue())
-            return "lontalk";
-        if (type == ipv4.intValue())
-            return "ipv4";
-        if (type == zigbee.intValue())
-            return "zigbee";
-        if (type == virtual.intValue())
-            return "virtual";
-        if (type == ipv6.intValue())
-            return "ipv6";
-        if (type == serial.intValue())
-            return "serial";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

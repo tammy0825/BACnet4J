@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -43,11 +47,34 @@ public class RejectReason extends Enumerated {
     public static final RejectReason undefinedEnumeration = new RejectReason(8);
     public static final RejectReason unrecognizedService = new RejectReason(9);
 
-    public static final RejectReason[] ALL = { other, bufferOverflow, inconsistentParameters, invalidParameterDataType,
-            invalidTag, missingRequiredParameter, parameterOutOfRange, tooManyArguments, undefinedEnumeration,
-            unrecognizedService, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public RejectReason(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static RejectReason forId(final int id) {
+        RejectReason e = (RejectReason) idMap.get(id);
+        if (e == null)
+            e = new RejectReason(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static RejectReason forName(final String name) {
+        return (RejectReason) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private RejectReason(final int value) {
         super(value);
     }
 
@@ -57,27 +84,6 @@ public class RejectReason extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == other.intValue())
-            return "Other";
-        if (type == bufferOverflow.intValue())
-            return "Buffer overflow";
-        if (type == inconsistentParameters.intValue())
-            return "Inconsistent parameters";
-        if (type == invalidParameterDataType.intValue())
-            return "Invalid parameter data type";
-        if (type == invalidTag.intValue())
-            return "Invalid tag";
-        if (type == missingRequiredParameter.intValue())
-            return "Missing required parameter";
-        if (type == parameterOutOfRange.intValue())
-            return "Parameter out of range";
-        if (type == tooManyArguments.intValue())
-            return "Too many arguments";
-        if (type == undefinedEnumeration.intValue())
-            return "Undefined enumeration";
-        if (type == unrecognizedService.intValue())
-            return "Unrecognized service";
-        return "Unknown reject reason(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

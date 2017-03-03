@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,10 +44,34 @@ public class BackupState extends Enumerated {
     public static final BackupState backupFailure = new BackupState(5);
     public static final BackupState restoreFailure = new BackupState(6);
 
-    public static final BackupState[] ALL = { idle, preparingForBackup, preparingForRestore, performingABackup,
-            performingARestore, backupFailure, restoreFailure, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public BackupState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static BackupState forId(final int id) {
+        BackupState e = (BackupState) idMap.get(id);
+        if (e == null)
+            e = new BackupState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static BackupState forName(final String name) {
+        return (BackupState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private BackupState(final int value) {
         super(value);
     }
 
@@ -53,21 +81,6 @@ public class BackupState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == idle.intValue())
-            return "idle";
-        if (type == preparingForBackup.intValue())
-            return "preparingForBackup";
-        if (type == preparingForRestore.intValue())
-            return "preparingForRestore";
-        if (type == performingABackup.intValue())
-            return "performingABackup";
-        if (type == performingARestore.intValue())
-            return "performingARestore";
-        if (type == backupFailure.intValue())
-            return "backupFailure";
-        if (type == restoreFailure.intValue())
-            return "restoreFailure";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

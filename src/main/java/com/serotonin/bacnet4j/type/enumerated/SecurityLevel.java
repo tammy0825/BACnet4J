@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,10 +43,34 @@ public class SecurityLevel extends Enumerated {
     public static final SecurityLevel signedEndToEnd = new SecurityLevel(4);
     public static final SecurityLevel encryptedEndToEnd = new SecurityLevel(5);
 
-    public static final SecurityLevel[] ALL = { incapable, plain, signed, encrypted, signedEndToEnd,
-            encryptedEndToEnd, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public SecurityLevel(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static SecurityLevel forId(final int id) {
+        SecurityLevel e = (SecurityLevel) idMap.get(id);
+        if (e == null)
+            e = new SecurityLevel(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static SecurityLevel forName(final String name) {
+        return (SecurityLevel) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private SecurityLevel(final int value) {
         super(value);
     }
 
@@ -52,19 +80,6 @@ public class SecurityLevel extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == incapable.intValue())
-            return "incapable";
-        if (type == plain.intValue())
-            return "plain";
-        if (type == signed.intValue())
-            return "signed";
-        if (type == encrypted.intValue())
-            return "encrypted";
-        if (type == signedEndToEnd.intValue())
-            return "signedEndToEnd";
-        if (type == encryptedEndToEnd.intValue())
-            return "encryptedEndToEnd";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

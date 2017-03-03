@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -87,22 +91,34 @@ public class AccessEvent extends Enumerated {
     public static final AccessEvent deniedVerificationTimeout = new AccessEvent(163);
     public static final AccessEvent deniedOther = new AccessEvent(164);
 
-    public static final AccessEvent[] ALL = { none, granted, muster, passbackDetected, duress, trace,
-            lockoutMaxAttempts, lockoutOther, lockoutRelinquished, lockedByHigherPriority, outOfService,
-            outOfServiceRelinquished, accompanimentBy, authenticationFactorRead, authorizationDelayed,
-            verificationRequired, noEntryAfterGrant, deniedDenyAll, deniedUnknownCredential,
-            deniedAuthenticationUnavailable, deniedAuthenticationFactorTimeout, deniedIncorrectAuthenticationFactor,
-            deniedZoneNoAccessRights, deniedPointNoAccessRights, deniedNoAccessRights, deniedOutOfTimeRange,
-            deniedThreatLevel, deniedPassback, deniedUnexpectedLocationUsage, deniedMaxAttempts,
-            deniedLowerOccupancyLimit, deniedUpperOccupancyLimit, deniedAuthenticationFactorLost,
-            deniedAuthenticationFactorStolen, deniedAuthenticationFactorDamaged, deniedAuthenticationFactorDestroyed,
-            deniedAuthenticationFactorDisabled, deniedAuthenticationFactorError, deniedCredentialUnassigned,
-            deniedCredentialNotProvisioned, deniedCredentialNotYetActive, deniedCredentialExpired,
-            deniedCredentialManualDisable, deniedCredentialLockout, deniedCredentialMaxDays, deniedCredentialMaxUses,
-            deniedCredentialInactivity, deniedCredentialDisabled, deniedNoAccompaniment, deniedIncorrectAccompaniment,
-            deniedLockout, deniedVerificationFailed, deniedVerificationTimeout, deniedOther, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessEvent(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessEvent forId(final int id) {
+        AccessEvent e = (AccessEvent) idMap.get(id);
+        if (e == null)
+            e = new AccessEvent(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessEvent forName(final String name) {
+        return (AccessEvent) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessEvent(final int value) {
         super(value);
     }
 
@@ -112,115 +128,6 @@ public class AccessEvent extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == granted.intValue())
-            return "granted";
-        if (type == muster.intValue())
-            return "muster";
-        if (type == passbackDetected.intValue())
-            return "passbackDetected";
-        if (type == duress.intValue())
-            return "duress";
-        if (type == trace.intValue())
-            return "trace";
-        if (type == lockoutMaxAttempts.intValue())
-            return "lockoutMaxAttempts";
-        if (type == lockoutOther.intValue())
-            return "lockoutOther";
-        if (type == lockoutRelinquished.intValue())
-            return "lockoutRelinquished";
-        if (type == lockedByHigherPriority.intValue())
-            return "lockedByHigherPriority";
-        if (type == outOfService.intValue())
-            return "outOfService";
-        if (type == outOfServiceRelinquished.intValue())
-            return "outOfServiceRelinquished";
-        if (type == accompanimentBy.intValue())
-            return "accompanimentBy";
-        if (type == authenticationFactorRead.intValue())
-            return "authenticationFactorRead";
-        if (type == authorizationDelayed.intValue())
-            return "authorizationDelayed";
-        if (type == verificationRequired.intValue())
-            return "verificationRequired";
-        if (type == noEntryAfterGrant.intValue())
-            return "noEntryAfterGrant";
-        if (type == deniedDenyAll.intValue())
-            return "deniedDenyAll";
-        if (type == deniedUnknownCredential.intValue())
-            return "deniedUnknownCredential";
-        if (type == deniedAuthenticationUnavailable.intValue())
-            return "deniedAuthenticationUnavailable";
-        if (type == deniedAuthenticationFactorTimeout.intValue())
-            return "deniedAuthenticationFactorTimeout";
-        if (type == deniedIncorrectAuthenticationFactor.intValue())
-            return "deniedIncorrectAuthenticationFactor";
-        if (type == deniedZoneNoAccessRights.intValue())
-            return "deniedZoneNoAccessRights";
-        if (type == deniedPointNoAccessRights.intValue())
-            return "deniedPointNoAccessRights";
-        if (type == deniedNoAccessRights.intValue())
-            return "deniedNoAccessRights";
-        if (type == deniedOutOfTimeRange.intValue())
-            return "deniedOutOfTimeRange";
-        if (type == deniedThreatLevel.intValue())
-            return "deniedThreatLevel";
-        if (type == deniedPassback.intValue())
-            return "deniedPassback";
-        if (type == deniedUnexpectedLocationUsage.intValue())
-            return "deniedUnexpectedLocationUsage";
-        if (type == deniedMaxAttempts.intValue())
-            return "deniedMaxAttempts";
-        if (type == deniedLowerOccupancyLimit.intValue())
-            return "deniedLowerOccupancyLimit";
-        if (type == deniedUpperOccupancyLimit.intValue())
-            return "deniedUpperOccupancyLimit";
-        if (type == deniedAuthenticationFactorLost.intValue())
-            return "deniedAuthenticationFactorLost";
-        if (type == deniedAuthenticationFactorStolen.intValue())
-            return "deniedAuthenticationFactorStolen";
-        if (type == deniedAuthenticationFactorDamaged.intValue())
-            return "deniedAuthenticationFactorDamaged";
-        if (type == deniedAuthenticationFactorDestroyed.intValue())
-            return "deniedAuthenticationFactorDestroyed";
-        if (type == deniedAuthenticationFactorDisabled.intValue())
-            return "deniedAuthenticationFactorDisabled";
-        if (type == deniedAuthenticationFactorError.intValue())
-            return "deniedAuthenticationFactorError";
-        if (type == deniedCredentialUnassigned.intValue())
-            return "deniedCredentialUnassigned";
-        if (type == deniedCredentialNotProvisioned.intValue())
-            return "deniedCredentialNotProvisioned";
-        if (type == deniedCredentialNotYetActive.intValue())
-            return "deniedCredentialNotYetActive";
-        if (type == deniedCredentialExpired.intValue())
-            return "deniedCredentialExpired";
-        if (type == deniedCredentialManualDisable.intValue())
-            return "deniedCredentialManualDisable";
-        if (type == deniedCredentialLockout.intValue())
-            return "deniedCredentialLockout";
-        if (type == deniedCredentialMaxDays.intValue())
-            return "deniedCredentialMaxDays";
-        if (type == deniedCredentialMaxUses.intValue())
-            return "deniedCredentialMaxUses";
-        if (type == deniedCredentialInactivity.intValue())
-            return "deniedCredentialInactivity";
-        if (type == deniedCredentialDisabled.intValue())
-            return "deniedCredentialDisabled";
-        if (type == deniedNoAccompaniment.intValue())
-            return "deniedNoAccompaniment";
-        if (type == deniedIncorrectAccompaniment.intValue())
-            return "deniedIncorrectAccompaniment";
-        if (type == deniedLockout.intValue())
-            return "deniedLockout";
-        if (type == deniedVerificationFailed.intValue())
-            return "deniedVerificationFailed";
-        if (type == deniedVerificationTimeout.intValue())
-            return "deniedVerificationTimeout";
-        if (type == deniedOther.intValue())
-            return "deniedOther";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

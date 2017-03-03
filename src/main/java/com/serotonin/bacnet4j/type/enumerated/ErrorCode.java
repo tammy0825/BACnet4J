@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -166,36 +170,34 @@ public class ErrorCode extends Enumerated {
     public static final ErrorCode duplicateEntry = new ErrorCode(137);
     public static final ErrorCode invalidValueInThisState = new ErrorCode(138);
 
-    public static final ErrorCode[] ALL = { other, configurationInProgress, deviceBusy, dynamicCreationNotSupported,
-            fileAccessDenied, inconsistentParameters, inconsistentSelectionCriterion, invalidDataType,
-            invalidFileAccessMethod, invalidFileStartPosition, invalidParameterDataType, invalidTimeStamp,
-            missingRequiredParameter, noObjectsOfSpecifiedType, noSpaceForObject, noSpaceToAddListElement,
-            noSpaceToWriteProperty, noVtSessionsAvailable, propertyIsNotAList, objectDeletionNotPermitted,
-            objectIdentifierAlreadyExists, operationalProblem, passwordFailure, readAccessDenied, serviceRequestDenied,
-            timeout, unknownObject, unknownProperty, unknownVtClass, unknownVtSession, unsupportedObjectType,
-            valueOutOfRange, vtSessionAlreadyClosed, vtSessionTerminationFailure, writeAccessDenied,
-            characterSetNotSupported, invalidArrayIndex, covSubscriptionFailed, notCovProperty,
-            optionalFunctionalityNotSupported, invalidConfigurationData, datatypeNotSupported, duplicateName,
-            duplicateObjectId, propertyIsNotAnArray, abortBufferOverflow, abortInvalidApduInThisState,
-            abortPreemptedByHigherPriorityTask, abortSegmentationNotSupported, abortProprietary, abortOther, invalidTag,
-            networkDown, rejectBufferOverflow, rejectInconsistentParameters, rejectInvalidParameterDataType,
-            rejectInvalidTag, rejectMissingRequiredParameter, rejectParameterOutOfRange, rejectTooManyArguments,
-            rejectUndefinedEnumeration, rejectUnrecognizedService, rejectProprietary, rejectOther, unknownDevice,
-            unknownRoute, valueNotInitialized, invalidEventState, noAlarmConfigured, logBufferFull, loggedValuePurged,
-            noPropertySpecified, notConfiguredForTriggeredLogging, unknownSubscription, parameterOutOfRange,
-            listElementNotFound, busy, communicationDisabled, success, accessDenied, badDestinationAddress,
-            badDestinationDeviceId, badSignature, badSourceAddress, badTimestamp, cannotUseKey, cannotVerifyMessageId,
-            correctKeyRevision, destinationDeviceIdRequired, duplicateMessage, encryptionNotConfigured,
-            encryptionRequired, incorrectKey, invalidKeyData, keyUpdateInProgress, malformedMessage, notKeyServer,
-            securityNotConfigured, sourceSecurityRequired, tooManyKeys, unknownAuthenticationType, unknownKey,
-            unknownKeyRevision, unknownSourceMessage, notRouterToDnet, routerBusy, unknownNetworkMessage,
-            messageTooLong, securityError, addressingError, writeBdtFailed, readBdtFailed, registerForeignDeviceFailed,
-            readFdtFailed, deleteFdtEntryFailed, distributeBroadcastFailed, unknownFileSize, abortApduTooLong,
-            abortApplicationExceededReplyTime, abortOutOfResources, abortTsmTimeout, abortWindowSizeOutOfRange,
-            fileFull, inconsistentConfiguration, inconsistentObjectType, internalError, notConfigured, outOfMemory,
-            valueTooLong, abortInsufficientSecurity, abortSecurityError, duplicateEntry, invalidValueInThisState, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public ErrorCode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static ErrorCode forId(final int id) {
+        ErrorCode e = (ErrorCode) idMap.get(id);
+        if (e == null)
+            e = new ErrorCode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static ErrorCode forName(final String name) {
+        return (ErrorCode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private ErrorCode(final int value) {
         super(value);
     }
 
@@ -205,274 +207,6 @@ public class ErrorCode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == other.intValue())
-            return "other";
-        if (type == configurationInProgress.intValue())
-            return "configurationInProgress";
-        if (type == deviceBusy.intValue())
-            return "deviceBusy";
-        if (type == dynamicCreationNotSupported.intValue())
-            return "dynamicCreationNotSupported";
-        if (type == fileAccessDenied.intValue())
-            return "fileAccessDenied";
-        if (type == inconsistentParameters.intValue())
-            return "inconsistentParameters";
-        if (type == inconsistentSelectionCriterion.intValue())
-            return "inconsistentSelectionCriterion";
-        if (type == invalidDataType.intValue())
-            return "invalidDataType";
-        if (type == invalidFileAccessMethod.intValue())
-            return "invalidFileAccessMethod";
-        if (type == invalidFileStartPosition.intValue())
-            return "invalidFileStartPosition";
-        if (type == invalidParameterDataType.intValue())
-            return "invalidParameterDataType";
-        if (type == invalidTimeStamp.intValue())
-            return "invalidTimeStamp";
-        if (type == missingRequiredParameter.intValue())
-            return "missingRequiredParameter";
-        if (type == noObjectsOfSpecifiedType.intValue())
-            return "noObjectsOfSpecifiedType";
-        if (type == noSpaceForObject.intValue())
-            return "noSpaceForObject";
-        if (type == noSpaceToAddListElement.intValue())
-            return "noSpaceToAddListElement";
-        if (type == noSpaceToWriteProperty.intValue())
-            return "noSpaceToWriteProperty";
-        if (type == noVtSessionsAvailable.intValue())
-            return "noVtSessionsAvailable";
-        if (type == propertyIsNotAList.intValue())
-            return "propertyIsNotAList";
-        if (type == objectDeletionNotPermitted.intValue())
-            return "objectDeletionNotPermitted";
-        if (type == objectIdentifierAlreadyExists.intValue())
-            return "objectIdentifierAlreadyExists";
-        if (type == operationalProblem.intValue())
-            return "operationalProblem";
-        if (type == passwordFailure.intValue())
-            return "passwordFailure";
-        if (type == readAccessDenied.intValue())
-            return "readAccessDenied";
-        if (type == serviceRequestDenied.intValue())
-            return "serviceRequestDenied";
-        if (type == timeout.intValue())
-            return "timeout";
-        if (type == unknownObject.intValue())
-            return "unknownObject";
-        if (type == unknownProperty.intValue())
-            return "unknownProperty";
-        if (type == unknownVtClass.intValue())
-            return "unknownVtClass";
-        if (type == unknownVtSession.intValue())
-            return "unknownVtSession";
-        if (type == unsupportedObjectType.intValue())
-            return "unsupportedObjectType";
-        if (type == valueOutOfRange.intValue())
-            return "valueOutOfRange";
-        if (type == vtSessionAlreadyClosed.intValue())
-            return "vtSessionAlreadyClosed";
-        if (type == vtSessionTerminationFailure.intValue())
-            return "vtSessionTerminationFailure";
-        if (type == writeAccessDenied.intValue())
-            return "writeAccessDenied";
-        if (type == characterSetNotSupported.intValue())
-            return "characterSetNotSupported";
-        if (type == invalidArrayIndex.intValue())
-            return "invalidArrayIndex";
-        if (type == covSubscriptionFailed.intValue())
-            return "covSubscriptionFailed";
-        if (type == notCovProperty.intValue())
-            return "notCovProperty";
-        if (type == optionalFunctionalityNotSupported.intValue())
-            return "optionalFunctionalityNotSupported";
-        if (type == invalidConfigurationData.intValue())
-            return "invalidConfigurationData";
-        if (type == datatypeNotSupported.intValue())
-            return "datatypeNotSupported";
-        if (type == duplicateName.intValue())
-            return "duplicateName";
-        if (type == duplicateObjectId.intValue())
-            return "duplicateObjectId";
-        if (type == propertyIsNotAnArray.intValue())
-            return "propertyIsNotAnArray";
-        if (type == abortBufferOverflow.intValue())
-            return "abortBufferOverflow";
-        if (type == abortInvalidApduInThisState.intValue())
-            return "abortInvalidApduInThisState";
-        if (type == abortPreemptedByHigherPriorityTask.intValue())
-            return "abortPreemptedByHigherPriorityTask";
-        if (type == abortSegmentationNotSupported.intValue())
-            return "abortSegmentationNotSupported";
-        if (type == abortProprietary.intValue())
-            return "abortProprietary";
-        if (type == abortOther.intValue())
-            return "abortOther";
-        if (type == invalidTag.intValue())
-            return "invalidTag";
-        if (type == networkDown.intValue())
-            return "networkDown";
-        if (type == rejectBufferOverflow.intValue())
-            return "rejectBufferOverflow";
-        if (type == rejectInconsistentParameters.intValue())
-            return "rejectInconsistentParameters";
-        if (type == rejectInvalidParameterDataType.intValue())
-            return "rejectInvalidParameterDataType";
-        if (type == rejectInvalidTag.intValue())
-            return "rejectInvalidTag";
-        if (type == rejectMissingRequiredParameter.intValue())
-            return "rejectMissingRequiredParameter";
-        if (type == rejectParameterOutOfRange.intValue())
-            return "rejectParameterOutOfRange";
-        if (type == rejectTooManyArguments.intValue())
-            return "rejectTooManyArguments";
-        if (type == rejectUndefinedEnumeration.intValue())
-            return "rejectUndefinedEnumeration";
-        if (type == rejectUnrecognizedService.intValue())
-            return "rejectUnrecognizedService";
-        if (type == rejectProprietary.intValue())
-            return "rejectProprietary";
-        if (type == rejectOther.intValue())
-            return "rejectOther";
-        if (type == unknownDevice.intValue())
-            return "unknownDevice";
-        if (type == unknownRoute.intValue())
-            return "unknownRoute";
-        if (type == valueNotInitialized.intValue())
-            return "valueNotInitialized";
-        if (type == invalidEventState.intValue())
-            return "invalidEventState";
-        if (type == noAlarmConfigured.intValue())
-            return "noAlarmConfigured";
-        if (type == logBufferFull.intValue())
-            return "logBufferFull";
-        if (type == loggedValuePurged.intValue())
-            return "loggedValuePurged";
-        if (type == noPropertySpecified.intValue())
-            return "noPropertySpecified";
-        if (type == notConfiguredForTriggeredLogging.intValue())
-            return "notConfiguredForTriggeredLogging";
-        if (type == unknownSubscription.intValue())
-            return "unknownSubscription";
-        if (type == parameterOutOfRange.intValue())
-            return "parameterOutOfRange";
-        if (type == listElementNotFound.intValue())
-            return "listElementNotFound";
-        if (type == busy.intValue())
-            return "busy";
-        if (type == communicationDisabled.intValue())
-            return "communicationDisabled";
-        if (type == success.intValue())
-            return "success";
-        if (type == accessDenied.intValue())
-            return "accessDenied";
-        if (type == badDestinationAddress.intValue())
-            return "badDestinationAddress";
-        if (type == badDestinationDeviceId.intValue())
-            return "badDestinationDeviceId";
-        if (type == badSignature.intValue())
-            return "badSignature";
-        if (type == badSourceAddress.intValue())
-            return "badSourceAddress";
-        if (type == badTimestamp.intValue())
-            return "badTimestamp";
-        if (type == cannotUseKey.intValue())
-            return "cannotUseKey";
-        if (type == cannotVerifyMessageId.intValue())
-            return "cannotVerifyMessageId";
-        if (type == correctKeyRevision.intValue())
-            return "correctKeyRevision";
-        if (type == destinationDeviceIdRequired.intValue())
-            return "destinationDeviceIdRequired";
-        if (type == duplicateMessage.intValue())
-            return "duplicateMessage";
-        if (type == encryptionNotConfigured.intValue())
-            return "encryptionNotConfigured";
-        if (type == encryptionRequired.intValue())
-            return "encryptionRequired";
-        if (type == incorrectKey.intValue())
-            return "incorrectKey";
-        if (type == invalidKeyData.intValue())
-            return "invalidKeyData";
-        if (type == keyUpdateInProgress.intValue())
-            return "keyUpdateInProgress";
-        if (type == malformedMessage.intValue())
-            return "malformedMessage";
-        if (type == notKeyServer.intValue())
-            return "notKeyServer";
-        if (type == securityNotConfigured.intValue())
-            return "securityNotConfigured";
-        if (type == sourceSecurityRequired.intValue())
-            return "sourceSecurityRequired";
-        if (type == tooManyKeys.intValue())
-            return "tooManyKeys";
-        if (type == unknownAuthenticationType.intValue())
-            return "unknownAuthenticationType";
-        if (type == unknownKey.intValue())
-            return "unknownKey";
-        if (type == unknownKeyRevision.intValue())
-            return "unknownKeyRevision";
-        if (type == unknownSourceMessage.intValue())
-            return "unknownSourceMessage";
-        if (type == notRouterToDnet.intValue())
-            return "notRouterToDnet";
-        if (type == routerBusy.intValue())
-            return "routerBusy";
-        if (type == unknownNetworkMessage.intValue())
-            return "unknownNetworkMessage";
-        if (type == messageTooLong.intValue())
-            return "messageTooLong";
-        if (type == securityError.intValue())
-            return "securityError";
-        if (type == addressingError.intValue())
-            return "addressingError";
-        if (type == writeBdtFailed.intValue())
-            return "writeBdtFailed";
-        if (type == readBdtFailed.intValue())
-            return "readBdtFailed";
-        if (type == registerForeignDeviceFailed.intValue())
-            return "registerForeignDeviceFailed";
-        if (type == readFdtFailed.intValue())
-            return "readFdtFailed";
-        if (type == deleteFdtEntryFailed.intValue())
-            return "deleteFdtEntryFailed";
-        if (type == distributeBroadcastFailed.intValue())
-            return "distributeBroadcastFailed";
-        if (type == unknownFileSize.intValue())
-            return "unknownFileSize";
-        if (type == abortApduTooLong.intValue())
-            return "abortApduTooLong";
-        if (type == abortApplicationExceededReplyTime.intValue())
-            return "abortApplicationExceededReplyTime";
-        if (type == abortOutOfResources.intValue())
-            return "abortOutOfResources";
-        if (type == abortTsmTimeout.intValue())
-            return "abortTsmTimeout";
-        if (type == abortWindowSizeOutOfRange.intValue())
-            return "abortWindowSizeOutOfRange";
-        if (type == fileFull.intValue())
-            return "fileFull";
-        if (type == inconsistentConfiguration.intValue())
-            return "inconsistentConfiguration";
-        if (type == inconsistentObjectType.intValue())
-            return "inconsistentObjectType";
-        if (type == internalError.intValue())
-            return "internalError";
-        if (type == notConfigured.intValue())
-            return "notConfigured";
-        if (type == outOfMemory.intValue())
-            return "outOfMemory";
-        if (type == valueTooLong.intValue())
-            return "valueTooLong";
-        if (type == abortInsufficientSecurity.intValue())
-            return "abortInsufficientSecurity";
-        if (type == abortSecurityError.intValue())
-            return "abortSecurityError";
-        if (type == duplicateEntry.intValue())
-            return "duplicateEntry";
-        if (type == invalidValueInThisState.intValue())
-            return "invalidValueInThisState";
-
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

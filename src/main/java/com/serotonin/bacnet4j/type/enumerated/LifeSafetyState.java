@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -57,11 +61,34 @@ public class LifeSafetyState extends Enumerated {
     public static final LifeSafetyState supervisory = new LifeSafetyState(22);
     public static final LifeSafetyState testSupervisory = new LifeSafetyState(23);
 
-    public static final LifeSafetyState[] ALL = { quiet, preAlarm, alarm, fault, faultPreAlarm, faultAlarm, notReady,
-            active, tamper, testAlarm, testActive, testFault, testFaultAlarm, holdup, duress, tamperAlarm, abnormal,
-            emergencyPower, delayed, blocked, localAlarm, generalAlarm, supervisory, testSupervisory, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LifeSafetyState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LifeSafetyState forId(final int id) {
+        LifeSafetyState e = (LifeSafetyState) idMap.get(id);
+        if (e == null)
+            e = new LifeSafetyState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LifeSafetyState forName(final String name) {
+        return (LifeSafetyState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LifeSafetyState(final int value) {
         super(value);
     }
 
@@ -71,56 +98,6 @@ public class LifeSafetyState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == quiet.intValue())
-            return "Quiet";
-        if (type == preAlarm.intValue())
-            return "Pre-alarm";
-        if (type == alarm.intValue())
-            return "Alarm";
-        if (type == fault.intValue())
-            return "Fault";
-        if (type == faultPreAlarm.intValue())
-            return "Fault pre-alarm";
-        if (type == faultAlarm.intValue())
-            return "Fault alarm";
-        if (type == notReady.intValue())
-            return "Not ready";
-        if (type == active.intValue())
-            return "Active";
-        if (type == tamper.intValue())
-            return "Tamper";
-        if (type == testAlarm.intValue())
-            return "Test alarm";
-        if (type == testActive.intValue())
-            return "Test active";
-        if (type == testFault.intValue())
-            return "Test fault";
-        if (type == testFaultAlarm.intValue())
-            return "Test fault alarm";
-        if (type == holdup.intValue())
-            return "Holdup";
-        if (type == duress.intValue())
-            return "Duress";
-        if (type == tamperAlarm.intValue())
-            return "Tamper alarm";
-        if (type == abnormal.intValue())
-            return "Abnormal";
-        if (type == emergencyPower.intValue())
-            return "Emergency power";
-        if (type == delayed.intValue())
-            return "Delayed";
-        if (type == blocked.intValue())
-            return "Blocked";
-        if (type == localAlarm.intValue())
-            return "Local alarm";
-        if (type == generalAlarm.intValue())
-            return "General alarm";
-        if (type == supervisory.intValue())
-            return "Supervisory";
-        if (type == testSupervisory.intValue())
-            return "Test supervisory";
-
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

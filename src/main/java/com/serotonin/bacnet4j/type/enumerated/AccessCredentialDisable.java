@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,9 +41,34 @@ public class AccessCredentialDisable extends Enumerated {
     public static final AccessCredentialDisable disableManual = new AccessCredentialDisable(2);
     public static final AccessCredentialDisable disableLockout = new AccessCredentialDisable(3);
 
-    public static final AccessCredentialDisable[] ALL = { none, disable, disableManual, disableLockout, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessCredentialDisable(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessCredentialDisable forId(final int id) {
+        AccessCredentialDisable e = (AccessCredentialDisable) idMap.get(id);
+        if (e == null)
+            e = new AccessCredentialDisable(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessCredentialDisable forName(final String name) {
+        return (AccessCredentialDisable) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessCredentialDisable(final int value) {
         super(value);
     }
 
@@ -49,15 +78,6 @@ public class AccessCredentialDisable extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == disable.intValue())
-            return "disable";
-        if (type == disableManual.intValue())
-            return "disableManual";
-        if (type == disableLockout.intValue())
-            return "disableLockout";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

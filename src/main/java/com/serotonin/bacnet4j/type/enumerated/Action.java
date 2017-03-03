@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -35,9 +39,34 @@ public class Action extends Enumerated {
     public static final Action direct = new Action(0);
     public static final Action reverse = new Action(1);
 
-    public static final Action[] ALL = { direct, reverse, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public Action(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Action forId(final int id) {
+        Action e = (Action) idMap.get(id);
+        if (e == null)
+            e = new Action(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Action forName(final String name) {
+        return (Action) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Action(final int value) {
         super(value);
     }
 
@@ -47,11 +76,6 @@ public class Action extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == direct.intValue())
-            return "direct";
-        if (type == reverse.intValue())
-            return "reverse";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

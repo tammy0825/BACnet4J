@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,9 +41,34 @@ public class NetworkNumberQuality extends Enumerated {
     public static final NetworkNumberQuality learnedConfigured = new NetworkNumberQuality(2);
     public static final NetworkNumberQuality configured = new NetworkNumberQuality(3);
 
-    public static final NetworkNumberQuality[] ALL = { unknown, learned, learnedConfigured, configured, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public NetworkNumberQuality(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static NetworkNumberQuality forId(final int id) {
+        NetworkNumberQuality e = (NetworkNumberQuality) idMap.get(id);
+        if (e == null)
+            e = new NetworkNumberQuality(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static NetworkNumberQuality forName(final String name) {
+        return (NetworkNumberQuality) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private NetworkNumberQuality(final int value) {
         super(value);
     }
 
@@ -49,15 +78,6 @@ public class NetworkNumberQuality extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == learned.intValue())
-            return "learned";
-        if (type == learnedConfigured.intValue())
-            return "learnedConfigured";
-        if (type == configured.intValue())
-            return "configured";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -44,10 +48,34 @@ public class LightingOperation extends Enumerated {
     public static final LightingOperation warnRelinquish = new LightingOperation(9);
     public static final LightingOperation stop = new LightingOperation(10);
 
-    public static final LightingOperation[] ALL = { none, fadeTo, rampTo, stepUp, stepDown, stepOn, stepOff, warn,
-            warnOff, warnRelinquish, stop, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LightingOperation(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LightingOperation forId(final int id) {
+        LightingOperation e = (LightingOperation) idMap.get(id);
+        if (e == null)
+            e = new LightingOperation(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LightingOperation forName(final String name) {
+        return (LightingOperation) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LightingOperation(final int value) {
         super(value);
     }
 
@@ -57,30 +85,6 @@ public class LightingOperation extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-
-        if (type == none.intValue())
-            return "none";
-        if (type == fadeTo.intValue())
-            return "fadeTo";
-        if (type == rampTo.intValue())
-            return "rampTo";
-        if (type == stepUp.intValue())
-            return "stepUp";
-        if (type == stepDown.intValue())
-            return "stepDown";
-        if (type == stepOn.intValue())
-            return "stepOn";
-        if (type == stepOff.intValue())
-            return "stepOff";
-        if (type == warn.intValue())
-            return "warn";
-        if (type == warnOff.intValue())
-            return "warnOff";
-        if (type == warnRelinquish.intValue())
-            return "warnRelinquish";
-        if (type == stop.intValue())
-            return "stop";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

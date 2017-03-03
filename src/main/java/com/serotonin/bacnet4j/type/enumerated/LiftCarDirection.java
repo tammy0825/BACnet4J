@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,9 +43,34 @@ public class LiftCarDirection extends Enumerated {
     public static final LiftCarDirection down = new LiftCarDirection(4);
     public static final LiftCarDirection upAndDown = new LiftCarDirection(5);
 
-    public static final LiftCarDirection[] ALL = { unknown, none, stopped, up, down, upAndDown, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftCarDirection(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftCarDirection forId(final int id) {
+        LiftCarDirection e = (LiftCarDirection) idMap.get(id);
+        if (e == null)
+            e = new LiftCarDirection(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftCarDirection forName(final String name) {
+        return (LiftCarDirection) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftCarDirection(final int value) {
         super(value);
     }
 
@@ -51,19 +80,6 @@ public class LiftCarDirection extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == none.intValue())
-            return "none";
-        if (type == stopped.intValue())
-            return "stopped";
-        if (type == up.intValue())
-            return "up";
-        if (type == down.intValue())
-            return "down";
-        if (type == upAndDown.intValue())
-            return "upAndDown";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

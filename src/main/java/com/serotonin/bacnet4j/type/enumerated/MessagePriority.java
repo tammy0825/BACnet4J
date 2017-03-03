@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.npdu.NPCI.NetworkPriority;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -36,9 +40,41 @@ public class MessagePriority extends Enumerated {
     public static final MessagePriority normal = new MessagePriority(0);
     public static final MessagePriority urgent = new MessagePriority(1);
 
-    public static final MessagePriority[] ALL = { normal, urgent, };
+    public NetworkPriority getNetworkPriority() {
+        final int type = intValue();
+        if (type == urgent.intValue())
+            return NetworkPriority.urgent;
+        return NetworkPriority.normal;
+    }
 
-    public MessagePriority(final int value) {
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static MessagePriority forId(final int id) {
+        MessagePriority e = (MessagePriority) idMap.get(id);
+        if (e == null)
+            e = new MessagePriority(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static MessagePriority forName(final String name) {
+        return (MessagePriority) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private MessagePriority(final int value) {
         super(value);
     }
 
@@ -46,10 +82,8 @@ public class MessagePriority extends Enumerated {
         super(queue);
     }
 
-    public NetworkPriority getNetworkPriority() {
-        final int type = intValue();
-        if (type == urgent.intValue())
-            return NetworkPriority.urgent;
-        return NetworkPriority.normal;
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

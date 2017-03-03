@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -46,10 +50,34 @@ public class DoorStatus extends Enumerated {
     public static final DoorStatus safetyLocked = new DoorStatus(4);
     public static final DoorStatus limitedOpened = new DoorStatus(4);
 
-    public static final DoorStatus[] ALL = { closed, open, unknown, doorFault, unused, none, closing, opening,
-            safetyLocked, limitedOpened, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public DoorStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static DoorStatus forId(final int id) {
+        DoorStatus e = (DoorStatus) idMap.get(id);
+        if (e == null)
+            e = new DoorStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static DoorStatus forName(final String name) {
+        return (DoorStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private DoorStatus(final int value) {
         super(value);
     }
 
@@ -59,27 +87,6 @@ public class DoorStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == closed.intValue())
-            return "closed";
-        if (type == open.intValue())
-            return "open";
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == doorFault.intValue())
-            return "doorFault";
-        if (type == unused.intValue())
-            return "unused";
-        if (type == none.intValue())
-            return "none";
-        if (type == closing.intValue())
-            return "closing";
-        if (type == opening.intValue())
-            return "opening";
-        if (type == safetyLocked.intValue())
-            return "safetyLocked";
-        if (type == limitedOpened.intValue())
-            return "limitedOpened";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

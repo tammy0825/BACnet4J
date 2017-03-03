@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,9 +41,34 @@ public class ProtocolLevel extends Enumerated {
     public static final ProtocolLevel bacnetApplication = new ProtocolLevel(2);
     public static final ProtocolLevel nonBacnetApplication = new ProtocolLevel(3);
 
-    public static final ProtocolLevel[] ALL = { physical, protocol, bacnetApplication, nonBacnetApplication, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public ProtocolLevel(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static ProtocolLevel forId(final int id) {
+        ProtocolLevel e = (ProtocolLevel) idMap.get(id);
+        if (e == null)
+            e = new ProtocolLevel(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static ProtocolLevel forName(final String name) {
+        return (ProtocolLevel) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private ProtocolLevel(final int value) {
         super(value);
     }
 
@@ -49,15 +78,6 @@ public class ProtocolLevel extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == physical.intValue())
-            return "physical";
-        if (type == protocol.intValue())
-            return "protocol";
-        if (type == bacnetApplication.intValue())
-            return "bacnetApplication";
-        if (type == nonBacnetApplication.intValue())
-            return "nonBacnetApplication";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

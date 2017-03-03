@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -42,11 +46,34 @@ public class EscalatorFault extends Enumerated {
     public static final EscalatorFault driveTemperatureExceeded = new EscalatorFault(7);
     public static final EscalatorFault combPlateFault = new EscalatorFault(8);
 
-    public static final EscalatorFault[] ALL = { controllerFault, driveAndMotorFault, mechanicalComponentFault,
-            overspeedFault, powerSupplyFault, safetyDeviceFault, controllerSupplyFault, driveTemperatureExceeded,
-            combPlateFault, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public EscalatorFault(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static EscalatorFault forId(final int id) {
+        EscalatorFault e = (EscalatorFault) idMap.get(id);
+        if (e == null)
+            e = new EscalatorFault(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static EscalatorFault forName(final String name) {
+        return (EscalatorFault) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private EscalatorFault(final int value) {
         super(value);
     }
 
@@ -56,25 +83,6 @@ public class EscalatorFault extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == controllerFault.intValue())
-            return "controllerFault";
-        if (type == driveAndMotorFault.intValue())
-            return "driveAndMotorFault";
-        if (type == mechanicalComponentFault.intValue())
-            return "mechanicalComponentFault";
-        if (type == overspeedFault.intValue())
-            return "overspeedFault";
-        if (type == powerSupplyFault.intValue())
-            return "powerSupplyFault";
-        if (type == safetyDeviceFault.intValue())
-            return "safetyDeviceFault";
-        if (type == controllerSupplyFault.intValue())
-            return "controllerSupplyFault";
-        if (type == driveTemperatureExceeded.intValue())
-            return "driveTemperatureExceeded";
-        if (type == combPlateFault.intValue())
-            return "combPlateFault";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

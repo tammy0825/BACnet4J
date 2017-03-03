@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class AccessUserType extends Enumerated {
     public static final AccessUserType group = new AccessUserType(1);
     public static final AccessUserType person = new AccessUserType(2);
 
-    public static final AccessUserType[] ALL = { asset, group, person, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessUserType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessUserType forId(final int id) {
+        AccessUserType e = (AccessUserType) idMap.get(id);
+        if (e == null)
+            e = new AccessUserType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessUserType forName(final String name) {
+        return (AccessUserType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessUserType(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class AccessUserType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == asset.intValue())
-            return "asset";
-        if (type == group.intValue())
-            return "group";
-        if (type == person.intValue())
-            return "person";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

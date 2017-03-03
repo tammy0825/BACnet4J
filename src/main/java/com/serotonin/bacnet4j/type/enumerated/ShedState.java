@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,9 +44,34 @@ public class ShedState extends Enumerated {
     public static final ShedState shedCompliant = new ShedState(2);
     public static final ShedState shedNonCompliant = new ShedState(3);
 
-    public static final ShedState[] ALL = { shedInactive, shedRequestPending, shedCompliant, shedNonCompliant, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public ShedState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static ShedState forId(final int id) {
+        ShedState e = (ShedState) idMap.get(id);
+        if (e == null)
+            e = new ShedState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static ShedState forName(final String name) {
+        return (ShedState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private ShedState(final int value) {
         super(value);
     }
 
@@ -52,15 +81,6 @@ public class ShedState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == shedInactive.intValue())
-            return "shedInactive";
-        if (type == shedRequestPending.intValue())
-            return "shedRequestPending";
-        if (type == shedCompliant.intValue())
-            return "shedCompliant";
-        if (type == shedNonCompliant.intValue())
-            return "shedNonCompliant";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

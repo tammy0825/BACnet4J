@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,10 +44,34 @@ public class AuthorizationExemption extends Enumerated {
     public static final AuthorizationExemption verification = new AuthorizationExemption(5);
     public static final AuthorizationExemption authorizationDelay = new AuthorizationExemption(6);
 
-    public static final AuthorizationExemption[] ALL = { passback, occupancyCheck, accessRights, lockout, deny,
-            verification, authorizationDelay, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AuthorizationExemption(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AuthorizationExemption forId(final int id) {
+        AuthorizationExemption e = (AuthorizationExemption) idMap.get(id);
+        if (e == null)
+            e = new AuthorizationExemption(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AuthorizationExemption forName(final String name) {
+        return (AuthorizationExemption) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AuthorizationExemption(final int value) {
         super(value);
     }
 
@@ -53,21 +81,6 @@ public class AuthorizationExemption extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == passback.intValue())
-            return "passback";
-        if (type == occupancyCheck.intValue())
-            return "occupancyCheck";
-        if (type == accessRights.intValue())
-            return "accessRights";
-        if (type == lockout.intValue())
-            return "lockout";
-        if (type == deny.intValue())
-            return "deny";
-        if (type == verification.intValue())
-            return "verification";
-        if (type == authorizationDelay.intValue())
-            return "authorizationDelay";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

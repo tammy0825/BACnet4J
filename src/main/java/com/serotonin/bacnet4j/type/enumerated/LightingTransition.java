@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class LightingTransition extends Enumerated {
     public static final LightingTransition fade = new LightingTransition(1);
     public static final LightingTransition ramp = new LightingTransition(2);
 
-    public static final LightingTransition[] ALL = { none, fade, ramp, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LightingTransition(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LightingTransition forId(final int id) {
+        LightingTransition e = (LightingTransition) idMap.get(id);
+        if (e == null)
+            e = new LightingTransition(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LightingTransition forName(final String name) {
+        return (LightingTransition) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LightingTransition(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class LightingTransition extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == fade.intValue())
-            return "fade";
-        if (type == ramp.intValue())
-            return "ramp";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

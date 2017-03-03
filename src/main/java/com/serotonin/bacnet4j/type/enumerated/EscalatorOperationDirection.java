@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,10 +43,34 @@ public class EscalatorOperationDirection extends Enumerated {
     public static final EscalatorOperationDirection downRatedSpeed = new EscalatorOperationDirection(4);
     public static final EscalatorOperationDirection downReducedSpeed = new EscalatorOperationDirection(5);
 
-    public static final EscalatorOperationDirection[] ALL = { unknown, stopped, upRatedSpeed, upReducedSpeed,
-            downRatedSpeed, downReducedSpeed, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public EscalatorOperationDirection(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static EscalatorOperationDirection forId(final int id) {
+        EscalatorOperationDirection e = (EscalatorOperationDirection) idMap.get(id);
+        if (e == null)
+            e = new EscalatorOperationDirection(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static EscalatorOperationDirection forName(final String name) {
+        return (EscalatorOperationDirection) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private EscalatorOperationDirection(final int value) {
         super(value);
     }
 
@@ -52,19 +80,6 @@ public class EscalatorOperationDirection extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == stopped.intValue())
-            return "stopped";
-        if (type == upRatedSpeed.intValue())
-            return "upRatedSpeed";
-        if (type == upReducedSpeed.intValue())
-            return "upReducedSpeed";
-        if (type == downRatedSpeed.intValue())
-            return "downRatedSpeed";
-        if (type == downReducedSpeed.intValue())
-            return "downReducedSpeed";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

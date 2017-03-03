@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,9 +40,34 @@ public class AccessPassbackMode extends Enumerated {
     public static final AccessPassbackMode hardPassback = new AccessPassbackMode(1);
     public static final AccessPassbackMode softPassback = new AccessPassbackMode(2);
 
-    public static final AccessPassbackMode[] ALL = { passbackOff, hardPassback, softPassback, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessPassbackMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessPassbackMode forId(final int id) {
+        AccessPassbackMode e = (AccessPassbackMode) idMap.get(id);
+        if (e == null)
+            e = new AccessPassbackMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessPassbackMode forName(final String name) {
+        return (AccessPassbackMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessPassbackMode(final int value) {
         super(value);
     }
 
@@ -48,13 +77,6 @@ public class AccessPassbackMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == passbackOff.intValue())
-            return "passbackOff";
-        if (type == hardPassback.intValue())
-            return "hardPassback";
-        if (type == softPassback.intValue())
-            return "softPassback";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

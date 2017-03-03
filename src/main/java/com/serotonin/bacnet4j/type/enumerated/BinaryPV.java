@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -35,9 +39,34 @@ public class BinaryPV extends Enumerated {
     public static final BinaryPV inactive = new BinaryPV(0);
     public static final BinaryPV active = new BinaryPV(1);
 
-    public static final BinaryPV[] ALL = { inactive, active, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public BinaryPV(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static BinaryPV forId(final int id) {
+        BinaryPV e = (BinaryPV) idMap.get(id);
+        if (e == null)
+            e = new BinaryPV(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static BinaryPV forName(final String name) {
+        return (BinaryPV) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private BinaryPV(final int value) {
         super(value);
     }
 
@@ -47,11 +76,6 @@ public class BinaryPV extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == inactive.intValue())
-            return "Inactive";
-        if (type == active.intValue())
-            return "Active";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

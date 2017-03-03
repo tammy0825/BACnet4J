@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,10 +45,34 @@ public class ErrorClass extends Enumerated {
     public static final ErrorClass vt = new ErrorClass(6);
     public static final ErrorClass communication = new ErrorClass(7);
 
-    public static final ErrorClass[] ALL = { device, object, property, resources, security, services, vt,
-            communication, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public ErrorClass(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static ErrorClass forId(final int id) {
+        ErrorClass e = (ErrorClass) idMap.get(id);
+        if (e == null)
+            e = new ErrorClass(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static ErrorClass forName(final String name) {
+        return (ErrorClass) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private ErrorClass(final int value) {
         super(value);
     }
 
@@ -54,23 +82,6 @@ public class ErrorClass extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == device.intValue())
-            return "Device";
-        if (type == object.intValue())
-            return "Object";
-        if (type == property.intValue())
-            return "Property";
-        if (type == resources.intValue())
-            return "Resources";
-        if (type == security.intValue())
-            return "Security";
-        if (type == services.intValue())
-            return "Services";
-        if (type == vt.intValue())
-            return "VT";
-        if (type == communication.intValue())
-            return "Communication";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

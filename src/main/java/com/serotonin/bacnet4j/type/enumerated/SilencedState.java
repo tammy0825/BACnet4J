@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,9 +41,34 @@ public class SilencedState extends Enumerated {
     public static final SilencedState visibleSilenced = new SilencedState(2);
     public static final SilencedState allSilenced = new SilencedState(3);
 
-    public static final SilencedState[] ALL = { unsilenced, audibleSilenced, visibleSilenced, allSilenced, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public SilencedState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static SilencedState forId(final int id) {
+        SilencedState e = (SilencedState) idMap.get(id);
+        if (e == null)
+            e = new SilencedState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static SilencedState forName(final String name) {
+        return (SilencedState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private SilencedState(final int value) {
         super(value);
     }
 
@@ -49,15 +78,6 @@ public class SilencedState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unsilenced.intValue())
-            return "unsilenced";
-        if (type == audibleSilenced.intValue())
-            return "audibleSilenced";
-        if (type == visibleSilenced.intValue())
-            return "visibleSilenced";
-        if (type == allSilenced.intValue())
-            return "allSilenced";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

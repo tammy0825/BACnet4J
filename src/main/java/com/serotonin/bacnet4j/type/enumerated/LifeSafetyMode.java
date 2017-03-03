@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -48,14 +52,43 @@ public class LifeSafetyMode extends Enumerated {
     public static final LifeSafetyMode automaticReleaseDisabled = new LifeSafetyMode(13);
     public static final LifeSafetyMode defaultMode = new LifeSafetyMode(14);
 
-    public static final LifeSafetyMode[] ALL = { off, on, test, manned, unmanned, armed, disarmed, prearmed, slow, fast,
-            disconnected, enabled, disabled, automaticReleaseDisabled, defaultMode, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LifeSafetyMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LifeSafetyMode forId(final int id) {
+        LifeSafetyMode e = (LifeSafetyMode) idMap.get(id);
+        if (e == null)
+            e = new LifeSafetyMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LifeSafetyMode forName(final String name) {
+        return (LifeSafetyMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LifeSafetyMode(final int value) {
         super(value);
     }
 
     public LifeSafetyMode(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

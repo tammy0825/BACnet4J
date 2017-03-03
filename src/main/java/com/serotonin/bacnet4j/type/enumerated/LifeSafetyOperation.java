@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -43,14 +47,43 @@ public class LifeSafetyOperation extends Enumerated {
     public static final LifeSafetyOperation unsilenceAudible = new LifeSafetyOperation(8);
     public static final LifeSafetyOperation unsilenceVisual = new LifeSafetyOperation(9);
 
-    public static final LifeSafetyOperation[] ALL = { none, silence, silenceAudible, silenceVisual, reset, resetAlarm,
-            resetFault, unsilence, unsilenceAudible, unsilenceVisual, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LifeSafetyOperation(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LifeSafetyOperation forId(final int id) {
+        LifeSafetyOperation e = (LifeSafetyOperation) idMap.get(id);
+        if (e == null)
+            e = new LifeSafetyOperation(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LifeSafetyOperation forName(final String name) {
+        return (LifeSafetyOperation) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LifeSafetyOperation(final int value) {
         super(value);
     }
 
     public LifeSafetyOperation(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

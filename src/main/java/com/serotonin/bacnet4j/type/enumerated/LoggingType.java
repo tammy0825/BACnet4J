@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,13 +40,43 @@ public class LoggingType extends Enumerated {
     public static final LoggingType cov = new LoggingType(1);
     public static final LoggingType triggered = new LoggingType(2);
 
-    public static final LoggingType[] ALL = { polled, cov, triggered, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LoggingType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LoggingType forId(final int id) {
+        LoggingType e = (LoggingType) idMap.get(id);
+        if (e == null)
+            e = new LoggingType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LoggingType forName(final String name) {
+        return (LoggingType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LoggingType(final int value) {
         super(value);
     }
 
     public LoggingType(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

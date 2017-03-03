@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,9 +41,34 @@ public class WriteStatus extends Enumerated {
     public static final WriteStatus successful = new WriteStatus(2);
     public static final WriteStatus failed = new WriteStatus(3);
 
-    public static final WriteStatus[] ALL = { idle, inProgress, successful, failed, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public WriteStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static WriteStatus forId(final int id) {
+        WriteStatus e = (WriteStatus) idMap.get(id);
+        if (e == null)
+            e = new WriteStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static WriteStatus forName(final String name) {
+        return (WriteStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private WriteStatus(final int value) {
         super(value);
     }
 
@@ -49,15 +78,6 @@ public class WriteStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == idle.intValue())
-            return "idle";
-        if (type == inProgress.intValue())
-            return "inProgress";
-        if (type == successful.intValue())
-            return "successful";
-        if (type == failed.intValue())
-            return "failed";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

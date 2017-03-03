@@ -17,7 +17,7 @@ public class CachePoliciesTest {
         policies.putDevicePolicy(1234, RemoteEntityCachePolicy.EXPIRE_1_DAY);
 
         assertEquals(RemoteEntityCachePolicy.EXPIRE_1_DAY, policies.getDevicePolicy(1234));
-        assertEquals(RemoteEntityCachePolicy.NEVER_EXPIRE, policies.getDevicePolicy(1235));
+        assertEquals(RemoteEntityCachePolicy.EXPIRE_15_MINUTES, policies.getDevicePolicy(1235));
     }
 
     @Test
@@ -47,8 +47,8 @@ public class CachePoliciesTest {
         final ObjectIdentifier oid2 = new ObjectIdentifier(2346, 1);
 
         // Use property ids that would not normally be found.
-        final PropertyIdentifier pid = new PropertyIdentifier(3456);
-        final PropertyIdentifier pid2 = new PropertyIdentifier(3457);
+        final PropertyIdentifier pid = PropertyIdentifier.forId(3456);
+        final PropertyIdentifier pid2 = PropertyIdentifier.forId(3457);
 
         final RemoteEntityCachePolicy policy1 = new RemoteEntityCachePolicy.TimedExpiry(Duration.ofDays(2));
         final RemoteEntityCachePolicy policy2 = new RemoteEntityCachePolicy.TimedExpiry(Duration.ofDays(3));

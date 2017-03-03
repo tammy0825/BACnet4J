@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,9 +44,34 @@ public class SecurityPolicy extends Enumerated {
     public static final SecurityPolicy signedTrusted = new SecurityPolicy(2);
     public static final SecurityPolicy encryptedTrusted = new SecurityPolicy(3);
 
-    public static final SecurityPolicy[] ALL = { plainNonTrusted, plainTrusted, signedTrusted, encryptedTrusted, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public SecurityPolicy(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static SecurityPolicy forId(final int id) {
+        SecurityPolicy e = (SecurityPolicy) idMap.get(id);
+        if (e == null)
+            e = new SecurityPolicy(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static SecurityPolicy forName(final String name) {
+        return (SecurityPolicy) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private SecurityPolicy(final int value) {
         super(value);
     }
 
@@ -52,15 +81,6 @@ public class SecurityPolicy extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == plainNonTrusted.intValue())
-            return "plainNonTrusted";
-        if (type == plainTrusted.intValue())
-            return "plainTrusted";
-        if (type == signedTrusted.intValue())
-            return "signedTrusted";
-        if (type == encryptedTrusted.intValue())
-            return "encryptedTrusted";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

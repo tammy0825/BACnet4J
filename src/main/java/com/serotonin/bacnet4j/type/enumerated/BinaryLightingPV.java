@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,9 +43,34 @@ public class BinaryLightingPV extends Enumerated {
     public static final BinaryLightingPV warnRelinquish = new BinaryLightingPV(4);
     public static final BinaryLightingPV stop = new BinaryLightingPV(5);
 
-    public static final BinaryLightingPV[] ALL = { off, on, warn, warnOff, warnRelinquish, stop };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public BinaryLightingPV(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static BinaryLightingPV forId(final int id) {
+        BinaryLightingPV e = (BinaryLightingPV) idMap.get(id);
+        if (e == null)
+            e = new BinaryLightingPV(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static BinaryLightingPV forName(final String name) {
+        return (BinaryLightingPV) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private BinaryLightingPV(final int value) {
         super(value);
     }
 
@@ -51,19 +80,6 @@ public class BinaryLightingPV extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == off.intValue())
-            return "off";
-        if (type == on.intValue())
-            return "on";
-        if (type == warn.intValue())
-            return "warn";
-        if (type == warnOff.intValue())
-            return "warnOff";
-        if (type == warnRelinquish.intValue())
-            return "warnRelinquish";
-        if (type == stop.intValue())
-            return "stop";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -58,12 +62,34 @@ public class AuthenticationFactorType extends Enumerated {
     public static final AuthenticationFactorType cbeffC = new AuthenticationFactorType(23);
     public static final AuthenticationFactorType userPassword = new AuthenticationFactorType(24);
 
-    public static final AuthenticationFactorType[] ALL = { undefined, error, custom, simpleNumber16, simpleNumber32,
-            simpleNumber56, simpleAlphaNumeric, abaTrack2, wiegand26, wiegand37, wiegand37Facility, facility16Card32,
-            facility32Card32, fascN, fascNBcd, fascNLarge, fascNLargeBcd, gsa75, chuid, chuidFull, guid, cbeffA, cbeffB,
-            cbeffC, userPassword, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AuthenticationFactorType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AuthenticationFactorType forId(final int id) {
+        AuthenticationFactorType e = (AuthenticationFactorType) idMap.get(id);
+        if (e == null)
+            e = new AuthenticationFactorType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AuthenticationFactorType forName(final String name) {
+        return (AuthenticationFactorType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AuthenticationFactorType(final int value) {
         super(value);
     }
 
@@ -73,57 +99,6 @@ public class AuthenticationFactorType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == undefined.intValue())
-            return "undefined";
-        if (type == error.intValue())
-            return "error";
-        if (type == custom.intValue())
-            return "custom";
-        if (type == simpleNumber16.intValue())
-            return "simpleNumber16";
-        if (type == simpleNumber32.intValue())
-            return "simpleNumber32";
-        if (type == simpleNumber56.intValue())
-            return "simpleNumber56";
-        if (type == simpleAlphaNumeric.intValue())
-            return "simpleAlphaNumeric";
-        if (type == abaTrack2.intValue())
-            return "abaTrack2";
-        if (type == wiegand26.intValue())
-            return "wiegand26";
-        if (type == wiegand37.intValue())
-            return "wiegand37";
-        if (type == wiegand37Facility.intValue())
-            return "wiegand37Facility";
-        if (type == facility16Card32.intValue())
-            return "facility16Card32";
-        if (type == facility32Card32.intValue())
-            return "facility32Card32";
-        if (type == fascN.intValue())
-            return "fascN";
-        if (type == fascNBcd.intValue())
-            return "fascNBcd";
-        if (type == fascNLarge.intValue())
-            return "fascNLarge";
-        if (type == fascNLargeBcd.intValue())
-            return "fascNLargeBcd";
-        if (type == gsa75.intValue())
-            return "gsa75";
-        if (type == chuid.intValue())
-            return "chuid";
-        if (type == chuidFull.intValue())
-            return "chuidFull";
-        if (type == guid.intValue())
-            return "guid";
-        if (type == cbeffA.intValue())
-            return "cbeffA";
-        if (type == cbeffB.intValue())
-            return "cbeffB";
-        if (type == cbeffC.intValue())
-            return "cbeffC";
-        if (type == userPassword.intValue())
-            return "userPassword";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

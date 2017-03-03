@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,10 +44,34 @@ public class AuthenticationStatus extends Enumerated {
     public static final AuthenticationStatus waitingForVerification = new AuthenticationStatus(5);
     public static final AuthenticationStatus inProgress = new AuthenticationStatus(6);
 
-    public static final AuthenticationStatus[] ALL = { notReady, ready, disabled, waitingForAuthenticationFactor,
-            waitingForAccompaniment, waitingForVerification, inProgress, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AuthenticationStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AuthenticationStatus forId(final int id) {
+        AuthenticationStatus e = (AuthenticationStatus) idMap.get(id);
+        if (e == null)
+            e = new AuthenticationStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AuthenticationStatus forName(final String name) {
+        return (AuthenticationStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AuthenticationStatus(final int value) {
         super(value);
     }
 
@@ -53,21 +81,6 @@ public class AuthenticationStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == notReady.intValue())
-            return "notReady";
-        if (type == ready.intValue())
-            return "ready";
-        if (type == disabled.intValue())
-            return "disabled";
-        if (type == waitingForAuthenticationFactor.intValue())
-            return "waitingForAuthenticationFactor";
-        if (type == waitingForAccompaniment.intValue())
-            return "waitingForAccompaniment";
-        if (type == waitingForVerification.intValue())
-            return "waitingForVerification";
-        if (type == inProgress.intValue())
-            return "inProgress";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

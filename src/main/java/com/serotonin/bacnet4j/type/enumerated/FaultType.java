@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,10 +45,34 @@ public class FaultType extends Enumerated {
     public static final FaultType faultOutOfRange = new FaultType(6);
     public static final FaultType faultListed = new FaultType(7);
 
-    public static final FaultType[] ALL = { none, faultCharacterString, faultExtended, faultLifeSafety, faultState,
-            faultStatusFlags, faultOutOfRange, faultListed, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public FaultType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static FaultType forId(final int id) {
+        FaultType e = (FaultType) idMap.get(id);
+        if (e == null)
+            e = new FaultType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static FaultType forName(final String name) {
+        return (FaultType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private FaultType(final int value) {
         super(value);
     }
 
@@ -54,23 +82,6 @@ public class FaultType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == faultCharacterString.intValue())
-            return "faultCharacterString";
-        if (type == faultExtended.intValue())
-            return "faultExtended";
-        if (type == faultLifeSafety.intValue())
-            return "faultLifeSafety";
-        if (type == faultState.intValue())
-            return "faultState";
-        if (type == faultStatusFlags.intValue())
-            return "faultStatusFlags";
-        if (type == faultOutOfRange.intValue())
-            return "faultOutOfRange";
-        if (type == faultListed.intValue())
-            return "faultListed";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

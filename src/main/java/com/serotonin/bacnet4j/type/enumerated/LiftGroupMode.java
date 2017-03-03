@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,9 +44,34 @@ public class LiftGroupMode extends Enumerated {
     public static final LiftGroupMode emergencyPower = new LiftGroupMode(5);
     public static final LiftGroupMode upPeak = new LiftGroupMode(6);
 
-    public static final LiftGroupMode[] ALL = { unknown, normal, downPeak, twoWay, fourWay, emergencyPower, upPeak, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftGroupMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftGroupMode forId(final int id) {
+        LiftGroupMode e = (LiftGroupMode) idMap.get(id);
+        if (e == null)
+            e = new LiftGroupMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftGroupMode forName(final String name) {
+        return (LiftGroupMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftGroupMode(final int value) {
         super(value);
     }
 
@@ -52,21 +81,6 @@ public class LiftGroupMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == normal.intValue())
-            return "normal";
-        if (type == downPeak.intValue())
-            return "downPeak";
-        if (type == twoWay.intValue())
-            return "twoWay";
-        if (type == fourWay.intValue())
-            return "fourWay";
-        if (type == emergencyPower.intValue())
-            return "emergencyPower";
-        if (type == upPeak.intValue())
-            return "upPeak";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

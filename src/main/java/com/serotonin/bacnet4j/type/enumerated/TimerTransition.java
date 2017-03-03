@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,10 +45,34 @@ public class TimerTransition extends Enumerated {
     public static final TimerTransition expiredToIdle = new TimerTransition(6);
     public static final TimerTransition expiredToRunning = new TimerTransition(7);
 
-    public static final TimerTransition[] ALL = { none, idleToRunning, runningToIdle, runningToRunning,
-            runningToExpired, forcedToExpire, expiredToIdle, expiredToRunning, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public TimerTransition(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static TimerTransition forId(final int id) {
+        TimerTransition e = (TimerTransition) idMap.get(id);
+        if (e == null)
+            e = new TimerTransition(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static TimerTransition forName(final String name) {
+        return (TimerTransition) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private TimerTransition(final int value) {
         super(value);
     }
 
@@ -54,23 +82,6 @@ public class TimerTransition extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == idleToRunning.intValue())
-            return "idleToRunning";
-        if (type == runningToIdle.intValue())
-            return "runningToIdle";
-        if (type == runningToRunning.intValue())
-            return "runningToRunning";
-        if (type == runningToExpired.intValue())
-            return "runningToExpired";
-        if (type == forcedToExpire.intValue())
-            return "forcedToExpire";
-        if (type == expiredToIdle.intValue())
-            return "expiredToIdle";
-        if (type == expiredToRunning.intValue())
-            return "expiredToRunning";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

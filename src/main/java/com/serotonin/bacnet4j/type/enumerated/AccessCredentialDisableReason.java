@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -43,11 +47,34 @@ public class AccessCredentialDisableReason extends Enumerated {
     public static final AccessCredentialDisableReason disabledInactivity = new AccessCredentialDisableReason(8);
     public static final AccessCredentialDisableReason disabledManual = new AccessCredentialDisableReason(9);
 
-    public static final AccessCredentialDisableReason[] ALL = { disabled, disabledNeedsProvisioning, disabledUnassigned,
-            disabledNotYetActive, disabledExpired, disabledLockout, disabledMaxDays, disabledMaxUses,
-            disabledInactivity, disabledManual, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessCredentialDisableReason(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessCredentialDisableReason forId(final int id) {
+        AccessCredentialDisableReason e = (AccessCredentialDisableReason) idMap.get(id);
+        if (e == null)
+            e = new AccessCredentialDisableReason(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessCredentialDisableReason forName(final String name) {
+        return (AccessCredentialDisableReason) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessCredentialDisableReason(final int value) {
         super(value);
     }
 
@@ -57,27 +84,6 @@ public class AccessCredentialDisableReason extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == disabled.intValue())
-            return "disabled";
-        if (type == disabledNeedsProvisioning.intValue())
-            return "disabledNeedsProvisioning";
-        if (type == disabledUnassigned.intValue())
-            return "disabledUnassigned";
-        if (type == disabledNotYetActive.intValue())
-            return "disabledNotYetActive";
-        if (type == disabledExpired.intValue())
-            return "disabledExpired";
-        if (type == disabledLockout.intValue())
-            return "disabledLockout";
-        if (type == disabledMaxDays.intValue())
-            return "disabledMaxDays";
-        if (type == disabledMaxUses.intValue())
-            return "disabledMaxUses";
-        if (type == disabledInactivity.intValue())
-            return "disabledInactivity";
-        if (type == disabledManual.intValue())
-            return "disabledManual";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

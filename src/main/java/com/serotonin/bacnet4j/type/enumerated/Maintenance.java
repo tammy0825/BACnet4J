@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -37,13 +41,43 @@ public class Maintenance extends Enumerated {
     public static final Maintenance needServiceOperational = new Maintenance(2);
     public static final Maintenance needServiceInoperative = new Maintenance(3);
 
-    public static final Maintenance[] ALL = { none, periodicTest, needServiceOperational, needServiceInoperative, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public Maintenance(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Maintenance forId(final int id) {
+        Maintenance e = (Maintenance) idMap.get(id);
+        if (e == null)
+            e = new Maintenance(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Maintenance forName(final String name) {
+        return (Maintenance) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Maintenance(final int value) {
         super(value);
     }
 
     public Maintenance(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

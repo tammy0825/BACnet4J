@@ -116,7 +116,7 @@ public class Abort extends AckAPDU {
     @Override
     public String toString() {
         return "Abort(server=" + server + ", originalInvokeId=" + originalInvokeId + ", abortReason="
-                + new AbortReason(abortReason) + ")";
+                + AbortReason.nameForId(abortReason) + ")";
     }
 
     @Override

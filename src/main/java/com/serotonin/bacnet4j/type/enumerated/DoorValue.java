@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,9 +44,34 @@ public class DoorValue extends Enumerated {
     public static final DoorValue pulseUnlock = new DoorValue(2);
     public static final DoorValue extendedPulseUnlock = new DoorValue(3);
 
-    public static final DoorValue[] ALL = { lock, unlock, pulseUnlock, extendedPulseUnlock, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public DoorValue(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static DoorValue forId(final int id) {
+        DoorValue e = (DoorValue) idMap.get(id);
+        if (e == null)
+            e = new DoorValue(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static DoorValue forName(final String name) {
+        return (DoorValue) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private DoorValue(final int value) {
         super(value);
     }
 
@@ -52,15 +81,6 @@ public class DoorValue extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == lock.intValue())
-            return "lock";
-        if (type == unlock.intValue())
-            return "unlock";
-        if (type == pulseUnlock.intValue())
-            return "pulseUnlock";
-        if (type == extendedPulseUnlock.intValue())
-            return "extendedPulseUnlock";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

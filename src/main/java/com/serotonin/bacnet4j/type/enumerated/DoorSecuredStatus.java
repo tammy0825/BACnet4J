@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,9 +43,34 @@ public class DoorSecuredStatus extends Enumerated {
     public static final DoorSecuredStatus unsecured = new DoorSecuredStatus(1);
     public static final DoorSecuredStatus unknown = new DoorSecuredStatus(2);
 
-    public static final DoorSecuredStatus[] ALL = { secured, unsecured, unknown, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public DoorSecuredStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static DoorSecuredStatus forId(final int id) {
+        DoorSecuredStatus e = (DoorSecuredStatus) idMap.get(id);
+        if (e == null)
+            e = new DoorSecuredStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static DoorSecuredStatus forName(final String name) {
+        return (DoorSecuredStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private DoorSecuredStatus(final int value) {
         super(value);
     }
 
@@ -51,13 +80,6 @@ public class DoorSecuredStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == secured.intValue())
-            return "secured";
-        if (type == unsecured.intValue())
-            return "unsecured";
-        if (type == unknown.intValue())
-            return "unknown";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

@@ -158,8 +158,7 @@ public class RemoteDevice implements Serializable {
         if (value instanceof ErrorClassAndCode) {
             final ErrorClassAndCode e = (ErrorClassAndCode) value;
             if (ErrorClass.object.equals(e.getErrorClass())) {
-                // Don't create objects if the error is about the object. In fact, delete the cached object.
-                remoteObjectCache.removeEntity(oid);
+                // Don't create objects if the error is about the object.
                 return;
             }
         }

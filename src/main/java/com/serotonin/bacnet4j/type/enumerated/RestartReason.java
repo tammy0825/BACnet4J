@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -42,14 +46,43 @@ public class RestartReason extends Enumerated {
     public static final RestartReason suspended = new RestartReason(7);
     public static final RestartReason activateChanges = new RestartReason(8);
 
-    public static final RestartReason[] ALL = { unknown, coldstart, warmstart, detectedPowerLost, detectedPoweredOff,
-            hardwareWatchdog, softwareWatchdog, suspended, activateChanges, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public RestartReason(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static RestartReason forId(final int id) {
+        RestartReason e = (RestartReason) idMap.get(id);
+        if (e == null)
+            e = new RestartReason(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static RestartReason forName(final String name) {
+        return (RestartReason) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private RestartReason(final int value) {
         super(value);
     }
 
     public RestartReason(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

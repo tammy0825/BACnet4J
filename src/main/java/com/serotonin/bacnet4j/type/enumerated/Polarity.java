@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -35,9 +39,34 @@ public class Polarity extends Enumerated {
     public static final Polarity normal = new Polarity(0);
     public static final Polarity reverse = new Polarity(1);
 
-    public static final Polarity[] ALL = { normal, reverse, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public Polarity(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Polarity forId(final int id) {
+        Polarity e = (Polarity) idMap.get(id);
+        if (e == null)
+            e = new Polarity(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Polarity forName(final String name) {
+        return (Polarity) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Polarity(final int value) {
         super(value);
     }
 
@@ -47,11 +76,6 @@ public class Polarity extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == normal.intValue())
-            return "normal";
-        if (type == reverse.intValue())
-            return "reverse";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

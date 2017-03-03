@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -58,11 +62,34 @@ public class NodeType extends Enumerated {
     public static final NodeType room = new NodeType(20);
     public static final NodeType zone = new NodeType(21);
 
-    public static final NodeType[] ALL = { unknown, system, network, device, organizational, area, equipment, point,
-            collection, property, functional, other, subsystem, building, floor, section, module, tree, member,
-            protocol, room, zone, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public NodeType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static NodeType forId(final int id) {
+        NodeType e = (NodeType) idMap.get(id);
+        if (e == null)
+            e = new NodeType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static NodeType forName(final String name) {
+        return (NodeType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private NodeType(final int value) {
         super(value);
     }
 
@@ -72,51 +99,6 @@ public class NodeType extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == system.intValue())
-            return "system";
-        if (type == network.intValue())
-            return "network";
-        if (type == device.intValue())
-            return "device";
-        if (type == organizational.intValue())
-            return "organizational";
-        if (type == area.intValue())
-            return "area";
-        if (type == equipment.intValue())
-            return "equipment";
-        if (type == point.intValue())
-            return "point";
-        if (type == collection.intValue())
-            return "collection";
-        if (type == property.intValue())
-            return "property";
-        if (type == functional.intValue())
-            return "functional";
-        if (type == other.intValue())
-            return "other";
-        if (type == subsystem.intValue())
-            return "subsystem";
-        if (type == building.intValue())
-            return "building";
-        if (type == floor.intValue())
-            return "floor";
-        if (type == section.intValue())
-            return "section";
-        if (type == module.intValue())
-            return "module";
-        if (type == tree.intValue())
-            return "tree";
-        if (type == member.intValue())
-            return "member";
-        if (type == protocol.intValue())
-            return "protocol";
-        if (type == room.intValue())
-            return "room";
-        if (type == zone.intValue())
-            return "zone";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

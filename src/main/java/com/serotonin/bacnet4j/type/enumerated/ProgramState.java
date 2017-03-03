@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,13 +43,43 @@ public class ProgramState extends Enumerated {
     public static final ProgramState halted = new ProgramState(4);
     public static final ProgramState unloading = new ProgramState(5);
 
-    public static final ProgramState[] ALL = { idle, loading, running, waiting, halted, unloading, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public ProgramState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static ProgramState forId(final int id) {
+        ProgramState e = (ProgramState) idMap.get(id);
+        if (e == null)
+            e = new ProgramState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static ProgramState forName(final String name) {
+        return (ProgramState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private ProgramState(final int value) {
         super(value);
     }
 
     public ProgramState(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

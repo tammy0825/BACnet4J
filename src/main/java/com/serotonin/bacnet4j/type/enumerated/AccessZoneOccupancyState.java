@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -40,10 +44,34 @@ public class AccessZoneOccupancyState extends Enumerated {
     public static final AccessZoneOccupancyState disabled = new AccessZoneOccupancyState(5);
     public static final AccessZoneOccupancyState notSupported = new AccessZoneOccupancyState(6);
 
-    public static final AccessZoneOccupancyState[] ALL = { normal, belowLowerLimit, atLowerLimit, atUpperLimit,
-            aboveUpperLimit, disabled, notSupported, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessZoneOccupancyState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessZoneOccupancyState forId(final int id) {
+        AccessZoneOccupancyState e = (AccessZoneOccupancyState) idMap.get(id);
+        if (e == null)
+            e = new AccessZoneOccupancyState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessZoneOccupancyState forName(final String name) {
+        return (AccessZoneOccupancyState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessZoneOccupancyState(final int value) {
         super(value);
     }
 
@@ -53,21 +81,6 @@ public class AccessZoneOccupancyState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == normal.intValue())
-            return "normal";
-        if (type == belowLowerLimit.intValue())
-            return "belowLowerLimit";
-        if (type == atLowerLimit.intValue())
-            return "atLowerLimit";
-        if (type == atUpperLimit.intValue())
-            return "atUpperLimit";
-        if (type == aboveUpperLimit.intValue())
-            return "aboveUpperLimit";
-        if (type == disabled.intValue())
-            return "disabled";
-        if (type == notSupported.intValue())
-            return "notSupported";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

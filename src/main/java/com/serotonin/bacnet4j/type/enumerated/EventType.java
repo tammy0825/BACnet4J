@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.eventParameter.ChangeOfDiscreteValue;
 import com.serotonin.bacnet4j.type.eventParameter.ChangeOfTimer;
 import com.serotonin.bacnet4j.type.notificationParameters.AccessEvent;
@@ -72,16 +76,43 @@ public class EventType extends Enumerated {
     public static final EventType changeOfDiscreteValue = new EventType(ChangeOfDiscreteValue.TYPE_ID);
     public static final EventType changeOfTimer = new EventType(ChangeOfTimer.TYPE_ID);
 
-    public static final EventType[] ALL = { changeOfBitstring, changeOfState, changeOfValue, commandFailure,
-            floatingLimit, outOfRange, changeOfLifeSafety, extended, bufferReady, unsignedRange, accessEvent,
-            doubleOutOfRange, signedOutOfRange, unsignedOutOfRange, changeOfCharacterstring, changeOfStatusFlags,
-            changeOfReliability, none, changeOfDiscreteValue, changeOfTimer, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public EventType(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static EventType forId(final int id) {
+        EventType e = (EventType) idMap.get(id);
+        if (e == null)
+            e = new EventType(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static EventType forName(final String name) {
+        return (EventType) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private EventType(final int value) {
         super(value);
     }
 
     public EventType(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

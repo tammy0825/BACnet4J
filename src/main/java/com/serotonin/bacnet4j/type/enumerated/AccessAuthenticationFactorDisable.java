@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,10 +43,34 @@ public class AccessAuthenticationFactorDisable extends Enumerated {
     public static final AccessAuthenticationFactorDisable disabledDamaged = new AccessAuthenticationFactorDisable(4);
     public static final AccessAuthenticationFactorDisable disabledDestroyed = new AccessAuthenticationFactorDisable(5);
 
-    public static final AccessAuthenticationFactorDisable[] ALL = { none, disabled, disabledLost, disabledStolen,
-            disabledDamaged, disabledDestroyed };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AccessAuthenticationFactorDisable(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AccessAuthenticationFactorDisable forId(final int id) {
+        AccessAuthenticationFactorDisable e = (AccessAuthenticationFactorDisable) idMap.get(id);
+        if (e == null)
+            e = new AccessAuthenticationFactorDisable(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AccessAuthenticationFactorDisable forName(final String name) {
+        return (AccessAuthenticationFactorDisable) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AccessAuthenticationFactorDisable(final int value) {
         super(value);
     }
 
@@ -52,19 +80,6 @@ public class AccessAuthenticationFactorDisable extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == none.intValue())
-            return "none";
-        if (type == disabled.intValue())
-            return "disabled";
-        if (type == disabledLost.intValue())
-            return "disabledLost";
-        if (type == disabledStolen.intValue())
-            return "disabledStolen";
-        if (type == disabledDamaged.intValue())
-            return "disabledDamaged";
-        if (type == disabledDestroyed.intValue())
-            return "disabledDestroyed";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

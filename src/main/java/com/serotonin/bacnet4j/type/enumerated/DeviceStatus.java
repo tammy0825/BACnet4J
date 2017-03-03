@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,10 +43,34 @@ public class DeviceStatus extends Enumerated {
     public static final DeviceStatus nonOperational = new DeviceStatus(4);
     public static final DeviceStatus backupInProgress = new DeviceStatus(5);
 
-    public static final DeviceStatus[] ALL = { operational, operationalReadOnly, downloadRequired, downloadInProgress,
-            nonOperational, backupInProgress, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public DeviceStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static DeviceStatus forId(final int id) {
+        DeviceStatus e = (DeviceStatus) idMap.get(id);
+        if (e == null)
+            e = new DeviceStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static DeviceStatus forName(final String name) {
+        return (DeviceStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private DeviceStatus(final int value) {
         super(value);
     }
 
@@ -52,19 +80,6 @@ public class DeviceStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == operational.intValue())
-            return "operational";
-        if (type == operationalReadOnly.intValue())
-            return "operationalReadOnly";
-        if (type == downloadRequired.intValue())
-            return "downloadRequired";
-        if (type == downloadInProgress.intValue())
-            return "downloadInProgress";
-        if (type == nonOperational.intValue())
-            return "nonOperational";
-        if (type == backupInProgress.intValue())
-            return "backupInProgress";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

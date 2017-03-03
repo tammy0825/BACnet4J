@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,9 +43,34 @@ public class EscalatorMode extends Enumerated {
     public static final EscalatorMode inspection = new EscalatorMode(4);
     public static final EscalatorMode outOfService = new EscalatorMode(5);
 
-    public static final EscalatorMode[] ALL = { unknown, stop, up, down, inspection, outOfService, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public EscalatorMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static EscalatorMode forId(final int id) {
+        EscalatorMode e = (EscalatorMode) idMap.get(id);
+        if (e == null)
+            e = new EscalatorMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static EscalatorMode forName(final String name) {
+        return (EscalatorMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private EscalatorMode(final int value) {
         super(value);
     }
 
@@ -51,19 +80,6 @@ public class EscalatorMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == stop.intValue())
-            return "stop";
-        if (type == up.intValue())
-            return "up";
-        if (type == down.intValue())
-            return "down";
-        if (type == inspection.intValue())
-            return "inspection";
-        if (type == outOfService.intValue())
-            return "outOfService";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

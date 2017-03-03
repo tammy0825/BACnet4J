@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -43,10 +47,34 @@ public class LiftCarDriveStatus extends Enumerated {
     public static final LiftCarDriveStatus threeFloorJump = new LiftCarDriveStatus(8);
     public static final LiftCarDriveStatus multiFloorJump = new LiftCarDriveStatus(9);
 
-    public static final LiftCarDriveStatus[] ALL = { unknown, stationary, braking, accelerate, decelerate, ratedSpeed,
-            singleFloorJump, twoFloorJump, threeFloorJump, multiFloorJump, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftCarDriveStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftCarDriveStatus forId(final int id) {
+        LiftCarDriveStatus e = (LiftCarDriveStatus) idMap.get(id);
+        if (e == null)
+            e = new LiftCarDriveStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftCarDriveStatus forName(final String name) {
+        return (LiftCarDriveStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftCarDriveStatus(final int value) {
         super(value);
     }
 
@@ -56,27 +84,6 @@ public class LiftCarDriveStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == stationary.intValue())
-            return "stationary";
-        if (type == braking.intValue())
-            return "braking";
-        if (type == accelerate.intValue())
-            return "accelerate";
-        if (type == decelerate.intValue())
-            return "decelerate";
-        if (type == ratedSpeed.intValue())
-            return "ratedSpeed";
-        if (type == singleFloorJump.intValue())
-            return "singleFloorJump";
-        if (type == twoFloorJump.intValue())
-            return "twoFloorJump";
-        if (type == threeFloorJump.intValue())
-            return "threeFloorJump";
-        if (type == multiFloorJump.intValue())
-            return "multiFloorJump";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

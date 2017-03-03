@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -63,13 +67,34 @@ public class Relationship extends Enumerated {
     public static final Relationship suppliesSteam = new Relationship(28);
     public static final Relationship receivesSteam = new Relationship(29);
 
-    public static final Relationship[] ALL = { unknown, _default, contains, containedBy, uses, usedBy, commands,
-            commandedBy, adjusts, adjustedBy, ingress, egress, suppliesAir, receivesAir, suppliesHotAir, receivesHotAir,
-            suppliesCoolAir, receivesCoolAir, suppliesPower, receivesPower, suppliesGas, receivesGas, suppliesWater,
-            receivesWater, suppliesHotWater, receivesHotWater, suppliesCoolWater, receivesCoolWater, suppliesSteam,
-            receivesSteam, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public Relationship(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Relationship forId(final int id) {
+        Relationship e = (Relationship) idMap.get(id);
+        if (e == null)
+            e = new Relationship(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Relationship forName(final String name) {
+        return (Relationship) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Relationship(final int value) {
         super(value);
     }
 
@@ -79,67 +104,6 @@ public class Relationship extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == _default.intValue())
-            return "_default";
-        if (type == contains.intValue())
-            return "contains";
-        if (type == containedBy.intValue())
-            return "containedBy";
-        if (type == uses.intValue())
-            return "uses";
-        if (type == usedBy.intValue())
-            return "usedBy";
-        if (type == commands.intValue())
-            return "commands";
-        if (type == commandedBy.intValue())
-            return "commandedBy";
-        if (type == adjusts.intValue())
-            return "adjusts";
-        if (type == adjustedBy.intValue())
-            return "adjustedBy";
-        if (type == ingress.intValue())
-            return "ingress";
-        if (type == egress.intValue())
-            return "egress";
-        if (type == suppliesAir.intValue())
-            return "suppliesAir";
-        if (type == receivesAir.intValue())
-            return "receivesAir";
-        if (type == suppliesHotAir.intValue())
-            return "suppliesHotAir";
-        if (type == receivesHotAir.intValue())
-            return "receivesHotAir";
-        if (type == suppliesCoolAir.intValue())
-            return "suppliesCoolAir";
-        if (type == receivesCoolAir.intValue())
-            return "receivesCoolAir";
-        if (type == suppliesPower.intValue())
-            return "suppliesPower";
-        if (type == receivesPower.intValue())
-            return "receivesPower";
-        if (type == suppliesGas.intValue())
-            return "suppliesGas";
-        if (type == receivesGas.intValue())
-            return "receivesGas";
-        if (type == suppliesWater.intValue())
-            return "suppliesWater";
-        if (type == receivesWater.intValue())
-            return "receivesWater";
-        if (type == suppliesHotWater.intValue())
-            return "suppliesHotWater";
-        if (type == receivesHotWater.intValue())
-            return "receivesHotWater";
-        if (type == suppliesCoolWater.intValue())
-            return "suppliesCoolWater";
-        if (type == receivesCoolWater.intValue())
-            return "receivesCoolWater";
-        if (type == suppliesSteam.intValue())
-            return "suppliesSteam";
-        if (type == receivesSteam.intValue())
-            return "receivesSteam";
-        return "Unknown (" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

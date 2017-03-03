@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -57,13 +61,34 @@ public class Reliability extends Enumerated {
     public static final Reliability faultsListed = new Reliability(23);
     public static final Reliability referencedObjectFault = new Reliability(24);
 
-    public static final Reliability[] ALL = { noFaultDetected, noSensor, overRange, underRange, openLoop, shortedLoop,
-            noOutput, unreliableOther, processError, multiStateFault, configurationError, communicationFailure,
-            memberFault, monitoredObjectFault, tripped, lampFailure, activationFailure, renewDhcpFailure,
-            renewFdRgistrationFailure, restartAutoNegotiationFailure, restartFailure, proprietaryCommandFailure,
-            faultsListed, referencedObjectFault, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public Reliability(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static Reliability forId(final int id) {
+        Reliability e = (Reliability) idMap.get(id);
+        if (e == null)
+            e = new Reliability(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static Reliability forName(final String name) {
+        return (Reliability) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private Reliability(final int value) {
         super(value);
     }
 
@@ -73,55 +98,6 @@ public class Reliability extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == noFaultDetected.intValue())
-            return "noFaultDetected";
-        if (type == noSensor.intValue())
-            return "noSensor";
-        if (type == overRange.intValue())
-            return "overRange";
-        if (type == underRange.intValue())
-            return "underRange";
-        if (type == openLoop.intValue())
-            return "openLoop";
-        if (type == shortedLoop.intValue())
-            return "shortedLoop";
-        if (type == noOutput.intValue())
-            return "noOutput";
-        if (type == unreliableOther.intValue())
-            return "unreliableOther";
-        if (type == processError.intValue())
-            return "processError";
-        if (type == multiStateFault.intValue())
-            return "multiStateFault";
-        if (type == configurationError.intValue())
-            return "configurationError";
-        if (type == communicationFailure.intValue())
-            return "communicationFailure";
-        if (type == memberFault.intValue())
-            return "memberFault";
-        if (type == monitoredObjectFault.intValue())
-            return "monitoredObjectFault";
-        if (type == tripped.intValue())
-            return "tripped";
-        if (type == lampFailure.intValue())
-            return "lampFailure";
-        if (type == activationFailure.intValue())
-            return "activationFailure";
-        if (type == renewDhcpFailure.intValue())
-            return "renewDhcpFailure";
-        if (type == renewFdRgistrationFailure.intValue())
-            return "renewFdRgistrationFailure";
-        if (type == restartAutoNegotiationFailure.intValue())
-            return "restartAutoNegotiationFailure";
-        if (type == restartFailure.intValue())
-            return "restartFailure";
-        if (type == proprietaryCommandFailure.intValue())
-            return "proprietaryCommandFailure";
-        if (type == faultsListed.intValue())
-            return "faultsListed";
-        if (type == referencedObjectFault.intValue())
-            return "referencedObjectFault";
-        return "Unknown (" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

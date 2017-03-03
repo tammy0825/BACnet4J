@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -45,11 +49,34 @@ public class AbortReason extends Enumerated {
     public static final AbortReason tsmTimeout = new AbortReason(10);
     public static final AbortReason apduTooLong = new AbortReason(11);
 
-    public static final AbortReason[] ALL = { other, bufferOverflow, invalidApduInThisState,
-            preemptedByHigherPriorityTask, segmentationNotSupported, securityError, insufficientSecurity,
-            windowSizeOutOfRange, applicationExceededReplyTime, outOfResources, tsmTimeout, apduTooLong };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AbortReason(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AbortReason forId(final int id) {
+        AbortReason e = (AbortReason) idMap.get(id);
+        if (e == null)
+            e = new AbortReason(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AbortReason forName(final String name) {
+        return (AbortReason) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AbortReason(final int value) {
         super(value);
     }
 
@@ -59,31 +86,6 @@ public class AbortReason extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == other.intValue())
-            return "other";
-        if (type == bufferOverflow.intValue())
-            return "bufferOverflow";
-        if (type == invalidApduInThisState.intValue())
-            return "invalidApduInThisState";
-        if (type == preemptedByHigherPriorityTask.intValue())
-            return "preemptedByHigherPriorityTask";
-        if (type == segmentationNotSupported.intValue())
-            return "segmentationNotSupported";
-        if (type == securityError.intValue())
-            return "securityError";
-        if (type == insufficientSecurity.intValue())
-            return "insufficientSecurity";
-        if (type == windowSizeOutOfRange.intValue())
-            return "windowSizeOutOfRange";
-        if (type == applicationExceededReplyTime.intValue())
-            return "applicationExceededReplyTime";
-        if (type == outOfResources.intValue())
-            return "outOfResources";
-        if (type == tsmTimeout.intValue())
-            return "tsmTimeout";
-        if (type == apduTooLong.intValue())
-            return "apduTooLong";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

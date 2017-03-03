@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,9 +45,34 @@ public class LockStatus extends Enumerated {
     public static final LockStatus unused = new LockStatus(3);
     public static final LockStatus unknown = new LockStatus(4);
 
-    public static final LockStatus[] ALL = { locked, unlocked, fault, unused, unknown, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LockStatus(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LockStatus forId(final int id) {
+        LockStatus e = (LockStatus) idMap.get(id);
+        if (e == null)
+            e = new LockStatus(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LockStatus forName(final String name) {
+        return (LockStatus) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LockStatus(final int value) {
         super(value);
     }
 
@@ -53,17 +82,6 @@ public class LockStatus extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == locked.intValue())
-            return "locked";
-        if (type == unlocked.intValue())
-            return "unlocked";
-        if (type == fault.intValue())
-            return "fault";
-        if (type == unused.intValue())
-            return "unused";
-        if (type == unknown.intValue())
-            return "unknown";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -50,12 +54,34 @@ public class LiftFault extends Enumerated {
     public static final LiftFault driveTemperatureExceeded = new LiftFault(15);
     public static final LiftFault loadMeasurementFault = new LiftFault(16);
 
-    public static final LiftFault[] ALL = { controllerFault, driveAndMotorFault, governorAndSafetyGearFault,
-            liftShaftDeviceFault, powerSupplyFault, safetyInterlockFault, doorClosingFault, doorOpeningFault,
-            carStoppedOutsideLandingZone, callButtonStuck, startFailure, controllerSupplyFault, selfTestFailure,
-            runtimeLimitExceeded, positionLost, driveTemperatureExceeded, loadMeasurementFault, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftFault(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftFault forId(final int id) {
+        LiftFault e = (LiftFault) idMap.get(id);
+        if (e == null)
+            e = new LiftFault(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftFault forName(final String name) {
+        return (LiftFault) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftFault(final int value) {
         super(value);
     }
 
@@ -65,41 +91,6 @@ public class LiftFault extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == controllerFault.intValue())
-            return "controllerFault";
-        if (type == driveAndMotorFault.intValue())
-            return "driveAndMotorFault";
-        if (type == governorAndSafetyGearFault.intValue())
-            return "governorAndSafetyGearFault";
-        if (type == liftShaftDeviceFault.intValue())
-            return "liftShaftDeviceFault";
-        if (type == powerSupplyFault.intValue())
-            return "powerSupplyFault";
-        if (type == safetyInterlockFault.intValue())
-            return "safetyInterlockFault";
-        if (type == doorClosingFault.intValue())
-            return "doorClosingFault";
-        if (type == doorOpeningFault.intValue())
-            return "doorOpeningFault";
-        if (type == carStoppedOutsideLandingZone.intValue())
-            return "carStoppedOutsideLandingZone";
-        if (type == callButtonStuck.intValue())
-            return "callButtonStuck";
-        if (type == startFailure.intValue())
-            return "startFailure";
-        if (type == controllerSupplyFault.intValue())
-            return "controllerSupplyFault";
-        if (type == selfTestFailure.intValue())
-            return "selfTestFailure";
-        if (type == runtimeLimitExceeded.intValue())
-            return "runtimeLimitExceeded";
-        if (type == positionLost.intValue())
-            return "positionLost";
-        if (type == driveTemperatureExceeded.intValue())
-            return "driveTemperatureExceeded";
-        if (type == loadMeasurementFault.intValue())
-            return "loadMeasurementFault";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

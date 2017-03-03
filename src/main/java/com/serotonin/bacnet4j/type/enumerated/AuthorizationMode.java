@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -39,10 +43,34 @@ public class AuthorizationMode extends Enumerated {
     public static final AuthorizationMode authorizationDelayed = new AuthorizationMode(4);
     public static final AuthorizationMode none = new AuthorizationMode(5);
 
-    public static final AuthorizationMode[] ALL = { authorize, grantActive, denyAll, verificationRequired,
-            authorizationDelayed, none, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public AuthorizationMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static AuthorizationMode forId(final int id) {
+        AuthorizationMode e = (AuthorizationMode) idMap.get(id);
+        if (e == null)
+            e = new AuthorizationMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static AuthorizationMode forName(final String name) {
+        return (AuthorizationMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private AuthorizationMode(final int value) {
         super(value);
     }
 
@@ -52,19 +80,6 @@ public class AuthorizationMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == authorize.intValue())
-            return "authorize";
-        if (type == grantActive.intValue())
-            return "grantActive";
-        if (type == denyAll.intValue())
-            return "denyAll";
-        if (type == verificationRequired.intValue())
-            return "verificationRequired";
-        if (type == authorizationDelayed.intValue())
-            return "authorizationDelayed";
-        if (type == none.intValue())
-            return "none";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }

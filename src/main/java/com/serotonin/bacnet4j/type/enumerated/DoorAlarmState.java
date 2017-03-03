@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -45,10 +49,34 @@ public class DoorAlarmState extends Enumerated {
     public static final DoorAlarmState freeAccess = new DoorAlarmState(7);
     public static final DoorAlarmState egressOpen = new DoorAlarmState(8);
 
-    public static final DoorAlarmState[] ALL = { normal, alarm, doorOpenTooLong, forcedOpen, tamper, doorFault,
-            lockDown, freeAccess, egressOpen, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public DoorAlarmState(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static DoorAlarmState forId(final int id) {
+        DoorAlarmState e = (DoorAlarmState) idMap.get(id);
+        if (e == null)
+            e = new DoorAlarmState(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static DoorAlarmState forName(final String name) {
+        return (DoorAlarmState) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private DoorAlarmState(final int value) {
         super(value);
     }
 
@@ -58,25 +86,6 @@ public class DoorAlarmState extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == normal.intValue())
-            return "normal";
-        if (type == alarm.intValue())
-            return "alarm";
-        if (type == doorOpenTooLong.intValue())
-            return "doorOpenTooLong";
-        if (type == forcedOpen.intValue())
-            return "forcedOpen";
-        if (type == tamper.intValue())
-            return "tamper";
-        if (type == doorFault.intValue())
-            return "doorFault";
-        if (type == lockDown.intValue())
-            return "lockDown";
-        if (type == freeAccess.intValue())
-            return "freeAccess";
-        if (type == egressOpen.intValue())
-            return "egressOpen";
-        return "Unknown: " + type;
+        return prettyMap.get(intValue());
     }
 }

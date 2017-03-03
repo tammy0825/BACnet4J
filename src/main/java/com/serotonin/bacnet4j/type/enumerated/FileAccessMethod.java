@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -35,13 +39,43 @@ public class FileAccessMethod extends Enumerated {
     public static final FileAccessMethod recordAccess = new FileAccessMethod(0);
     public static final FileAccessMethod streamAccess = new FileAccessMethod(1);
 
-    public static final FileAccessMethod[] ALL = { recordAccess, streamAccess, };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public FileAccessMethod(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static FileAccessMethod forId(final int id) {
+        FileAccessMethod e = (FileAccessMethod) idMap.get(id);
+        if (e == null)
+            e = new FileAccessMethod(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static FileAccessMethod forName(final String name) {
+        return (FileAccessMethod) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private FileAccessMethod(final int value) {
         super(value);
     }
 
     public FileAccessMethod(final ByteQueue queue) {
         super(queue);
+    }
+
+    @Override
+    public String toString() {
+        return prettyMap.get(intValue());
     }
 }

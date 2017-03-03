@@ -65,7 +65,7 @@ public class Reject extends AckAPDU {
     Reject(final ByteQueue queue) {
         queue.pop(); // Ignore the first byte. No news there.
         originalInvokeId = queue.pop();
-        rejectReason = new RejectReason(queue.popU1B());
+        rejectReason = RejectReason.forId(queue.popU1B());
     }
 
     public RejectReason getRejectReason() {

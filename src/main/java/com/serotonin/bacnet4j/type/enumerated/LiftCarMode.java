@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -47,11 +51,34 @@ public class LiftCarMode extends Enumerated {
     public static final LiftCarMode outOfService = new LiftCarMode(12);
     public static final LiftCarMode occupantEvacuation = new LiftCarMode(13);
 
-    public static final LiftCarMode[] ALL = { unknown, normal, vip, homing, parking, attendantControl,
-            firefighterControl, emergencyPower, inspection, cabinetRecall, earthquakeOperation, fireOperation,
-            outOfService, occupantEvacuation };
+    private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+    private static final Map<String, Enumerated> nameMap = new HashMap<>();
+    private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-    public LiftCarMode(final int value) {
+    static {
+        Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+    }
+
+    public static LiftCarMode forId(final int id) {
+        LiftCarMode e = (LiftCarMode) idMap.get(id);
+        if (e == null)
+            e = new LiftCarMode(id);
+        return e;
+    }
+
+    public static String nameForId(final int id) {
+        return prettyMap.get(id);
+    }
+
+    public static LiftCarMode forName(final String name) {
+        return (LiftCarMode) nameMap.get(name);
+    }
+
+    public static int size() {
+        return idMap.size();
+    }
+
+    private LiftCarMode(final int value) {
         super(value);
     }
 
@@ -61,35 +88,6 @@ public class LiftCarMode extends Enumerated {
 
     @Override
     public String toString() {
-        final int type = intValue();
-        if (type == unknown.intValue())
-            return "unknown";
-        if (type == normal.intValue())
-            return "normal";
-        if (type == vip.intValue())
-            return "vip";
-        if (type == homing.intValue())
-            return "homing";
-        if (type == parking.intValue())
-            return "parking";
-        if (type == attendantControl.intValue())
-            return "attendantControl";
-        if (type == firefighterControl.intValue())
-            return "firefighterControl";
-        if (type == emergencyPower.intValue())
-            return "emergencyPower";
-        if (type == inspection.intValue())
-            return "inspection";
-        if (type == cabinetRecall.intValue())
-            return "cabinetRecall";
-        if (type == earthquakeOperation.intValue())
-            return "earthquakeOperation";
-        if (type == fireOperation.intValue())
-            return "fireOperation";
-        if (type == outOfService.intValue())
-            return "outOfService";
-        if (type == occupantEvacuation.intValue())
-            return "occupantEvacuation ";
-        return "Unknown(" + type + ")";
+        return prettyMap.get(intValue());
     }
 }
