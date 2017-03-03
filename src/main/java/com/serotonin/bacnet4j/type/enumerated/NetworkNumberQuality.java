@@ -61,7 +61,7 @@ public class NetworkNumberQuality extends Enumerated {
     }
 
     public static NetworkNumberQuality forName(final String name) {
-        return (NetworkNumberQuality) nameMap.get(name);
+        return (NetworkNumberQuality) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

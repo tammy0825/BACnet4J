@@ -67,7 +67,7 @@ public class LiftCarDriveStatus extends Enumerated {
     }
 
     public static LiftCarDriveStatus forName(final String name) {
-        return (LiftCarDriveStatus) nameMap.get(name);
+        return (LiftCarDriveStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

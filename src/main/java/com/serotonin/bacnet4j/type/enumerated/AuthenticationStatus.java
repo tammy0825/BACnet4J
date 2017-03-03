@@ -64,7 +64,7 @@ public class AuthenticationStatus extends Enumerated {
     }
 
     public static AuthenticationStatus forName(final String name) {
-        return (AuthenticationStatus) nameMap.get(name);
+        return (AuthenticationStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

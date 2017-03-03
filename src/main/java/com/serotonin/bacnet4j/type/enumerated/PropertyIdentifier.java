@@ -513,7 +513,7 @@ public class PropertyIdentifier extends Enumerated {
     }
 
     public static PropertyIdentifier forName(final String name) {
-        return (PropertyIdentifier) nameMap.get(name);
+        return (PropertyIdentifier) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -71,7 +71,7 @@ public class LiftCarMode extends Enumerated {
     }
 
     public static LiftCarMode forName(final String name) {
-        return (LiftCarMode) nameMap.get(name);
+        return (LiftCarMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

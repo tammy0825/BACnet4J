@@ -74,7 +74,7 @@ public class LiftFault extends Enumerated {
     }
 
     public static LiftFault forName(final String name) {
-        return (LiftFault) nameMap.get(name);
+        return (LiftFault) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

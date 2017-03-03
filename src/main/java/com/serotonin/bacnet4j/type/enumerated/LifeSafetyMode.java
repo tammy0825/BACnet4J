@@ -72,7 +72,7 @@ public class LifeSafetyMode extends Enumerated {
     }
 
     public static LifeSafetyMode forName(final String name) {
-        return (LifeSafetyMode) nameMap.get(name);
+        return (LifeSafetyMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

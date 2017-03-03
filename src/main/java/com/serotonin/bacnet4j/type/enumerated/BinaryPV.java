@@ -59,7 +59,7 @@ public class BinaryPV extends Enumerated {
     }
 
     public static BinaryPV forName(final String name) {
-        return (BinaryPV) nameMap.get(name);
+        return (BinaryPV) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

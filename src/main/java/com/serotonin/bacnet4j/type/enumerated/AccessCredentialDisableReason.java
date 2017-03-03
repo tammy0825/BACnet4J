@@ -67,7 +67,7 @@ public class AccessCredentialDisableReason extends Enumerated {
     }
 
     public static AccessCredentialDisableReason forName(final String name) {
-        return (AccessCredentialDisableReason) nameMap.get(name);
+        return (AccessCredentialDisableReason) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

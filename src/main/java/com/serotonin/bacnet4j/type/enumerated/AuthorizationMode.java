@@ -63,7 +63,7 @@ public class AuthorizationMode extends Enumerated {
     }
 
     public static AuthorizationMode forName(final String name) {
-        return (AuthorizationMode) nameMap.get(name);
+        return (AuthorizationMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

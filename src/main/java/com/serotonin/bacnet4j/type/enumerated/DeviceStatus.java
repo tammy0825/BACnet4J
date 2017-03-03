@@ -63,7 +63,7 @@ public class DeviceStatus extends Enumerated {
     }
 
     public static DeviceStatus forName(final String name) {
-        return (DeviceStatus) nameMap.get(name);
+        return (DeviceStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

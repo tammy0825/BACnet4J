@@ -60,7 +60,7 @@ public class LightingTransition extends Enumerated {
     }
 
     public static LightingTransition forName(final String name) {
-        return (LightingTransition) nameMap.get(name);
+        return (LightingTransition) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

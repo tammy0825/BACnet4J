@@ -82,7 +82,7 @@ public class AuthenticationFactorType extends Enumerated {
     }
 
     public static AuthenticationFactorType forName(final String name) {
-        return (AuthenticationFactorType) nameMap.get(name);
+        return (AuthenticationFactorType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

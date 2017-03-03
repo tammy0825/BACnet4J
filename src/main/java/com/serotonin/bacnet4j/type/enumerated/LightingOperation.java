@@ -68,7 +68,7 @@ public class LightingOperation extends Enumerated {
     }
 
     public static LightingOperation forName(final String name) {
-        return (LightingOperation) nameMap.get(name);
+        return (LightingOperation) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

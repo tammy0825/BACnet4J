@@ -69,7 +69,7 @@ public class Segmentation extends Enumerated {
     }
 
     public static Segmentation forName(final String name) {
-        return (Segmentation) nameMap.get(name);
+        return (Segmentation) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

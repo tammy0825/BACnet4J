@@ -64,7 +64,7 @@ public class AuthorizationExemption extends Enumerated {
     }
 
     public static AuthorizationExemption forName(final String name) {
-        return (AuthorizationExemption) nameMap.get(name);
+        return (AuthorizationExemption) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

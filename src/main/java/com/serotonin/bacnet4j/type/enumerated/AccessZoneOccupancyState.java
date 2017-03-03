@@ -64,7 +64,7 @@ public class AccessZoneOccupancyState extends Enumerated {
     }
 
     public static AccessZoneOccupancyState forName(final String name) {
-        return (AccessZoneOccupancyState) nameMap.get(name);
+        return (AccessZoneOccupancyState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

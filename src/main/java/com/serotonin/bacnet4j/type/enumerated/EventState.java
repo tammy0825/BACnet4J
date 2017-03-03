@@ -75,7 +75,7 @@ public class EventState extends Enumerated {
     }
 
     public static EventState forName(final String name) {
-        return (EventState) nameMap.get(name);
+        return (EventState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

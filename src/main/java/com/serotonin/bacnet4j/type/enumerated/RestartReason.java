@@ -66,7 +66,7 @@ public class RestartReason extends Enumerated {
     }
 
     public static RestartReason forName(final String name) {
-        return (RestartReason) nameMap.get(name);
+        return (RestartReason) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

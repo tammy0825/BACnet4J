@@ -64,7 +64,7 @@ public class SecurityPolicy extends Enumerated {
     }
 
     public static SecurityPolicy forName(final String name) {
-        return (SecurityPolicy) nameMap.get(name);
+        return (SecurityPolicy) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

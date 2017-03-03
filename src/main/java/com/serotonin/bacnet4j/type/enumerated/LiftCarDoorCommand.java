@@ -60,7 +60,7 @@ public class LiftCarDoorCommand extends Enumerated {
     }
 
     public static LiftCarDoorCommand forName(final String name) {
-        return (LiftCarDoorCommand) nameMap.get(name);
+        return (LiftCarDoorCommand) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

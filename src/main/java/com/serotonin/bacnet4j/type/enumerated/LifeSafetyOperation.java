@@ -67,7 +67,7 @@ public class LifeSafetyOperation extends Enumerated {
     }
 
     public static LifeSafetyOperation forName(final String name) {
-        return (LifeSafetyOperation) nameMap.get(name);
+        return (LifeSafetyOperation) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

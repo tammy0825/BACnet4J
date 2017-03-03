@@ -96,7 +96,7 @@ public class EventType extends Enumerated {
     }
 
     public static EventType forName(final String name) {
-        return (EventType) nameMap.get(name);
+        return (EventType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

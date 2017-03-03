@@ -60,7 +60,7 @@ public class TimerState extends Enumerated {
     }
 
     public static TimerState forName(final String name) {
-        return (TimerState) nameMap.get(name);
+        return (TimerState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

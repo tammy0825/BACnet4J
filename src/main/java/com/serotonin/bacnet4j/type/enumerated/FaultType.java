@@ -65,7 +65,7 @@ public class FaultType extends Enumerated {
     }
 
     public static FaultType forName(final String name) {
-        return (FaultType) nameMap.get(name);
+        return (FaultType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

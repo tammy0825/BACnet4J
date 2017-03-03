@@ -61,7 +61,7 @@ public class ProtocolLevel extends Enumerated {
     }
 
     public static ProtocolLevel forName(final String name) {
-        return (ProtocolLevel) nameMap.get(name);
+        return (ProtocolLevel) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

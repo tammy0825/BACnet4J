@@ -65,7 +65,7 @@ public class ErrorClass extends Enumerated {
     }
 
     public static ErrorClass forName(final String name) {
-        return (ErrorClass) nameMap.get(name);
+        return (ErrorClass) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

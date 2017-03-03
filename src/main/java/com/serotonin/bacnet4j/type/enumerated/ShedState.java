@@ -64,7 +64,7 @@ public class ShedState extends Enumerated {
     }
 
     public static ShedState forName(final String name) {
-        return (ShedState) nameMap.get(name);
+        return (ShedState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

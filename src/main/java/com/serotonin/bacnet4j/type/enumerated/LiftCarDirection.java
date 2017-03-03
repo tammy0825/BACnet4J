@@ -63,7 +63,7 @@ public class LiftCarDirection extends Enumerated {
     }
 
     public static LiftCarDirection forName(final String name) {
-        return (LiftCarDirection) nameMap.get(name);
+        return (LiftCarDirection) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

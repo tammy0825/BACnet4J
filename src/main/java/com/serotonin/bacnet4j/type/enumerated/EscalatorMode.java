@@ -63,7 +63,7 @@ public class EscalatorMode extends Enumerated {
     }
 
     public static EscalatorMode forName(final String name) {
-        return (EscalatorMode) nameMap.get(name);
+        return (EscalatorMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

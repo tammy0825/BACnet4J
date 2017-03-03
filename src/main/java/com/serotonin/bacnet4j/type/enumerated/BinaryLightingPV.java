@@ -63,7 +63,7 @@ public class BinaryLightingPV extends Enumerated {
     }
 
     public static BinaryLightingPV forName(final String name) {
-        return (BinaryLightingPV) nameMap.get(name);
+        return (BinaryLightingPV) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

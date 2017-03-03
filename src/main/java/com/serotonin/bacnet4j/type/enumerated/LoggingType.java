@@ -60,7 +60,7 @@ public class LoggingType extends Enumerated {
     }
 
     public static LoggingType forName(final String name) {
-        return (LoggingType) nameMap.get(name);
+        return (LoggingType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

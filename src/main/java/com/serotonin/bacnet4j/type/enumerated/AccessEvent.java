@@ -111,7 +111,7 @@ public class AccessEvent extends Enumerated {
     }
 
     public static AccessEvent forName(final String name) {
-        return (AccessEvent) nameMap.get(name);
+        return (AccessEvent) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

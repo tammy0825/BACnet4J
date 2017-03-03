@@ -342,7 +342,7 @@ public class EngineeringUnits extends Enumerated {
     }
 
     public static EngineeringUnits forName(final String name) {
-        return (EngineeringUnits) nameMap.get(name);
+        return (EngineeringUnits) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -61,7 +61,7 @@ public class SilencedState extends Enumerated {
     }
 
     public static SilencedState forName(final String name) {
-        return (SilencedState) nameMap.get(name);
+        return (SilencedState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

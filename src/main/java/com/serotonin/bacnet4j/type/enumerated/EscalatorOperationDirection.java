@@ -63,7 +63,7 @@ public class EscalatorOperationDirection extends Enumerated {
     }
 
     public static EscalatorOperationDirection forName(final String name) {
-        return (EscalatorOperationDirection) nameMap.get(name);
+        return (EscalatorOperationDirection) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -66,7 +66,7 @@ public class EscalatorFault extends Enumerated {
     }
 
     public static EscalatorFault forName(final String name) {
-        return (EscalatorFault) nameMap.get(name);
+        return (EscalatorFault) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

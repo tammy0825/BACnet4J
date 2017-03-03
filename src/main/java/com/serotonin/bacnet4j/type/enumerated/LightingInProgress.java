@@ -62,7 +62,7 @@ public class LightingInProgress extends Enumerated {
     }
 
     public static LightingInProgress forName(final String name) {
-        return (LightingInProgress) nameMap.get(name);
+        return (LightingInProgress) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

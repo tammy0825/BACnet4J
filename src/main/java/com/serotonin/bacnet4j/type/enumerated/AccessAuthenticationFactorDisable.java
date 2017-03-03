@@ -63,7 +63,7 @@ public class AccessAuthenticationFactorDisable extends Enumerated {
     }
 
     public static AccessAuthenticationFactorDisable forName(final String name) {
-        return (AccessAuthenticationFactorDisable) nameMap.get(name);
+        return (AccessAuthenticationFactorDisable) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

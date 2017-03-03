@@ -63,7 +63,7 @@ public class ProgramState extends Enumerated {
     }
 
     public static ProgramState forName(final String name) {
-        return (ProgramState) nameMap.get(name);
+        return (ProgramState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

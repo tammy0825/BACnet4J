@@ -65,7 +65,7 @@ public class LockStatus extends Enumerated {
     }
 
     public static LockStatus forName(final String name) {
-        return (LockStatus) nameMap.get(name);
+        return (LockStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

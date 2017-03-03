@@ -59,7 +59,7 @@ public class Action extends Enumerated {
     }
 
     public static Action forName(final String name) {
-        return (Action) nameMap.get(name);
+        return (Action) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

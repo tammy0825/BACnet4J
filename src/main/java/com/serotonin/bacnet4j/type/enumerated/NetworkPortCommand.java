@@ -65,7 +65,7 @@ public class NetworkPortCommand extends Enumerated {
     }
 
     public static NetworkPortCommand forName(final String name) {
-        return (NetworkPortCommand) nameMap.get(name);
+        return (NetworkPortCommand) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

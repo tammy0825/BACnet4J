@@ -63,7 +63,7 @@ public class SecurityLevel extends Enumerated {
     }
 
     public static SecurityLevel forName(final String name) {
-        return (SecurityLevel) nameMap.get(name);
+        return (SecurityLevel) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

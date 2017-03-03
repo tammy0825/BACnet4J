@@ -67,7 +67,7 @@ public class NetworkType extends Enumerated {
     }
 
     public static NetworkType forName(final String name) {
-        return (NetworkType) nameMap.get(name);
+        return (NetworkType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

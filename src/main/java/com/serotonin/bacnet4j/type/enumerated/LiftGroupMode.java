@@ -64,7 +64,7 @@ public class LiftGroupMode extends Enumerated {
     }
 
     public static LiftGroupMode forName(final String name) {
-        return (LiftGroupMode) nameMap.get(name);
+        return (LiftGroupMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

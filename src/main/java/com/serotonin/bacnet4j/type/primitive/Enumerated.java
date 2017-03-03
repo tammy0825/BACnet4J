@@ -33,6 +33,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.util.Map;
 
+import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Enumerated extends Primitive {
@@ -92,6 +93,13 @@ public class Enumerated extends Primitive {
                 return true;
         }
         return false;
+    }
+
+    public static Enumerated forName(final Map<String, Enumerated> nameMap, final String name) {
+        final Enumerated e = nameMap.get(name);
+        if (e == null)
+            throw new BACnetRuntimeException("No enumerated found for name '" + name + "'");
+        return e;
     }
 
     //

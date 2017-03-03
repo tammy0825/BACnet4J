@@ -70,7 +70,7 @@ public class DoorStatus extends Enumerated {
     }
 
     public static DoorStatus forName(final String name) {
-        return (DoorStatus) nameMap.get(name);
+        return (DoorStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

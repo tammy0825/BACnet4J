@@ -190,7 +190,7 @@ public class ErrorCode extends Enumerated {
     }
 
     public static ErrorCode forName(final String name) {
-        return (ErrorCode) nameMap.get(name);
+        return (ErrorCode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

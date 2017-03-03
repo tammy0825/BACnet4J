@@ -61,7 +61,7 @@ public class Maintenance extends Enumerated {
     }
 
     public static Maintenance forName(final String name) {
-        return (Maintenance) nameMap.get(name);
+        return (Maintenance) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

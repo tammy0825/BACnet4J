@@ -69,7 +69,7 @@ public class AbortReason extends Enumerated {
     }
 
     public static AbortReason forName(final String name) {
-        return (AbortReason) nameMap.get(name);
+        return (AbortReason) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -60,7 +60,7 @@ public class AccessPassbackMode extends Enumerated {
     }
 
     public static AccessPassbackMode forName(final String name) {
-        return (AccessPassbackMode) nameMap.get(name);
+        return (AccessPassbackMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -62,7 +62,7 @@ public class ProgramError extends Enumerated {
     }
 
     public static ProgramError forName(final String name) {
-        return (ProgramError) nameMap.get(name);
+        return (ProgramError) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

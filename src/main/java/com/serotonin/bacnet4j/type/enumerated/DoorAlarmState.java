@@ -69,7 +69,7 @@ public class DoorAlarmState extends Enumerated {
     }
 
     public static DoorAlarmState forName(final String name) {
-        return (DoorAlarmState) nameMap.get(name);
+        return (DoorAlarmState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

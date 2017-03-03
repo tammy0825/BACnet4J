@@ -59,7 +59,7 @@ public class FileAccessMethod extends Enumerated {
     }
 
     public static FileAccessMethod forName(final String name) {
-        return (FileAccessMethod) nameMap.get(name);
+        return (FileAccessMethod) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

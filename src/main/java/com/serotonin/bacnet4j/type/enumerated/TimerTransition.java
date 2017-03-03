@@ -65,7 +65,7 @@ public class TimerTransition extends Enumerated {
     }
 
     public static TimerTransition forName(final String name) {
-        return (TimerTransition) nameMap.get(name);
+        return (TimerTransition) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

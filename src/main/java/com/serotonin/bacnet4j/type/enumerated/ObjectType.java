@@ -117,7 +117,7 @@ public class ObjectType extends Enumerated {
     }
 
     public static ObjectType forName(final String name) {
-        return (ObjectType) nameMap.get(name);
+        return (ObjectType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

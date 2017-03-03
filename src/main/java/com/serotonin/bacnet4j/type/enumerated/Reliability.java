@@ -81,7 +81,7 @@ public class Reliability extends Enumerated {
     }
 
     public static Reliability forName(final String name) {
-        return (Reliability) nameMap.get(name);
+        return (Reliability) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

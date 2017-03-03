@@ -64,7 +64,7 @@ public class VtClass extends Enumerated {
     }
 
     public static VtClass forName(final String name) {
-        return (VtClass) nameMap.get(name);
+        return (VtClass) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -67,7 +67,7 @@ public class MessagePriority extends Enumerated {
     }
 
     public static MessagePriority forName(final String name) {
-        return (MessagePriority) nameMap.get(name);
+        return (MessagePriority) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

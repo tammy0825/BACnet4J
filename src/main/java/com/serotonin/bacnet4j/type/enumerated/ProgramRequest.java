@@ -63,7 +63,7 @@ public class ProgramRequest extends Enumerated {
     }
 
     public static ProgramRequest forName(final String name) {
-        return (ProgramRequest) nameMap.get(name);
+        return (ProgramRequest) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

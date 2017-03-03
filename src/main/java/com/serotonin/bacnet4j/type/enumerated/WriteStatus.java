@@ -61,7 +61,7 @@ public class WriteStatus extends Enumerated {
     }
 
     public static WriteStatus forName(final String name) {
-        return (WriteStatus) nameMap.get(name);
+        return (WriteStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

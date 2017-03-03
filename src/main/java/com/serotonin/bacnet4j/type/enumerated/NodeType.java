@@ -82,7 +82,7 @@ public class NodeType extends Enumerated {
     }
 
     public static NodeType forName(final String name) {
-        return (NodeType) nameMap.get(name);
+        return (NodeType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

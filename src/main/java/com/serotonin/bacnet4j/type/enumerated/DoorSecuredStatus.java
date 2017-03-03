@@ -63,7 +63,7 @@ public class DoorSecuredStatus extends Enumerated {
     }
 
     public static DoorSecuredStatus forName(final String name) {
-        return (DoorSecuredStatus) nameMap.get(name);
+        return (DoorSecuredStatus) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

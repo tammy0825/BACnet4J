@@ -59,7 +59,7 @@ public class Polarity extends Enumerated {
     }
 
     public static Polarity forName(final String name) {
-        return (Polarity) nameMap.get(name);
+        return (Polarity) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

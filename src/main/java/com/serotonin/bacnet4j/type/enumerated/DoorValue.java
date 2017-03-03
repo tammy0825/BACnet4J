@@ -64,7 +64,7 @@ public class DoorValue extends Enumerated {
     }
 
     public static DoorValue forName(final String name) {
-        return (DoorValue) nameMap.get(name);
+        return (DoorValue) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

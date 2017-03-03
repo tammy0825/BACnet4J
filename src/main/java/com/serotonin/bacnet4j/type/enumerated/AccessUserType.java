@@ -60,7 +60,7 @@ public class AccessUserType extends Enumerated {
     }
 
     public static AccessUserType forName(final String name) {
-        return (AccessUserType) nameMap.get(name);
+        return (AccessUserType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

@@ -67,7 +67,7 @@ public class RejectReason extends Enumerated {
     }
 
     public static RejectReason forName(final String name) {
-        return (RejectReason) nameMap.get(name);
+        return (RejectReason) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

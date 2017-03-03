@@ -64,7 +64,7 @@ public class BackupState extends Enumerated {
     }
 
     public static BackupState forName(final String name) {
-        return (BackupState) nameMap.get(name);
+        return (BackupState) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

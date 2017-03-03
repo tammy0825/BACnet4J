@@ -60,7 +60,7 @@ public class NotifyType extends Enumerated {
     }
 
     public static NotifyType forName(final String name) {
-        return (NotifyType) nameMap.get(name);
+        return (NotifyType) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

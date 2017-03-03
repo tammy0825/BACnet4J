@@ -87,7 +87,7 @@ public class Relationship extends Enumerated {
     }
 
     public static Relationship forName(final String name) {
-        return (Relationship) nameMap.get(name);
+        return (Relationship) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {

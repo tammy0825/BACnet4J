@@ -60,7 +60,7 @@ public class IPMode extends Enumerated {
     }
 
     public static IPMode forName(final String name) {
-        return (IPMode) nameMap.get(name);
+        return (IPMode) Enumerated.forName(nameMap, name);
     }
 
     public static int size() {
