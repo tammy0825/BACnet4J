@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.service.confirmed;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
@@ -51,6 +52,9 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
     public SubscribeCOVRequest(final UnsignedInteger subscriberProcessIdentifier,
             final ObjectIdentifier monitoredObjectIdentifier, final Boolean issueConfirmedNotifications,
             final UnsignedInteger lifetime) {
+        if (subscriberProcessIdentifier.intValue() == 0)
+            throw new BACnetRuntimeException("Cannot use 0 as subscriberProcessIdentifier. See 13.1.1");
+
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.monitoredObjectIdentifier = monitoredObjectIdentifier;
         this.issueConfirmedNotifications = issueConfirmedNotifications;
@@ -82,9 +86,8 @@ public class SubscribeCOVRequest extends ConfirmedRequestService {
         try {
             final BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
 
-            // TODO Ensure that these two parameter are either both null, or both not null.
             if (issueConfirmedNotifications == null && lifetime == null)
-                obj.removeCovSubscription(from, subscriberProcessIdentifier);
+                obj.removeCovSubscription(from, subscriberProcessIdentifier, null);
             else
                 obj.addCovSubscription(from, subscriberProcessIdentifier, issueConfirmedNotifications, lifetime, null,
                         null);

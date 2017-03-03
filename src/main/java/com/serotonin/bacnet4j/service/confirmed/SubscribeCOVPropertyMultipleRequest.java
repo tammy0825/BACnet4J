@@ -29,13 +29,17 @@
 package com.serotonin.bacnet4j.service.confirmed;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
@@ -56,6 +60,9 @@ public class SubscribeCOVPropertyMultipleRequest extends ConfirmedRequestService
             final Boolean issueConfirmedNotifications, final UnsignedInteger lifetime,
             final UnsignedInteger maxNotificationDelay,
             final SequenceOf<CovSubscriptionSpecification> listOfCovSubscriptionSpecifications) {
+        if (subscriberProcessIdentifier.intValue() == 0)
+            throw new BACnetRuntimeException("Cannot use 0 as subscriberProcessIdentifier. See 13.1.1");
+
         this.subscriberProcessIdentifier = subscriberProcessIdentifier;
         this.issueConfirmedNotifications = issueConfirmedNotifications;
         this.lifetime = lifetime;
@@ -87,7 +94,12 @@ public class SubscribeCOVPropertyMultipleRequest extends ConfirmedRequestService
 
     @Override
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        // Ensure that these two parameter are either both null, or both not null.
+        if (issueConfirmedNotifications == null != (lifetime == null))
+            throw new BACnetErrorException(ErrorClass.services, ErrorCode.inconsistentParameters);
+
         throw new NotImplementedException();
+
         //        try {
         //            final BACnetObject obj = localDevice.getObjectRequired(monitoredObjectIdentifier);
         //            if (issueConfirmedNotifications == null && lifetime == null)
