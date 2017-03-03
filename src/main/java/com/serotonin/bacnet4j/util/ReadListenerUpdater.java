@@ -35,14 +35,14 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class RequestListenerUpdater {
+public class ReadListenerUpdater {
     private final ReadListener callback;
     private final PropertyValues propertyValues;
     private final int max;
     private final AtomicInteger current = new AtomicInteger(0);
     private boolean cancelled;
 
-    public RequestListenerUpdater(final ReadListener callback, final PropertyValues propertyValues, final int max) {
+    public ReadListenerUpdater(final ReadListener callback, final PropertyValues propertyValues, final int max) {
         this.callback = callback;
         this.propertyValues = propertyValues;
         this.max = max;

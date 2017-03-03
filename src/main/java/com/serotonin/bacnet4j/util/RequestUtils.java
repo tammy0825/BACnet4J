@@ -260,7 +260,7 @@ public class RequestUtils {
             final PropertyReferences refs, final ReadListener callback) throws BACnetException {
         Map<ObjectIdentifier, List<PropertyReference>> properties;
         final PropertyValues propertyValues = new PropertyValues();
-        final RequestListenerUpdater updater = new RequestListenerUpdater(callback, propertyValues, refs.size());
+        final ReadListenerUpdater updater = new ReadListenerUpdater(callback, propertyValues, refs.size());
 
         final boolean multipleSupported = d.getServicesSupported() != null
                 && d.getServicesSupported().isReadPropertyMultiple();
@@ -378,7 +378,7 @@ public class RequestUtils {
     }
 
     public static void populateWithError(final RemoteDevice d,
-            final Map<ObjectIdentifier, List<PropertyReference>> properties, final RequestListenerUpdater updater,
+            final Map<ObjectIdentifier, List<PropertyReference>> properties, final ReadListenerUpdater updater,
             final ErrorClassAndCode error) {
         for (final ObjectIdentifier oid : properties.keySet()) {
             for (final PropertyReference ref : properties.get(oid))
@@ -388,7 +388,7 @@ public class RequestUtils {
     }
 
     private static void sendOneAtATime(final LocalDevice localDevice, final RemoteDevice d,
-            final PropertyReferences refs, final RequestListenerUpdater updater) throws BACnetException {
+            final PropertyReferences refs, final ReadListenerUpdater updater) throws BACnetException {
         LOG.debug("Making property reference requests one at a time");
         List<PropertyReference> refList;
         ReadPropertyRequest request;
