@@ -1,6 +1,7 @@
 package com.serotonin.bacnet4j.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
@@ -144,17 +145,20 @@ public class RemoteDeviceFinderTest {
 
     @Test
     public void callbackTimeout() throws InterruptedException {
-        final CountDownLatch countDown = new CountDownLatch(1);
+        final CountDownLatch countDown = new CountDownLatch(2);
         final AtomicBoolean timeout = new AtomicBoolean(false);
         final AtomicBoolean finallyCalled = new AtomicBoolean(false);
 
         RemoteDeviceFinder.findDevice(d1, 4, (rd) -> {
             System.out.println("Succeeded getting" + rd);
-            countDown.countDown();
+            fail();
         }, () -> {
             timeout.set(true);
             countDown.countDown();
-        }, () -> finallyCalled.set(true), 1, TimeUnit.SECONDS);
+        }, () -> {
+            finallyCalled.set(true);
+            countDown.countDown();
+        }, 1, TimeUnit.SECONDS);
 
         countDown.await();
 
