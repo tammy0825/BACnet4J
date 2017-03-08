@@ -35,14 +35,13 @@ public class BinaryValueTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        bv = new BinaryValueObject(0, "bvName1", BinaryPV.inactive, true);
-        d1.addObject(bv);
+        bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
     }
 
     @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
-        new BinaryValueObject(0, "bvName1", BinaryPV.inactive, false);
+        new BinaryValueObject(d1, 1, "bvName2", BinaryPV.inactive, false);
     }
 
     @Test
@@ -79,7 +78,7 @@ public class BinaryValueTest extends AbstractTest {
         assertEquals(true, statusFlags.isOutOfService());
 
         // Change the reliability value.
-        bv.writeProperty(reliability, Reliability.communicationFailure);
+        bv.writeProperty(null, reliability, Reliability.communicationFailure);
         statusFlags = RequestUtils.getProperty(d2, rd1, bv.getId(), PropertyIdentifier.statusFlags);
         assertEquals(false, statusFlags.isInAlarm());
         assertEquals(true, statusFlags.isFault());
@@ -96,7 +95,7 @@ public class BinaryValueTest extends AbstractTest {
         assertTrue(pids.contains(eventState));
         assertTrue(pids.contains(outOfService));
 
-        bv.writeProperty(inactiveText, new CharacterString("someText"));
+        bv.writeProperty(null, inactiveText, new CharacterString("someText"));
         pids = RequestUtils.getProperty(d2, rd1, bv.getId(), propertyList);
         assertEquals(5, pids.getCount());
         assertTrue(pids.contains(presentValue));
@@ -218,7 +217,7 @@ public class BinaryValueTest extends AbstractTest {
         assertEquals(BinaryPV.active, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
         // Relinquish at 16
-        RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, new Null());
+        RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, Null.instance);
         // Ensure the priority array looks right.
         assertEquals(new PriorityArray().put(15, BinaryPV.active), bv.getProperty(priorityArray));
         // Ensure the present value looks right.
@@ -227,7 +226,7 @@ public class BinaryValueTest extends AbstractTest {
         assertEquals(BinaryPV.active, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
         // Relinquish at priority 15.
-        RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, new Null(), 15);
+        RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, Null.instance, 15);
         // Ensure the priority array looks right.
         assertEquals(new PriorityArray(), bv.getProperty(priorityArray));
         // Ensure the present value looks right.

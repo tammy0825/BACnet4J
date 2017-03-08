@@ -31,6 +31,8 @@ package com.serotonin.bacnet4j.type.primitive;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Null extends Primitive {
+    public static final Null instance = new Null();
+
     public static final byte TYPE_ID = 0;
 
     public Null() {

@@ -24,49 +24,55 @@ public class MultistateValueTest extends AbstractTest {
 
     @Test
     public void initialization() throws Exception {
-        final MultistateValueObject mv = new MultistateValueObject(0, "mv0", 7, null, 1, false);
+        final MultistateValueObject mv = new MultistateValueObject(d1, 1, "mv1", 7, null, 1, false);
         assertEquals(new StatusFlags(false, false, false, false), mv.get(PropertyIdentifier.statusFlags));
     }
 
-    @SuppressWarnings("unused")
     @Test
-    public void stateText() throws Exception {
+    public void inconsistentStateText() throws Exception {
         try {
-            new MultistateValueObject(0, "mv0", 7, new BACnetArray<>(new CharacterString("a")), 1, true);
+            new MultistateValueObject(d1, 0, "mv0", 7, new BACnetArray<>(new CharacterString("a")), 1, true);
             fail("Should have thrown an exception");
         } catch (final BACnetRuntimeException e) {
             final BACnetServiceException e1 = (BACnetServiceException) e.getCause();
             assertEquals(ErrorClass.property, e1.getErrorClass());
             assertEquals(ErrorCode.inconsistentConfiguration, e1.getErrorCode());
         }
+    }
 
-        final MultistateValueObject mv = new MultistateValueObject(0, "mv0", 7, null, 1, true);
-        d1.addObject(mv);
+    @Test
+    public void missingStateText() throws Exception {
+        final MultistateValueObject mv = new MultistateValueObject(d1, 0, "mv0", 7, null, 1, true);
 
         try {
-            mv.writeProperty(new PropertyValue(PropertyIdentifier.stateText,
-                    new BACnetArray<>(new CharacterString("a"))));
+            mv.writeProperty(null,
+                    new PropertyValue(PropertyIdentifier.stateText, new BACnetArray<>(new CharacterString("a"))));
             fail("Should have thrown an exception");
         } catch (final BACnetServiceException e) {
             assertEquals(ErrorClass.property, e.getErrorClass());
             assertEquals(ErrorCode.inconsistentConfiguration, e.getErrorCode());
         }
+    }
 
-        mv.writeProperty(new PropertyValue(PropertyIdentifier.stateText,
-                new BACnetArray<>(new CharacterString("a"), new CharacterString("b"),
-                        new CharacterString("c"), new CharacterString("d"), new CharacterString("e"),
-                        new CharacterString("f"), new CharacterString("g"))));
+    @Test
+    public void stateText() throws Exception {
+        final MultistateValueObject mv = new MultistateValueObject(d1, 0, "mv0", 7, null, 1, true);
 
-        mv.writeProperty(new PropertyValue(PropertyIdentifier.numberOfStates, new UnsignedInteger(6)));
-        assertEquals(new BACnetArray<>(new CharacterString("a"), new CharacterString("b"),
-                new CharacterString("c"), new CharacterString("d"), new CharacterString("e"), new CharacterString("f")),
-                mv.get(PropertyIdentifier.stateText));
+        mv.writeProperty(null,
+                new PropertyValue(PropertyIdentifier.stateText,
+                        new BACnetArray<>(new CharacterString("a"), new CharacterString("b"), new CharacterString("c"),
+                                new CharacterString("d"), new CharacterString("e"), new CharacterString("f"),
+                                new CharacterString("g"))));
 
-        mv.writeProperty(new PropertyValue(PropertyIdentifier.numberOfStates, new UnsignedInteger(8)));
+        mv.writeProperty(null, new PropertyValue(PropertyIdentifier.numberOfStates, new UnsignedInteger(6)));
         assertEquals(
-                new BACnetArray<>(new CharacterString("a"), new CharacterString("b"),
-                        new CharacterString("c"), new CharacterString("d"), new CharacterString("e"),
-                        new CharacterString("f"), new CharacterString(""), new CharacterString("")),
+                new BACnetArray<>(new CharacterString("a"), new CharacterString("b"), new CharacterString("c"),
+                        new CharacterString("d"), new CharacterString("e"), new CharacterString("f")),
                 mv.get(PropertyIdentifier.stateText));
+
+        mv.writeProperty(null, new PropertyValue(PropertyIdentifier.numberOfStates, new UnsignedInteger(8)));
+        assertEquals(new BACnetArray<>(new CharacterString("a"), new CharacterString("b"), new CharacterString("c"),
+                new CharacterString("d"), new CharacterString("e"), new CharacterString("f"), new CharacterString(""),
+                new CharacterString("")), mv.get(PropertyIdentifier.stateText));
     }
 }

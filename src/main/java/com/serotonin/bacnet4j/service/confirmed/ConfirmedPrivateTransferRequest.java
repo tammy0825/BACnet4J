@@ -67,7 +67,7 @@ public class ConfirmedPrivateTransferRequest extends ConfirmedRequestService {
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) {
         localDevice.getEventHandler().firePrivateTransfer(from, vendorId, serviceNumber, (Sequence) serviceParameters);
         // TODO the handler should return the result block, rather than using null here.
-        return new ConfirmedPrivateTransferAck(vendorId, serviceNumber, new Null());
+        return new ConfirmedPrivateTransferAck(vendorId, serviceNumber, Null.instance);
     }
 
     @Override

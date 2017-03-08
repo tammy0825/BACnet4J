@@ -58,11 +58,10 @@ public class IntrinsicAlarmTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        bv = new BinaryValueObject(0, "bvName1", BinaryPV.inactive, true);
+        bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
         bv.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
-        d1.addObject(bv);
 
-        mv = new MultistateValueObject(0, "mvName1", 7,
+        mv = new MultistateValueObject(d1, 0, "mvName1", 7,
                 new BACnetArray<>(
                         new CharacterString( //
                                 "normal1"),
@@ -71,10 +70,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
                         new CharacterString("fault1"), new CharacterString("fault2")),
                 1, true);
         mv.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
-        d1.addObject(mv);
 
-        nc = new NotificationClassObject(7, "nc7", 100, 5, 200, new EventTransitionBits(true, true, true));
-        d1.addObject(nc);
+        nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200, new EventTransitionBits(true, true, true));
     }
 
     @Test
@@ -101,7 +98,7 @@ public class IntrinsicAlarmTest extends AbstractTest {
                 4);
 
         // Does not trigger any intrinsic reporting behaviour
-        bv.writeProperty(PropertyIdentifier.objectName, new CharacterString("some new name"));
+        bv.writeProperty(null, PropertyIdentifier.objectName, new CharacterString("some new name"));
 
         // Write the current present value.
         bv.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);

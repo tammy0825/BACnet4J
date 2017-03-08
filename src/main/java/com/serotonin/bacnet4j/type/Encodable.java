@@ -346,7 +346,7 @@ abstract public class Encodable {
             final AmbiguousValue amb = new AmbiguousValue(queue, contextId);
 
             if (amb.isNull())
-                return new Null();
+                return Null.instance;
 
             // Try converting to the definition value.
             return amb.convertTo(def.getClazz());

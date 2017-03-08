@@ -74,7 +74,7 @@ public class IAmRequest extends UnconfirmedRequestService {
         }
 
         // Make sure we're not hearing from ourselves.
-        final int myDoi = localDevice.getInstanceId();
+        final int myDoi = localDevice.getInstanceNumber();
         final int remoteDoi = iAmDeviceIdentifier.getInstanceNumber();
         if (remoteDoi == myDoi) {
             // Get my bacnet address and compare the addresses
@@ -94,7 +94,7 @@ public class IAmRequest extends UnconfirmedRequestService {
             // Populate the object with discovered values, but do so in a different thread.
             localDevice.execute(() -> {
                 LOG.debug("{} received and IAm from {}. Asynchronously creating remote device",
-                        localDevice.getInstanceId(), remoteDoi);
+                        localDevice.getInstanceNumber(), remoteDoi);
                 try {
                     final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
                     rd.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);

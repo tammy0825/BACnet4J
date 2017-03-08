@@ -60,7 +60,7 @@ public class EncodingTest {
                 new ObjectIdentifier(ObjectType.device, 234), //
                 new ObjectIdentifier(ObjectType.analogInput, 0), //
                 PropertyIdentifier.presentValue, //
-                null, /* new Real(3.14F) */new Null(), null, null, Boolean.FALSE, Boolean.FALSE);
+                null, /* new Real(3.14F) */Null.instance, null, null, Boolean.FALSE, Boolean.FALSE);
         ActionList al = new ActionList(new SequenceOf<ActionCommand>(ac));
         WritePropertyRequest req = new WritePropertyRequest( //
                 new ObjectIdentifier(ObjectType.command, 0), //

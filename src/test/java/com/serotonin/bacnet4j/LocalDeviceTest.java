@@ -1,5 +1,6 @@
 package com.serotonin.bacnet4j;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -18,8 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.obj.DeviceObject;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -115,8 +118,8 @@ public class LocalDeviceTest {
         }).start();
         ld.initialize();
 
-        LOG.info("Local device initialized with device id {}", ld.getInstanceId());
-        assertNotEquals(ObjectIdentifier.UNINITIALIZED, ld.getInstanceId());
+        LOG.info("Local device initialized with device id {}", ld.getInstanceNumber());
+        assertNotEquals(ObjectIdentifier.UNINITIALIZED, ld.getInstanceNumber());
     }
 
     @Test
@@ -131,5 +134,17 @@ public class LocalDeviceTest {
 
         assertNotNull(rd21.getValue());
         assertTrue(rd21.getValue() == d1.getCachedRemoteDevice(2));
+    }
+
+    @Test(expected = BACnetServiceException.class)
+    public void createSecondDevice() throws BACnetServiceException {
+        final LocalDevice ld = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+        final DeviceObject o = new DeviceObject(ld, 2);
+
+        // Ensure the device object was not automatically added to the local device.
+        assertEquals(1, ld.getLocalObjects().size());
+
+        // Try to add the device manually, and ensure that this fails.
+        ld.addObject(o);
     }
 }

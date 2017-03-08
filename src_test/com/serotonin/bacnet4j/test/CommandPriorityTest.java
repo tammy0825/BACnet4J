@@ -74,7 +74,7 @@ public class CommandPriorityTest {
         getPresentValue();
         getPriorityArray();
 
-        setPresentValue(new Null(), 16);
+        setPresentValue(Null.instance, 16);
         getPresentValue();
         getPriorityArray();
 
@@ -86,15 +86,15 @@ public class CommandPriorityTest {
         getPresentValue();
         getPriorityArray();
 
-        setPresentValue(new Null(), 10);
+        setPresentValue(Null.instance, 10);
         getPresentValue();
         getPriorityArray();
 
-        setPresentValue(new Null(), 15);
+        setPresentValue(Null.instance, 15);
         getPresentValue();
         getPriorityArray();
 
-        setPresentValue(new Null(), 16);
+        setPresentValue(Null.instance, 16);
         getPresentValue();
         getPriorityArray();
 

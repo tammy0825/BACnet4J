@@ -35,6 +35,7 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.AbstractMixin;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -55,7 +56,8 @@ public class WritablePropertyOutOfServiceMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         final Boolean outOfService = get(PropertyIdentifier.outOfService);
         if (!outOfService.booleanValue()) {
             if (pids.contains(value.getPropertyIdentifier()))

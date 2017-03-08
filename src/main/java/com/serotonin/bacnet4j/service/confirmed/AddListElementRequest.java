@@ -41,6 +41,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -114,7 +115,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
                     list.add(pr);
             }
 
-            obj.writeProperty(propertyIdentifier, origList);
+            obj.writeProperty(new ValueSource(from), propertyIdentifier, origList);
         } else {
             // Expecting an array
             if (!(e instanceof BACnetArray))
@@ -134,7 +135,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
                 array.set(index, pr);
             }
 
-            obj.writeProperty(propertyIdentifier, array);
+            obj.writeProperty(new ValueSource(from), propertyIdentifier, array);
         }
 
         localDevice.getEventHandler().propertyWritten(from, obj, pv);

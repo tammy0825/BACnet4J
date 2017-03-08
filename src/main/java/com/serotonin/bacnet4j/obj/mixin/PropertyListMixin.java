@@ -41,6 +41,7 @@ import com.serotonin.bacnet4j.obj.AbstractMixin;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -51,7 +52,8 @@ public class PropertyListMixin extends AbstractMixin {
     }
 
     @Override
-    public boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
+    public boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         if (propertyList.equals(value.getPropertyIdentifier()))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         return false;

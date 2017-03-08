@@ -54,7 +54,7 @@ public class FaultParameterTest {
         final FaultParameter faultParameter = new FaultParameter(new FaultExtended(new Unsigned16(236),
                 new UnsignedInteger(314),
                 new SequenceOf<>( //
-                        new FaultExtendedParameter(new Null()), //
+                        new FaultExtendedParameter(Null.instance), //
                         new FaultExtendedParameter(new Real(3.1415F)), //
                         new FaultExtendedParameter(new UnsignedInteger(314)), //
                         new FaultExtendedParameter(new Boolean(true)), //

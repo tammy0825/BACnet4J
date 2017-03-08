@@ -28,6 +28,8 @@
  */
 package com.serotonin.bacnet4j.obj;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
@@ -46,9 +48,10 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class AnalogValueObject extends BACnetObject {
-    public AnalogValueObject(final int instanceNumber, final String name, final float presentValue,
-            final EngineeringUnits units, final boolean outOfService) {
-        super(ObjectType.analogValue, instanceNumber, name);
+    public AnalogValueObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final float presentValue, final EngineeringUnits units, final boolean outOfService)
+            throws BACnetServiceException {
+        super(localDevice, ObjectType.analogValue, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.presentValue, new Real(presentValue));
@@ -58,7 +61,7 @@ public class AnalogValueObject extends BACnetObject {
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
-        addMixin(new CommandableMixin(this));
+        addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
     }
 
@@ -88,7 +91,17 @@ public class AnalogValueObject extends BACnetObject {
     }
 
     public AnalogValueObject supportCovReporting(final float covIncrement) {
-        supportCovReporting(new Real(covIncrement));
+        _supportCovReporting(new Real(covIncrement));
+        return this;
+    }
+
+    public AnalogValueObject supportCommandable(final float relinquishDefault) {
+        _supportCommandable(new Real(relinquishDefault));
+        return this;
+    }
+
+    public AnalogValueObject supportValueSource() {
+        _supportValueSource();
         return this;
     }
 }

@@ -37,8 +37,7 @@ public class CalendarObjectTest extends AbstractTest {
                         new DateRange(new Date(-1, Month.NOVEMBER, -1, null), new Date(-1, Month.FEBRUARY, -1, null))), // November to February
                 ce);
 
-        final CalendarObject co = new CalendarObject(0, "cal0", dateList, clock);
-        d1.addObject(co);
+        final CalendarObject co = new CalendarObject(d1, 0, "cal0", dateList, clock);
 
         co.updatePresentValue(); // November to February
         Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));

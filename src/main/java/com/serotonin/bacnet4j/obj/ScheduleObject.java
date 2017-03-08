@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.ResponseConsumer;
 import com.serotonin.bacnet4j.apdu.AckAPDU;
@@ -56,12 +57,14 @@ import com.serotonin.bacnet4j.type.constructed.DailySchedule;
 import com.serotonin.bacnet4j.type.constructed.DateRange;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
+import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.SpecialEvent;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -87,11 +90,12 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
      */
     private ScheduledFuture<?> periodicWriter;
 
-    public ScheduleObject(final int instanceNumber, final String name, final DateRange effectivePeriod,
-            final BACnetArray<DailySchedule> weeklySchedule, final SequenceOf<SpecialEvent> exceptionSchedule,
-            final T scheduleDefault, final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
-            final int priorityForWriting, final boolean outOfService, final Clock clock) {
-        super(ObjectType.schedule, instanceNumber, name);
+    public ScheduleObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final DateRange effectivePeriod, final BACnetArray<DailySchedule> weeklySchedule,
+            final SequenceOf<SpecialEvent> exceptionSchedule, final T scheduleDefault,
+            final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
+            final int priorityForWriting, final boolean outOfService, final Clock clock) throws BACnetServiceException {
+        super(localDevice, ObjectType.schedule, instanceNumber, name);
         this.clock = clock;
 
         if (effectivePeriod == null)
@@ -121,6 +125,14 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ScheduleMixin(this));
+
+        final T oldValue = get(PropertyIdentifier.presentValue);
+        updatePresentValue();
+        final T newValue = get(PropertyIdentifier.presentValue);
+        // If the present value didn't change after the update, then no write would have been done. So, to ensure
+        // initialization of the objects in the list, force a write.
+        if (Objects.equals(oldValue, newValue))
+            doWrites(newValue);
 
         // Validations
         // 1) entries in the list of property references must reference properties of this type
@@ -167,17 +179,6 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
     }
 
     @Override
-    public void addedToDevice() {
-        final T oldValue = get(PropertyIdentifier.presentValue);
-        updatePresentValue();
-        final T newValue = get(PropertyIdentifier.presentValue);
-        // If the present value didn't change after the update, then no write would have been done. So, to ensure
-        // initialization of the objects in the list, force a write.
-        if (Objects.equals(oldValue, newValue))
-            doWrites(newValue);
-    }
-
-    @Override
     public void removedFromDevice() {
         cancelRefresher();
         cancelPeriodicWriter();
@@ -193,7 +194,8 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         }
 
         @Override
-        protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+        protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+                throws BACnetServiceException {
             if (PropertyIdentifier.presentValue.equals(value.getPropertyIdentifier())) {
                 final Boolean outOfService = get(PropertyIdentifier.outOfService);
                 if (!outOfService.booleanValue())
@@ -376,8 +378,9 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
                 // Local write.
                 final BACnetObject that = getLocalDevice().getObject(dopr.getObjectIdentifier());
                 try {
-                    that.writeProperty(new PropertyValue(dopr.getPropertyIdentifier(), dopr.getPropertyArrayIndex(),
-                            value, priorityForWriting));
+                    that.writeProperty(new ValueSource(new DeviceObjectReference(getLocalDevice().getId(), getId())),
+                            new PropertyValue(dopr.getPropertyIdentifier(), dopr.getPropertyArrayIndex(), value,
+                                    priorityForWriting));
                 } catch (final BACnetServiceException e) {
                     LOG.warn("Schedule failed to write to local object {}", dopr.getObjectIdentifier(), e);
                 }

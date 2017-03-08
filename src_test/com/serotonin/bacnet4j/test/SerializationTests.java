@@ -114,7 +114,7 @@ public class SerializationTests {
             new Date(new GregorianCalendar(2008, Calendar.MARCH, 22)), //
             new com.serotonin.bacnet4j.type.primitive.Double(123.456), //
             new Enumerated(4), //
-            new Null(), //
+            Null.instance, //
             new ObjectIdentifier(ObjectType.averaging, 2), //
             new OctetString(new byte[] { 1, 2, 3, 4 }), //
             new Real(234.567F), //
@@ -152,6 +152,6 @@ public class SerializationTests {
             new ReadPropertyAck(new ObjectIdentifier(ObjectType.analogValue, 7), PropertyIdentifier.priorityArray,
                     new UnsignedInteger(0), new UnsignedInteger(23)), //
             new ReadPropertyAck(new ObjectIdentifier(ObjectType.analogValue, 7), PropertyIdentifier.priorityArray,
-                    new UnsignedInteger(11), new PriorityValue(new Null())), //
+                    new UnsignedInteger(11), new PriorityValue(Null.instance)), //
     };
 }

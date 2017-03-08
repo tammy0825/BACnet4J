@@ -28,7 +28,9 @@
  */
 package com.serotonin.bacnet4j.obj;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.MultistateMixin;
@@ -36,9 +38,11 @@ import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.FaultStateAlgo;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
+import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -48,27 +52,30 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class MultistateValueObject extends BACnetObject {
-    public MultistateValueObject(final int instanceNumber, final String name, final int numberOfStates,
-            final BACnetArray<CharacterString> stateText, final int presentValue, final boolean outOfService) {
-        super(ObjectType.multiStateValue, instanceNumber, name);
+    public MultistateValueObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final int numberOfStates, final BACnetArray<CharacterString> stateText, final int presentValue,
+            final boolean outOfService) throws BACnetServiceException {
+        super(localDevice, ObjectType.multiStateValue, instanceNumber, name);
 
         if (numberOfStates < 1)
             throw new BACnetRuntimeException("numberOfStates cannot be less than 1");
 
+        final ValueSource valueSource = new ValueSource(new DeviceObjectReference(localDevice.getId(), getId()));
+
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writeProperty(PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
+        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
-        addMixin(new CommandableMixin(this));
+        addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
         addMixin(new MultistateMixin(this));
 
         writePropertyInternal(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
         if (stateText != null)
-            writeProperty(PropertyIdentifier.stateText, stateText);
-        writeProperty(PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
+            writeProperty(null, PropertyIdentifier.stateText, stateText);
+        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
         if (!outOfService)
             writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
     }
@@ -97,7 +104,18 @@ public class MultistateValueObject extends BACnetObject {
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 
-    public void supportCovReporting() {
-        supportCovReporting(null);
+    public MultistateValueObject supportCovReporting() {
+        _supportCovReporting(null);
+        return this;
+    }
+
+    public MultistateValueObject supportCommandable(final UnsignedInteger relinquishDefault) {
+        _supportCommandable(relinquishDefault);
+        return this;
+    }
+
+    public MultistateValueObject supportValueSource() {
+        _supportValueSource();
+        return this;
     }
 }

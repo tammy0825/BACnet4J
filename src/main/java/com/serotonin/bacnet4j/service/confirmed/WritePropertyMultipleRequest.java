@@ -38,6 +38,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.constructed.WriteAccessSpecification;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
@@ -79,7 +80,7 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
             for (final PropertyValue pv : spec.getListOfProperties()) {
                 try {
                     if (localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv)) {
-                        obj.writeProperty(pv);
+                        obj.writeProperty(new ValueSource(from), pv);
                         localDevice.getEventHandler().propertyWritten(from, obj, pv);
                     } else
                         throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, spec, pv);

@@ -56,6 +56,7 @@ import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -75,11 +76,10 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  * @author Matthew
  */
 public class BACnetObject {
+    private final LocalDevice localDevice;
     private final ObjectType objectType;
     protected final Map<PropertyIdentifier, Encodable> properties = new ConcurrentHashMap<>();
     private final List<BACnetObjectListener> listeners = new CopyOnWriteArrayList<>();
-
-    private LocalDevice localDevice;
 
     // Mixins
     private final List<AbstractMixin> mixins = new ArrayList<>();
@@ -89,21 +89,26 @@ public class BACnetObject {
     private IntrinsicReportingMixin intrinsicReportingMixin;
     private CovReportingMixin changeOfValueMixin;
 
-    public BACnetObject(final ObjectType type, final int instanceNumber) {
-        this(type, instanceNumber, null);
+    public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber)
+            throws BACnetServiceException {
+        this(localDevice, type, instanceNumber, null);
     }
 
-    public BACnetObject(final ObjectType type, final int instanceNumber, final String name) {
-        this(new ObjectIdentifier(type, instanceNumber), name);
+    public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber,
+            final String name) throws BACnetServiceException {
+        this(localDevice, new ObjectIdentifier(type, instanceNumber), name);
     }
 
-    public BACnetObject(final ObjectIdentifier id) {
-        this(id, null);
+    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id) throws BACnetServiceException {
+        this(localDevice, id, null);
     }
 
-    public BACnetObject(final ObjectIdentifier id, final String name) {
+    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id, final String name)
+            throws BACnetServiceException {
         if (id == null)
             throw new IllegalArgumentException("object id cannot be null");
+
+        this.localDevice = localDevice;
         objectType = id.getObjectType();
 
         properties.put(PropertyIdentifier.objectIdentifier, id);
@@ -114,15 +119,10 @@ public class BACnetObject {
         propertyListMixin = new PropertyListMixin(this);
         addMixin(propertyListMixin);
         propertyListMixin.update();
-    }
 
-    public void setLocalDevice(final LocalDevice localDevice) {
-        this.localDevice = localDevice;
-
-        // Notify the mixins
-        for (final AbstractMixin mixin : mixins) {
-            mixin.setLocalDeviceNotify();
-        }
+        if (!id.getObjectType().equals(ObjectType.device))
+            // The device object will add itself to the local device after it initializes.
+            localDevice.addObject(this);
     }
 
     //
@@ -152,13 +152,6 @@ public class BACnetObject {
     //
     // Object notifications
     //
-    /**
-     * Called when the object is added to the device.
-     */
-    public void addedToDevice() {
-        // no op, override as required
-    }
-
     /**
      * Called when the object is removed from the device.
      */
@@ -193,9 +186,6 @@ public class BACnetObject {
             intrinsicReportingMixin = (IntrinsicReportingMixin) mixin;
         else if (mixin instanceof CovReportingMixin)
             changeOfValueMixin = (CovReportingMixin) mixin;
-
-        if (localDevice != null)
-            mixin.setLocalDeviceNotify();
     }
 
     public void setOverridden(final boolean b) {
@@ -215,14 +205,25 @@ public class BACnetObject {
 
     //
     // Commandable
-    public void supportCommandable(final Encodable relinquishDefault) {
+    protected void _supportCommandable(final Encodable relinquishDefault) {
         if (commandableMixin != null)
-            commandableMixin.setCommandable(relinquishDefault);
+            commandableMixin.supportCommandable(relinquishDefault);
     }
 
-    public boolean isCommandable() {
+    public boolean supportsCommandable() {
         if (commandableMixin != null)
-            return commandableMixin.isCommandable();
+            return commandableMixin.supportsCommandable();
+        return false;
+    }
+
+    protected void _supportValueSource() {
+        if (commandableMixin != null)
+            commandableMixin.supportValueSource();
+    }
+
+    public boolean supportsValueSource() {
+        if (commandableMixin != null)
+            return commandableMixin.supportsValueSource();
         return false;
     }
 
@@ -240,7 +241,7 @@ public class BACnetObject {
 
     //
     // COVs
-    public void supportCovReporting(final Real covIncrement) {
+    protected void _supportCovReporting(final Real covIncrement) {
         addMixin(new CovReportingMixin(this, covIncrement));
     }
 
@@ -354,18 +355,20 @@ public class BACnetObject {
     //
     // Set property
     //
-    public BACnetObject writeProperty(final PropertyIdentifier pid, final Encodable value) {
+    public BACnetObject writeProperty(final ValueSource valueSource, final PropertyIdentifier pid,
+            final Encodable value) {
         try {
-            writeProperty(new PropertyValue(pid, value));
+            writeProperty(valueSource, new PropertyValue(pid, value));
         } catch (final BACnetServiceException e) {
             throw new BACnetRuntimeException(e);
         }
         return this;
     }
 
-    public BACnetObject writeProperty(final PropertyIdentifier pid, final int indexBase1, final Encodable value) {
+    public BACnetObject writeProperty(final ValueSource valueSource, final PropertyIdentifier pid, final int indexBase1,
+            final Encodable value) {
         try {
-            writeProperty(new PropertyValue(pid, new UnsignedInteger(indexBase1), value, null));
+            writeProperty(valueSource, new PropertyValue(pid, new UnsignedInteger(indexBase1), value, null));
         } catch (final BACnetServiceException e) {
             throw new BACnetRuntimeException(e);
         }
@@ -378,7 +381,7 @@ public class BACnetObject {
      * @param value
      * @throws BACnetServiceException
      */
-    public void writeProperty(final PropertyValue value) throws BACnetServiceException {
+    public void writeProperty(final ValueSource valueSource, final PropertyValue value) throws BACnetServiceException {
         final PropertyIdentifier pid = value.getPropertyIdentifier();
 
         if (PropertyIdentifier.objectIdentifier.equals(pid))
@@ -391,7 +394,7 @@ public class BACnetObject {
         // Validation - run through the mixins
         boolean handled = false;
         for (final AbstractMixin mixin : mixins) {
-            handled = mixin.validateProperty(value);
+            handled = mixin.validateProperty(valueSource, value);
             if (handled)
                 break;
         }
@@ -430,7 +433,7 @@ public class BACnetObject {
         // Writing
         handled = false;
         for (final AbstractMixin mixin : mixins) {
-            handled = mixin.writeProperty(value);
+            handled = mixin.writeProperty(valueSource, value);
             if (handled)
                 break;
         }
@@ -494,15 +497,6 @@ public class BACnetObject {
     //
     // Other
     //
-    public void validate() throws BACnetServiceException {
-        // Ensure that all required properties have values.
-        final List<PropertyTypeDefinition> defs = ObjectProperties.getRequiredPropertyTypeDefinitions(objectType);
-        for (final PropertyTypeDefinition def : defs) {
-            if (getProperty(def.getPropertyIdentifier()) == null)
-                throw new BACnetServiceException(ErrorClass.property, ErrorCode.missingRequiredParameter,
-                        "Required property not set: " + def.getPropertyIdentifier());
-        }
-    }
 
     @Override
     public int hashCode() {

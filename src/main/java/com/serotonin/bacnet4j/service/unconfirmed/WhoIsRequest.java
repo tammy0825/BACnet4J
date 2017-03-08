@@ -61,7 +61,7 @@ public class WhoIsRequest extends UnconfirmedRequestService {
 
     @Override
     public void handle(final LocalDevice localDevice, final Address from) throws BACnetException {
-        final int instanceId = localDevice.getInstanceId();
+        final int instanceId = localDevice.getInstanceNumber();
 
         // Check if we're in the device id range.
         if (deviceInstanceRangeLowLimit != null && instanceId < deviceInstanceRangeLowLimit.intValue())

@@ -22,8 +22,7 @@ public class NotificationClassTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        nc = new NotificationClassObject(0, "notifClass", 100, 5, 200, new EventTransitionBits(true, true, true));
-        d1.addObject(nc);
+        nc = new NotificationClassObject(d1, 0, "notifClass", 100, 5, 200, new EventTransitionBits(true, true, true));
     }
 
     @Test

@@ -28,6 +28,8 @@
  */
 package com.serotonin.bacnet4j.obj;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
@@ -43,9 +45,9 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class BinaryValueObject extends BACnetObject {
-    public BinaryValueObject(final int instanceNumber, final String name, final BinaryPV presentValue,
-            final boolean outOfService) {
-        super(ObjectType.binaryValue, instanceNumber, name);
+    public BinaryValueObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final BinaryPV presentValue, final boolean outOfService) throws BACnetServiceException {
+        super(localDevice, ObjectType.binaryValue, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
@@ -53,7 +55,7 @@ public class BinaryValueObject extends BACnetObject {
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
-        addMixin(new CommandableMixin(this));
+        addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
 
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
     }
@@ -80,7 +82,18 @@ public class BinaryValueObject extends BACnetObject {
         //                PropertyIdentifier.alarmValue, new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 
-    public void supportCovReporting() {
-        supportCovReporting(null);
+    public BinaryValueObject supportCovReporting() {
+        _supportCovReporting(null);
+        return this;
+    }
+
+    public BinaryValueObject supportCommandable(final BinaryPV relinquishDefault) {
+        super._supportCommandable(relinquishDefault);
+        return this;
+    }
+
+    public BinaryValueObject supportValueSource() {
+        super._supportValueSource();
+        return this;
     }
 }

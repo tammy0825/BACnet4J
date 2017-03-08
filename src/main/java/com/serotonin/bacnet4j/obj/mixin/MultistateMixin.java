@@ -34,6 +34,7 @@ import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -46,7 +47,8 @@ public class MultistateMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         if (PropertyIdentifier.presentValue.equals(value.getPropertyIdentifier())) {
             final UnsignedInteger pv = (UnsignedInteger) value.getValue();
             final UnsignedInteger numStates = get(PropertyIdentifier.numberOfStates);

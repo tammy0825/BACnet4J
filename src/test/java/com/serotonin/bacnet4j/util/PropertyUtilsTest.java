@@ -52,17 +52,17 @@ public class PropertyUtilsTest {
     }
 
     private static void addObjects(final LocalDevice d) throws Exception {
-        final int id = d.getInstanceId();
+        final int id = d.getInstanceNumber();
         d.writePropertyInternal(PropertyIdentifier.objectName, str("d" + id));
-        d.addObject(new BinaryValueObject(0, "ai0", BinaryPV.active, false)
+        new BinaryValueObject(d, 0, "ai0", BinaryPV.active, false)
                 .writePropertyInternal(PropertyIdentifier.inactiveText, str("inactiveText"))
-                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText")));
-        d.addObject(new BinaryValueObject(1, "ai1", BinaryPV.inactive, false)
+                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText"));
+        new BinaryValueObject(d, 1, "ai1", BinaryPV.inactive, false)
                 .writePropertyInternal(PropertyIdentifier.inactiveText, str("inactiveText"))
-                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText")));
-        d.addObject(new BinaryValueObject(2, "ai2", BinaryPV.active, false)
+                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText"));
+        new BinaryValueObject(d, 2, "ai2", BinaryPV.active, false)
                 .writePropertyInternal(PropertyIdentifier.inactiveText, str("inactiveText"))
-                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText")));
+                .writePropertyInternal(PropertyIdentifier.activeText, str("activeText"));
     }
 
     private static CharacterString str(final String s) {

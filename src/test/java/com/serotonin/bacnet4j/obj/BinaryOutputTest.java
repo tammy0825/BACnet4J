@@ -27,7 +27,7 @@ public class BinaryOutputTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        obj = new BinaryOutputObject(0, "boName1", BinaryPV.inactive, true, Polarity.normal, BinaryPV.inactive);
+        obj = new BinaryOutputObject(d1, 0, "boName1", BinaryPV.inactive, true, Polarity.normal, BinaryPV.inactive);
         obj.addListener(new BACnetObjectListener() {
             @Override
             public void propertyChange(final PropertyIdentifier pid, final Encodable oldValue,
@@ -35,13 +35,12 @@ public class BinaryOutputTest extends AbstractTest {
                 LOG.debug("{} changed from {} to {}", pid, oldValue, newValue);
             }
         });
-        d1.addObject(obj);
     }
 
     @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
-        new BinaryOutputObject(0, "boName1", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);
+        new BinaryOutputObject(d1, 1, "boName2", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);
     }
 
     @Test
@@ -72,7 +71,7 @@ public class BinaryOutputTest extends AbstractTest {
 
         // d)
         LOG.debug("d");
-        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, new Null(), 9);
+        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, Null.instance, 9);
         assertEquals(new PriorityArray().put(6, active).put(7, inactive), pa);
         assertEquals(active, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
@@ -86,7 +85,7 @@ public class BinaryOutputTest extends AbstractTest {
         // Write inactive into 10, and relinquish 7
         LOG.debug("A");
         RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, inactive, 10);
-        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, new Null(), 7);
+        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, Null.instance, 7);
         assertEquals(new PriorityArray().put(6, inactive).put(10, inactive), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
@@ -98,7 +97,7 @@ public class BinaryOutputTest extends AbstractTest {
 
         // Relinquish at 10. No timer should be active, and the array should be empty.
         LOG.debug("C");
-        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, new Null(), 10);
+        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, Null.instance, 10);
         assertEquals(new PriorityArray(), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
@@ -117,7 +116,7 @@ public class BinaryOutputTest extends AbstractTest {
         // Relinquish at 5. Timer remains active.
         Thread.sleep(1500);
         LOG.debug("F");
-        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, new Null(), 5);
+        RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, Null.instance, 5);
         assertEquals(new PriorityArray().put(6, inactive).put(9, active), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 

@@ -46,6 +46,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -71,16 +72,13 @@ public class CovReportingMixin extends AbstractMixin {
                     "COV reporting not supported for this object type: " + bo.getId().getObjectType());
         if (covIncrement != null)
             writePropertyInternal(PropertyIdentifier.covIncrement, covIncrement);
-    }
 
-    @Override
-    protected void setLocalDeviceNotify() {
-        super.setLocalDeviceNotify();
         getLocalDevice().getCovContexts().put(getId(), new ArrayList<>());
     }
 
     @Override
-    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         if (PropertyIdentifier.covIncrement.equals(value.getPropertyIdentifier())) {
             final Real covIncrement = (Real) value.getValue();
             if (covIncrement.floatValue() < 0)
@@ -93,6 +91,11 @@ public class CovReportingMixin extends AbstractMixin {
     @Override
     protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
             final Encodable newValue) {
+        if (Objects.equals(newValue, oldValue)) {
+            // Never mind.
+            return;
+        }
+
         final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
         final long now = getLocalDevice().getClock().millis();
         synchronized (ctxs) {
@@ -110,28 +113,31 @@ public class CovReportingMixin extends AbstractMixin {
                     boolean sent = false;
 
                     // Table 13-1
+                    boolean table13_1Met = false;
                     if (pid.isOneOf(criteria.monitoredProperties)) {
-                        boolean send = true;
-                        if (pid.equals(criteria.incrementProperty))
+                        table13_1Met = true;
+                        if (pid.equals(criteria.incrementProperty)) {
                             // Check if the increment property has changed enough for a notification to be sent.
-                            send = incrementChange(ctx, newValue);
-                        if (send) {
-                            // We send an object notification in any case because the property that changed is one
-                            // of the monitored properties in 13-1. So, send to all object subscriptions, and property
-                            // subscriptions where the monitored property is one of the criteria's monitored properties.
-                            if (ctx.isObjectSubscription()
-                                    || ctx.getMonitoredProperty().isOneOf(criteria.monitoredProperties)) {
-                                sendObjectNotification(ctx, now);
-                                sent = true;
-                            }
+                            table13_1Met = incrementChange(ctx, newValue);
+                        }
+                    }
+
+                    // Table 13-1 for object subscriptions and property subscriptions of monitored properties.
+                    if (table13_1Met) {
+                        // We send an object notification in any case because the property that changed is one
+                        // of the monitored properties in 13-1. So, send to all object subscriptions, and property
+                        // subscriptions where the monitored property is one of the criteria's monitored properties.
+                        if (ctx.isObjectSubscription()
+                                || ctx.getMonitoredProperty().isOneOf(criteria.monitoredProperties)) {
+                            sendObjectNotification(ctx, now);
+                            sent = true;
                         }
                     }
 
                     if (!sent) {
                         // Rows in Table 13-1a are not distinguished because currently no alternative increment
                         // value is supported.
-                        if (pid.isOneOf(PropertyIdentifier.statusFlags) //
-                                || ctx.getMonitoredProperty() != null && pid.equals(ctx.getMonitoredProperty())) {
+                        if (pid.equals(PropertyIdentifier.statusFlags) || pid.equals(ctx.getMonitoredProperty())) {
                             final SequenceOf<PropertyValue> values = new SequenceOf<>();
                             addPropertyValues(ctx, values, ctx.getMonitoredProperty(), PropertyIdentifier.statusFlags);
                             sendNotification(ctx, now, values);
@@ -139,15 +145,24 @@ public class CovReportingMixin extends AbstractMixin {
                         }
                     }
 
-                    // Too difficult to figure out what Table 13-1a-2 is trying to say.
-                    //                    if (!sent && pid.equals(PropertyIdentifier.valueSource)) {
-                    //                        // Table 13-1a-2
-                    //                        if (get(PropertyIdentifier.priorityArray) != null) {
-                    //
-                    //                        } else {
-                    //
-                    //                        }
-                    //                    }
+                    if (!sent && PropertyIdentifier.valueSource.equals(ctx.getMonitoredProperty())) {
+                        // Table 13-1a-2
+                        if (get(PropertyIdentifier.priorityArray) != null) {
+                            // Commandable
+                            if (table13_1Met //
+                                    || PropertyIdentifier.valueSource.equals(pid) //
+                                    || PropertyIdentifier.currentCommandPriority.equals(pid)) {
+                                sendPropertyNotification(ctx, now);
+                                sent = true;
+                            }
+                        } else {
+                            // Non-commandable
+                            if (table13_1Met || PropertyIdentifier.valueSource.equals(pid)) {
+                                sendPropertyNotification(ctx, now);
+                                sent = true;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -176,9 +191,8 @@ public class CovReportingMixin extends AbstractMixin {
                                 ErrorCode.optionalFunctionalityNotSupported);
 
                     // Make sure that the requested property is one of the supported properties.
-                    if (!monitoredPropertyIdentifier.getPropertyIdentifier().isOneOf(criteria.monitoredProperties))
-                        throw new BACnetServiceException(ErrorClass.object,
-                                ErrorCode.optionalFunctionalityNotSupported);
+                    if (get(monitoredPropertyIdentifier.getPropertyIdentifier()) == null)
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.notCovProperty);
                 }
 
                 final PropertyIdentifier exposed = monitored == null ? criteria.exposedMonitoredProperty : monitored;
@@ -197,13 +211,13 @@ public class CovReportingMixin extends AbstractMixin {
             ctx.setCovIncrement(covIncrement);
 
             // "Immediately" send a notification
-            final CovContext subscription = ctx;
+            final CovContext _ctx = ctx;
             getLocalDevice().schedule(() -> {
                 final long now = getLocalDevice().getClock().millis();
-                if (subscription.getMonitoredProperty() != null)
-                    sendPropertyNotification(subscription, now, subscription.getMonitoredProperty());
+                if (_ctx.getMonitoredProperty() != null)
+                    sendPropertyNotification(_ctx, now);
                 else
-                    sendObjectNotification(subscription, now);
+                    sendObjectNotification(_ctx, now);
             }, 20, TimeUnit.MILLISECONDS);
         }
     }
@@ -240,15 +254,23 @@ public class CovReportingMixin extends AbstractMixin {
         sendNotification(ctx, now, values);
     }
 
-    private void sendPropertyNotification(final CovContext ctx, final long now, final PropertyIdentifier pid) {
+    private void sendPropertyNotification(final CovContext ctx, final long now) {
         final SequenceOf<PropertyValue> values = new SequenceOf<>();
 
-        if (pid.equals(PropertyIdentifier.valueSource)) {
+        if (PropertyIdentifier.valueSource.equals(ctx.getMonitoredProperty())) {
             // Table 13-1a-2
-
+            if (get(PropertyIdentifier.priorityArray) != null) {
+                addPropertyValues(ctx, values, criteria.propertiesReported);
+                addPropertyValues(ctx, values, PropertyIdentifier.valueSource, PropertyIdentifier.lastCommandTime,
+                        PropertyIdentifier.currentCommandPriority);
+            } else {
+                // Non-commandable
+                addPropertyValues(ctx, values, criteria.propertiesReported);
+                addPropertyValues(ctx, values, PropertyIdentifier.valueSource);
+            }
         } else {
             // Table 13-1a
-            addPropertyValues(ctx, values, pid, PropertyIdentifier.statusFlags);
+            addPropertyValues(ctx, values, ctx.getMonitoredProperty(), PropertyIdentifier.statusFlags);
         }
 
         sendNotification(ctx, now, values);

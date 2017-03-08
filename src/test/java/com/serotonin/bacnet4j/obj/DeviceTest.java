@@ -18,15 +18,16 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
 public class DeviceTest extends AbstractTest {
+    @SuppressWarnings("unused")
     @Override
     public void before() throws Exception {
-        d1.addObject(new AnalogValueObject(0, "av0", 50, EngineeringUnits.amperes, false));
-        d1.addObject(new AnalogValueObject(1, "av1", 50, EngineeringUnits.amperes, false));
-        d1.addObject(new AnalogValueObject(2, "av2", 50, EngineeringUnits.amperes, false));
-        d1.addObject(new BinaryValueObject(0, "bv0", BinaryPV.inactive, false));
-        d1.addObject(new BinaryValueObject(1, "bv1", BinaryPV.inactive, false));
-        d1.addObject(new BinaryValueObject(2, "bv2", BinaryPV.inactive, false));
-        d1.addObject(new BinaryValueObject(3, "bv3", BinaryPV.inactive, false));
+        new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
+        new AnalogValueObject(d1, 1, "av1", 50, EngineeringUnits.amperes, false);
+        new AnalogValueObject(d1, 2, "av2", 50, EngineeringUnits.amperes, false);
+        new BinaryValueObject(d1, 0, "bv0", BinaryPV.inactive, false);
+        new BinaryValueObject(d1, 1, "bv1", BinaryPV.inactive, false);
+        new BinaryValueObject(d1, 2, "bv2", BinaryPV.inactive, false);
+        new BinaryValueObject(d1, 3, "bv3", BinaryPV.inactive, false);
     }
 
     @Test

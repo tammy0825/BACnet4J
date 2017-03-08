@@ -60,6 +60,7 @@ import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -129,7 +130,8 @@ public class IntrinsicReportingMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         if (PropertyIdentifier.eventDetectionEnable.equals(value.getPropertyIdentifier()))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         if (PropertyIdentifier.eventTimeStamps.equals(value.getPropertyIdentifier()))
@@ -139,7 +141,7 @@ public class IntrinsicReportingMixin extends AbstractMixin {
         if (PropertyIdentifier.eventAlgorithmInhibitRef.equals(value.getPropertyIdentifier()))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
 
-        return super.validateProperty(value);
+        return super.validateProperty(valueSource, value);
     }
 
     @Override
@@ -256,10 +258,12 @@ public class IntrinsicReportingMixin extends AbstractMixin {
         //
         writePropertyInternal(PropertyIdentifier.eventState, toState);
 
+        final TimeStamp now = new TimeStamp(new DateTime());
+
         BACnetArray<TimeStamp> ets = get(PropertyIdentifier.eventTimeStamps);
         // Make a copy in which to make the change so that the write property method works properly.
         ets = new BACnetArray<>(ets);
-        ets.set(toState.getTransitionIndex(), new TimeStamp(new DateTime()));
+        ets.set(toState.getTransitionIndex(), now);
         writePropertyInternal(PropertyIdentifier.eventTimeStamps, ets);
 
         // Not implemented
@@ -299,7 +303,6 @@ public class IntrinsicReportingMixin extends AbstractMixin {
             final SequenceOf<Destination> recipientList = nc.get(PropertyIdentifier.recipientList);
             final NotifyType notifyType = get(PropertyIdentifier.notifyType);
             final BACnetArray<UnsignedInteger> priority = nc.get(PropertyIdentifier.priority);
-            final TimeStamp now = new TimeStamp(new DateTime());
 
             EventType eventType;
             NotificationParameters eventValues;

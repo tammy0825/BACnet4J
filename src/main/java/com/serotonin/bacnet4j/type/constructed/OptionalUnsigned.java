@@ -42,8 +42,8 @@ public class OptionalUnsigned extends BaseType {
 
     private final Choice choice;
 
-    public OptionalUnsigned(final Null nullValue) {
-        this.choice = new Choice(nullValue, choiceOptions);
+    public OptionalUnsigned() {
+        this.choice = new Choice(Null.instance, choiceOptions);
     }
 
     public OptionalUnsigned(final UnsignedInteger unsigned) {
@@ -52,6 +52,10 @@ public class OptionalUnsigned extends BaseType {
 
     public OptionalUnsigned(final int unsigned) {
         this.choice = new Choice(new UnsignedInteger(unsigned), choiceOptions);
+    }
+
+    public boolean isNull() {
+        return choice.getContextId() == 0;
     }
 
     public Null getNullValue() {
@@ -69,6 +73,11 @@ public class OptionalUnsigned extends BaseType {
 
     public OptionalUnsigned(final ByteQueue queue) throws BACnetException {
         choice = readChoice(queue, choiceOptions);
+    }
+
+    @Override
+    public String toString() {
+        return "OptionalUnsigned [choice=" + choice + "]";
     }
 
     @Override

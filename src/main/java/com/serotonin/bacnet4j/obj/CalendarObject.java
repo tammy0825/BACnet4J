@@ -35,11 +35,13 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -53,17 +55,32 @@ public class CalendarObject extends BACnetObject {
 
     // This timer task keeps the present value up to date in case other objects have registered
     // for COV on it.
-    private ScheduledFuture<?> presentValueRefersher;
+    private ScheduledFuture<?> presentValueRefresher;
 
-    public CalendarObject(final int instanceNumber, final String name, final SequenceOf<CalendarEntry> dateList,
-            final Clock clock) {
-        super(ObjectType.calendar, instanceNumber, name);
+    public CalendarObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final SequenceOf<CalendarEntry> dateList, final Clock clock) throws BACnetServiceException {
+        super(localDevice, ObjectType.calendar, instanceNumber, name);
         this.clock = clock;
 
         writePropertyInternal(PropertyIdentifier.dateList, dateList);
         updatePresentValue();
 
         addMixin(new CalendarMixin(this));
+
+        // Schedule a timer task to run every hour. This way we don't need to worry
+        // about daylight savings time changeovers.
+        // Calculate the amount of time until the next hour.
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(clock.millis());
+        final long elapsed = gc.get(Calendar.MILLISECOND) //
+                + gc.get(Calendar.SECOND) * 1000 //
+                + gc.get(Calendar.MINUTE) * 60 * 1000;
+        final long hour = 1000 * 60 * 60;
+        final long delay = hour - elapsed + 10; // Add a few milliseconds for fun.
+
+        // Delay until the top of the next hour, and then run every hour.
+        presentValueRefresher = getLocalDevice().scheduleAtFixedRate(() -> updatePresentValue(), delay, hour,
+                TimeUnit.MILLISECONDS);
     }
 
     public int getTimeTolerance() {
@@ -80,28 +97,10 @@ public class CalendarObject extends BACnetObject {
     }
 
     @Override
-    public void addedToDevice() {
-        // Schedule a timer task to run every hour. This way we don't need to worry
-        // about daylight savings time changeovers.
-        // Calculate the amount of time until the next hour.
-        final GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(clock.millis());
-        final long elapsed = gc.get(Calendar.MILLISECOND) //
-                + gc.get(Calendar.SECOND) * 1000 //
-                + gc.get(Calendar.MINUTE) * 60 * 1000;
-        final long hour = 1000 * 60 * 60;
-        final long delay = hour - elapsed + 10; // Add a few milliseconds for fun.
-
-        // Delay until the top of the next hour, and then run every hour.
-        presentValueRefersher = getLocalDevice().scheduleAtFixedRate(() -> updatePresentValue(), delay, hour,
-                TimeUnit.MILLISECONDS);
-    }
-
-    @Override
     public void removedFromDevice() {
-        if (presentValueRefersher != null) {
-            presentValueRefersher.cancel(false);
-            presentValueRefersher = null;
+        if (presentValueRefresher != null) {
+            presentValueRefresher.cancel(false);
+            presentValueRefresher = null;
         }
     }
 
@@ -127,7 +126,8 @@ public class CalendarObject extends BACnetObject {
         }
 
         @Override
-        protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+        protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+                throws BACnetServiceException {
             if (PropertyIdentifier.presentValue.equals(value.getPropertyIdentifier()))
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
             return false;

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
@@ -96,7 +97,7 @@ public class MessagingTest {
         // Create the second local device.
         final LocalDevice d2 = new LocalDevice(2,
                 new DefaultTransport(new TestNetwork(new Address(new byte[] { 2 }), 200)));
-        d2.addObject(createAnalogValue(0));
+        createAnalogValue(d2, 0);
         d2.initialize();
 
         d1.sendGlobalBroadcast(d1.getIAm());
@@ -126,6 +127,7 @@ public class MessagingTest {
         assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
         final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
+        System.out.println(idList);
         assertEquals(2, idList.getCount());
         assertEquals(d2.getId(), idList.get(1));
         assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), idList.get(2));
@@ -148,7 +150,7 @@ public class MessagingTest {
         // Create the second local device.
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 200)));
         for (int i = 0; i < 1000; i++)
-            d2.addObject(createAnalogValue(i));
+            createAnalogValue(d2, i);
         d2.initialize();
 
         d1.sendGlobalBroadcast(d1.getIAm());
@@ -199,7 +201,7 @@ public class MessagingTest {
         // Create the second local device.
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 30)));
         final ObjectIdentifier av0 = new ObjectIdentifier(ObjectType.analogValue, 0);
-        d2.addObject(createAnalogValue(0));
+        createAnalogValue(d2, 0);
         d2.initialize();
 
         d1.sendGlobalBroadcast(d1.getIAm());
@@ -242,7 +244,7 @@ public class MessagingTest {
         // Create the second local device.
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 25)));
         for (int i = 0; i < 1000; i++)
-            d2.addObject(createAnalogValue(i));
+            createAnalogValue(d2, i);
         d2.initialize();
 
         d1.sendGlobalBroadcast(d1.getIAm());
@@ -293,7 +295,7 @@ public class MessagingTest {
         d1.initialize();
 
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
-        d2.addObject(createAnalogValue(0));
+        createAnalogValue(d2, 0);
         d2.initialize();
 
         final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
@@ -351,13 +353,14 @@ public class MessagingTest {
         }
     }
 
-    private static BACnetObject createAnalogValue(final int id) {
-        return new BACnetObject(ObjectType.analogValue, id) //
-                .writeProperty(PropertyIdentifier.presentValue, new Real(3.14F)) //
-                .writeProperty(PropertyIdentifier.units, EngineeringUnits.noUnits) //
-                .writeProperty(PropertyIdentifier.outOfService, new Boolean(false)) //
-                .writeProperty(PropertyIdentifier.eventState, EventState.normal) //
-                .writeProperty(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)) //
+    private static BACnetObject createAnalogValue(final LocalDevice localDevice, final int id)
+            throws BACnetServiceException {
+        return new BACnetObject(localDevice, ObjectType.analogValue, id) //
+                .writePropertyInternal(PropertyIdentifier.presentValue, new Real(3.14F)) //
+                .writePropertyInternal(PropertyIdentifier.units, EngineeringUnits.noUnits) //
+                .writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false)) //
+                .writePropertyInternal(PropertyIdentifier.eventState, EventState.normal) //
+                .writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)) //
         ;
     }
 }

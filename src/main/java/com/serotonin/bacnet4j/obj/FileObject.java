@@ -35,7 +35,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.enumerated.FileAccessMethod;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -54,8 +56,9 @@ public class FileObject extends BACnetObject {
      */
     private final File file;
 
-    public FileObject(final int instanceNumber, final File file, final FileAccessMethod fileAccessMethod) {
-        super(ObjectType.file, instanceNumber, file.getName());
+    public FileObject(final LocalDevice localDevice, final int instanceNumber, final File file,
+            final FileAccessMethod fileAccessMethod) throws BACnetServiceException {
+        super(localDevice, ObjectType.file, instanceNumber, file.getName());
         this.file = file;
 
         if (file.isDirectory())

@@ -28,6 +28,8 @@
  */
 package com.serotonin.bacnet4j.obj;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
@@ -39,9 +41,10 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 
 public class BinaryOutputObject extends BACnetObject {
-    public BinaryOutputObject(final int instanceNumber, final String name, final BinaryPV presentValue,
-            final boolean outOfService, final Polarity polarity, final BinaryPV relinquishDefault) {
-        super(ObjectType.binaryOutput, instanceNumber, name);
+    public BinaryOutputObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final BinaryPV presentValue, final boolean outOfService, final Polarity polarity,
+            final BinaryPV relinquishDefault) throws BACnetServiceException {
+        super(localDevice, ObjectType.binaryOutput, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
@@ -49,15 +52,16 @@ public class BinaryOutputObject extends BACnetObject {
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
-        addMixin(new CommandableMixin(this));
+        addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
 
-        supportCommandable(relinquishDefault);
+        _supportCommandable(relinquishDefault);
+        _supportValueSource();
 
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
         writePropertyInternal(PropertyIdentifier.polarity, polarity);
     }
 
     public void supportCovReporting() {
-        supportCovReporting(null);
+        _supportCovReporting(null);
     }
 }

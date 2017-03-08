@@ -56,7 +56,7 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
 
     private void ensureLength() {
         while (getCount() < LENGTH)
-            super.add(new PriorityValue(new Null()));
+            super.add(new PriorityValue(Null.instance));
         while (getCount() > LENGTH)
             super.remove(getCount());
     }
@@ -71,7 +71,7 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
         if (indexBase1 < 1 || indexBase1 > LENGTH)
             throw new RuntimeException("Invalid priority value");
         if (value == null)
-            super.set(indexBase1, new PriorityValue(new Null()));
+            super.set(indexBase1, new PriorityValue(Null.instance));
         else
             super.set(indexBase1, value);
     }

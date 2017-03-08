@@ -123,7 +123,7 @@ public class TimerStateChangeValue extends BaseType {
     }
 
     public TimerStateChangeValue() {
-        this.choice = new Choice(0, new Null(), choiceOptions);
+        this.choice = new Choice(0, Null.instance, choiceOptions);
     }
 
     public TimerStateChangeValue(final BaseType constructedValue) {

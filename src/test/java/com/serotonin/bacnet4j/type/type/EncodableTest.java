@@ -37,7 +37,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class EncodableTest {
     @Test
     public void _20_2_2() throws BACnetException {
-        decodePrimitive("00", new Null());
+        decodePrimitive("00", Null.instance);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class EncodableTest {
 
     @Test
     public void _20_2_15() throws BACnetException {
-        decodePrimitive("38", 3, new Null());
+        decodePrimitive("38", 3, Null.instance);
         decodePrimitive("6900", 6, new Boolean(false));
         decodePrimitive("F91B00", 27, new Boolean(false));
         decodePrimitive("0A0100", 0, new UnsignedInteger(256));
@@ -204,7 +204,7 @@ public class EncodableTest {
 
     @Test
     public void timerStateChangeValue() throws BACnetException {
-        testTimerStateChangeValue(new TimerStateChangeValue(new Null()), 10, "ae00af");
+        testTimerStateChangeValue(new TimerStateChangeValue(Null.instance), 10, "ae00af");
         testTimerStateChangeValue(new TimerStateChangeValue(new Boolean(true)), 11, "be11bf");
         testTimerStateChangeValue(new TimerStateChangeValue(new UnsignedInteger(12)), 12, "ce210ccf");
         testTimerStateChangeValue(new TimerStateChangeValue(new SignedInteger(-23)), 13, "de31e9df");

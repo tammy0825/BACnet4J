@@ -14,14 +14,19 @@ import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
+import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
+import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
+import com.serotonin.bacnet4j.type.constructed.OptionalUnsigned;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
+import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
@@ -55,8 +60,7 @@ public class ChangeOfValueTest extends AbstractTest {
             assertEquals(ErrorCode.unknownObject, e.getError().getErrorCode());
         }
 
-        final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
-        d1.addObject(av);
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
 
         try {
             d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), new Boolean(true),
@@ -87,8 +91,7 @@ public class ChangeOfValueTest extends AbstractTest {
             assertEquals(ErrorCode.unknownObject, e.getError().getErrorCode());
         }
 
-        final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
-        d1.addObject(av);
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
 
         try {
             d2.send(rd1,
@@ -103,18 +106,6 @@ public class ChangeOfValueTest extends AbstractTest {
         }
 
         av.supportCovReporting(4);
-
-        try {
-            d2.send(rd1,
-                    new SubscribeCOVPropertyRequest(new UnsignedInteger(4),
-                            new ObjectIdentifier(ObjectType.analogValue, 0), new Boolean(true),
-                            new UnsignedInteger(1000), new PropertyReference(PropertyIdentifier.accessDoors), null))
-                    .get();
-            fail("Should have thrown an exception");
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.object, e.getError().getErrorClass());
-            assertEquals(ErrorCode.optionalFunctionalityNotSupported, e.getError().getErrorCode());
-        }
 
         d2.send(rd1,
                 new SubscribeCOVPropertyRequest(new UnsignedInteger(4), new ObjectIdentifier(ObjectType.analogValue, 0),
@@ -125,9 +116,8 @@ public class ChangeOfValueTest extends AbstractTest {
 
     @Test
     public void objectCov() throws Exception {
-        final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
         av.supportCovReporting(4);
-        d1.addObject(av);
 
         final CovNotifListener listener = new CovNotifListener();
         d2.getEventHandler().addListener(listener);
@@ -218,9 +208,8 @@ public class ChangeOfValueTest extends AbstractTest {
 
     @Test
     public void unsubscribe() throws Exception {
-        final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
         av.supportCovReporting(4);
-        d1.addObject(av);
 
         final CovNotifListener listener = new CovNotifListener();
         d2.getEventHandler().addListener(listener);
@@ -251,9 +240,8 @@ public class ChangeOfValueTest extends AbstractTest {
 
     @Test
     public void propertyCov() throws Exception {
-        final AnalogValueObject av = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false);
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
         av.supportCovReporting(4);
-        d1.addObject(av);
 
         final CovNotifListener listener = new CovNotifListener();
         d2.getEventHandler().addListener(listener);
@@ -323,12 +311,10 @@ public class ChangeOfValueTest extends AbstractTest {
     @SuppressWarnings("unchecked")
     @Test
     public void multipleClients() throws Exception {
-        final AnalogValueObject av0 = new AnalogValueObject(0, "av0", 10, EngineeringUnits.amperes, false) //
+        final AnalogValueObject av0 = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false) //
                 .supportCovReporting(0);
-        d1.addObject(av0);
-        final AnalogValueObject av1 = new AnalogValueObject(1, "av1", 10, EngineeringUnits.amperes, true) //
+        final AnalogValueObject av1 = new AnalogValueObject(d1, 1, "av1", 10, EngineeringUnits.amperes, true) //
                 .supportCovReporting(0);
-        d1.addObject(av1);
 
         final CovNotifListener listener2 = new CovNotifListener();
         d2.getEventHandler().addListener(listener2);
@@ -515,5 +501,100 @@ public class ChangeOfValueTest extends AbstractTest {
                 null)).get();
         assertEquals(0,
                 ((SequenceOf<CovSubscription>) d1.getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
+    }
+
+    @Test
+    public void nonStandardProperties() throws Exception {
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false)
+                .supportCovReporting(4);
+
+        final CovNotifListener listener = new CovNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        // Subscribe to changes.
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //
+                new UnsignedInteger(20), new PropertyReference(PropertyIdentifier.units), null)).get();
+
+        // Subscribing should have caused a notification to be sent.
+        Thread.sleep(50);
+        assertEquals(1, listener.notifs.size());
+        Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(
+                new SequenceOf<>( //
+                        new PropertyValue(PropertyIdentifier.units, EngineeringUnits.amperes),
+                        new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false))),
+                notif.get("listOfValues"));
+
+        // Write a new value to the property. That will trigger a notification.
+        av.writePropertyInternal(PropertyIdentifier.units, EngineeringUnits.ampereSeconds);
+        Thread.sleep(100);
+        assertEquals(1, listener.notifs.size());
+        notif = listener.notifs.remove(0);
+        assertEquals(
+                new SequenceOf<>( //
+                        new PropertyValue(PropertyIdentifier.units, EngineeringUnits.ampereSeconds),
+                        new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false))),
+                notif.get("listOfValues"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void valueSourceCommandable() throws Exception {
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false)
+                .supportCommandable(0) //
+                .supportValueSource() //
+                .supportCovReporting(4);
+
+        final CovNotifListener listener = new CovNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        // Write a new present value to set up all of the commandable values.
+        final ValueSource vs = new ValueSource(new Address(new byte[] { 2 }));
+        av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(11));
+        final TimeStamp setTime = new TimeStamp(new DateTime());
+
+        // Subscribe to changes.
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //
+                new UnsignedInteger(20), new PropertyReference(PropertyIdentifier.valueSource), null)).get();
+
+        // Subscribing should have caused a notification to be sent.
+        Thread.sleep(50);
+        assertEquals(1, listener.notifs.size());
+        Map<String, Object> notif = listener.notifs.remove(0);
+        SequenceOf<PropertyValue> values = (SequenceOf<PropertyValue>) notif.get("listOfValues");
+        // Ensure that the last command time looks like the set time.
+        TimeStamp lastCommandTime = (TimeStamp) values.get(4).getValue();
+        TestUtils.assertEquals(setTime, lastCommandTime, 2);
+        assertEquals(
+                new SequenceOf<>( //
+                        new PropertyValue(PropertyIdentifier.presentValue, new Real(11)),
+                        new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
+                        new PropertyValue(PropertyIdentifier.valueSource, vs),
+                        new PropertyValue(PropertyIdentifier.lastCommandTime, lastCommandTime),
+                        new PropertyValue(PropertyIdentifier.currentCommandPriority, new OptionalUnsigned(16))),
+                values);
+
+        // Write a new value to a different property. That will not trigger a notification.
+        av.writePropertyInternal(PropertyIdentifier.units, EngineeringUnits.ampereSeconds);
+        Thread.sleep(50);
+        assertEquals(0, listener.notifs.size());
+
+        // Write a new value to the present value. This will trigger three notifications because multiple values
+        // will be updated.
+        av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(12));
+        Thread.sleep(50);
+        assertEquals(1, listener.notifs.size());
+        notif = listener.notifs.remove(0);
+        values = (SequenceOf<PropertyValue>) notif.get("listOfValues");
+        // Ensure that the last command time looks like the set time.
+        lastCommandTime = (TimeStamp) values.get(4).getValue();
+        assertEquals(
+                new SequenceOf<>( //
+                        new PropertyValue(PropertyIdentifier.presentValue, new Real(12)),
+                        new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
+                        new PropertyValue(PropertyIdentifier.valueSource, vs),
+                        new PropertyValue(PropertyIdentifier.lastCommandTime, lastCommandTime),
+                        new PropertyValue(PropertyIdentifier.currentCommandPriority, new OptionalUnsigned(16))),
+                values);
     }
 }

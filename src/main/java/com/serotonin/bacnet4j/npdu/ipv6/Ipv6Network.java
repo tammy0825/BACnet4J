@@ -146,7 +146,7 @@ public class Ipv6Network extends Network implements Runnable {
 
         broadcastMAC = Ipv6NetworkUtils.toOctetString(ia.getAddress(), port);
 
-        thisVMAC = BACnetUtils.toVirtualAddressBytes(transport.getLocalDevice().getInstanceId());
+        thisVMAC = BACnetUtils.toVirtualAddressBytes(transport.getLocalDevice().getInstanceNumber());
 
         thread = new Thread(this, "BACnet4J IPv6 socket listener");
         thread.start();

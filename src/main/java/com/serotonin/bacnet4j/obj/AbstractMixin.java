@@ -35,6 +35,7 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 
@@ -69,10 +70,6 @@ public class AbstractMixin {
         }
     }
 
-    protected void setLocalDeviceNotify() {
-        // Override as required.
-    }
-
     protected final void writePropertyInternal(final PropertyIdentifier pid, final Encodable value) {
         bo.writePropertyInternal(pid, value);
     }
@@ -105,22 +102,26 @@ public class AbstractMixin {
     /**
      * Allow the mixin to override the property validation.
      *
+     * @param valueSource
      * @param value
      * @return true of the validation was handled, false otherwise.
      * @throws BACnetServiceException
      */
-    protected boolean validateProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         return false;
     }
 
     /**
      * Allow the mixin to override the property write.
      *
+     * @param valueSource
      * @param value
      * @return true of the write was handled, false otherwise.
      * @throws BACnetServiceException
      */
-    protected boolean writeProperty(final PropertyValue value) throws BACnetServiceException {
+    protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
         return false;
     }
 

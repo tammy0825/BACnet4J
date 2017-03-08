@@ -34,6 +34,7 @@ import java.util.GregorianCalendar;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Time extends Primitive {
+    public static final int MAX_TIME = 24 * 60 * 60 * 100;
     public static final Time UNSPECIFIED = new Time(255, 255, 255, 255);
 
     public static final byte TYPE_ID = 11;
@@ -91,6 +92,38 @@ public class Time extends Primitive {
 
     public int getHundredth() {
         return hundredth;
+    }
+
+    public boolean isFullySpecified() {
+        return isHourUnspecified() && isMinuteUnspecified() && isSecondUnspecified() && isHundredthUnspecified();
+    }
+
+    public int getHundredthInDay() {
+        return hour * 60 * 60 * 100 //
+                + minute * 60 * 100 //
+                + second * 100 //
+                + hundredth;
+    }
+
+    public int getSmallestDiff(final Time that) {
+        final int thishun = getHundredthInDay();
+        final int thathun = that.getHundredthInDay();
+
+        if (thishun == thathun)
+            return 0;
+
+        int contiguous;
+        int wraparound;
+
+        if (thishun > thathun) {
+            contiguous = thishun - thathun;
+            wraparound = thathun + MAX_TIME - thishun;
+        } else {
+            contiguous = thathun - thishun;
+            wraparound = thishun + MAX_TIME - thathun;
+        }
+
+        return contiguous > wraparound ? wraparound : contiguous;
     }
 
     /**

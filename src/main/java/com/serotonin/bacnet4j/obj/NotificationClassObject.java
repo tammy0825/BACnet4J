@@ -31,7 +31,9 @@ package com.serotonin.bacnet4j.obj;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.NotificationClassListener;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -51,17 +53,19 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class NotificationClassObject extends BACnetObject {
     private final List<NotificationClassListener> eventListeners = new CopyOnWriteArrayList<>();
 
-    public NotificationClassObject(final int instanceNumber, final String name, final int toOffnormalPriority,
-            final int toFaultPriority, final int toNormalPriority, final EventTransitionBits ackRequired) {
-        this(instanceNumber, name, new BACnetArray<>(new UnsignedInteger(toOffnormalPriority),
+    public NotificationClassObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final int toOffnormalPriority, final int toFaultPriority, final int toNormalPriority,
+            final EventTransitionBits ackRequired) throws BACnetServiceException {
+        this(localDevice, instanceNumber, name, new BACnetArray<>(new UnsignedInteger(toOffnormalPriority),
                 new UnsignedInteger(toFaultPriority), new UnsignedInteger(toNormalPriority)), ackRequired);
 
         writePropertyInternal(PropertyIdentifier.recipientList, new SequenceOf<Destination>());
     }
 
-    public NotificationClassObject(final int instanceNumber, final String name,
-            final BACnetArray<UnsignedInteger> priority, final EventTransitionBits ackRequired) {
-        super(ObjectType.notificationClass, instanceNumber, name);
+    public NotificationClassObject(final LocalDevice localDevice, final int instanceNumber, final String name,
+            final BACnetArray<UnsignedInteger> priority, final EventTransitionBits ackRequired)
+            throws BACnetServiceException {
+        super(localDevice, ObjectType.notificationClass, instanceNumber, name);
 
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(instanceNumber));
         writePropertyInternal(PropertyIdentifier.priority, priority);

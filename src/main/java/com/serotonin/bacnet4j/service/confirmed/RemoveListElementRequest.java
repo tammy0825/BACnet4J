@@ -41,6 +41,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -134,7 +135,7 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
                 list.remove(pr);
             }
 
-            obj.writeProperty(propertyIdentifier, origList);
+            obj.writeProperty(new ValueSource(from), propertyIdentifier, origList);
         } else
             // It doesn't make much sense to me how elements can be removed from an array.
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));

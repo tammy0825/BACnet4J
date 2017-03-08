@@ -53,13 +53,10 @@ public class ScheduleObjectTest extends AbstractTest {
         final TestClock clock = new TestClock();
         clock.setTime(2115, Calendar.MAY, 1, 12, 0, 0);
 
-        final AnalogValueObject av0 = new AnalogValueObject(0, "av0", 98, EngineeringUnits.amperes, false);
-        av0.supportCommandable(new Real(-2));
-        d2.addObject(av0);
-
-        final AnalogValueObject av1 = new AnalogValueObject(1, "av1", 99, EngineeringUnits.amperesPerMeter, false);
-        av1.supportCommandable(new Real(-1));
-        d1.addObject(av1);
+        final AnalogValueObject av0 = new AnalogValueObject(d2, 0, "av0", 98, EngineeringUnits.amperes, false)
+                .supportCommandable(-2);
+        final AnalogValueObject av1 = new AnalogValueObject(d1, 1, "av1", 99, EngineeringUnits.amperesPerMeter, false)
+                .supportCommandable(-1);
 
         final SequenceOf<CalendarEntry> dateList = new SequenceOf<>( //
                 new CalendarEntry(new Date(-1, null, -1, DayOfWeek.FRIDAY)), // Every Friday.
@@ -68,8 +65,7 @@ public class ScheduleObjectTest extends AbstractTest {
                 new CalendarEntry(new WeekNDay(Month.UNSPECIFIED, WeekOfMonth.days22to28, DayOfWeek.WEDNESDAY)) // The Wednesday during the 4th week of each month.
         );
 
-        final CalendarObject co = new CalendarObject(0, "cal0", dateList, clock);
-        d1.addObject(co);
+        final CalendarObject co = new CalendarObject(d1, 0, "cal0", dateList, clock);
 
         final DateRange effectivePeriod = new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED);
         final BACnetArray<DailySchedule> weeklySchedule = new BACnetArray<>( //
@@ -105,10 +101,9 @@ public class ScheduleObjectTest extends AbstractTest {
                 new DeviceObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue, null, null) //
         );
 
-        final ScheduleObject<Real> so = new ScheduleObject<>(0, "sch0", effectivePeriod, weeklySchedule,
+        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0", effectivePeriod, weeklySchedule,
                 exceptionSchedule, new Real(8), listOfObjectPropertyReferences, 12, false, clock);
 
-        d1.addObject(so);
         Thread.sleep(100); // Let the requests be received.
         Assert.assertEquals(new Real(14), so.get(PropertyIdentifier.presentValue));
         Assert.assertEquals(new Real(14), av0.get(PropertyIdentifier.presentValue));
@@ -150,10 +145,8 @@ public class ScheduleObjectTest extends AbstractTest {
     @SuppressWarnings("unchecked")
     @Test
     public void intrinsicAlarms() throws Exception {
-        final NotificationClassObject nc = new NotificationClassObject(7, "nc7", 100, 5, 200,
+        final NotificationClassObject nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200,
                 new EventTransitionBits(false, false, false));
-        d1.addObject(nc);
-
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
         recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
                 new EventTransitionBits(true, true, true)));
@@ -162,9 +155,8 @@ public class ScheduleObjectTest extends AbstractTest {
         final EventNotifListener listener = new EventNotifListener();
         d2.getEventHandler().addListener(listener);
 
-        final AnalogValueObject av1 = new AnalogValueObject(1, "av1", 99, EngineeringUnits.amperesPerMeter, false);
-        av1.supportCommandable(new Real(-1));
-        d1.addObject(av1);
+        final AnalogValueObject av1 = new AnalogValueObject(d1, 1, "av1", 99, EngineeringUnits.amperesPerMeter, false)
+                .supportCommandable(-1);
 
         final SequenceOf<SpecialEvent> exceptionSchedule = new SequenceOf<>( //
                 new SpecialEvent(new CalendarEntry(new Date(-1, null, -1, DayOfWeek.WEDNESDAY)),
@@ -173,10 +165,9 @@ public class ScheduleObjectTest extends AbstractTest {
         final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences = new SequenceOf<>( //
                 new DeviceObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue, null, null) //
         );
-        final ScheduleObject<Real> so = new ScheduleObject<>(0, "sch0",
+        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
                 new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED), null, exceptionSchedule, new Real(8),
                 listOfObjectPropertyReferences, 12, false, d1.getClock());
-        d1.addObject(so);
         so.supportIntrinsicReporting(7, new EventTransitionBits(true, true, true), NotifyType.alarm);
 
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.

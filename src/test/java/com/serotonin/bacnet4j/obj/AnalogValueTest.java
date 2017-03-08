@@ -40,11 +40,8 @@ public class AnalogValueTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        av = new AnalogValueObject(0, "av0", 50, EngineeringUnits.amperes, false);
-        d1.addObject(av);
-
-        nc = new NotificationClassObject(7, "nc7", 100, 5, 200, new EventTransitionBits(false, false, false));
-        d1.addObject(nc);
+        av = new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
+        nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200, new EventTransitionBits(false, false, false));
     }
 
     @SuppressWarnings("unchecked")
@@ -197,8 +194,10 @@ public class AnalogValueTest extends AbstractTest {
 
     @Test
     public void propertyConformanceReadOnly() {
-        assertBACnetServiceException(() -> av.writeProperty(new PropertyValue(PropertyIdentifier.eventMessageTexts,
-                new UnsignedInteger(2), new CharacterString("should fail"), null)), ErrorClass.property,
-                ErrorCode.writeAccessDenied);
+        assertBACnetServiceException(
+                () -> av.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.eventMessageTexts, new UnsignedInteger(2),
+                                new CharacterString("should fail"), null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
     }
 }

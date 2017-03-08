@@ -43,11 +43,9 @@ public class AnalogInputTest extends AbstractTest {
 
     @Override
     public void before() throws Exception {
-        ai = new AnalogInputObject(0, "ai0", 50, EngineeringUnits.amperes, false);
-        d1.addObject(ai);
+        ai = new AnalogInputObject(d1, 0, "ai0", 50, EngineeringUnits.amperes, false);
 
-        nc = new NotificationClassObject(17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
-        d1.addObject(nc);
+        nc = new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
     }
 
     @SuppressWarnings("unchecked")
@@ -215,19 +213,22 @@ public class AnalogInputTest extends AbstractTest {
     public void propertyConformanceEditableWhenOutOfService() throws BACnetServiceException {
         // Should not be writable while in service
         assertBACnetServiceException(
-                () -> ai.writeProperty(new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null)),
+                () -> ai.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        ai.writeProperty(PropertyIdentifier.outOfService, Boolean.TRUE);
-        ai.writeProperty(new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null));
+        ai.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
+        ai.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null));
     }
 
     @Test
     public void propertyConformanceReadOnly() {
-        assertBACnetServiceException(() -> ai.writeProperty(new PropertyValue(PropertyIdentifier.eventMessageTexts,
-                new UnsignedInteger(2), new CharacterString("should fail"), null)), ErrorClass.property,
-                ErrorCode.writeAccessDenied);
+        assertBACnetServiceException(
+                () -> ai.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.eventMessageTexts, new UnsignedInteger(2),
+                                new CharacterString("should fail"), null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
     }
 
     @Test

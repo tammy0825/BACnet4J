@@ -37,6 +37,7 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -94,7 +95,7 @@ public class WritePropertyRequest extends ConfirmedRequestService {
         final PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, propertyValue, priority);
         try {
             if (localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv)) {
-                obj.writeProperty(pv);
+                obj.writeProperty(new ValueSource(from), pv);
                 localDevice.getEventHandler().propertyWritten(from, obj, pv);
             } else
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);

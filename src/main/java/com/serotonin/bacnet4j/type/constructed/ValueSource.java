@@ -42,8 +42,8 @@ public class ValueSource extends BaseType {
 
     private final Choice choice;
 
-    public ValueSource(final Null none) {
-        choice = new Choice(0, none, choiceOptions);
+    public ValueSource() {
+        choice = new Choice(0, Null.instance, choiceOptions);
     }
 
     public ValueSource(final DeviceObjectReference object) {
@@ -85,6 +85,11 @@ public class ValueSource extends BaseType {
 
     public Address getAddress() {
         return (Address) choice.getDatum();
+    }
+
+    @Override
+    public String toString() {
+        return "ValueSource [choice=" + choice + "]";
     }
 
     @Override
