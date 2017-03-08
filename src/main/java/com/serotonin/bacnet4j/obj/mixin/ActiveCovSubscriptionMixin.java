@@ -15,6 +15,11 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
+/**
+ * Manages the active COV subscription property in the device by writing it fresh each time it is requested.
+ *
+ * @author Matthew
+ */
 public class ActiveCovSubscriptionMixin extends AbstractMixin {
     public ActiveCovSubscriptionMixin(final BACnetObject bo) {
         super(bo);
