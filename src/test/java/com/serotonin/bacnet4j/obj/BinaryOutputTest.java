@@ -37,7 +37,6 @@ public class BinaryOutputTest extends AbstractTest {
         });
     }
 
-    @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
         new BinaryOutputObject(d1, 1, "boName2", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);

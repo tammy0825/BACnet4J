@@ -38,7 +38,6 @@ public class BinaryValueTest extends AbstractTest {
         bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
     }
 
-    @SuppressWarnings("unused")
     @Test
     public void initialization() throws Exception {
         new BinaryValueObject(d1, 1, "bvName2", BinaryPV.inactive, false);

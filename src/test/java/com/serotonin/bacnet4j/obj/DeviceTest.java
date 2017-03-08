@@ -18,7 +18,6 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
 public class DeviceTest extends AbstractTest {
-    @SuppressWarnings("unused")
     @Override
     public void before() throws Exception {
         new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
