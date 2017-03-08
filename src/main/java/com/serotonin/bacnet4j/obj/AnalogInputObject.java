@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.obj;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.WritablePropertyOutOfServiceMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
@@ -63,6 +64,15 @@ public class AnalogInputObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
+        addMixin(new PropertyListMixin(this));
+
+        // ?? deviceType
+        // ?? updateInterval
+        // ?? minPresValue
+        // ?? maxPresValue
+        // ?? resolution
+        // ?? faultHighLimit
+        // ?? faultLowLimit
     }
 
     public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final float highLimit,
@@ -80,6 +90,7 @@ public class AnalogInputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(this), null, //

@@ -34,16 +34,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.NotificationClassListener;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
+import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.NoneAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
@@ -70,6 +76,23 @@ public class NotificationClassObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(instanceNumber));
         writePropertyInternal(PropertyIdentifier.priority, priority);
         writePropertyInternal(PropertyIdentifier.ackRequired, ackRequired);
+        writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
+        writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
+
+        addMixin(new PropertyListMixin(this));
+        addMixin(new HasStatusFlagsMixin(this));
+    }
+
+    public void supportIntrinsicReporting(final EventTransitionBits eventEnable, final NotifyType notifyType) {
+        // Prepare the object with all of the properties that intrinsic reporting will need.
+        // User-defined properties
+        writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
+        writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
+        writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
+
+        // Now add the mixin.
+        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(this), null, new PropertyIdentifier[0],
+                new PropertyIdentifier[0]));
     }
 
     public void addEventListener(final NotificationClassListener l) {

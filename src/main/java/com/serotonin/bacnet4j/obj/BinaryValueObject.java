@@ -32,6 +32,7 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -42,6 +43,7 @@ import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class BinaryValueObject extends BACnetObject {
@@ -56,8 +58,20 @@ public class BinaryValueObject extends BACnetObject {
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
+        addMixin(new PropertyListMixin(this));
 
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
+
+        // ?? changeOfStateTime
+        // ?? changeOfStateCount
+        // ?? timeOfStateCountReset
+        // ?? elapsedActiveTime
+        // ?? timeOfActiveTimeReset
+    }
+
+    public void addStateText(final String inactive, final String active) {
+        writePropertyInternal(PropertyIdentifier.inactiveText, new CharacterString(inactive));
+        writePropertyInternal(PropertyIdentifier.activeText, new CharacterString(active));
     }
 
     public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final BinaryPV alarmValue,
@@ -70,16 +84,13 @@ public class BinaryValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValue);
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, null,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue },
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
-        //
-        //        // Now add the mixin.
-        //        addMixin(new ChangeOfStateAlgo(this, null, null, PropertyIdentifier.presentValue,
-        //                PropertyIdentifier.alarmValue, new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 
     public BinaryValueObject supportCovReporting() {

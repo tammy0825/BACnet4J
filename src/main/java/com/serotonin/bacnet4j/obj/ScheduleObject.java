@@ -47,6 +47,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.NoneAlgo;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
@@ -125,6 +126,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ScheduleMixin(this));
+        addMixin(new PropertyListMixin(this));
 
         final T oldValue = get(PropertyIdentifier.presentValue);
         updatePresentValue();
@@ -148,6 +150,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(this), null, new PropertyIdentifier[0],

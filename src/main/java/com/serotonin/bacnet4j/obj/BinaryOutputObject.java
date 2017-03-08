@@ -32,6 +32,7 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -39,6 +40,7 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.Polarity;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 
 public class BinaryOutputObject extends BACnetObject {
     public BinaryOutputObject(final LocalDevice localDevice, final int instanceNumber, final String name,
@@ -53,12 +55,41 @@ public class BinaryOutputObject extends BACnetObject {
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
+        addMixin(new PropertyListMixin(this));
 
         _supportCommandable(relinquishDefault);
         _supportValueSource();
 
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
         writePropertyInternal(PropertyIdentifier.polarity, polarity);
+
+        // TODO intrinsic reporting: COMMAND_FAILURE
+        //        Event_State BACnetEventState R
+        //        Time_Delay Unsigned O4,6
+        //        Notification_Class Unsigned O4,6
+        //        Feedback_Value BACnetBinaryPV O4
+        //        Event_Enable BACnetEventTransitionBits O4,6
+        //        Acked_Transitions BACnetEventTransitionBits O4,6
+        //        Notify_Type BACnetNotifyType O4,6
+        //        Event_Time_Stamps BACnetARRAY[3] of BACnetTimeStamp O4,6
+        //        Event_Message_Texts BACnetARRAY[3] of CharacterString O6
+        //        Event_Message_Texts_Config BACnetARRAY[3] of CharacterString O6
+        //        Event_Detection_Enable BOOLEAN O4,6
+        //        Event_Algorithm_Inhibit_Ref BACnetObjectPropertyReference O6
+        //        Event_Algorithm_Inhibit BOOLEAN O6,7
+        //        Time_Delay_Normal Unsigned O6
+        //        Reliability_Evaluation_Inhibit BOOLEAN O8        
+
+        // ?? changeOfStateTime
+        // ?? changeOfStateCount
+        // ?? timeOfStateCountReset
+        // ?? elapsedActiveTime
+        // ?? timeOfActiveTimeReset
+    }
+
+    public void addStateText(final String inactive, final String active) {
+        writePropertyInternal(PropertyIdentifier.inactiveText, new CharacterString(inactive));
+        writePropertyInternal(PropertyIdentifier.activeText, new CharacterString(active));
     }
 
     public void supportCovReporting() {

@@ -121,7 +121,6 @@ public class IntrinsicReportingMixin extends AbstractMixin {
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
         //writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibitRef, new ObjectPropertyReference()); Not supported
         writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
         writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
 
         // Update the state with the current values in the object.
