@@ -104,7 +104,7 @@ public class SignedInteger extends Primitive {
             int length;
             if (smallValue < Byte.MAX_VALUE && smallValue > Byte.MIN_VALUE)
                 length = 1;
-            else if (smallValue < Short.MAX_VALUE && smallValue > Short.MAX_VALUE)
+            else if (smallValue < Short.MAX_VALUE && smallValue > Short.MIN_VALUE)
                 length = 2;
             else if (smallValue < 8388607 && smallValue > -8388608)
                 length = 3;
