@@ -39,6 +39,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRejectException;
 import com.serotonin.bacnet4j.exception.ReflectionException;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
+import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
 import com.serotonin.bacnet4j.obj.PropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
@@ -337,9 +338,10 @@ abstract public class Encodable {
         if (!matchNonEndTag(queue, contextId))
             throw new BACnetErrorException(ErrorClass.property, ErrorCode.missingRequiredParameter);
 
-        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectType, propertyIdentifier);
-        if (def == null)
+        final PropertyTypeDefinition def = getPropertyTypeDefinition(objectType, propertyIdentifier);
+        if (def == null) {
             return new AmbiguousValue(queue, contextId).attemptConversion();
+        }
 
         if (ObjectProperties.isCommandable(objectType, propertyIdentifier)) {
             // If the object is commandable, it could be set to Null, so we need to treat it as ambiguous.
@@ -377,10 +379,22 @@ abstract public class Encodable {
     protected static SequenceOf<? extends Encodable> readSequenceOfANY(final ByteQueue queue,
             final ObjectType objectType, final PropertyIdentifier propertyIdentifier, final int contextId)
             throws BACnetException {
-        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectType, propertyIdentifier);
+        final PropertyTypeDefinition def = getPropertyTypeDefinition(objectType, propertyIdentifier);
         if (def == null)
             return readSequenceOf(queue, AmbiguousValue.class, contextId);
         return readSequenceOf(queue, def.getClazz(), contextId);
+    }
+
+    private static PropertyTypeDefinition getPropertyTypeDefinition(final ObjectType objectType,
+            final PropertyIdentifier propertyIdentifier) {
+        final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinition(objectType,
+                propertyIdentifier);
+        if (def != null) {
+            return def.getPropertyTypeDefinition();
+        }
+
+        // Check if the pid has only one type
+        return ObjectProperties.getPropertyTypeDefinition(propertyIdentifier);
     }
 
     // Read vendor-specific

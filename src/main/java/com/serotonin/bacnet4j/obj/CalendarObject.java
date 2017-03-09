@@ -99,7 +99,7 @@ public class CalendarObject extends BACnetObject {
     }
 
     @Override
-    public void removedFromDevice() {
+    public void terminate() {
         if (presentValueRefresher != null) {
             presentValueRefresher.cancel(false);
             presentValueRefresher = null;

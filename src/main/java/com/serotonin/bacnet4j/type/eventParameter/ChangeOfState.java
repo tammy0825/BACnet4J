@@ -29,13 +29,14 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.ChangeOfStateAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.constructed.PropertyStates;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfState extends BaseType {
+public class ChangeOfState extends AbstractEventParameter {
     public static final byte TYPE_ID = 1;
 
     private final UnsignedInteger timeDelay;
@@ -63,6 +64,11 @@ public class ChangeOfState extends BaseType {
 
     public SequenceOf<PropertyStates> getListOfValues() {
         return listOfValues;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return new ChangeOfStateAlgo();
     }
 
     @Override

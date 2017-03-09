@@ -29,12 +29,12 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfStatusFlags extends BaseType {
+public class ChangeOfStatusFlags extends AbstractEventParameter {
     public static final byte TYPE_ID = 18;
 
     private final UnsignedInteger timeDelay;
@@ -71,6 +71,11 @@ public class ChangeOfStatusFlags extends BaseType {
         result = prime * result + (selectedFlags == null ? 0 : selectedFlags.hashCode());
         result = prime * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     @Override

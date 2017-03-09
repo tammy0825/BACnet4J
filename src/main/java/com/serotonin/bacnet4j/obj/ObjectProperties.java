@@ -185,48 +185,69 @@ import com.serotonin.bacnet4j.type.primitive.Unsigned8;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class ObjectProperties {
-    private static final Map<ObjectType, List<PropertyTypeDefinition>> propertyTypes = new HashMap<>();
+    private static final Map<PropertyIdentifier, PropertyTypeDefinition> propertyTypes = new HashMap<>();
+    private static final Map<ObjectType, Map<PropertyIdentifier, ObjectPropertyTypeDefinition>> objectPropertyTypes = new HashMap<>();
 
-    public static PropertyTypeDefinition getPropertyTypeDefinition(final ObjectType objectType,
+    public static ObjectPropertyTypeDefinition getObjectPropertyTypeDefinition(final ObjectType objectType,
             final PropertyIdentifier propertyIdentifier) {
-        final List<PropertyTypeDefinition> list = propertyTypes.get(objectType);
-        if (list == null)
+        final Map<PropertyIdentifier, ObjectPropertyTypeDefinition> props = objectPropertyTypes.get(objectType);
+        if (props == null)
             return null;
-        for (final PropertyTypeDefinition def : list) {
-            if (def.getPropertyIdentifier().equals(propertyIdentifier))
-                return def;
-        }
-        return null;
+        return props.get(propertyIdentifier);
     }
 
-    public static PropertyTypeDefinition getPropertyTypeDefinitionRequired(final ObjectType objectType,
+    public static ObjectPropertyTypeDefinition getObjectPropertyTypeDefinitionRequired(final ObjectType objectType,
             final PropertyIdentifier propertyIdentifier) throws BACnetServiceException {
-        final PropertyTypeDefinition def = getPropertyTypeDefinition(objectType, propertyIdentifier);
+        final ObjectPropertyTypeDefinition def = getObjectPropertyTypeDefinition(objectType, propertyIdentifier);
         if (def == null)
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty,
                     objectType + "/" + propertyIdentifier);
         return def;
     }
 
-    public static List<PropertyTypeDefinition> getPropertyTypeDefinitions(final ObjectType objectType) {
-        return getPropertyTypeDefinitions(objectType, 0);
+    public static List<ObjectPropertyTypeDefinition> getObjectPropertyTypeDefinitions(final ObjectType objectType) {
+        return getObjectPropertyTypeDefinitions(objectType, 0);
     }
 
-    public static List<PropertyTypeDefinition> getRequiredPropertyTypeDefinitions(final ObjectType objectType) {
-        return getPropertyTypeDefinitions(objectType, 1);
+    public static List<ObjectPropertyTypeDefinition> getRequiredObjectPropertyTypeDefinitions(
+            final ObjectType objectType) {
+        return getObjectPropertyTypeDefinitions(objectType, 1);
     }
 
-    public static List<PropertyTypeDefinition> getOptionalPropertyTypeDefinitions(final ObjectType objectType) {
-        return getPropertyTypeDefinitions(objectType, 2);
+    public static List<ObjectPropertyTypeDefinition> getOptionalObjectPropertyTypeDefinitions(
+            final ObjectType objectType) {
+        return getObjectPropertyTypeDefinitions(objectType, 2);
+    }
+
+    public static PropertyTypeDefinition getPropertyTypeDefinition(final PropertyIdentifier pid) {
+        return propertyTypes.get(pid);
     }
 
     public static boolean isCommandable(final ObjectType type, final PropertyIdentifier pid) {
         if (!pid.equals(PropertyIdentifier.presentValue))
             return false;
-        return type.equals(ObjectType.analogOutput) || type.equals(ObjectType.analogValue)
-                || type.equals(ObjectType.binaryOutput) || type.equals(ObjectType.binaryValue)
-                || type.equals(ObjectType.multiStateOutput) || type.equals(ObjectType.multiStateValue)
-                || type.equals(ObjectType.accessDoor);
+        return type.isOneOf( //
+                ObjectType.analogOutput, //
+                ObjectType.analogValue, //
+                ObjectType.binaryOutput, //
+                ObjectType.binaryValue, //
+                ObjectType.multiStateOutput, //
+                ObjectType.multiStateValue, //
+                ObjectType.accessDoor, //
+                ObjectType.characterstringValue, //
+                ObjectType.datetimeValue, //
+                ObjectType.largeAnalogValue, //
+                ObjectType.bitstringValue, //
+                ObjectType.octetstringValue, //
+                ObjectType.timeValue, //
+                ObjectType.integerValue, //
+                ObjectType.positiveIntegerValue, //
+                ObjectType.dateValue, //
+                ObjectType.datetimePatternValue, //
+                ObjectType.timePatternValue, //
+                ObjectType.datePatternValue, //
+                ObjectType.lightingOutput, //
+                ObjectType.binaryLightingOutput);
     }
 
     /**
@@ -235,12 +256,12 @@ public class ObjectProperties {
      *            0 = all, 1 = required, 2 = optional
      * @return
      */
-    private static List<PropertyTypeDefinition> getPropertyTypeDefinitions(final ObjectType objectType,
+    private static List<ObjectPropertyTypeDefinition> getObjectPropertyTypeDefinitions(final ObjectType objectType,
             final int include) {
-        final List<PropertyTypeDefinition> result = new ArrayList<>();
-        final List<PropertyTypeDefinition> list = propertyTypes.get(objectType);
-        if (list != null) {
-            for (final PropertyTypeDefinition def : list) {
+        final List<ObjectPropertyTypeDefinition> result = new ArrayList<>();
+        final Map<PropertyIdentifier, ObjectPropertyTypeDefinition> props = objectPropertyTypes.get(objectType);
+        if (props != null) {
+            for (final ObjectPropertyTypeDefinition def : props.values()) {
                 if (include == 0 || include == 1 && def.isRequired() || include == 2 && def.isOptional())
                     result.add(def);
             }
@@ -250,37 +271,55 @@ public class ObjectProperties {
 
     private static void add(final ObjectType type, final PropertyIdentifier pid, final Class<? extends Encodable> clazz,
             final boolean sequenceOf, final boolean required) {
-        List<PropertyTypeDefinition> list = propertyTypes.get(type);
-        if (list == null) {
-            list = new ArrayList<>();
-            propertyTypes.put(type, list);
+        // Add to the object property types
+        Map<PropertyIdentifier, ObjectPropertyTypeDefinition> props = objectPropertyTypes.get(type);
+        if (props == null) {
+            props = new HashMap<>();
+            objectPropertyTypes.put(type, props);
         }
 
         // Check for existing entries.
-        for (final PropertyTypeDefinition def : list) {
-            if (def.getPropertyIdentifier().equals(pid)) {
-                list.remove(def);
-                break;
+        if (props.containsKey(pid))
+            throw new RuntimeException("Found an existing entry for " + type + "/" + pid);
+        //        for (final ObjectPropertyTypeDefinition def : props) {
+        //            if (def.getPropertyTypeDefinition().getPropertyIdentifier().equals(pid)) {
+        //                throw new RuntimeException("Found an existing entry for " + type + "/" + pid);
+        //                //                list.remove(def);
+        //                //                break;
+        //            }
+        //        }
+
+        final PropertyTypeDefinition ptd = new PropertyTypeDefinition(pid, clazz, sequenceOf);
+        props.put(pid, new ObjectPropertyTypeDefinition(type, required, ptd));
+
+        // Add to the property types. If an entry already exists, then replace it with null. In the end, only
+        // properties that have a single type will remain.
+        if (propertyTypes.containsKey(pid)) {
+            final PropertyTypeDefinition existing = propertyTypes.get(pid);
+            if (existing != null) {
+                if (!existing.equals(ptd)) {
+                    propertyTypes.put(pid, null);
+                }
             }
+        } else {
+            propertyTypes.put(pid, ptd);
         }
-
-        list.add(new PropertyTypeDefinition(type, pid, clazz, sequenceOf, required));
     }
 
-    public static void addPropertyTypeDefinition(final ObjectType type, final PropertyIdentifier pid,
-            final Class<? extends Encodable> clazz, final boolean sequenceOf, final boolean required) {
-        final List<PropertyTypeDefinition> list = propertyTypes.get(type);
-        if (list == null)
-            throw new RuntimeException("ObjectType not found: " + type);
-
-        // Check for existing entries.
-        for (final PropertyTypeDefinition def : list) {
-            if (def.getPropertyIdentifier().equals(pid))
-                throw new RuntimeException("ObjectType already contains the given PropertyIdentifier");
-        }
-
-        list.add(new PropertyTypeDefinition(type, pid, clazz, sequenceOf, required));
-    }
+    //    public static void addPropertyTypeDefinition(final ObjectType type, final PropertyIdentifier pid,
+    //            final Class<? extends Encodable> clazz, final boolean sequenceOf, final boolean required) {
+    //        final List<ObjectPropertyTypeDefinition> list = objectPropertyTypes.get(type);
+    //        if (list == null)
+    //            throw new RuntimeException("ObjectType not found: " + type);
+    //
+    //        // Check for existing entries.
+    //        for (final ObjectPropertyTypeDefinition def : list) {
+    //            if (def.getPropertyIdentifier().equals(pid))
+    //                throw new RuntimeException("ObjectType already contains the given PropertyIdentifier");
+    //        }
+    //
+    //        list.add(new ObjectPropertyTypeDefinition(type, pid, clazz, sequenceOf, required));
+    //    }
 
     static {
         // Access credential - 12.35

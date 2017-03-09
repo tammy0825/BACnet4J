@@ -29,11 +29,11 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfDiscreteValue extends BaseType {
+public class ChangeOfDiscreteValue extends AbstractEventParameter {
     public static final byte TYPE_ID = 21;
 
     private final UnsignedInteger timeDelay;
@@ -61,6 +61,11 @@ public class ChangeOfDiscreteValue extends BaseType {
         int result = 1;
         result = prime * result + (timeDelay == null ? 0 : timeDelay.hashCode());
         return result;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     @Override

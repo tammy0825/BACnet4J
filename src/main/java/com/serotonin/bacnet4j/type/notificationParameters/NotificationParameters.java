@@ -37,31 +37,31 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class NotificationParameters extends BaseType {
     private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
-        choiceOptions.addContextual(ChangeOfBitString.TYPE_ID & 0xff, ChangeOfBitString.class); // 0
-        choiceOptions.addContextual(ChangeOfState.TYPE_ID & 0xff, ChangeOfState.class); // 1
-        choiceOptions.addContextual(ChangeOfValue.TYPE_ID & 0xff, ChangeOfValue.class); // 2
-        choiceOptions.addContextual(CommandFailure.TYPE_ID & 0xff, CommandFailure.class); // 3
-        choiceOptions.addContextual(FloatingLimit.TYPE_ID & 0xff, FloatingLimit.class); // 4
-        choiceOptions.addContextual(OutOfRange.TYPE_ID & 0xff, OutOfRange.class); // 5
-        choiceOptions.addContextual(ComplexEventType.TYPE_ID & 0xff, ComplexEventType.class); // 6
-        choiceOptions.addContextual(ChangeOfLifeSafety.TYPE_ID & 0xff, ChangeOfLifeSafety.class); // 8
-        choiceOptions.addContextual(Extended.TYPE_ID & 0xff, Extended.class); // 9
-        choiceOptions.addContextual(BufferReady.TYPE_ID & 0xff, BufferReady.class); // 10
-        choiceOptions.addContextual(UnsignedRange.TYPE_ID & 0xff, UnsignedRange.class); // 11
-        choiceOptions.addContextual(AccessEvent.TYPE_ID & 0xff, AccessEvent.class); // 13
-        choiceOptions.addContextual(DoubleOutOfRange.TYPE_ID & 0xff, DoubleOutOfRange.class); // 14
-        choiceOptions.addContextual(SignedOutOfRange.TYPE_ID & 0xff, SignedOutOfRange.class); // 15
-        choiceOptions.addContextual(UnsignedOutOfRange.TYPE_ID & 0xff, UnsignedOutOfRange.class); // 16
-        choiceOptions.addContextual(ChangeOfCharacterString.TYPE_ID & 0xff, ChangeOfCharacterString.class); // 17
-        choiceOptions.addContextual(ChangeOfStatusFlags.TYPE_ID & 0xff, ChangeOfStatusFlags.class); // 18
-        choiceOptions.addContextual(ChangeOfReliability.TYPE_ID & 0xff, ChangeOfReliability.class); // 19
-        choiceOptions.addContextual(ChangeOfDiscreteValue.TYPE_ID & 0xff, ChangeOfDiscreteValue.class); // 21
-        choiceOptions.addContextual(ChangeOfTimer.TYPE_ID & 0xff, ChangeOfTimer.class); // 22
+        choiceOptions.addContextual(ChangeOfBitStringNotif.TYPE_ID & 0xff, ChangeOfBitStringNotif.class); // 0
+        choiceOptions.addContextual(ChangeOfStateNotif.TYPE_ID & 0xff, ChangeOfStateNotif.class); // 1
+        choiceOptions.addContextual(ChangeOfValueNotif.TYPE_ID & 0xff, ChangeOfValueNotif.class); // 2
+        choiceOptions.addContextual(CommandFailureNotif.TYPE_ID & 0xff, CommandFailureNotif.class); // 3
+        choiceOptions.addContextual(FloatingLimitNotif.TYPE_ID & 0xff, FloatingLimitNotif.class); // 4
+        choiceOptions.addContextual(OutOfRangeNotif.TYPE_ID & 0xff, OutOfRangeNotif.class); // 5
+        choiceOptions.addContextual(ComplexEventTypeNotif.TYPE_ID & 0xff, ComplexEventTypeNotif.class); // 6
+        choiceOptions.addContextual(ChangeOfLifeSafetyNotif.TYPE_ID & 0xff, ChangeOfLifeSafetyNotif.class); // 8
+        choiceOptions.addContextual(ExtendedNotif.TYPE_ID & 0xff, ExtendedNotif.class); // 9
+        choiceOptions.addContextual(BufferReadyNotif.TYPE_ID & 0xff, BufferReadyNotif.class); // 10
+        choiceOptions.addContextual(UnsignedRangeNotif.TYPE_ID & 0xff, UnsignedRangeNotif.class); // 11
+        choiceOptions.addContextual(AccessEventNotif.TYPE_ID & 0xff, AccessEventNotif.class); // 13
+        choiceOptions.addContextual(DoubleOutOfRangeNotif.TYPE_ID & 0xff, DoubleOutOfRangeNotif.class); // 14
+        choiceOptions.addContextual(SignedOutOfRangeNotif.TYPE_ID & 0xff, SignedOutOfRangeNotif.class); // 15
+        choiceOptions.addContextual(UnsignedOutOfRangeNotif.TYPE_ID & 0xff, UnsignedOutOfRangeNotif.class); // 16
+        choiceOptions.addContextual(ChangeOfCharacterStringNotif.TYPE_ID & 0xff, ChangeOfCharacterStringNotif.class); // 17
+        choiceOptions.addContextual(ChangeOfStatusFlagsNotif.TYPE_ID & 0xff, ChangeOfStatusFlagsNotif.class); // 18
+        choiceOptions.addContextual(ChangeOfReliabilityNotif.TYPE_ID & 0xff, ChangeOfReliabilityNotif.class); // 19
+        choiceOptions.addContextual(ChangeOfDiscreteValueNotif.TYPE_ID & 0xff, ChangeOfDiscreteValueNotif.class); // 21
+        choiceOptions.addContextual(ChangeOfTimerNotif.TYPE_ID & 0xff, ChangeOfTimerNotif.class); // 22
     }
 
     private final Choice choice;
 
-    public NotificationParameters(final NotificationParameter parameters) {
+    public NotificationParameters(final AbstractNotificationParameter parameters) {
         choice = new Choice(choiceOptions.getContextId(parameters.getClass()), parameters, choiceOptions);
     }
 
@@ -74,8 +74,13 @@ public class NotificationParameters extends BaseType {
         choice = readChoice(queue, choiceOptions);
     }
 
-    public NotificationParameter getParameter() {
+    public AbstractNotificationParameter getParameter() {
         return choice.getDatum();
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationParameters [choice=" + choice + "]";
     }
 
     @Override

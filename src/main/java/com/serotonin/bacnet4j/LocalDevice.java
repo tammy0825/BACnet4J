@@ -402,17 +402,17 @@ public class LocalDevice {
     }
 
     public BACnetObject getObject(final ObjectIdentifier id) {
-        // TODO validate that this is not necessary, especially the 0x3FFFFF bit.
-        //        if (id.getObjectType().intValue() == ObjectType.device.intValue()) {
-        //            // Check if we need to look into the local device.
-        //            if (id.getInstanceNumber() == 0x3FFFFF || id.getInstanceNumber() == deviceObject.getInstanceId())
-        //                return this;
-        //        }
-        //
+        ObjectIdentifier oidToFind = id;
+        // Treat calls for device 0x3FFFFF as calls for the local device object. See 15.5.2.
+        if (id.getObjectType().equals(ObjectType.device) && id.getInstanceNumber() == ObjectIdentifier.UNINITIALIZED) {
+            oidToFind = new ObjectIdentifier(ObjectType.device, getInstanceNumber());
+        }
+
         for (final BACnetObject obj : localObjects) {
-            if (obj.getId().equals(id))
+            if (obj.getId().equals(oidToFind))
                 return obj;
         }
+
         return null;
     }
 
@@ -485,7 +485,7 @@ public class LocalDevice {
             getObjectList().remove(id);
 
             // Notify the object that it was removed.
-            obj.removedFromDevice();
+            obj.terminate();
         } else
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.unknownObject);
     }

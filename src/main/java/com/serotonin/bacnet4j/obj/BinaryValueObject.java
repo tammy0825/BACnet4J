@@ -33,8 +33,8 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.ChangeOfStateAlgo;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
@@ -86,10 +86,9 @@ public class BinaryValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
-        final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
+        final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValue);
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, null,
-                new PropertyIdentifier[] { PropertyIdentifier.presentValue },
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 

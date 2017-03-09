@@ -37,7 +37,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
-import com.serotonin.bacnet4j.obj.PropertyTypeDefinition;
+import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -145,17 +145,17 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
     private void addProperty(final BACnetObject obj, final List<Result> results, final PropertyIdentifier pid,
             final UnsignedInteger pin) {
         if (pid.intValue() == PropertyIdentifier.all.intValue()) {
-            for (final PropertyTypeDefinition def : ObjectProperties
-                    .getPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyIdentifier(), pin);
+            for (final ObjectPropertyTypeDefinition def : ObjectProperties
+                    .getObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
+                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
         } else if (pid.intValue() == PropertyIdentifier.required.intValue()) {
-            for (final PropertyTypeDefinition def : ObjectProperties
-                    .getRequiredPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyIdentifier(), pin);
+            for (final ObjectPropertyTypeDefinition def : ObjectProperties
+                    .getRequiredObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
+                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
         } else if (pid.intValue() == PropertyIdentifier.optional.intValue()) {
-            for (final PropertyTypeDefinition def : ObjectProperties
-                    .getOptionalPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyIdentifier(), pin);
+            for (final ObjectPropertyTypeDefinition def : ObjectProperties
+                    .getOptionalObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
+                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
         } else {
             // Get the specified property.
             try {

@@ -34,6 +34,14 @@ public class Boolean extends Primitive {
     public static final Boolean FALSE = new Boolean(false);
     public static final Boolean TRUE = new Boolean(true);
 
+    public static boolean falsey(final Boolean b) {
+        return b == null || !b.booleanValue();
+    }
+
+    public static boolean truthy(final Boolean b) {
+        return !falsey(b);
+    }
+
     public static final byte TYPE_ID = 1;
 
     protected final boolean value;

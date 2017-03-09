@@ -48,8 +48,8 @@ import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.NoneAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.NoneAlgo;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -153,8 +153,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(this), null, new PropertyIdentifier[0],
-                new PropertyIdentifier[0]));
+        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
     }
 
     /**
@@ -182,7 +181,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
     }
 
     @Override
-    public void removedFromDevice() {
+    public void terminate() {
         cancelRefresher();
         cancelPeriodicWriter();
     }

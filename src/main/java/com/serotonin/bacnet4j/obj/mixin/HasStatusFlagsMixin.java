@@ -72,7 +72,7 @@ public class HasStatusFlagsMixin extends AbstractMixin {
         // Get the status flags object and associated values.
         final EventState eventState = get(PropertyIdentifier.eventState);
         final Reliability reliability = get(PropertyIdentifier.reliability);
-        final Boolean outOfService = get(PropertyIdentifier.outOfService);
+        final Boolean outOfService = get(PropertyIdentifier.outOfService, Boolean.FALSE);
 
         // Update the status flags
         final StatusFlags statusFlags = new StatusFlags(//

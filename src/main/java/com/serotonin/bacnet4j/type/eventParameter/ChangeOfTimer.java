@@ -29,14 +29,14 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.TimerState;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class ChangeOfTimer extends BaseType {
+public class ChangeOfTimer extends AbstractEventParameter {
     public static final byte TYPE_ID = 22;
 
     private final UnsignedInteger timeDelay;
@@ -73,6 +73,11 @@ public class ChangeOfTimer extends BaseType {
 
     public DeviceObjectPropertyReference getUpdateTimeReference() {
         return updateTimeReference;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     @Override

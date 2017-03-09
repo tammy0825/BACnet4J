@@ -29,11 +29,11 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class BufferReady extends BaseType {
+public class BufferReady extends AbstractEventParameter {
     public static final byte TYPE_ID = 10;
 
     private final UnsignedInteger notificationThreshold;
@@ -61,6 +61,11 @@ public class BufferReady extends BaseType {
 
     public UnsignedInteger getPreviousNotificationCount() {
         return previousNotificationCount;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     @Override

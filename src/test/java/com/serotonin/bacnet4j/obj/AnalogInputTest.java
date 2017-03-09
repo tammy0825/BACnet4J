@@ -29,7 +29,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
-import com.serotonin.bacnet4j.type.notificationParameters.OutOfRange;
+import com.serotonin.bacnet4j.type.notificationParameters.OutOfRangeNotif;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Real;
@@ -54,19 +54,6 @@ public class AnalogInputTest extends AbstractTest {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
         recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
                 new EventTransitionBits(true, true, true)));
-
-        //        nc.addEventListener(new NotificationClassListener() {
-        //            @Override
-        //            public void event(ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp,
-        //                    UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType,
-        //                    CharacterString messageText, NotifyType notifyType, Boolean ackRequired, EventState fromState,
-        //                    EventState toState, NotificationParameters eventValues) {
-        //                LOG.info("eventObjectIdentifier={}, timeStamp={}, notificationClass={}, priority={}, " //
-        //                        + "eventType={}, messageText={}, notifyType={}, ackRequired={}, fromState={}, toState={}, " //
-        //                        + "eventValues={}", eventObjectIdentifier, timeStamp, notificationClass, priority, eventType,
-        //                        messageText, notifyType, ackRequired, fromState, toState, eventValues);
-        //            }
-        //        });
 
         // Create an event listener on d2 to catch the event notifications.
         final EventNotifListener listener = new EventNotifListener();
@@ -118,7 +105,7 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
         assertEquals(new NotificationParameters(
-                new OutOfRange(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
+                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
                 notif.get("eventValues"));
 
         // Disable low limit checking. Will return to normal immediately.
@@ -141,7 +128,7 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
-                new OutOfRange(new Real(10), new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
+                new OutOfRangeNotif(new Real(10), new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
                 notif.get("eventValues"));
 
         // Re-enable low limit checking. Will return to low-limit after 1 second.
@@ -155,7 +142,7 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
         assertEquals(new NotificationParameters(
-                new OutOfRange(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
+                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
                 notif.get("eventValues"));
 
         // Go to a high limit. Will change to high-limit after 1 second.
@@ -168,7 +155,7 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
         assertEquals(new NotificationParameters(
-                new OutOfRange(new Real(110), new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
+                new OutOfRangeNotif(new Real(110), new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
 
         // Reduce to within the deadband. No notification.
@@ -192,7 +179,7 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventState.highLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
-                new OutOfRange(new Real(94), new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
+                new OutOfRangeNotif(new Real(94), new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
     }
 

@@ -42,7 +42,7 @@ import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.service.acknowledgement.GetAlarmSummaryAck.AlarmSummary;
 import com.serotonin.bacnet4j.service.acknowledgement.GetEnrollmentSummaryAck.EnrollmentSummary;
 import com.serotonin.bacnet4j.service.acknowledgement.GetEventInformationAck.EventSummary;
@@ -155,7 +155,7 @@ public class BACnetObject {
     /**
      * Called when the object is removed from the device.
      */
-    public void removedFromDevice() {
+    public void terminate() {
         // no op, override as required
     }
 
@@ -293,7 +293,7 @@ public class BACnetObject {
     public final <T extends Encodable> T getProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         // Check that the requested property is valid for the object. This will throw an exception if the
         // property doesn't belong.
-        ObjectProperties.getPropertyTypeDefinitionRequired(objectType, pid);
+        ObjectProperties.getObjectPropertyTypeDefinitionRequired(objectType, pid);
 
         // Do some property-specific checking here.
         if (PropertyIdentifier.localTime.equals(pid))
@@ -400,7 +400,7 @@ public class BACnetObject {
         }
         if (!handled) {
             // Default behaviour is to validate against the object property definitions.
-            final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinitionRequired(objectType,
+            final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinitionRequired(objectType,
                     value.getPropertyIdentifier());
             if (value.getPropertyArrayIndex() == null) {
                 // Expecting to write to a non-list property.
@@ -408,24 +408,25 @@ public class BACnetObject {
                 //    throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
                 //            "Null provided, but the value is not optional");
 
-                if (def.isSequenceOf()) {
+                if (def.getPropertyTypeDefinition().isSequenceOf()) {
                     // Replacing an entire array. Validate each element of the given array.
                     @SuppressWarnings("unchecked")
                     final SequenceOf<Encodable> seq = (SequenceOf<Encodable>) value.getValue();
                     for (final Encodable e : seq) {
-                        if (e == null || !def.getClazz().isAssignableFrom(e.getClass()))
+                        if (e == null || !def.getPropertyTypeDefinition().getClazz().isAssignableFrom(e.getClass()))
                             throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
-                                    "expected " + def.getClazz() + ", received=" + (e == null ? "null" : e.getClass()));
+                                    "expected " + def.getPropertyTypeDefinition().getClazz() + ", received="
+                                            + (e == null ? "null" : e.getClass()));
                     }
-                } else if (!def.getClazz().isAssignableFrom(value.getValue().getClass()))
+                } else if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(value.getValue().getClass()))
                     // Validate the given data type.
-                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
-                            "expected " + def.getClazz() + ", received=" + value.getValue().getClass());
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType, "expected "
+                            + def.getPropertyTypeDefinition().getClazz() + ", received=" + value.getValue().getClass());
             } else {
                 // Expecting to write to an array element.
-                if (!def.isSequenceOf())
+                if (!def.getPropertyTypeDefinition().isSequenceOf())
                     throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
-                if (!def.getClazz().isAssignableFrom(value.getValue().getClass()))
+                if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(value.getValue().getClass()))
                     throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
             }
         }

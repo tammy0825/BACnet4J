@@ -95,6 +95,20 @@ public class BitString extends Primitive {
         return true;
     }
 
+    /**
+     * Performs a bit-wise AND operation.
+     */
+    public BitString and(final BitString that) {
+        if (value.length != that.value.length)
+            throw new IllegalArgumentException("Bitstrings are of different lengths");
+
+        final boolean[] result = new boolean[value.length];
+        for (int i = 0; i < value.length; i++) {
+            result[i] = value[i] && that.value[i];
+        }
+        return new BitString(result);
+    }
+
     //
     // Reading and writing
     //

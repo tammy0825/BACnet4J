@@ -151,7 +151,7 @@ import com.serotonin.bacnet4j.type.enumerated.VtClass;
 import com.serotonin.bacnet4j.type.error.BaseError;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
-import com.serotonin.bacnet4j.type.notificationParameters.OutOfRange;
+import com.serotonin.bacnet4j.type.notificationParameters.OutOfRangeNotif;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Date;
@@ -244,7 +244,7 @@ public class AnnexFEncodingTest {
                 new ObjectIdentifier(ObjectType.analogInput, 2), new TimeStamp(new UnsignedInteger(16)),
                 new UnsignedInteger(4), new UnsignedInteger(100), EventType.outOfRange, null, NotifyType.alarm,
                 new Boolean(true), EventState.normal, EventState.highLimit,
-                new NotificationParameters(new OutOfRange(new Real(80.1f), new StatusFlags(true, false, false, false),
+                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f), new StatusFlags(true, false, false, false),
                         new Real(1), new Real(80))));
 
         final ConfirmedRequest pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED,
@@ -286,7 +286,7 @@ public class AnnexFEncodingTest {
                 new ObjectIdentifier(ObjectType.analogInput, 2), new TimeStamp(new UnsignedInteger(16)),
                 new UnsignedInteger(4), new UnsignedInteger(100), EventType.outOfRange, null, NotifyType.alarm,
                 new Boolean(true), EventState.normal, EventState.highLimit,
-                new NotificationParameters(new OutOfRange(new Real(80.1f), new StatusFlags(true, false, false, false),
+                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f), new StatusFlags(true, false, false, false),
                         new Real(1), new Real(80))));
 
         final UnconfirmedRequest pdu = new UnconfirmedRequest(unconfirmedEventNotificationRequest);

@@ -35,9 +35,9 @@ import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.MultistateMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.ChangeOfStateAlgo;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.FaultStateAlgo;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.ChangeOfStateAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultStateAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -98,12 +98,11 @@ public class MultistateValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
-        final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(this, PropertyIdentifier.presentValue,
+        final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValues);
-        final FaultStateAlgo faultAlgo = new FaultStateAlgo(this, PropertyIdentifier.reliability,
+        final FaultStateAlgo faultAlgo = new FaultStateAlgo(PropertyIdentifier.reliability,
                 PropertyIdentifier.faultValues);
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, faultAlgo,
-                new PropertyIdentifier[] { PropertyIdentifier.presentValue },
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 

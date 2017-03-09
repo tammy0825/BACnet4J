@@ -31,27 +31,18 @@ package com.serotonin.bacnet4j.obj;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
 import com.serotonin.bacnet4j.type.constructed.PriorityValue;
-import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 
 public class PropertyTypeDefinition {
-    private final ObjectType objectType;
     private final PropertyIdentifier propertyIdentifier;
     private final Class<? extends Encodable> clazz;
     private final boolean sequenceOf;
-    private final boolean required;
 
-    PropertyTypeDefinition(final ObjectType objectType, final PropertyIdentifier propertyIdentifier,
-            final Class<? extends Encodable> clazz, final boolean sequenceOf, final boolean required) {
-        this.objectType = objectType;
+    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
+            final boolean sequenceOf) {
         this.propertyIdentifier = propertyIdentifier;
         this.clazz = clazz;
         this.sequenceOf = sequenceOf;
-        this.required = required;
-    }
-
-    public ObjectType getObjectType() {
-        return objectType;
     }
 
     public PropertyIdentifier getPropertyIdentifier() {
@@ -66,17 +57,43 @@ public class PropertyTypeDefinition {
         return sequenceOf;
     }
 
-    public boolean isRequired() {
-        return required;
-    }
-
-    public boolean isOptional() {
-        return !required;
-    }
-
     public Class<? extends Encodable> getInnerType() {
         if (clazz == PriorityArray.class)
             return PriorityValue.class;
         return null;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (clazz == null ? 0 : clazz.hashCode());
+        result = prime * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
+        result = prime * result + (sequenceOf ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final PropertyTypeDefinition other = (PropertyTypeDefinition) obj;
+        if (clazz == null) {
+            if (other.clazz != null)
+                return false;
+        } else if (!clazz.equals(other.clazz))
+            return false;
+        if (propertyIdentifier == null) {
+            if (other.propertyIdentifier != null)
+                return false;
+        } else if (!propertyIdentifier.equals(other.propertyIdentifier))
+            return false;
+        if (sequenceOf != other.sequenceOf)
+            return false;
+        return true;
     }
 }

@@ -34,8 +34,8 @@ import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.OutOfRangeAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.OutOfRangeAlgo;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
@@ -91,10 +91,9 @@ public class AnalogValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(this), null, //
+        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(), null, //
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.highLimit,
-                        PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable, },
-                new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
+                        PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable }));
 
         return this;
     }

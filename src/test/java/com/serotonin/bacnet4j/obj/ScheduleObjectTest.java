@@ -32,7 +32,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
-import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliability;
+import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliabilityNotif;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
@@ -194,7 +194,7 @@ public class ScheduleObjectTest extends AbstractTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
-                new NotificationParameters(new ChangeOfReliability(Reliability.memberFault,
+                new NotificationParameters(new ChangeOfReliabilityNotif(Reliability.memberFault,
                         new StatusFlags(true, true, false, false), new SequenceOf<PropertyValue>())),
                 notif.get("eventValues"));
     }

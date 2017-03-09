@@ -32,6 +32,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
+import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -61,8 +62,8 @@ public class EventParameter extends BaseType {
 
     private final Choice choice;
 
-    public EventParameter(final Choice choice) {
-        this.choice = choice;
+    public EventParameter(final AbstractEventParameter parameters) {
+        choice = new Choice(choiceOptions.getContextId(parameters.getClass()), parameters, choiceOptions);
     }
 
     @Override
@@ -76,5 +77,9 @@ public class EventParameter extends BaseType {
 
     public Choice getChoice() {
         return choice;
+    }
+
+    public EventType getEventType() {
+        return EventType.forId(choice.getContextId());
     }
 }

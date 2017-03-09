@@ -107,11 +107,17 @@ public class RequestUtils {
         return (T) value;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends Encodable> T getProperty(final LocalDevice localDevice, final RemoteDevice d,
             final ObjectIdentifier oid, final PropertyIdentifier pid, final int indexBase1) throws BACnetException {
+        return getProperty(localDevice, d, oid, pid, new UnsignedInteger(indexBase1));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Encodable> T getProperty(final LocalDevice localDevice, final RemoteDevice d,
+            final ObjectIdentifier oid, final PropertyIdentifier pid, final UnsignedInteger pin)
+            throws BACnetException {
         final List<ObjectPropertyReference> refs = new ArrayList<>();
-        refs.add(new ObjectPropertyReference(oid, pid, new UnsignedInteger(indexBase1)));
+        refs.add(new ObjectPropertyReference(oid, pid, pin));
         final Map<PropertyIdentifier, Encodable> map = getProperties(localDevice, d, null, refs);
         return (T) map.get(pid);
     }
@@ -174,7 +180,8 @@ public class RequestUtils {
             if (e.getApdu().getAbortReason() == AbortReason.bufferOverflow.intValue()
                     || e.getApdu().getAbortReason() == AbortReason.segmentationNotSupported.intValue()) {
                 // The response may be too long to send. If the property is a sequence...
-                if (ObjectProperties.getPropertyTypeDefinition(oid.getObjectType(), pid).isSequenceOf()) {
+                if (ObjectProperties.getObjectPropertyTypeDefinition(oid.getObjectType(), pid)
+                        .getPropertyTypeDefinition().isSequenceOf()) {
                     LOG.info("Received abort exception on sequence request. Sending chunked reference request instead");
 
                     // ... then try getting it by sending requests for indices. Find out how many there are.

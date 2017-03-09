@@ -9,6 +9,8 @@ import java.util.function.BiPredicate;
 
 import org.junit.Assert;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
+import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
@@ -104,19 +106,45 @@ public class TestUtils {
         return result;
     }
 
+    public static void assertBACnetServiceException(final BACnetServiceException e, final ErrorClass errorClass,
+            final ErrorCode errorCode) {
+        Assert.assertEquals(errorClass, e.getErrorClass());
+        Assert.assertEquals(errorCode, e.getErrorCode());
+    }
+
     public static void assertBACnetServiceException(final ServiceExceptionCommand command, final ErrorClass errorClass,
             final ErrorCode errorCode) {
         try {
             command.call();
             fail("BACnetServiceException was expected");
         } catch (final BACnetServiceException e) {
-            Assert.assertEquals(errorClass, e.getErrorClass());
-            Assert.assertEquals(errorCode, e.getErrorCode());
+            assertBACnetServiceException(e, errorClass, errorCode);
         }
     }
 
     @FunctionalInterface
     public static interface ServiceExceptionCommand {
         void call() throws BACnetServiceException;
+    }
+
+    public static void assertRequestHandleException(final RequestHandleExceptionCommand command,
+            final ErrorClass errorClass, final ErrorCode errorCode) {
+        try {
+            command.call();
+            fail("BACnetException was expected");
+        } catch (final BACnetErrorException e) {
+            if (e.getCause() instanceof BACnetServiceException) {
+                assertBACnetServiceException((BACnetServiceException) e.getCause(), errorClass, errorCode);
+            } else {
+                fail("Cause is not a BACnetServiceException: " + e.getCause());
+            }
+        } catch (final BACnetException e) {
+            fail("Not a BACnetErrorException: " + e);
+        }
+    }
+
+    @FunctionalInterface
+    public static interface RequestHandleExceptionCommand {
+        void call() throws BACnetException;
     }
 }

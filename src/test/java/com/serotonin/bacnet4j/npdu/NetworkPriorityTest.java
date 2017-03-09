@@ -23,7 +23,7 @@ import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.MessagePriority;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
-import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfBitString;
+import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfBitStringNotif;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
@@ -69,7 +69,7 @@ public class NetworkPriorityTest {
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(
-                        new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
+                        new ChangeOfBitStringNotif(new BitString(new boolean[] { false, true, false, true }),
                                 new StatusFlags(true, false, false, false))));
         final ConfirmedRequest apdu = new ConfirmedRequest(false, false, true, MaxSegments.MORE_THAN_64,
                 MaxApduLength.UP_TO_1476, (byte) 45, 0, 5, req);
@@ -83,7 +83,7 @@ public class NetworkPriorityTest {
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(
-                        new ChangeOfBitString(new BitString(new boolean[] { false, true, false, true }),
+                        new ChangeOfBitStringNotif(new BitString(new boolean[] { false, true, false, true }),
                                 new StatusFlags(true, false, false, false))));
 
         final UnconfirmedRequest apdu = new UnconfirmedRequest(req);

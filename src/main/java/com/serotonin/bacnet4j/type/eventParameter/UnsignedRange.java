@@ -1,6 +1,6 @@
 /*
  * ============================================================================
- * GNU General Public License
+\ * GNU General Public License
  * ============================================================================
  *
  * Copyright (C) 2015 Infinite Automation Software. All rights reserved.
@@ -29,11 +29,11 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.constructed.BaseType;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class UnsignedRange extends BaseType {
+public class UnsignedRange extends AbstractEventParameter {
     public static final byte TYPE_ID = 11;
 
     private final UnsignedInteger timeDelay;
@@ -70,6 +70,11 @@ public class UnsignedRange extends BaseType {
 
     public UnsignedInteger getHighLimit() {
         return highLimit;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     @Override

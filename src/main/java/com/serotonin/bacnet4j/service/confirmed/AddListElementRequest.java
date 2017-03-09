@@ -34,7 +34,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
-import com.serotonin.bacnet4j.obj.PropertyTypeDefinition;
+import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -79,8 +79,8 @@ public class AddListElementRequest extends ConfirmedRequestService {
         if (obj == null)
             throw createException(ErrorClass.object, ErrorCode.unknownObject, new UnsignedInteger(0));
 
-        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
-                propertyIdentifier);
+        final ObjectPropertyTypeDefinition def = ObjectProperties
+                .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
         if (def == null)
             throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
 
@@ -108,7 +108,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
             final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
             for (int i = 0; i < listOfElements.getCount(); i++) {
                 final Encodable pr = listOfElements.get(i + 1);
-                if (!def.getClazz().isAssignableFrom(pr.getClass()))
+                if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(pr.getClass()))
                     throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
                             new UnsignedInteger(i + 1));
                 if (!list.contains(pr))
@@ -125,7 +125,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
             final int writeIndex = propertyArrayIndex.intValue();
             for (int i = 0; i < listOfElements.getCount(); i++) {
                 final Encodable pr = listOfElements.get(i + 1);
-                if (!def.getClazz().isAssignableFrom(pr.getClass()))
+                if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(pr.getClass()))
                     throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
                             new UnsignedInteger(i + 1));
 
@@ -161,11 +161,9 @@ public class AddListElementRequest extends ConfirmedRequestService {
         objectIdentifier = read(queue, ObjectIdentifier.class, 0);
         propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
         propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        final PropertyTypeDefinition def = ObjectProperties.getPropertyTypeDefinition(objectIdentifier.getObjectType(),
-                propertyIdentifier);
-        listOfElements = readSequenceOf(queue, def.getClazz(), 3);
-        // listOfElements = readEncodable(queue, objectIdentifier.getObjectType(), propertyIdentifier,
-        // propertyArrayIndex, 3);
+        final ObjectPropertyTypeDefinition def = ObjectProperties
+                .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
+        listOfElements = readSequenceOf(queue, def.getPropertyTypeDefinition().getClazz(), 3);
     }
 
     @Override

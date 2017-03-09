@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
@@ -49,7 +50,7 @@ import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class Extended extends BaseType {
+public class Extended extends AbstractEventParameter {
     public static final byte TYPE_ID = 9;
 
     private final UnsignedInteger vendorId;
@@ -86,6 +87,11 @@ public class Extended extends BaseType {
 
     public SequenceOf<Parameter> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public EventAlgorithm createEventAlgorithm() {
+        return null;
     }
 
     public static class Parameter extends BaseType {

@@ -30,9 +30,13 @@ package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultAlgorithm;
+import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultOutOfRangeAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultStateAlgo;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.FaultType;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyState;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
@@ -106,6 +110,10 @@ public class FaultParameter extends BaseType {
         entry = new Choice(queue, choiceOptions);
     }
 
+    public Choice getEntry() {
+        return entry;
+    }
+
     public boolean isNull() {
         return entry.isa(Null.class);
     }
@@ -170,6 +178,10 @@ public class FaultParameter extends BaseType {
         return (FaultListed) entry.getDatum();
     }
 
+    public FaultType getFaultType() {
+        return FaultType.forId(entry.getContextId());
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -195,7 +207,11 @@ public class FaultParameter extends BaseType {
         return true;
     }
 
-    public static class FaultCharacterString extends BaseType {
+    abstract public static class AbstractFaultParameter extends BaseType {
+        abstract public FaultAlgorithm createFaultAlgorithm();
+    }
+
+    public static class FaultCharacterString extends AbstractFaultParameter {
         private final SequenceOf<CharacterString> listOfFaultValues;
 
         public FaultCharacterString(final SequenceOf<CharacterString> listOfFaultValues) {
@@ -218,6 +234,11 @@ public class FaultParameter extends BaseType {
 
         public FaultCharacterString(final ByteQueue queue) throws BACnetException {
             listOfFaultValues = readSequenceOf(queue, CharacterString.class, 0);
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return null;
         }
 
         @Override
@@ -246,7 +267,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultExtended extends BaseType {
+    public static class FaultExtended extends AbstractFaultParameter {
         private final Unsigned16 vendorId;
         private final UnsignedInteger extendedFaultType;
         private final SequenceOf<FaultExtendedParameter> parameters;
@@ -287,6 +308,11 @@ public class FaultParameter extends BaseType {
             vendorId = read(queue, Unsigned16.class, 0);
             extendedFaultType = read(queue, UnsignedInteger.class, 1);
             parameters = readSequenceOf(queue, FaultExtendedParameter.class, 2);
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return null;
         }
 
         @Override
@@ -701,7 +727,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultLifeSafety extends BaseType {
+    public static class FaultLifeSafety extends AbstractFaultParameter {
         private final SequenceOf<LifeSafetyState> listOfFaultValues;
         private final DeviceObjectPropertyReference modePropertyReference;
 
@@ -737,6 +763,11 @@ public class FaultParameter extends BaseType {
         }
 
         @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return null;
+        }
+
+        @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
@@ -768,7 +799,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultState extends BaseType {
+    public static class FaultState extends AbstractFaultParameter {
         private final SequenceOf<PropertyStates> listOfFaultValues;
 
         public FaultState(final SequenceOf<PropertyStates> listOfFaultValues) {
@@ -791,6 +822,11 @@ public class FaultParameter extends BaseType {
 
         public FaultState(final ByteQueue queue) throws BACnetException {
             listOfFaultValues = readSequenceOf(queue, PropertyStates.class, 0);
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return new FaultStateAlgo();
         }
 
         @Override
@@ -819,7 +855,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultStatusFlags extends BaseType {
+    public static class FaultStatusFlags extends AbstractFaultParameter {
         private final DeviceObjectPropertyReference statusFlagsReference;
 
         public FaultStatusFlags(final DeviceObjectPropertyReference statusFlagsReference) {
@@ -842,6 +878,11 @@ public class FaultParameter extends BaseType {
 
         public FaultStatusFlags(final ByteQueue queue) throws BACnetException {
             statusFlagsReference = read(queue, DeviceObjectPropertyReference.class, 0);
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return null;
         }
 
         @Override
@@ -870,7 +911,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultOutOfRange extends BaseType {
+    public static class FaultOutOfRange extends AbstractFaultParameter {
         private final FaultNormalValue minNormalValue;
         private final FaultNormalValue maxNormalValue;
 
@@ -901,6 +942,11 @@ public class FaultParameter extends BaseType {
 
         public FaultNormalValue getMaxNormalValue() {
             return maxNormalValue;
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return new FaultOutOfRangeAlgo();
         }
 
         @Override
@@ -1001,7 +1047,7 @@ public class FaultParameter extends BaseType {
         }
     }
 
-    public static class FaultListed extends BaseType {
+    public static class FaultListed extends AbstractFaultParameter {
         private final DeviceObjectPropertyReference faultListReference;
 
         public FaultListed(final DeviceObjectPropertyReference faultListReference) {
@@ -1024,6 +1070,11 @@ public class FaultParameter extends BaseType {
         @Override
         public String toString() {
             return "FaultLifeSafety [faultListReference=" + faultListReference + "]";
+        }
+
+        @Override
+        public FaultAlgorithm createFaultAlgorithm() {
+            return null;
         }
 
         @Override

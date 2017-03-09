@@ -78,6 +78,11 @@ public class AbstractMixin {
         return bo.get(pid);
     }
 
+    protected final <T extends Encodable> T get(final PropertyIdentifier pid, final T defaultValue) {
+        final T value = get(pid);
+        return value == null ? defaultValue : value;
+    }
+
     protected final LocalDevice getLocalDevice() {
         return bo.getLocalDevice();
     }

@@ -36,8 +36,8 @@ import com.serotonin.bacnet4j.NotificationClassListener;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.IntrinsicReportingMixin;
-import com.serotonin.bacnet4j.obj.mixin.intrinsicReporting.NoneAlgo;
+import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
+import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.NoneAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -91,8 +91,7 @@ public class NotificationClassObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(this), null, new PropertyIdentifier[0],
-                new PropertyIdentifier[0]));
+        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
     }
 
     public void addEventListener(final NotificationClassListener l) {
