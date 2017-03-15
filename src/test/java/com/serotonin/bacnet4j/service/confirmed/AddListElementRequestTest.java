@@ -169,12 +169,14 @@ public class AddListElementRequestTest {
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4))),
                 dabs);
 
-        // Add a few more
+        // Add a few more, including a couple one that are already there.
         new AddListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
                 PropertyIdentifier.deviceAddressBinding, //
                 null, //
                 new SequenceOf<>(//
+                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 2), TestNetworkUtils.toAddress(2)),
+                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 3), TestNetworkUtils.toAddress(3)),
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 5), TestNetworkUtils.toAddress(5)),
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 6), TestNetworkUtils.toAddress(6))) //
         ).handle(localDevice, addr);

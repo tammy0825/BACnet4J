@@ -22,6 +22,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
+import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RemoveListElementRequestTest {
@@ -44,7 +45,7 @@ public class RemoveListElementRequestTest {
         localDevice.writePropertyInternal(PropertyIdentifier.forId(5555),
                 new BACnetArray<>( //
                         new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
-                        new SequenceOf<>(new Real(3), new Real(4)), //
+                        new SequenceOf<>(), //
                         new SequenceOf<>(new Real(5), new Real(6), new Real(7), new Real(8)), //
                         new SequenceOf<>(new CharacterString("a"), new CharacterString("b")), //
                         new Real(9)));
@@ -172,6 +173,15 @@ public class RemoveListElementRequestTest {
                         new UnsignedInteger(1), //
                         new SequenceOf<>(new Real(14)) //
                 ).handle(localDevice, addr), ErrorClass.services, ErrorCode.listElementNotFound);
+
+        // Try to remove elements from an empty list.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(2), //
+                        new SequenceOf<>(new SignedInteger(-1), new SignedInteger(1)) //
+                ).handle(localDevice, addr), ErrorClass.services, ErrorCode.listElementNotFound);
     }
 
     @Test
@@ -239,7 +249,7 @@ public class RemoveListElementRequestTest {
         SequenceOf<?> aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
                 new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
-                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(), //
                 new SequenceOf<>(new Real(6)), //
                 new SequenceOf<>(new CharacterString("a"), new CharacterString("b")), //
                 new Real(9)), aol);
@@ -255,7 +265,7 @@ public class RemoveListElementRequestTest {
         aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
                 new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
-                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(), //
                 new SequenceOf<>(new Real(6)), //
                 new SequenceOf<>(), //
                 new Real(9)), aol);
