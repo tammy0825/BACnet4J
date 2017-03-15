@@ -37,15 +37,14 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BACnetArray<E extends Encodable> extends SequenceOf<E> {
-    @SuppressWarnings("unchecked")
-    public BACnetArray(final int size) {
-        super((List<E>) nullList(size));
+    public BACnetArray(final int size, final E defaultValue) {
+        super(newList(size, defaultValue));
     }
 
-    private static final <T extends Encodable> List<T> nullList(final int size) {
+    private static final <T extends Encodable> List<T> newList(final int size, final T defaultValue) {
         final List<T> list = new ArrayList<>();
         for (int i = 0; i < size; i++)
-            list.add(null);
+            list.add(defaultValue);
         return list;
     }
 

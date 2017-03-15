@@ -31,7 +31,6 @@ package com.serotonin.bacnet4j.service.confirmed;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
 import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
@@ -97,49 +96,78 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         if (obj == null)
             throw createException(ErrorClass.object, ErrorCode.unknownObject, new UnsignedInteger(0));
 
-        final ObjectPropertyTypeDefinition def = ObjectProperties
-                .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
-        if (def == null)
-            throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
-
-        Encodable e;
-        try {
-            e = obj.getProperty(propertyIdentifier);
-        } catch (@SuppressWarnings("unused") final BACnetServiceException ex) {
-            throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
-        }
-        if (e == null)
-            throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
-
         final PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
         if (!localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv))
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
 
-        if (propertyArrayIndex == null) {
-            // Expecting a list
-            if (!(e instanceof SequenceOf))
-                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
-            if (e instanceof BACnetArray)
-                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+        ObjectPropertyTypeDefinition def = ObjectProperties
+                .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
 
-            final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
-            final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
-            for (int i = 0; i < listOfElements.getCount(); i++) {
-                final Encodable pr = listOfElements.get(i + 1);
-                if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(pr.getClass()))
-                    throw createException(ErrorClass.property, ErrorCode.datatypeNotSupported,
-                            new UnsignedInteger(i + 1));
-                if (!list.contains(pr))
-                    throw createException(ErrorClass.services, ErrorCode.listElementNotFound,
-                            new UnsignedInteger(i + 1));
-                list.remove(pr);
+        Encodable e = obj.getProperty(propertyIdentifier);
+        if (e == null)
+            throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
+
+        BACnetArray<Encodable> array = null;
+        if (propertyArrayIndex != null) {
+            // The property must be an array.
+            if (!(e instanceof BACnetArray))
+                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAnArray, new UnsignedInteger(0));
+
+            array = (BACnetArray<Encodable>) e;
+
+            // Check the requested index.
+            final int index = propertyArrayIndex.intValue();
+            if (index < 1 || index > array.getCount())
+                throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, new UnsignedInteger(0));
+
+            e = array.get(index);
+            if (e == null)
+                // This should never happen, but check.
+                throw new RuntimeException("Array with null element: " + array);
+
+            // Set the def null because we don't know the inner type of a list in an array.
+            def = null;
+        }
+
+        // The value we end up with must be a list.
+        if (!(e instanceof SequenceOf))
+            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+        if (e instanceof BACnetArray)
+            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+
+        final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
+        final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
+        for (int i = 0; i < listOfElements.getCount(); i++) {
+            final Encodable pr = listOfElements.get(i + 1);
+
+            if (def != null) {
+                // If we have a property def, check it.
+                if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(pr.getClass())) {
+                    throw createException(ErrorClass.property, ErrorCode.invalidDataType, new UnsignedInteger(i + 1));
+                }
+            } else {
+                // Otherwise, if there are already elements in the list, we can check against the first one.
+                if (list.getCount() > 0) {
+                    if (list.get(1).getClass() != pr.getClass()) {
+                        throw createException(ErrorClass.property, ErrorCode.invalidDataType,
+                                new UnsignedInteger(i + 1));
+                    }
+                }
             }
 
-            obj.writeProperty(new ValueSource(from), propertyIdentifier, origList);
-        } else
-            // The property array index is there to allow modifications to arrays of lists. But, apparently there are
-            // encoding problems with this, and so it is not applicable.
-            throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
+            if (!list.contains(pr))
+                throw createException(ErrorClass.services, ErrorCode.listElementNotFound, new UnsignedInteger(i + 1));
+            list.remove(pr);
+        }
+
+        if (array != null) {
+            array.set(propertyArrayIndex.intValue(), origList);
+            e = array;
+        } else {
+            e = origList;
+        }
+
+        obj.writeProperty(new ValueSource(from), propertyIdentifier, e);
 
         localDevice.getEventHandler().propertyWritten(from, obj, pv);
 

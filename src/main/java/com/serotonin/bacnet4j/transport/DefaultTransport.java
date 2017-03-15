@@ -54,7 +54,6 @@ import com.serotonin.bacnet4j.enums.MaxSegments;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRejectException;
-import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.exception.ServiceTooBigException;
@@ -172,11 +171,7 @@ public class DefaultTransport implements Transport, Runnable {
 
     @Override
     public void initialize() throws Exception {
-        try {
-            servicesSupported = localDevice.getServicesSupported();
-        } catch (final BACnetServiceException e) {
-            throw new RuntimeException("Error while getting servicesSupported from local device", e);
-        }
+        servicesSupported = localDevice.getServicesSupported();
 
         network.initialize(this);
         thread = new Thread(this, "BACnet4J transport");

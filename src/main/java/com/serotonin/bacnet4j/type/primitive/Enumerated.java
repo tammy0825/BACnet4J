@@ -102,6 +102,13 @@ public class Enumerated extends Primitive {
         return e;
     }
 
+    public String toString(final Map<Integer, String> prettyMap) {
+        String s = prettyMap.get(intValue());
+        if (s == null)
+            s = Integer.toString(intValue());
+        return s;
+    }
+
     //
     // Reading and writing
     //

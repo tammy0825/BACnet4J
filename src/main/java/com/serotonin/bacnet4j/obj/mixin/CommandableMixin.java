@@ -101,9 +101,9 @@ public class CommandableMixin extends AbstractMixin {
         addProperty(currentCommandPriority, new OptionalUnsigned(), false);
 
         if (supportsValueSource) {
-            addProperty(valueSourceArray, new BACnetArray<ValueSource>(16), false);
+            addProperty(valueSourceArray, new BACnetArray<>(16, new ValueSource()), false);
             addProperty(lastCommandTime, new TimeStamp(new DateTime()), false);
-            addProperty(commandTimeArray, new BACnetArray<TimeStamp>(16), false);
+            addProperty(commandTimeArray, new BACnetArray<>(16, TimeStamp.UNSPECIFIED_TIME), false);
         }
     }
 
@@ -116,9 +116,9 @@ public class CommandableMixin extends AbstractMixin {
 
         addProperty(valueSource, getLocalValueSource(), false);
         if (supportsCommandable) {
-            addProperty(valueSourceArray, new BACnetArray<ValueSource>(16), false);
+            addProperty(valueSourceArray, new BACnetArray<>(16, new ValueSource()), false);
             addProperty(lastCommandTime, new TimeStamp(new DateTime()), false);
-            addProperty(commandTimeArray, new BACnetArray<TimeStamp>(16), false);
+            addProperty(commandTimeArray, new BACnetArray<>(16, TimeStamp.UNSPECIFIED_TIME), false);
         }
     }
 

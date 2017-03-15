@@ -332,15 +332,9 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             if (e.isCalendarReference()) {
                 final CalendarObject co = (CalendarObject) getLocalDevice().getObject(e.getCalendarReference());
                 if (co != null) {
-                    Boolean pv;
-                    try {
-                        // Getting the property this way ensures that the calendar's present value gets is calculated.
-                        pv = co.getProperty(PropertyIdentifier.presentValue);
-                        active = pv.booleanValue();
-                    } catch (final BACnetServiceException e1) {
-                        // Should never happen.
-                        throw new RuntimeException(e1);
-                    }
+                    // Getting the property this way ensures that the calendar's present value gets is calculated.
+                    final Boolean pv = co.getProperty(PropertyIdentifier.presentValue);
+                    active = pv.booleanValue();
                 } else
                     active = false;
             } else

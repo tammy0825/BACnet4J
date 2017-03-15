@@ -14,12 +14,12 @@ import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
-import com.serotonin.bacnet4j.type.constructed.NameValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -40,14 +40,14 @@ public class RemoveListElementRequestTest {
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 6), TestNetworkUtils.toAddress(6)),
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 7), TestNetworkUtils.toAddress(7)),
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 8), TestNetworkUtils.toAddress(8))));
-        localDevice.writePropertyInternal(PropertyIdentifier.tags,
+        // Create an array of lists.
+        localDevice.writePropertyInternal(PropertyIdentifier.forId(5555),
                 new BACnetArray<>( //
-                        new NameValue("tag1", new Real(3.14F)), //
-                        new NameValue("tag2", new Real(3.15F)), //
-                        new NameValue("tag3", new Real(3.16F)), //
-                        new NameValue("tag4", new Real(3.17F)), //
-                        new NameValue("tag5", new Real(3.18F)), //
-                        new NameValue("tag6", new Real(3.19F))));
+                        new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                        new SequenceOf<>(new Real(3), new Real(4)), //
+                        new SequenceOf<>(new Real(5), new Real(6), new Real(7), new Real(8)), //
+                        new SequenceOf<>(new CharacterString("a"), new CharacterString("b")), //
+                        new Real(9)));
         localDevice.initialize();
     }
 
@@ -58,6 +58,7 @@ public class RemoveListElementRequestTest {
 
     @Test // 15.2.1.3.1
     public void errorTypes() {
+        // Ask for an object that doesn't exist.
         TestUtils.assertRequestHandleException( //
                 () -> new RemoveListElementRequest( //
                         new ObjectIdentifier(ObjectType.accessDoor, 0), //
@@ -66,14 +67,7 @@ public class RemoveListElementRequestTest {
                         new SequenceOf<>() //
                 ).handle(localDevice, addr), ErrorClass.object, ErrorCode.unknownObject);
 
-        TestUtils.assertRequestHandleException( //
-                () -> new RemoveListElementRequest( //
-                        new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.forId(5555), //
-                        null, //
-                        new SequenceOf<>() //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
-
+        // Ask for a property that isn't in the object.
         TestUtils.assertRequestHandleException( //
                 () -> new RemoveListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
@@ -82,37 +76,101 @@ public class RemoveListElementRequestTest {
                         new SequenceOf<>() //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
 
+        // Ask for a property that isn't in the object.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5556), //
+                        null, //
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
+
+        // Specify a pin but for a property that isn't an array.
         TestUtils.assertRequestHandleException( //
                 () -> new RemoveListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.deviceAddressBinding, //
-                        null, //
-                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.datatypeNotSupported);
-
-        TestUtils.assertRequestHandleException( //
-                () -> new RemoveListElementRequest( //
-                        new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
                         new UnsignedInteger(1), //
                         new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.writeAccessDenied);
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.propertyIsNotAnArray);
 
+        // Specify a bad pin for an array property.
         TestUtils.assertRequestHandleException( //
                 () -> new RemoveListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
-                        null, //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(0), //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+
+        // Specify a bad pin for an array property.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(6), //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+
+        // Specify a pin for an array property, where the element is not a list..
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(5), //
                         new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
                 ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
 
+        // Specify a property that is an array, not a list.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        null, //
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
+
+        // Specify a property that is not a list.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.objectName, //
+                        null, //
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
+
+        // Provide an element to add that is not right for the property.
         TestUtils.assertRequestHandleException( //
                 () -> new RemoveListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.deviceAddressBinding, //
                         null, //
-                        new SequenceOf<>(new AddressBinding(new ObjectIdentifier(ObjectType.device, 20),
-                                TestNetworkUtils.toAddress(20))) //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
+
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(4), //
+                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
+
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(1), //
+                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
+
+        // Try to remove an element that doesn't exist.
+        TestUtils.assertRequestHandleException( //
+                () -> new RemoveListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(1), //
+                        new SequenceOf<>(new Real(14)) //
                 ).handle(localDevice, addr), ErrorClass.services, ErrorCode.listElementNotFound);
     }
 
@@ -166,5 +224,40 @@ public class RemoveListElementRequestTest {
 
         dabs = localDevice.getProperty(PropertyIdentifier.deviceAddressBinding);
         assertEquals(new SequenceOf<>(), dabs);
+    }
+
+    @Test
+    public void arrayOfList() throws Exception {
+        // Replace all of the elements
+        new RemoveListElementRequest( //
+                new ObjectIdentifier(ObjectType.device, 1), //
+                PropertyIdentifier.forId(5555), //
+                new UnsignedInteger(3), //
+                new SequenceOf<>(new Real(5), new Real(7), new Real(8)) //
+        ).handle(localDevice, addr);
+
+        SequenceOf<?> aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
+        assertEquals(new BACnetArray<>( //
+                new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(new Real(6)), //
+                new SequenceOf<>(new CharacterString("a"), new CharacterString("b")), //
+                new Real(9)), aol);
+
+        // Only replace the second element
+        new RemoveListElementRequest( //
+                new ObjectIdentifier(ObjectType.device, 1), //
+                PropertyIdentifier.forId(5555), //
+                new UnsignedInteger(4), //
+                new SequenceOf<>(new CharacterString("a"), new CharacterString("b")) //
+        ).handle(localDevice, addr);
+
+        aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
+        assertEquals(new BACnetArray<>( //
+                new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(new Real(6)), //
+                new SequenceOf<>(), //
+                new Real(9)), aol);
     }
 }

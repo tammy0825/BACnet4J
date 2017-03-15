@@ -128,6 +128,6 @@ public class AccessEvent extends Enumerated {
 
     @Override
     public String toString() {
-        return prettyMap.get(intValue());
+        return super.toString(prettyMap);
     }
 }

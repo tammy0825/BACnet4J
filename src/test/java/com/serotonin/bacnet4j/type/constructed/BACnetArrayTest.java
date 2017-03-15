@@ -11,7 +11,7 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 public class BACnetArrayTest {
     @Test
     public void arrayTest() {
-        final BACnetArray<CharacterString> arr = new BACnetArray<>(3);
+        final BACnetArray<CharacterString> arr = new BACnetArray<>(3, new CharacterString(""));
         assertEquals(3, arr.getCount());
 
         arr.set(1, new CharacterString("A"));

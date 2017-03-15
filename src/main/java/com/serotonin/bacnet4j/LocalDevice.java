@@ -226,7 +226,7 @@ public class LocalDevice {
         return deviceObject.getInstanceId();
     }
 
-    public <T extends Encodable> T getProperty(final PropertyIdentifier pid) throws BACnetServiceException {
+    public <T extends Encodable> T getProperty(final PropertyIdentifier pid) {
         return deviceObject.getProperty(pid);
     }
 
@@ -491,15 +491,10 @@ public class LocalDevice {
 
     @SuppressWarnings("unchecked")
     private SequenceOf<ObjectIdentifier> getObjectList() {
-        try {
-            return (SequenceOf<ObjectIdentifier>) deviceObject.getProperty(PropertyIdentifier.objectList);
-        } catch (final BACnetServiceException e) {
-            // Should never happen, so just wrap in a RuntimeException
-            throw new RuntimeException(e);
-        }
+        return (SequenceOf<ObjectIdentifier>) deviceObject.getProperty(PropertyIdentifier.objectList);
     }
 
-    public ServicesSupported getServicesSupported() throws BACnetServiceException {
+    public ServicesSupported getServicesSupported() {
         return (ServicesSupported) deviceObject.getProperty(PropertyIdentifier.protocolServicesSupported);
     }
 
@@ -901,16 +896,10 @@ public class LocalDevice {
         BACnetObject nc = null;
         for (final BACnetObject obj : localObjects) {
             if (ObjectType.notificationClass.equals(obj.getId().getObjectType())) {
-                try {
-                    final UnsignedInteger ncId = (UnsignedInteger) obj
-                            .getProperty(PropertyIdentifier.notificationClass);
-                    if (ncId != null && ncId.intValue() == notificationClassId) {
-                        nc = obj;
-                        break;
-                    }
-                } catch (final BACnetServiceException e) {
-                    // Should never happen, so wrap in a RTE
-                    throw new RuntimeException(e);
+                final UnsignedInteger ncId = (UnsignedInteger) obj.getProperty(PropertyIdentifier.notificationClass);
+                if (ncId != null && ncId.intValue() == notificationClassId) {
+                    nc = obj;
+                    break;
                 }
             }
         }
@@ -996,15 +985,10 @@ public class LocalDevice {
     }
 
     public IAmRequest getIAm() {
-        try {
-            return new IAmRequest(getId(),
-                    (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.maxApduLengthAccepted),
-                    (Segmentation) deviceObject.getProperty(PropertyIdentifier.segmentationSupported),
-                    (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.vendorIdentifier));
-        } catch (final BACnetServiceException e) {
-            // Should never happen, so just wrap in a RuntimeException
-            throw new RuntimeException(e);
-        }
+        return new IAmRequest(getId(),
+                (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.maxApduLengthAccepted),
+                (Segmentation) deviceObject.getProperty(PropertyIdentifier.segmentationSupported),
+                (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.vendorIdentifier));
     }
 
     @Override

@@ -14,12 +14,12 @@ import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
-import com.serotonin.bacnet4j.type.constructed.NameValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -31,11 +31,14 @@ public class AddListElementRequestTest {
     @Before
     public void before() throws Exception {
         localDevice = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
-        localDevice.writePropertyInternal(PropertyIdentifier.tags,
+        // Create an array of lists.
+        localDevice.writePropertyInternal(PropertyIdentifier.forId(5555),
                 new BACnetArray<>( //
-                        new NameValue("tag1", new Real(3.14F)), //
-                        new NameValue("tag2", new Real(3.15F)), //
-                        new NameValue("tag3", new Real(3.16F))));
+                        new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                        new SequenceOf<>(new Real(3), new Real(4)), //
+                        new SequenceOf<>(new Real(5), new Real(6), new Real(7), new Real(8)), //
+                        new SequenceOf<>(), //
+                        new Real(9)));
         localDevice.initialize();
     }
 
@@ -46,6 +49,7 @@ public class AddListElementRequestTest {
 
     @Test // 15.1.1.3.1
     public void errorTypes() {
+        // Ask for an object that doesn't exist.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.accessDoor, 0), //
@@ -54,14 +58,7 @@ public class AddListElementRequestTest {
                         new SequenceOf<>() //
                 ).handle(localDevice, addr), ErrorClass.object, ErrorCode.unknownObject);
 
-        TestUtils.assertRequestHandleException( //
-                () -> new AddListElementRequest( //
-                        new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.forId(5555), //
-                        null, //
-                        new SequenceOf<>() //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
-
+        // Ask for a property that isn't in the object.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
@@ -70,22 +67,16 @@ public class AddListElementRequestTest {
                         new SequenceOf<>() //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
 
+        // Ask for a property that isn't in the object.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.deviceAddressBinding, //
+                        PropertyIdentifier.forId(5556), //
                         null, //
-                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.datatypeNotSupported);
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.unknownProperty);
 
-        TestUtils.assertRequestHandleException( //
-                () -> new AddListElementRequest( //
-                        new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
-                        new UnsignedInteger(1), //
-                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.datatypeNotSupported);
-
+        // Specify a pin but for a property that isn't an array.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
@@ -94,29 +85,67 @@ public class AddListElementRequestTest {
                         new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.propertyIsNotAnArray);
 
+        // Specify a bad pin for an array property.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
-                        null, //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(0), //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+
+        // Specify a bad pin for an array property.
+        TestUtils.assertRequestHandleException( //
+                () -> new AddListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(6), //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+
+        // Specify a pin for an array property, where the element is not a list..
+        TestUtils.assertRequestHandleException( //
+                () -> new AddListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.forId(5555), //
+                        new UnsignedInteger(5), //
                         new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
                 ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
 
+        // Specify a property that is an array, not a list.
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
-                        new UnsignedInteger(0), //
-                        new SequenceOf<>(new NameValue("tag2", new Real(3.15F))) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+                        PropertyIdentifier.forId(5555), //
+                        null, //
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
+
+        // Specify a property that is not a list.
+        TestUtils.assertRequestHandleException( //
+                () -> new AddListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.objectName, //
+                        null, //
+                        new SequenceOf<>() //
+                ).handle(localDevice, addr), ErrorClass.services, ErrorCode.propertyIsNotAList);
+
+        // Provide an element to add that is not right for the property.
+        TestUtils.assertRequestHandleException( //
+                () -> new AddListElementRequest( //
+                        new ObjectIdentifier(ObjectType.device, 1), //
+                        PropertyIdentifier.deviceAddressBinding, //
+                        null, //
+                        new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
 
         TestUtils.assertRequestHandleException( //
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
-                        PropertyIdentifier.tags, //
+                        PropertyIdentifier.forId(5555), //
                         new UnsignedInteger(4), //
-                        new SequenceOf<>(new NameValue("tag2", new Real(3.15F))) //
-                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
+                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
     }
 
     @Test
@@ -162,36 +191,37 @@ public class AddListElementRequestTest {
     }
 
     @Test
-    public void array() throws Exception {
+    public void arrayOfList() throws Exception {
         // Replace all of the elements
         new AddListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
-                PropertyIdentifier.tags, //
-                new UnsignedInteger(1), //
-                new SequenceOf<>(//
-                        new NameValue("tag4", new Real(3.24F)), //
-                        new NameValue("tag5", new Real(3.25F)), //
-                        new NameValue("tag6", new Real(3.26F))) //
+                PropertyIdentifier.forId(5555), //
+                new UnsignedInteger(3), //
+                new SequenceOf<>(new Real(10), new Real(11)) //
         ).handle(localDevice, addr);
 
-        SequenceOf<NameValue> tags = localDevice.getProperty(PropertyIdentifier.tags);
+        SequenceOf<?> aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
-                new NameValue("tag4", new Real(3.24F)), //
-                new NameValue("tag5", new Real(3.25F)), //
-                new NameValue("tag6", new Real(3.26F))), tags);
+                new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(new Real(5), new Real(6), new Real(7), new Real(8), new Real(10), new Real(11)), //
+                new SequenceOf<>(), //
+                new Real(9)), aol);
 
         // Only replace the second element
         new AddListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
-                PropertyIdentifier.tags, //
-                new UnsignedInteger(2), //
-                new SequenceOf<>(new NameValue("tag7", new Real(3.35F))) //
+                PropertyIdentifier.forId(5555), //
+                new UnsignedInteger(4), //
+                new SequenceOf<>(new CharacterString("a"), new CharacterString("b")) //
         ).handle(localDevice, addr);
 
-        tags = localDevice.getProperty(PropertyIdentifier.tags);
+        aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
-                new NameValue("tag4", new Real(3.24F)), //
-                new NameValue("tag7", new Real(3.35F)), //
-                new NameValue("tag6", new Real(3.26F))), tags);
+                new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
+                new SequenceOf<>(new Real(3), new Real(4)), //
+                new SequenceOf<>(new Real(5), new Real(6), new Real(7), new Real(8), new Real(10), new Real(11)), //
+                new SequenceOf<>(new CharacterString("a"), new CharacterString("b")), //
+                new Real(9)), aol);
     }
 }
