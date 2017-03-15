@@ -38,9 +38,17 @@ public class NameValue extends BaseType {
     private final CharacterString name;
     private final Encodable value;
 
+    public NameValue(final String name, final Primitive value) {
+        this(new CharacterString(name), value);
+    }
+
     public NameValue(final CharacterString name, final Primitive value) {
         this.name = name;
         this.value = value;
+    }
+
+    public NameValue(final String name, final DateTime value) {
+        this(new CharacterString(name), value);
     }
 
     public NameValue(final CharacterString name, final DateTime value) {

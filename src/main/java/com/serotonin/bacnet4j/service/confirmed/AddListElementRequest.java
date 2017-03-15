@@ -100,9 +100,9 @@ public class AddListElementRequest extends ConfirmedRequestService {
         if (propertyArrayIndex == null) {
             // Expecting a list
             if (!(e instanceof SequenceOf))
-                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
             if (e instanceof BACnetArray)
-                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
 
             final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
             final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
@@ -130,7 +130,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
                             new UnsignedInteger(i + 1));
 
                 final int index = writeIndex + i;
-                if (i < 1 || i > array.getCount())
+                if (index < 1 || index > array.getCount())
                     throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, new UnsignedInteger(i + 1));
                 array.set(index, pr);
             }

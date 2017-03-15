@@ -16,6 +16,7 @@ import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.Time;
 
 public class TestUtils {
@@ -133,11 +134,9 @@ public class TestUtils {
             command.call();
             fail("BACnetException was expected");
         } catch (final BACnetErrorException e) {
-            if (e.getCause() instanceof BACnetServiceException) {
-                assertBACnetServiceException((BACnetServiceException) e.getCause(), errorClass, errorCode);
-            } else {
-                fail("Cause is not a BACnetServiceException: " + e.getCause());
-            }
+            final ErrorClassAndCode errorClassAndCode = e.getBacnetError().getError().getErrorClassAndCode();
+            Assert.assertEquals(errorClass, errorClassAndCode.getErrorClass());
+            Assert.assertEquals(errorCode, errorClassAndCode.getErrorCode());
         } catch (final BACnetException e) {
             fail("Not a BACnetErrorException: " + e);
         }

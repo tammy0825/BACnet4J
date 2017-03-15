@@ -118,9 +118,9 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         if (propertyArrayIndex == null) {
             // Expecting a list
             if (!(e instanceof SequenceOf))
-                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
             if (e instanceof BACnetArray)
-                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+                throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
 
             final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
             final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
@@ -137,7 +137,8 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
 
             obj.writeProperty(new ValueSource(from), propertyIdentifier, origList);
         } else
-            // It doesn't make much sense to me how elements can be removed from an array.
+            // The property array index is there to allow modifications to arrays of lists. But, apparently there are
+            // encoding problems with this, and so it is not applicable.
             throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
 
         localDevice.getEventHandler().propertyWritten(from, obj, pv);
