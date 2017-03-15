@@ -104,9 +104,8 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(new Boolean(false), notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
-                notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                new StatusFlags(true, false, false, false), new Real(5), new Real(20))), notif.get("eventValues"));
 
         // Disable low limit checking. Will return to normal immediately.
         ai.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(false, true));
@@ -127,8 +126,9 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(new Boolean(false), notif.get("ackRequired"));
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                        new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
                 notif.get("eventValues"));
 
         // Re-enable low limit checking. Will return to low-limit after 1 second.
@@ -141,9 +141,8 @@ public class AnalogInputTest extends AbstractTest {
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
-                notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                new StatusFlags(true, false, false, false), new Real(5), new Real(20))), notif.get("eventValues"));
 
         // Go to a high limit. Will change to high-limit after 1 second.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
@@ -154,8 +153,9 @@ public class AnalogInputTest extends AbstractTest {
         notif = listener.notifs.remove(0);
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(110), new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(110),
+                        new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
 
         // Reduce to within the deadband. No notification.
@@ -178,13 +178,14 @@ public class AnalogInputTest extends AbstractTest {
         notif = listener.notifs.remove(0);
         assertEquals(EventState.highLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(94), new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(94),
+                        new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
     }
 
     @Test
-    public void propertyConformanceRequired() throws BACnetServiceException {
+    public void propertyConformanceRequired() {
         assertNotNull(ai.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(ai.getProperty(PropertyIdentifier.objectName));
         assertNotNull(ai.getProperty(PropertyIdentifier.objectType));
@@ -219,13 +220,13 @@ public class AnalogInputTest extends AbstractTest {
     }
 
     @Test
-    public void propertyConformanceRequiredWhenCOVReporting() throws BACnetServiceException {
+    public void propertyConformanceRequiredWhenCOVReporting() {
         ai.supportCovReporting(1);
         assertNotNull(ai.getProperty(PropertyIdentifier.covIncrement));
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() throws BACnetServiceException {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() {
         ai.supportIntrinsicReporting(30, 17, 60, 40, 1, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 10);
         assertNotNull(ai.getProperty(PropertyIdentifier.timeDelay));
@@ -242,7 +243,7 @@ public class AnalogInputTest extends AbstractTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws BACnetServiceException {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
         assertNull(ai.getProperty(PropertyIdentifier.timeDelay));
         assertNull(ai.getProperty(PropertyIdentifier.notificationClass));
         assertNull(ai.getProperty(PropertyIdentifier.highLimit));
