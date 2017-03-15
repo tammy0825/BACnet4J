@@ -75,6 +75,12 @@ public class ExtendedNotif extends AbstractNotificationParameter {
         return parameters;
     }
 
+    @Override
+    public String toString() {
+        return "ExtendedNotif [vendorId=" + vendorId + ", extendedEventType=" + extendedEventType + ", parameters="
+                + parameters + "]";
+    }
+
     public static class Parameter extends BaseType {
         private Primitive primitive;
         private DeviceObjectPropertyReference reference;
@@ -99,6 +105,11 @@ public class ExtendedNotif extends AbstractNotificationParameter {
             reference = readOptional(queue, DeviceObjectPropertyReference.class, 0);
             if (reference == null)
                 primitive = Primitive.createPrimitive(queue);
+        }
+
+        @Override
+        public String toString() {
+            return "Parameter [primitive=" + primitive + ", reference=" + reference + "]";
         }
 
         @Override

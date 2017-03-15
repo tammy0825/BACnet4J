@@ -14,10 +14,12 @@ import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.FaultParameter.AbstractFaultParameter;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
+import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.eventParameter.AbstractEventParameter;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 
 /**
  * Provides support for algorithmic reporting, particularly for the EventEnrollment object.
@@ -38,6 +40,9 @@ public class AlgoReportingMixin extends EventReportingMixin {
             final AbstractEventParameter eventParameter, final FaultAlgorithm faultAlgo,
             final AbstractFaultParameter faultParameter, final DeviceObjectPropertyReference objectPropertyReference) {
         super(ee, eventAlgo, faultAlgo);
+
+        ee.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
+
         this.eventParameter = eventParameter;
         this.faultParameter = faultParameter;
         this.objectPropertyReference = objectPropertyReference;
@@ -64,6 +69,16 @@ public class AlgoReportingMixin extends EventReportingMixin {
     @Override
     protected StateTransition evaluateEventState(final BACnetObject bo, final EventAlgorithm eventAlgo) {
         return eventAlgo.evaluateAlgorithmicEventState(bo, monitoredPropertyValue, eventParameter);
+    }
+
+    @Override
+    protected EventType getEventType(final EventAlgorithm eventAlgo) {
+        return eventAlgo.getEventType();
+    }
+
+    @Override
+    protected boolean updateAckedTransitions() {
+        return true;
     }
 
     @Override

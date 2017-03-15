@@ -91,10 +91,13 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
         //ee.writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibitRef, new ObjectPropertyReference()); Not supported
         bo.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
-        bo.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
     }
 
     abstract protected StateTransition evaluateEventState(BACnetObject bo, EventAlgorithm eventAlgo);
+
+    abstract protected EventType getEventType(EventAlgorithm eventAlgo);
+
+    abstract protected boolean updateAckedTransitions();
 
     abstract protected NotificationParameters getNotificationParameters(EventState fromState, EventState toState,
             BACnetObject bo, EventAlgorithm eventAlgo);
@@ -225,20 +228,25 @@ abstract public class EventReportingMixin extends AbstractMixin {
         final BACnetObject nc = getLocalDevice()
                 .getObject(new ObjectIdentifier(ObjectType.notificationClass, ncId.intValue()));
 
-        //
-        // Update acknowledged transitions. 13.2.3
-        //
-        EventTransitionBits ackedTransitions = get(PropertyIdentifier.ackedTransitions);
-        final EventTransitionBits ackRequired = nc.get(PropertyIdentifier.ackRequired);
+        final boolean isAckRequired;
+        if (updateAckedTransitions()) {
+            //
+            // Update acknowledged transitions. 13.2.3
+            //
+            EventTransitionBits ackedTransitions = get(PropertyIdentifier.ackedTransitions);
+            final EventTransitionBits ackRequired = nc.get(PropertyIdentifier.ackRequired);
 
-        // Make a copy in which to make the change so that the write property method works properly.
-        ackedTransitions = new EventTransitionBits(ackedTransitions);
+            // Make a copy in which to make the change so that the write property method works properly.
+            ackedTransitions = new EventTransitionBits(ackedTransitions);
 
-        // If the corresponding bit in Ack_Required is set then the bit in Acked_Transitions is
-        // cleared, otherwise it is set.
-        final boolean isAckRequired = ackRequired.contains(toState);
-        ackedTransitions.setValue(toState.getTransitionIndex(), !isAckRequired);
-        writePropertyInternal(PropertyIdentifier.ackedTransitions, ackedTransitions);
+            // If the corresponding bit in Ack_Required is set then the bit in Acked_Transitions is
+            // cleared, otherwise it is set.
+            isAckRequired = ackRequired.contains(toState);
+            ackedTransitions.setValue(toState.getTransitionIndex(), !isAckRequired);
+            writePropertyInternal(PropertyIdentifier.ackedTransitions, ackedTransitions);
+        } else {
+            isAckRequired = false;
+        }
 
         //
         // Event notification distribution. 13.2.5
@@ -272,7 +280,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
                         (StatusFlags) get(PropertyIdentifier.statusFlags), //
                         propertyValues));
             } else {
-                eventType = eventAlgo.getEventType();
+                eventType = getEventType(eventAlgo);
                 eventValues = getNotificationParameters(fromState, toState, bo, eventAlgo);
             }
 
@@ -426,7 +434,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             final BACnetArray<UnsignedInteger> priority = nc.get(PropertyIdentifier.priority);
 
             sendNotifications(recipientList, timeOfAcknowledgment, nc, priority, eventStateAcknowledged,
-                    eventAlgo.getEventType(), messageText, NotifyType.ackNotification, null, null, null);
+                    getEventType(eventAlgo), messageText, NotifyType.ackNotification, null, null, null);
         }
     }
 
@@ -523,7 +531,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             }
 
             // Event type filter
-            if (eventTypeFilter != null && !eventTypeFilter.equals(eventAlgo.getEventType()))
+            if (eventTypeFilter != null && !eventTypeFilter.equals(getEventType(eventAlgo)))
                 include = false;
 
             // Priority filter
@@ -540,7 +548,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
 
             if (include)
                 return new EnrollmentSummary((ObjectIdentifier) get(PropertyIdentifier.objectIdentifier),
-                        eventAlgo.getEventType(), eventState, priority, ncId);
+                        getEventType(eventAlgo), eventState, priority, ncId);
         }
 
         return null;

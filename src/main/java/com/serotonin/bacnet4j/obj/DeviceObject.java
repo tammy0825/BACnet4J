@@ -17,7 +17,6 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class DeviceObject extends BACnetObject {
@@ -28,7 +27,7 @@ public class DeviceObject extends BACnetObject {
 
         writePropertyInternal(PropertyIdentifier.maxApduLengthAccepted,
                 new UnsignedInteger(MaxApduLength.UP_TO_1476.getMaxLengthInt()));
-        writePropertyInternal(PropertyIdentifier.vendorIdentifier, new Unsigned16(VENDOR_ID));
+        writePropertyInternal(PropertyIdentifier.vendorIdentifier, new UnsignedInteger(VENDOR_ID));
         writePropertyInternal(PropertyIdentifier.vendorName,
                 new CharacterString("Serotonin Software Technologies, Inc."));
         writePropertyInternal(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);

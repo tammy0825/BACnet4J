@@ -86,47 +86,6 @@ public class Address extends BaseType {
         return networkNumber.intValue() == 0xFFFF;
     }
 
-    //    //
-    //    //
-    //    // I/P convenience
-    //    //
-    //    public String getMacAddressDottedString() {
-    //        return macAddress.getMacAddressDottedString();
-    //    }
-    //
-    //    public InetAddress getInetAddress() {
-    //        return macAddress.getInetAddress();
-    //    }
-    //
-    //    public InetSocketAddress getInetSocketAddress() {
-    //        return macAddress.getInetSocketAddress();
-    //    }
-    //
-    //    public int getPort() {
-    //        return macAddress.getPort();
-    //    }
-    //
-    //    public String toIpString() {
-    //        return macAddress.toIpString();
-    //    }
-    //
-    //    public String toIpPortString() {
-    //        return macAddress.toIpPortString();
-    //    }
-    //
-    //    //
-    //    //
-    //    // MS/TP convenience
-    //    //
-    //    public byte getMstpAddress() {
-    //        return macAddress.getBytes()[0];
-    //    }
-    //
-    //    @Override
-    //    public String toString() {
-    //        return "Address(networkNumber=" + networkNumber + ", macAddress=" + macAddress + ")";
-    //    }
-
     //
     //
     // General convenience

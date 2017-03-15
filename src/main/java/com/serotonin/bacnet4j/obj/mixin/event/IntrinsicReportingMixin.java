@@ -34,9 +34,11 @@ import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultAlgorithm;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
+import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
 
 /**
  * Mixin class for intrinsic reporting.
@@ -50,6 +52,8 @@ public class IntrinsicReportingMixin extends EventReportingMixin {
     public IntrinsicReportingMixin(final BACnetObject bo, final EventAlgorithm eventAlgo,
             final FaultAlgorithm faultAlgo, final PropertyIdentifier[] triggerProperties) {
         super(bo, eventAlgo, faultAlgo);
+
+        bo.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
 
         this.triggerProperties = triggerProperties;
 
@@ -79,6 +83,16 @@ public class IntrinsicReportingMixin extends EventReportingMixin {
     @Override
     protected StateTransition evaluateEventState(final BACnetObject bo, final EventAlgorithm eventAlgo) {
         return eventAlgo.evaluateIntrinsicEventState(bo);
+    }
+
+    @Override
+    protected EventType getEventType(final EventAlgorithm eventAlgo) {
+        return eventAlgo.getEventType();
+    }
+
+    @Override
+    protected boolean updateAckedTransitions() {
+        return true;
     }
 
     @Override

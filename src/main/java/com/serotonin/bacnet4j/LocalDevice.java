@@ -92,7 +92,6 @@ import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RemoteDeviceDiscoverer;
 import com.serotonin.bacnet4j.util.RemoteDeviceFinder;
@@ -1001,7 +1000,7 @@ public class LocalDevice {
             return new IAmRequest(getId(),
                     (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.maxApduLengthAccepted),
                     (Segmentation) deviceObject.getProperty(PropertyIdentifier.segmentationSupported),
-                    (Unsigned16) deviceObject.getProperty(PropertyIdentifier.vendorIdentifier));
+                    (UnsignedInteger) deviceObject.getProperty(PropertyIdentifier.vendorIdentifier));
         } catch (final BACnetServiceException e) {
             // Should never happen, so just wrap in a RuntimeException
             throw new RuntimeException(e);
