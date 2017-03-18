@@ -28,14 +28,11 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultAlgorithm;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultOutOfRangeAlgo;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultStateAlgo;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.FaultType;
 import com.serotonin.bacnet4j.type.enumerated.LifeSafetyState;
 import com.serotonin.bacnet4j.type.primitive.BitString;
@@ -180,6 +177,11 @@ public class FaultParameter extends BaseType {
 
     public FaultType getFaultType() {
         return FaultType.forId(entry.getContextId());
+    }
+
+    @Override
+    public String toString() {
+        return "FaultParameter [entry=" + entry + "]";
     }
 
     @Override
@@ -353,293 +355,161 @@ public class FaultParameter extends BaseType {
         }
 
         public static class FaultExtendedParameter extends BaseType {
-            private Null nullValue;
-            private Real realValue;
-            private UnsignedInteger unsignedValue;
-            private Boolean booleanValue;
-            private SignedInteger integerValue;
-            private Double doubleValue;
-            private OctetString octetValue;
-            private CharacterString characterStringValue;
-            private BitString bitStringValue;
-            private Enumerated enumValue;
-            private Date dateValue;
-            private Time timeValue;
-            private ObjectIdentifier objectIdentifierValue;
-            private DeviceObjectPropertyReference referenceValue;
+            private static ChoiceOptions valueChoiceOptions = new ChoiceOptions();
+            static {
+                valueChoiceOptions.addPrimitive(Null.class);
+                valueChoiceOptions.addPrimitive(Real.class);
+                valueChoiceOptions.addPrimitive(UnsignedInteger.class);
+                valueChoiceOptions.addPrimitive(Boolean.class);
+                valueChoiceOptions.addPrimitive(SignedInteger.class);
+                valueChoiceOptions.addPrimitive(Double.class);
+                valueChoiceOptions.addPrimitive(OctetString.class);
+                valueChoiceOptions.addPrimitive(CharacterString.class);
+                valueChoiceOptions.addPrimitive(BitString.class);
+                valueChoiceOptions.addPrimitive(Enumerated.class);
+                valueChoiceOptions.addPrimitive(Date.class);
+                valueChoiceOptions.addPrimitive(Time.class);
+                valueChoiceOptions.addPrimitive(ObjectIdentifier.class);
+                valueChoiceOptions.addContextual(0, DeviceObjectPropertyReference.class);
+            }
+
+            private final Choice choice;
 
             public FaultExtendedParameter(final Null nullValue) {
-                this.nullValue = nullValue;
+                choice = new Choice(nullValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Real realValue) {
-                this.realValue = realValue;
+                choice = new Choice(realValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final UnsignedInteger unsignedValue) {
-                this.unsignedValue = unsignedValue;
+                choice = new Choice(unsignedValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Boolean booleanValue) {
-                this.booleanValue = booleanValue;
+                choice = new Choice(booleanValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final SignedInteger integerValue) {
-                this.integerValue = integerValue;
+                choice = new Choice(integerValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Double doubleValue) {
-                this.doubleValue = doubleValue;
+                choice = new Choice(doubleValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final OctetString octetValue) {
-                this.octetValue = octetValue;
+                choice = new Choice(octetValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final CharacterString characterStringValue) {
-                this.characterStringValue = characterStringValue;
+                choice = new Choice(characterStringValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final BitString bitStringValue) {
-                this.bitStringValue = bitStringValue;
+                choice = new Choice(bitStringValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Enumerated enumValue) {
-                this.enumValue = enumValue;
+                choice = new Choice(enumValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Date dateValue) {
-                this.dateValue = dateValue;
+                choice = new Choice(dateValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final Time timeValue) {
-                this.timeValue = timeValue;
+                choice = new Choice(timeValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final ObjectIdentifier objectIdentifierValue) {
-                this.objectIdentifierValue = objectIdentifierValue;
+                choice = new Choice(objectIdentifierValue, valueChoiceOptions);
             }
 
             public FaultExtendedParameter(final DeviceObjectPropertyReference referenceValue) {
-                this.referenceValue = referenceValue;
+                choice = new Choice(0, referenceValue, valueChoiceOptions);
             }
 
-            public Null getNullValue() {
-                return nullValue;
-            }
-
-            public Real getRealValue() {
-                return realValue;
-            }
-
-            public UnsignedInteger getUnsignedValue() {
-                return unsignedValue;
-            }
-
-            public Boolean getBooleanValue() {
-                return booleanValue;
-            }
-
-            public SignedInteger getIntegerValue() {
-                return integerValue;
-            }
-
-            public Double getDoubleValue() {
-                return doubleValue;
-            }
-
-            public OctetString getOctetValue() {
-                return octetValue;
-            }
-
-            public CharacterString getCharacterStringValue() {
-                return characterStringValue;
-            }
-
-            public BitString getBitStringValue() {
-                return bitStringValue;
-            }
-
-            public Enumerated getEnumValue() {
-                return enumValue;
-            }
-
-            public Date getDateValue() {
-                return dateValue;
-            }
-
-            public Time getTimeValue() {
-                return timeValue;
-            }
-
-            public ObjectIdentifier getObjectIdentifierValue() {
-                return objectIdentifierValue;
-            }
-
-            public DeviceObjectPropertyReference getReferenceValue() {
-                return referenceValue;
-            }
-
-            public boolean isNull() {
-                return nullValue != null;
-            }
-
-            public Encodable getValue() {
-                if (nullValue != null)
-                    return nullValue;
-                if (realValue != null)
-                    return realValue;
-                if (unsignedValue != null)
-                    return unsignedValue;
-                if (booleanValue != null)
-                    return booleanValue;
-                if (integerValue != null)
-                    return integerValue;
-                if (doubleValue != null)
-                    return doubleValue;
-                if (octetValue != null)
-                    return octetValue;
-                if (characterStringValue != null)
-                    return characterStringValue;
-                if (bitStringValue != null)
-                    return bitStringValue;
-                if (enumValue != null)
-                    return enumValue;
-                if (dateValue != null)
-                    return dateValue;
-                if (timeValue != null)
-                    return timeValue;
-                if (objectIdentifierValue != null)
-                    return objectIdentifierValue;
-                return referenceValue;
-            }
-
-            @Override
-            public String toString() {
-                final StringBuilder sb = new StringBuilder();
-                sb.append("FaultExtendedParameter(");
-                if (nullValue != null)
-                    sb.append("nullValue=").append(nullValue);
-                else if (realValue != null)
-                    sb.append("realValue=").append(realValue);
-                else if (unsignedValue != null)
-                    sb.append("unsignedValue=").append(unsignedValue);
-                else if (booleanValue != null)
-                    sb.append("booleanValue=").append(booleanValue);
-                else if (integerValue != null)
-                    sb.append("integerValue=").append(integerValue);
-                else if (doubleValue != null)
-                    sb.append("doubleValue=").append(doubleValue);
-                else if (octetValue != null)
-                    sb.append("octetValue=").append(octetValue);
-                else if (characterStringValue != null)
-                    sb.append("characterStringValue=").append(characterStringValue);
-                else if (bitStringValue != null)
-                    sb.append("bitStringValue=").append(bitStringValue);
-                else if (enumValue != null)
-                    sb.append("enumValue=").append(enumValue);
-                else if (dateValue != null)
-                    sb.append("dateValue=").append(dateValue);
-                else if (timeValue != null)
-                    sb.append("timeValue=").append(timeValue);
-                else if (objectIdentifierValue != null)
-                    sb.append("objectIdentifierValue=").append(objectIdentifierValue);
-                else if (referenceValue != null)
-                    sb.append("referenceValue=").append(referenceValue);
-                sb.append(")");
-                return sb.toString();
+            public FaultExtendedParameter(final ByteQueue queue) throws BACnetException {
+                choice = readChoice(queue, valueChoiceOptions);
             }
 
             @Override
             public void write(final ByteQueue queue) {
-                if (nullValue != null)
-                    nullValue.write(queue);
-                else if (realValue != null)
-                    realValue.write(queue);
-                else if (unsignedValue != null)
-                    unsignedValue.write(queue);
-                else if (booleanValue != null)
-                    booleanValue.write(queue);
-                else if (integerValue != null)
-                    integerValue.write(queue);
-                else if (doubleValue != null)
-                    doubleValue.write(queue);
-                else if (octetValue != null)
-                    octetValue.write(queue);
-                else if (characterStringValue != null)
-                    characterStringValue.write(queue);
-                else if (bitStringValue != null)
-                    bitStringValue.write(queue);
-                else if (enumValue != null)
-                    enumValue.write(queue);
-                else if (dateValue != null)
-                    dateValue.write(queue);
-                else if (timeValue != null)
-                    timeValue.write(queue);
-                else if (objectIdentifierValue != null)
-                    objectIdentifierValue.write(queue);
-                else if (referenceValue != null)
-                    referenceValue.write(queue, 0);
+                write(queue, choice);
             }
 
-            public FaultExtendedParameter(final ByteQueue queue) throws BACnetException {
-                int tag = queue.peek(0) & 0xff;
-                if ((tag & 8) == 8) {
-                    // A class tag, so this is a constructed value.
-                    referenceValue = read(queue, DeviceObjectPropertyReference.class, 0);
-                } else {
-                    // A primitive value
-                    tag = tag >> 4;
-                    if (tag == Null.TYPE_ID)
-                        nullValue = new Null(queue);
-                    else if (tag == Real.TYPE_ID)
-                        realValue = new Real(queue);
-                    else if (tag == UnsignedInteger.TYPE_ID)
-                        unsignedValue = new UnsignedInteger(queue);
-                    else if (tag == Boolean.TYPE_ID)
-                        booleanValue = new Boolean(queue);
-                    else if (tag == SignedInteger.TYPE_ID)
-                        integerValue = new SignedInteger(queue);
-                    else if (tag == Double.TYPE_ID)
-                        doubleValue = new Double(queue);
-                    else if (tag == OctetString.TYPE_ID)
-                        octetValue = new OctetString(queue);
-                    else if (tag == CharacterString.TYPE_ID)
-                        characterStringValue = new CharacterString(queue);
-                    else if (tag == BitString.TYPE_ID)
-                        bitStringValue = new BitString(queue);
-                    else if (tag == Enumerated.TYPE_ID)
-                        enumValue = new Enumerated(queue);
-                    else if (tag == Date.TYPE_ID)
-                        dateValue = new Date(queue);
-                    else if (tag == Time.TYPE_ID)
-                        timeValue = new Time(queue);
-                    else if (tag == ObjectIdentifier.TYPE_ID)
-                        objectIdentifierValue = new ObjectIdentifier(queue);
-                    else
-                        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType,
-                                "Unsupported primitive id: " + tag);
-                }
+            public <T extends Encodable> T getValue() {
+                return choice.getDatum();
+            }
+
+            public boolean isNull() {
+                return choice.getDatum() instanceof Null;
+            }
+
+            public boolean isReal() {
+                return choice.getDatum() instanceof Real;
+            }
+
+            public boolean isUnsigned() {
+                return choice.getDatum() instanceof UnsignedInteger;
+            }
+
+            public boolean isBoolean() {
+                return choice.getDatum() instanceof Boolean;
+            }
+
+            public boolean isInteger() {
+                return choice.getDatum() instanceof SignedInteger;
+            }
+
+            public boolean isDouble() {
+                return choice.getDatum() instanceof Double;
+            }
+
+            public boolean isOctet() {
+                return choice.getDatum() instanceof OctetString;
+            }
+
+            public boolean isCharacterString() {
+                return choice.getDatum() instanceof CharacterString;
+            }
+
+            public boolean isBitString() {
+                return choice.getDatum() instanceof BitString;
+            }
+
+            public boolean isEnum() {
+                return choice.getDatum() instanceof Enumerated;
+            }
+
+            public boolean isDate() {
+                return choice.getDatum() instanceof Date;
+            }
+
+            public boolean isTime() {
+                return choice.getDatum() instanceof Time;
+            }
+
+            public boolean isObjectIdentifier() {
+                return choice.getDatum() instanceof ObjectIdentifier;
+            }
+
+            public boolean isReference() {
+                return choice.getDatum() instanceof DeviceObjectPropertyReference;
+            }
+
+            @Override
+            public String toString() {
+                return "FaultExtendedParameter [choice=" + choice + "]";
             }
 
             @Override
             public int hashCode() {
                 final int prime = 31;
                 int result = 1;
-                result = prime * result + (bitStringValue == null ? 0 : bitStringValue.hashCode());
-                result = prime * result + (booleanValue == null ? 0 : booleanValue.hashCode());
-                result = prime * result + (characterStringValue == null ? 0 : characterStringValue.hashCode());
-                result = prime * result + (dateValue == null ? 0 : dateValue.hashCode());
-                result = prime * result + (doubleValue == null ? 0 : doubleValue.hashCode());
-                result = prime * result + (enumValue == null ? 0 : enumValue.hashCode());
-                result = prime * result + (integerValue == null ? 0 : integerValue.hashCode());
-                result = prime * result + (nullValue == null ? 0 : nullValue.hashCode());
-                result = prime * result + (objectIdentifierValue == null ? 0 : objectIdentifierValue.hashCode());
-                result = prime * result + (octetValue == null ? 0 : octetValue.hashCode());
-                result = prime * result + (realValue == null ? 0 : realValue.hashCode());
-                result = prime * result + (referenceValue == null ? 0 : referenceValue.hashCode());
-                result = prime * result + (timeValue == null ? 0 : timeValue.hashCode());
-                result = prime * result + (unsignedValue == null ? 0 : unsignedValue.hashCode());
+                result = prime * result + (choice == null ? 0 : choice.hashCode());
                 return result;
             }
 
@@ -652,75 +522,10 @@ public class FaultParameter extends BaseType {
                 if (getClass() != obj.getClass())
                     return false;
                 final FaultExtendedParameter other = (FaultExtendedParameter) obj;
-                if (bitStringValue == null) {
-                    if (other.bitStringValue != null)
+                if (choice == null) {
+                    if (other.choice != null)
                         return false;
-                } else if (!bitStringValue.equals(other.bitStringValue))
-                    return false;
-                if (booleanValue == null) {
-                    if (other.booleanValue != null)
-                        return false;
-                } else if (!booleanValue.equals(other.booleanValue))
-                    return false;
-                if (characterStringValue == null) {
-                    if (other.characterStringValue != null)
-                        return false;
-                } else if (!characterStringValue.equals(other.characterStringValue))
-                    return false;
-                if (dateValue == null) {
-                    if (other.dateValue != null)
-                        return false;
-                } else if (!dateValue.equals(other.dateValue))
-                    return false;
-                if (doubleValue == null) {
-                    if (other.doubleValue != null)
-                        return false;
-                } else if (!doubleValue.equals(other.doubleValue))
-                    return false;
-                if (enumValue == null) {
-                    if (other.enumValue != null)
-                        return false;
-                } else if (!enumValue.equals(other.enumValue))
-                    return false;
-                if (integerValue == null) {
-                    if (other.integerValue != null)
-                        return false;
-                } else if (!integerValue.equals(other.integerValue))
-                    return false;
-                if (nullValue == null) {
-                    if (other.nullValue != null)
-                        return false;
-                } else if (!nullValue.equals(other.nullValue))
-                    return false;
-                if (objectIdentifierValue == null) {
-                    if (other.objectIdentifierValue != null)
-                        return false;
-                } else if (!objectIdentifierValue.equals(other.objectIdentifierValue))
-                    return false;
-                if (octetValue == null) {
-                    if (other.octetValue != null)
-                        return false;
-                } else if (!octetValue.equals(other.octetValue))
-                    return false;
-                if (realValue == null) {
-                    if (other.realValue != null)
-                        return false;
-                } else if (!realValue.equals(other.realValue))
-                    return false;
-                if (referenceValue == null) {
-                    if (other.referenceValue != null)
-                        return false;
-                } else if (!referenceValue.equals(other.referenceValue))
-                    return false;
-                if (timeValue == null) {
-                    if (other.timeValue != null)
-                        return false;
-                } else if (!timeValue.equals(other.timeValue))
-                    return false;
-                if (unsignedValue == null) {
-                    if (other.unsignedValue != null)
-                        return false;
-                } else if (!unsignedValue.equals(other.unsignedValue))
+                } else if (!choice.equals(other.choice))
                     return false;
                 return true;
             }
