@@ -10,6 +10,9 @@ import org.junit.Test;
 
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
+import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
+import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
 import com.serotonin.bacnet4j.type.constructed.DailySchedule;
@@ -30,15 +33,18 @@ import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
+import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliabilityNotif;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.RequestUtils;
 
 public class ScheduleObjectTest extends AbstractTest {
     @Override
@@ -197,5 +203,49 @@ public class ScheduleObjectTest extends AbstractTest {
                 new NotificationParameters(new ChangeOfReliabilityNotif(Reliability.memberFault,
                         new StatusFlags(true, true, false, false), new SequenceOf<PropertyValue>())),
                 notif.get("eventValues"));
+    }
+
+    /**
+     * Ensures that schedule.listOfObjectPropertyReferences can be modified with WriteProperty
+     */
+    @Test
+    public void listValues() throws Exception {
+        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
+                new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, new SequenceOf<>(), new Real(8),
+                new SequenceOf<>(), 12, false, d1.getClock());
+
+        // Add a few items to the list.
+        final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.analogInput, 0);
+
+        final DeviceObjectPropertyReference local1 = new DeviceObjectPropertyReference(oid,
+                PropertyIdentifier.presentValue, null, null);
+        final DeviceObjectPropertyReference remote10 = new DeviceObjectPropertyReference(oid,
+                PropertyIdentifier.presentValue, null, new ObjectIdentifier(ObjectType.device, 10));
+        final DeviceObjectPropertyReference remote11 = new DeviceObjectPropertyReference(oid,
+                PropertyIdentifier.presentValue, null, new ObjectIdentifier(ObjectType.device, 11));
+
+        // Ensure that the list is empty.
+        SequenceOf<Destination> list = RequestUtils.getProperty(d2, rd1, so.getId(),
+                PropertyIdentifier.listOfObjectPropertyReferences);
+        assertEquals(list, new SequenceOf<>());
+
+        // Add a few elements.
+        final AddListElementRequest aler = new AddListElementRequest(so.getId(),
+                PropertyIdentifier.listOfObjectPropertyReferences, null, new SequenceOf<>(local1, remote10));
+        d2.send(rd1, aler).get();
+        list = RequestUtils.getProperty(d2, rd1, so.getId(), PropertyIdentifier.listOfObjectPropertyReferences);
+        assertEquals(list, new SequenceOf<>(local1, remote10));
+
+        // Write one more.
+        d2.send(rd1, new AddListElementRequest(so.getId(), PropertyIdentifier.listOfObjectPropertyReferences, null,
+                new SequenceOf<>(remote11))).get();
+        list = RequestUtils.getProperty(d2, rd1, so.getId(), PropertyIdentifier.listOfObjectPropertyReferences);
+        assertEquals(list, new SequenceOf<>(local1, remote10, remote11));
+
+        // Remove some.
+        d2.send(rd1, new RemoveListElementRequest(so.getId(), PropertyIdentifier.listOfObjectPropertyReferences, null,
+                new SequenceOf<Encodable>(remote10, local1))).get();
+        list = RequestUtils.getProperty(d2, rd1, so.getId(), PropertyIdentifier.listOfObjectPropertyReferences);
+        assertEquals(list, new SequenceOf<>(remote11));
     }
 }
