@@ -55,7 +55,7 @@ public class ReadOnlyPropertyMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
             throws BACnetServiceException {
         if (pids.contains(value.getPropertyIdentifier()))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
