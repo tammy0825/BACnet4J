@@ -66,6 +66,7 @@ public class AnalogInputObject extends BACnetObject {
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
         addMixin(new PropertyListMixin(this));
 
+        // TODO
         // ?? deviceType
         // ?? updateInterval
         // ?? minPresValue
