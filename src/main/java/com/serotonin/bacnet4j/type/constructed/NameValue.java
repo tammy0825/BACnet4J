@@ -31,12 +31,23 @@ package com.serotonin.bacnet4j.type.constructed;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
+import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
+import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class NameValue extends BaseType {
     private final CharacterString name;
     private final Encodable value;
+
+    public NameValue(final String name) {
+        this(new CharacterString(name));
+    }
+
+    public NameValue(final CharacterString name) {
+        this.name = name;
+        this.value = null;
+    }
 
     public NameValue(final String name, final Primitive value) {
         this(new CharacterString(name), value);
@@ -58,14 +69,30 @@ public class NameValue extends BaseType {
 
     public NameValue(final ByteQueue queue) throws BACnetException {
         name = read(queue, CharacterString.class, 0);
-        // TODO read DateTime too
-        value = read(queue, Primitive.class);
+
+        Encodable e = null;
+        if (queue.size() > 0) {
+            final int typeId = Primitive.getPrimitiveTypeId(queue.peek(0));
+            if (typeId == Date.TYPE_ID) {
+                // Read the date and then check if there is a time following.
+                final Date d = new Date(queue);
+                if (queue.size() > 0 && Primitive.getPrimitiveTypeId(queue.peek(0)) == Time.TYPE_ID) {
+                    final Time t = new Time(queue);
+                    e = new DateTime(d, t);
+                } else {
+                    e = d;
+                }
+            } else if (typeId != -1) {
+                e = Primitive.createPrimitive(queue);
+            }
+        }
+        value = e;
     }
 
     @Override
     public void write(final ByteQueue queue) {
         write(queue, name, 0);
-        write(queue, value);
+        writeOptional(queue, value);
     }
 
     public CharacterString getName() {
@@ -74,6 +101,11 @@ public class NameValue extends BaseType {
 
     public Encodable getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "NameValue [name=" + name + ", value=" + value + "]";
     }
 
     @Override
