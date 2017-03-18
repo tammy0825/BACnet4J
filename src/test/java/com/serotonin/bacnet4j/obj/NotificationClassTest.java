@@ -41,30 +41,30 @@ public class NotificationClassTest extends AbstractTest {
                 transitions);
         final Destination dest3 = new Destination(recipient, new UnsignedInteger(3), issueConfirmedNotifications,
                 transitions);
+        final Destination dest4 = new Destination(recipient, new UnsignedInteger(4), issueConfirmedNotifications,
+                transitions);
+        final Destination dest5 = new Destination(recipient, new UnsignedInteger(5), issueConfirmedNotifications,
+                transitions);
         final AddListElementRequest aler = new AddListElementRequest(nc.getId(), PropertyIdentifier.recipientList, null,
                 new SequenceOf<>(dest1, dest2, dest3));
         d2.send(rd1, aler).get();
 
         // Read the whole list
-        SequenceOf<Destination> list2 = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList);
-        assertEquals(list2, new SequenceOf<>(dest1, dest2, dest3));
+        SequenceOf<Destination> list = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList);
+        assertEquals(list, new SequenceOf<>(dest1, dest2, dest3));
 
-        // Read at an index.
-        Destination d = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList, 2);
-        assertEquals(dest2, d);
-
-        // Write to an index.
-        RequestUtils.writeProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList, 4, dest1);
-        d = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList, 4);
-        assertEquals(dest1, d);
+        // Write a couple more.
+        d2.send(rd1, new AddListElementRequest(nc.getId(), PropertyIdentifier.recipientList, null,
+                new SequenceOf<>(dest2, dest5, dest4))).get();
+        list = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList);
+        assertEquals(list, new SequenceOf<>(dest1, dest2, dest3, dest5, dest4));
 
         // Remove at an index.
-        final RemoveListElementRequest rler = new RemoveListElementRequest(nc.getId(), PropertyIdentifier.recipientList,
-                null, new SequenceOf<Encodable>(dest2));
-        d2.send(rd1, rler).get();
+        d2.send(rd1, new RemoveListElementRequest(nc.getId(), PropertyIdentifier.recipientList, null,
+                new SequenceOf<Encodable>(dest2, dest5))).get();
 
         // Read the whole list
-        list2 = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList);
-        assertEquals(list2, new SequenceOf<>(dest1, dest3, dest1));
+        list = RequestUtils.getProperty(d2, rd1, nc.getId(), PropertyIdentifier.recipientList);
+        assertEquals(list, new SequenceOf<>(dest1, dest3, dest4));
     }
 }
