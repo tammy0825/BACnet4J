@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
@@ -156,9 +160,34 @@ public class AccessRule extends BaseType {
         public static final TimeRangeSpecifier specified = new TimeRangeSpecifier(0);
         public static final TimeRangeSpecifier always = new TimeRangeSpecifier(1);
 
-        public static final TimeRangeSpecifier[] ALL = { specified, always, };
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-        public TimeRangeSpecifier(final int value) {
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static TimeRangeSpecifier forId(final int id) {
+            TimeRangeSpecifier e = (TimeRangeSpecifier) idMap.get(id);
+            if (e == null)
+                e = new TimeRangeSpecifier(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static TimeRangeSpecifier forName(final String name) {
+            return (TimeRangeSpecifier) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private TimeRangeSpecifier(final int value) {
             super(value);
         }
 
@@ -168,12 +197,7 @@ public class AccessRule extends BaseType {
 
         @Override
         public String toString() {
-            final int type = intValue();
-            if (type == specified.intValue())
-                return "specified";
-            if (type == always.intValue())
-                return "always";
-            return "Unknown(" + type + ")";
+            return super.toString(prettyMap);
         }
     }
 
@@ -181,9 +205,34 @@ public class AccessRule extends BaseType {
         public static final LocationSpecifier specified = new LocationSpecifier(0);
         public static final LocationSpecifier all = new LocationSpecifier(1);
 
-        public static final LocationSpecifier[] ALL = { specified, all, };
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-        public LocationSpecifier(final int value) {
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static LocationSpecifier forId(final int id) {
+            LocationSpecifier e = (LocationSpecifier) idMap.get(id);
+            if (e == null)
+                e = new LocationSpecifier(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static LocationSpecifier forName(final String name) {
+            return (LocationSpecifier) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private LocationSpecifier(final int value) {
             super(value);
         }
 
@@ -193,12 +242,7 @@ public class AccessRule extends BaseType {
 
         @Override
         public String toString() {
-            final int type = intValue();
-            if (type == specified.intValue())
-                return "specified";
-            if (type == all.intValue())
-                return "all";
-            return "Unknown(" + type + ")";
+            return super.toString(prettyMap);
         }
     }
 }

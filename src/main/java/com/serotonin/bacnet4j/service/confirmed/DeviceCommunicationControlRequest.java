@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
@@ -81,12 +85,44 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
         public static final EnableDisable disable = new EnableDisable(1);
         public static final EnableDisable disableInitiation = new EnableDisable(2);
 
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static EnableDisable forId(final int id) {
+            EnableDisable e = (EnableDisable) idMap.get(id);
+            if (e == null)
+                e = new EnableDisable(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static EnableDisable forName(final String name) {
+            return (EnableDisable) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
         private EnableDisable(final int value) {
             super(value);
         }
 
         public EnableDisable(final ByteQueue queue) {
             super(queue);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString(prettyMap);
         }
     }
 

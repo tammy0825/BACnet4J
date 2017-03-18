@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.serotonin.bacnet4j.LocalDevice;
@@ -79,12 +83,44 @@ public class ReinitializeDeviceRequest extends ConfirmedRequestService {
         public static final ReinitializedStateOfDevice abortRestore = new ReinitializedStateOfDevice(6);
         public static final ReinitializedStateOfDevice activateChanges = new ReinitializedStateOfDevice(7);
 
-        public ReinitializedStateOfDevice(final int value) {
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static ReinitializedStateOfDevice forId(final int id) {
+            ReinitializedStateOfDevice e = (ReinitializedStateOfDevice) idMap.get(id);
+            if (e == null)
+                e = new ReinitializedStateOfDevice(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static ReinitializedStateOfDevice forName(final String name) {
+            return (ReinitializedStateOfDevice) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private ReinitializedStateOfDevice(final int value) {
             super(value);
         }
 
         public ReinitializedStateOfDevice(final ByteQueue queue) {
             super(queue);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString(prettyMap);
         }
     }
 

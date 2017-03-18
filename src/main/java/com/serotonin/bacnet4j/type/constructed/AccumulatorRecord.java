@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -69,12 +73,44 @@ public class AccumulatorRecord extends BaseType {
         public static final AccumulatorStatus abnormal = new AccumulatorStatus(3);
         public static final AccumulatorStatus failed = new AccumulatorStatus(4);
 
-        public AccumulatorStatus(final int value) {
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
+
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static AccumulatorStatus forId(final int id) {
+            AccumulatorStatus e = (AccumulatorStatus) idMap.get(id);
+            if (e == null)
+                e = new AccumulatorStatus(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static AccumulatorStatus forName(final String name) {
+            return (AccumulatorStatus) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private AccumulatorStatus(final int value) {
             super(value);
         }
 
         public AccumulatorStatus(final ByteQueue queue) {
             super(queue);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString(prettyMap);
         }
     }
 

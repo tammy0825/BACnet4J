@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
@@ -108,9 +112,34 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         public static final AcknowledgmentFilter acked = new AcknowledgmentFilter(1);
         public static final AcknowledgmentFilter notAcked = new AcknowledgmentFilter(2);
 
-        public static final AcknowledgmentFilter[] ALL = { all, acked, notAcked, };
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-        public AcknowledgmentFilter(final int value) {
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static AcknowledgmentFilter forId(final int id) {
+            AcknowledgmentFilter e = (AcknowledgmentFilter) idMap.get(id);
+            if (e == null)
+                e = new AcknowledgmentFilter(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static AcknowledgmentFilter forName(final String name) {
+            return (AcknowledgmentFilter) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private AcknowledgmentFilter(final int value) {
             super(value);
         }
 
@@ -120,14 +149,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
 
         @Override
         public String toString() {
-            final int type = intValue();
-            if (type == all.intValue())
-                return "all";
-            if (type == acked.intValue())
-                return "acked";
-            if (type == notAcked.intValue())
-                return "notAcked";
-            return "Unknown(" + type + ")";
+            return super.toString(prettyMap);
         }
     }
 
@@ -138,9 +160,34 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
         public static final EventStateFilter all = new EventStateFilter(3);
         public static final EventStateFilter active = new EventStateFilter(4);
 
-        public static final EventStateFilter[] ALL = { offnormal, fault, normal, all, active, };
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-        public EventStateFilter(final int value) {
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static EventStateFilter forId(final int id) {
+            EventStateFilter e = (EventStateFilter) idMap.get(id);
+            if (e == null)
+                e = new EventStateFilter(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static EventStateFilter forName(final String name) {
+            return (EventStateFilter) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private EventStateFilter(final int value) {
             super(value);
         }
 
@@ -150,18 +197,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
 
         @Override
         public String toString() {
-            final int type = intValue();
-            if (type == offnormal.intValue())
-                return "offnormal";
-            if (type == fault.intValue())
-                return "fault";
-            if (type == normal.intValue())
-                return "normal";
-            if (type == all.intValue())
-                return "all";
-            if (type == active.intValue())
-                return "active";
-            return "Unknown(" + type + ")";
+            return super.toString(prettyMap);
         }
     }
 

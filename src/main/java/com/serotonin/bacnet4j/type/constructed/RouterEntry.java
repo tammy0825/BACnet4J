@@ -28,6 +28,10 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
@@ -128,9 +132,34 @@ public class RouterEntry extends BaseType {
         public static final RouterEntryStatus busy = new RouterEntryStatus(1);
         public static final RouterEntryStatus disconnected = new RouterEntryStatus(2);
 
-        public static final RouterEntryStatus[] ALL = { available, busy, disconnected, };
+        private static final Map<Integer, Enumerated> idMap = new HashMap<>();
+        private static final Map<String, Enumerated> nameMap = new HashMap<>();
+        private static final Map<Integer, String> prettyMap = new HashMap<>();
 
-        public RouterEntryStatus(final int value) {
+        static {
+            Enumerated.init(MethodHandles.lookup().lookupClass(), idMap, nameMap, prettyMap);
+        }
+
+        public static RouterEntryStatus forId(final int id) {
+            RouterEntryStatus e = (RouterEntryStatus) idMap.get(id);
+            if (e == null)
+                e = new RouterEntryStatus(id);
+            return e;
+        }
+
+        public static String nameForId(final int id) {
+            return prettyMap.get(id);
+        }
+
+        public static RouterEntryStatus forName(final String name) {
+            return (RouterEntryStatus) Enumerated.forName(nameMap, name);
+        }
+
+        public static int size() {
+            return idMap.size();
+        }
+
+        private RouterEntryStatus(final int value) {
             super(value);
         }
 
@@ -140,15 +169,7 @@ public class RouterEntry extends BaseType {
 
         @Override
         public String toString() {
-            final int type = intValue();
-            if (type == available.intValue())
-                return "available";
-            if (type == busy.intValue())
-                return "busy";
-            if (type == disconnected.intValue())
-                return "disconnected";
-            return "Unknown(" + type + ")";
+            return super.toString(prettyMap);
         }
     }
-
 }
