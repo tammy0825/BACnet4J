@@ -4,9 +4,11 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.ActiveCovSubscriptionMixin;
+import com.serotonin.bacnet4j.obj.mixin.ObjectListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
@@ -38,7 +40,7 @@ public class DeviceObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.numberOfApduRetries, new UnsignedInteger(Transport.DEFAULT_RETRIES));
         writePropertyInternal(PropertyIdentifier.deviceAddressBinding, new SequenceOf<AddressBinding>());
         writePropertyInternal(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
-        writePropertyInternal(PropertyIdentifier.objectList, new SequenceOf<ObjectIdentifier>());
+        writePropertyInternal(PropertyIdentifier.objectList, new BACnetArray<ObjectIdentifier>());
 
         // Set up the supported services indicators. Remove lines as services get implemented.
         final ServicesSupported servicesSupported = new ServicesSupported();
@@ -104,5 +106,6 @@ public class DeviceObject extends BACnetObject {
         // Mixins
         addMixin(new ActiveCovSubscriptionMixin(this));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.activeCovSubscriptions));
+        addMixin(new ObjectListMixin(this));
     }
 }
