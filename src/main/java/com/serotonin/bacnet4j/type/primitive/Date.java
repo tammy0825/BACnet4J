@@ -345,7 +345,7 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
     }
 
     @Override
-    protected byte getTypeId() {
+    public byte getTypeId() {
         return TYPE_ID;
     }
 

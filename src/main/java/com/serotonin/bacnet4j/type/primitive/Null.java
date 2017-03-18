@@ -54,7 +54,7 @@ public class Null extends Primitive {
     }
 
     @Override
-    protected byte getTypeId() {
+    public byte getTypeId() {
         return TYPE_ID;
     }
 

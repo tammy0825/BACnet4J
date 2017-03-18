@@ -146,7 +146,7 @@ public class BitString extends Primitive {
     }
 
     @Override
-    protected byte getTypeId() {
+    public byte getTypeId() {
         return TYPE_ID;
     }
 

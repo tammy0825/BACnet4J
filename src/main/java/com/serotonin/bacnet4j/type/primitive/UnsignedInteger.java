@@ -127,7 +127,7 @@ public class UnsignedInteger extends Primitive {
     }
 
     @Override
-    protected byte getTypeId() {
+    public byte getTypeId() {
         return TYPE_ID;
     }
 

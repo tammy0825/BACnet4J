@@ -63,7 +63,7 @@ public class Double extends Primitive {
     }
 
     @Override
-    protected byte getTypeId() {
+    public byte getTypeId() {
         return TYPE_ID;
     }
 
