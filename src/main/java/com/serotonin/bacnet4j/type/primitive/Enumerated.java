@@ -219,7 +219,7 @@ public class Enumerated extends Primitive {
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (!Enumerated.class.isAssignableFrom(obj.getClass()))
             return false;
         final Enumerated other = (Enumerated) obj;
         return bigIntegerValue().equals(other.bigIntegerValue());
