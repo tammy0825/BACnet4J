@@ -25,6 +25,9 @@ public class NotificationClassTest extends AbstractTest {
         nc = new NotificationClassObject(d1, 0, "notifClass", 100, 5, 200, new EventTransitionBits(true, true, true));
     }
 
+    /**
+     * Ensures that notificationClass.recipientList can be modified with WriteProperty
+     */
     @Test
     public void listValues() throws Exception {
         // Add a few items to the list.
