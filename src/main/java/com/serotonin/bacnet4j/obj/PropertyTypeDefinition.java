@@ -36,13 +36,31 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 public class PropertyTypeDefinition {
     private final PropertyIdentifier propertyIdentifier;
     private final Class<? extends Encodable> clazz;
-    private final boolean sequenceOf;
+    private final boolean isList;
+    private final boolean isArray;
+    private final int arrayLength;
+
+    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz) {
+        this(propertyIdentifier, clazz, false, false, 0);
+    }
 
     PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
-            final boolean sequenceOf) {
+            final boolean isList) {
+        this(propertyIdentifier, clazz, isList, false, 0);
+    }
+
+    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
+            final int arrayLength) {
+        this(propertyIdentifier, clazz, false, true, arrayLength);
+    }
+
+    private PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
+            final boolean isList, final boolean isArray, final int arrayLength) {
         this.propertyIdentifier = propertyIdentifier;
         this.clazz = clazz;
-        this.sequenceOf = sequenceOf;
+        this.isList = isList;
+        this.isArray = isArray;
+        this.arrayLength = arrayLength;
     }
 
     public PropertyIdentifier getPropertyIdentifier() {
@@ -53,8 +71,20 @@ public class PropertyTypeDefinition {
         return clazz;
     }
 
-    public boolean isSequenceOf() {
-        return sequenceOf;
+    public boolean isList() {
+        return isList;
+    }
+
+    public boolean isArray() {
+        return isArray;
+    }
+
+    public boolean isCollection() {
+        return isList || isArray;
+    }
+
+    public int getArrayLength() {
+        return arrayLength;
     }
 
     public Class<? extends Encodable> getInnerType() {
@@ -67,9 +97,11 @@ public class PropertyTypeDefinition {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + arrayLength;
         result = prime * result + (clazz == null ? 0 : clazz.hashCode());
+        result = prime * result + (isArray ? 1231 : 1237);
+        result = prime * result + (isList ? 1231 : 1237);
         result = prime * result + (propertyIdentifier == null ? 0 : propertyIdentifier.hashCode());
-        result = prime * result + (sequenceOf ? 1231 : 1237);
         return result;
     }
 
@@ -82,17 +114,21 @@ public class PropertyTypeDefinition {
         if (getClass() != obj.getClass())
             return false;
         final PropertyTypeDefinition other = (PropertyTypeDefinition) obj;
+        if (arrayLength != other.arrayLength)
+            return false;
         if (clazz == null) {
             if (other.clazz != null)
                 return false;
         } else if (!clazz.equals(other.clazz))
             return false;
+        if (isArray != other.isArray)
+            return false;
+        if (isList != other.isList)
+            return false;
         if (propertyIdentifier == null) {
             if (other.propertyIdentifier != null)
                 return false;
         } else if (!propertyIdentifier.equals(other.propertyIdentifier))
-            return false;
-        if (sequenceOf != other.sequenceOf)
             return false;
         return true;
     }

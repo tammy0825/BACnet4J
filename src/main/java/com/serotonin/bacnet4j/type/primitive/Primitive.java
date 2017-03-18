@@ -36,6 +36,9 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class Primitive extends Encodable {
+    /**
+     * Creates a primitive value where it is encoded immediately in the queue.
+     */
     public static Primitive createPrimitive(final ByteQueue queue) throws BACnetErrorException {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
         byte type = queue.peek(0);
@@ -43,8 +46,11 @@ abstract public class Primitive extends Encodable {
         return createPrimitive(type, queue);
     }
 
-    public static Primitive createPrimitive(final ByteQueue queue, final int contextId, final int typeId)
-            throws BACnetErrorException {
+    /**
+     * Creates a primitive value where it is encoded between context tags in the queue. If the value in the tags
+     * is not a primitive, null is returned.
+     */
+    public static Primitive createPrimitive(final ByteQueue queue, final int contextId) throws BACnetErrorException {
         final int tagNumber = peekTagNumber(queue);
 
         // Check if the tag number matches the context id. If they match, then create the context-specific parameter,
@@ -52,7 +58,14 @@ abstract public class Primitive extends Encodable {
         if (tagNumber != contextId)
             return null;
 
-        return createPrimitive(typeId, queue);
+        final int typeId = getPrimitiveTypeId(queue.peek(getTagLength(queue)));
+        if (typeId == -1)
+            return null;
+
+        popStart(queue, contextId);
+        final Primitive result = createPrimitive(typeId, queue);
+        popEnd(queue, contextId);
+        return result;
     }
 
     private static Primitive createPrimitive(final int typeId, final ByteQueue queue) throws BACnetErrorException {
@@ -86,10 +99,16 @@ abstract public class Primitive extends Encodable {
         throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
     }
 
-    public static boolean isPrimitive(final byte firstByte) {
+    public static int getPrimitiveTypeId(final byte firstByte) {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
         final byte b = (byte) ((firstByte & 0xff) >> 4);
-        return b >= Null.TYPE_ID && b <= ObjectIdentifier.TYPE_ID;
+        if (b >= Null.TYPE_ID && b <= ObjectIdentifier.TYPE_ID)
+            return b & 0xff;
+        return -1;
+    }
+
+    public static boolean isPrimitive(final byte firstByte) {
+        return getPrimitiveTypeId(firstByte) != -1;
     }
 
     /**
@@ -121,7 +140,7 @@ abstract public class Primitive extends Encodable {
 
     abstract protected long getLength();
 
-    abstract protected byte getTypeId();
+    abstract public byte getTypeId();
 
     private static void writeTag(final ByteQueue queue, final int tagNumber, final boolean classTag,
             final long length) {

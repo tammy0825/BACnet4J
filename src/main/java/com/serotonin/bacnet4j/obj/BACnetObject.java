@@ -51,6 +51,7 @@ import com.serotonin.bacnet4j.service.confirmed.GetEnrollmentSummaryRequest.Even
 import com.serotonin.bacnet4j.service.confirmed.GetEnrollmentSummaryRequest.PriorityFilter;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
@@ -66,7 +67,6 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Date;
-import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.Time;
@@ -377,8 +377,11 @@ public class BACnetObject {
      * @param value
      * @throws BACnetServiceException
      */
+    @SuppressWarnings("unchecked")
     public void writeProperty(final ValueSource valueSource, final PropertyValue value) throws BACnetServiceException {
         final PropertyIdentifier pid = value.getPropertyIdentifier();
+        final UnsignedInteger pin = value.getPropertyArrayIndex();
+        Encodable valueToWrite = value.getValue();
 
         if (PropertyIdentifier.objectIdentifier.equals(pid))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
@@ -394,39 +397,88 @@ public class BACnetObject {
             if (handled)
                 break;
         }
-        if (!handled) {
-            // Default behaviour is to validate against the object property definitions.
-            final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinition(objectType,
-                    value.getPropertyIdentifier());
-            if (def != null) {
-                if (value.getPropertyArrayIndex() == null) {
-                    // Expecting to write to a non-list property.
-                    //if (value.getValue() instanceof Null && !def.isOptional())
-                    //    throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
-                    //            "Null provided, but the value is not optional");
 
-                    if (def.getPropertyTypeDefinition().isSequenceOf()) {
-                        // Replacing an entire array. Validate each element of the given array.
-                        @SuppressWarnings("unchecked")
-                        final SequenceOf<Encodable> seq = (SequenceOf<Encodable>) value.getValue();
-                        for (final Encodable e : seq) {
-                            if (e == null || !def.getPropertyTypeDefinition().getClazz().isAssignableFrom(e.getClass()))
-                                throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
-                                        "expected " + def.getPropertyTypeDefinition().getClazz() + ", received="
-                                                + (e == null ? "null" : e.getClass()));
-                        }
-                    } else if (!def.getPropertyTypeDefinition().getClazz()
-                            .isAssignableFrom(value.getValue().getClass()))
-                        // Validate the given data type.
-                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType,
-                                "expected " + def.getPropertyTypeDefinition().getClazz() + ", received="
-                                        + value.getValue().getClass());
+        if (!handled) {
+            // Validate the value to be written. First get the definition for the property.
+            final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinition(objectType, pid);
+
+            if (pin == null) {
+                // Not writing to an array index.
+                if (def == null) {
+                    if (value.getValue().getClass() == SequenceOf.class) {
+                        // if the value to write is a collection, then disallow the write because we can't tell if it
+                        // is supposed to be a list or an array.
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.datatypeNotSupported);
+                    }
                 } else {
-                    // Expecting to write to an array element.
-                    if (!def.getPropertyTypeDefinition().isSequenceOf())
-                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
+                    final PropertyTypeDefinition pdef = def.getPropertyTypeDefinition();
+
+                    // Validate against the property definition.
+                    if (pdef.isArray()) {
+                        // The property to write is an array, so the given value needs to be a sequence.
+                        if (!(valueToWrite instanceof SequenceOf))
+                            throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+
+                        final SequenceOf<Encodable> seq = (SequenceOf<Encodable>) valueToWrite;
+
+                        if (pdef.getArrayLength() > 0) {
+                            // And the length needs to match the definition if not n
+                            if (seq.getCount() != pdef.getArrayLength())
+                                throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                        }
+
+                        // And the types of the elements need to match the definition.
+                        for (final Encodable e : seq) {
+                            if (!pdef.getClazz().isAssignableFrom(e.getClass()))
+                                throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                        }
+
+                        // Turn the value into an array.
+                        valueToWrite = new BACnetArray<>(seq.getValues());
+                    } else if (pdef.isList()) {
+                        // The property to write is a list, so the given value needs to be a sequence.
+                        if (!(valueToWrite instanceof SequenceOf))
+                            throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+
+                        final SequenceOf<Encodable> seq = (SequenceOf<Encodable>) valueToWrite;
+
+                        // And the types of the elements need to match the definition.
+                        for (final Encodable e : seq) {
+                            if (!pdef.getClazz().isAssignableFrom(e.getClass()))
+                                throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                        }
+                    } else {
+                        // The property to write is a scalar. Validate the type.
+                        if (!pdef.getClazz().isAssignableFrom(value.getValue().getClass()))
+                            throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                    }
+                }
+            } else {
+                // Writing to an array index.
+                final Encodable prop = properties.get(pid);
+                if (prop == null)
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
+                if (!(prop instanceof BACnetArray)) {
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
+                }
+
+                final BACnetArray<?> arr = (BACnetArray<?>) prop;
+                if (def == null) {
+                    // No property definition available, but we can check that the data type to write matches that
+                    // of any existing elements.
+                    if (arr.getCount() > 0) {
+                        if (arr.get(1).getClass() != value.getValue().getClass()) {
+                            throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                        }
+                    }
+                } else {
                     if (!def.getPropertyTypeDefinition().getClazz().isAssignableFrom(value.getValue().getClass()))
                         throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                }
+
+                // Index check.
+                if (pin.intValue() < 1 || pin.intValue() > arr.getCount()) {
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidArrayIndex);
                 }
             }
         }
@@ -439,28 +491,16 @@ public class BACnetObject {
                 break;
         }
         if (!handled) {
-            // Default is to just set the property.
-            if (value.getPropertyArrayIndex() != null) {
-                // Set the value in a list or array.
-                final int indexBase1 = value.getPropertyArrayIndex().intValue();
-                @SuppressWarnings("unchecked")
-                SequenceOf<Encodable> list = (SequenceOf<Encodable>) properties.get(pid);
-
-                if (value.getValue() instanceof Null) {
-                    if (list != null) {
-                        //Encodable oldValue = list.get(indexBase1);
-                        list.remove(indexBase1);
-                        //fireSubscriptions(pid, oldValue, null);
-                    }
-                } else {
-                    if (list == null)
-                        list = new SequenceOf<>();
-                    list.set(indexBase1, value.getValue());
-                    writePropertyInternal(pid, list);
-                }
-            } else
+            // Set the property
+            if (pin == null) {
                 // Set the value of a property
-                writePropertyInternal(pid, value.getValue());
+                writePropertyInternal(pid, valueToWrite);
+            } else {
+                // Set the value in an array.
+                final BACnetArray<Encodable> arr = (BACnetArray<Encodable>) properties.get(pid);
+                arr.set(pin.intValue(), valueToWrite);
+                writePropertyInternal(pid, arr);
+            }
         }
     }
 

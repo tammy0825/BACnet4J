@@ -181,7 +181,7 @@ public class RequestUtils {
                     || e.getApdu().getAbortReason() == AbortReason.segmentationNotSupported.intValue()) {
                 // The response may be too long to send. If the property is a sequence...
                 if (ObjectProperties.getObjectPropertyTypeDefinition(oid.getObjectType(), pid)
-                        .getPropertyTypeDefinition().isSequenceOf()) {
+                        .getPropertyTypeDefinition().isCollection()) {
                     LOG.info("Received abort exception on sequence request. Sending chunked reference request instead");
 
                     // ... then try getting it by sending requests for indices. Find out how many there are.

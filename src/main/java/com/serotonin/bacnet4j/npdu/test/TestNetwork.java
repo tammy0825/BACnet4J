@@ -166,7 +166,7 @@ public class TestNetwork extends Network implements Runnable {
             final SendData d = queue.poll();
 
             if (d == null)
-                ThreadUtils.waitSync(queue, 20);
+                ThreadUtils.waitSync(queue, 2);
             else {
                 // Pause before handing off the message.
                 ThreadUtils.sleep(sendDelay);

@@ -12,12 +12,16 @@ import org.junit.Assert;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.exception.ErrorAPDUException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.Time;
+import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class TestUtils {
     public static <T, U> void assertListEqualsIgnoreOrder(final List<T> expectedList, final List<U> actualList,
@@ -134,9 +138,7 @@ public class TestUtils {
             command.call();
             fail("BACnetException was expected");
         } catch (final BACnetErrorException e) {
-            final ErrorClassAndCode errorClassAndCode = e.getBacnetError().getError().getErrorClassAndCode();
-            Assert.assertEquals(errorClass, errorClassAndCode.getErrorClass());
-            Assert.assertEquals(errorCode, errorClassAndCode.getErrorCode());
+            assertErrorClassAndCode(e.getBacnetError().getError().getErrorClassAndCode(), errorClass, errorCode);
         } catch (final BACnetException e) {
             fail("Not a BACnetErrorException: " + e);
         }
@@ -145,5 +147,76 @@ public class TestUtils {
     @FunctionalInterface
     public static interface RequestHandleExceptionCommand {
         void call() throws BACnetException;
+    }
+
+    public static void assertErrorAPDUException(final BACnetExceptionCommand command, final ErrorClass errorClass,
+            final ErrorCode errorCode) {
+        try {
+            command.call();
+            fail("BACnetException was expected");
+        } catch (final BACnetException e) {
+            if (e instanceof ErrorAPDUException) {
+                assertErrorClassAndCode(((ErrorAPDUException) e).getError().getErrorClassAndCode(), errorClass,
+                        errorCode);
+            } else {
+                fail("Embedded ErrorAPDUException was expected: " + e.getCause().getClass());
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public static interface BACnetExceptionCommand {
+        void call() throws BACnetException;
+    }
+
+    public static void assertErrorClassAndCode(final ErrorClassAndCode ecac, final ErrorClass errorClass,
+            final ErrorCode errorCode) {
+        Assert.assertEquals(errorClass, ecac.getErrorClass());
+        Assert.assertEquals(errorCode, ecac.getErrorCode());
+    }
+
+    public static void assertEncoding(final Encodable encodable, final String expectedHex) {
+        final ByteQueue expectedResult = new ByteQueue(expectedHex);
+
+        // Serialize the Encodable and compare with the hex.
+        final ByteQueue queue = new ByteQueue();
+        encodable.write(queue);
+        Assert.assertEquals(expectedResult, queue);
+
+        // Parse the hex and confirm the objects are equal.
+        Encodable parsed;
+        try {
+            parsed = Encodable.read(queue, encodable.getClass());
+        } catch (final BACnetException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+            return;
+        }
+
+        Assert.assertEquals(0, queue.size());
+        Assert.assertEquals(encodable, parsed);
+    }
+
+    public static <T extends Encodable> void assertSequenceEncoding(final SequenceOf<T> encodable,
+            final Class<T> innerType, final String expectedHex) {
+        final ByteQueue expectedResult = new ByteQueue(expectedHex);
+
+        // Serialize the Encodable and compare with the hex.
+        final ByteQueue queue = new ByteQueue();
+        encodable.write(queue);
+        Assert.assertEquals(expectedResult, queue);
+
+        // Parse the hex and confirm the objects are equal.
+        Encodable parsed;
+        try {
+            parsed = Encodable.readSequenceOf(queue, innerType);
+        } catch (final BACnetException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+            return;
+        }
+
+        Assert.assertEquals(0, queue.size());
+        Assert.assertEquals(encodable, parsed);
     }
 }

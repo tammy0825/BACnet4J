@@ -34,6 +34,9 @@ import static com.serotonin.bacnet4j.util.BACnetUtils.toLong;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRejectException;
@@ -58,6 +61,8 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class Encodable {
+    static final Logger LOG = LoggerFactory.getLogger(Encodable.class);
+
     abstract public void write(ByteQueue queue);
 
     abstract public void write(ByteQueue queue, int contextId);
@@ -110,6 +115,17 @@ abstract public class Encodable {
         if (tagNumber == 15)
             tagNumber = toInt(queue.peek(1));
         return tagNumber;
+    }
+
+    protected static int getTagLength(final ByteQueue queue) {
+        if (queue.size() == 0)
+            return -1;
+
+        // Take a peek at the tag number.
+        final int tagNumber = toInt(queue.peek(0)) >> 4;
+        if (tagNumber == 15)
+            return 2;
+        return 1;
     }
 
     //
@@ -176,18 +192,30 @@ abstract public class Encodable {
             queue.pop();
     }
 
+    /**
+     * Check if the tag number at the beginning of the queue matches the given context id.
+     */
     private static boolean matchContextId(final ByteQueue queue, final int contextId) {
         return peekTagNumber(queue) == contextId;
     }
 
+    /**
+     * Check if the tag at the beginning of the queue is a start tag that matches given context id.
+     */
     protected static boolean matchStartTag(final ByteQueue queue, final int contextId) {
         return matchContextId(queue, contextId) && (queue.peek(0) & 0xf) == 0xe;
     }
 
+    /**
+     * Check if the tag at the beginning of the queue is an end tag that matches given context id.
+     */
     protected static boolean matchEndTag(final ByteQueue queue, final int contextId) {
         return matchContextId(queue, contextId) && (queue.peek(0) & 0xf) == 0xf;
     }
 
+    /**
+     * Check if the tag at the beginning of the queue is NOT an end tag, but that it matches given context id.
+     */
     protected static boolean matchNonEndTag(final ByteQueue queue, final int contextId) {
         return matchContextId(queue, contextId) && (queue.peek(0) & 0xf) != 0xf;
     }
@@ -204,9 +232,6 @@ abstract public class Encodable {
         try {
             return clazz.getConstructor(new Class[] { ByteQueue.class }).newInstance(new Object[] { queue });
         } catch (final NoSuchMethodException e) {
-            //            // Check if this is an EventParameter
-            //            if (clazz == EventParameter.class)
-            //                return (T) EventParameter.createEventParameter(queue);
             throw new BACnetException(e);
         } catch (final InvocationTargetException e) {
             // Check if there is a wrapped BACnet exception
@@ -271,7 +296,7 @@ abstract public class Encodable {
 
     //
     // Read lists
-    protected static <T extends Encodable> SequenceOf<T> readSequenceOf(final ByteQueue queue, final Class<T> clazz)
+    public static <T extends Encodable> SequenceOf<T> readSequenceOf(final ByteQueue queue, final Class<T> clazz)
             throws BACnetException {
         return new SequenceOf<>(queue, clazz);
     }
@@ -336,11 +361,19 @@ abstract public class Encodable {
             return readWrapped(queue, UnsignedInteger.class, contextId);
 
         if (!matchNonEndTag(queue, contextId))
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.missingRequiredParameter);
+            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
 
+        // Get the definition for the property, if there is one.
         final PropertyTypeDefinition def = getPropertyTypeDefinition(objectType, propertyIdentifier);
+
         if (def == null) {
-            return new AmbiguousValue(queue, contextId).attemptConversion();
+            // We don't know what this is. Check if it's a primitive.
+            final Primitive p = Primitive.createPrimitive(queue, contextId);
+            if (p != null)
+                return p;
+
+            // If it's not a primitive, return an ambiguous value.
+            return new AmbiguousValue(queue, contextId);
         }
 
         if (ObjectProperties.isCommandable(objectType, propertyIdentifier)) {
@@ -354,19 +387,27 @@ abstract public class Encodable {
             return amb.convertTo(def.getClazz());
         }
 
-        if (propertyArrayIndex != null) {
-            if (!def.isSequenceOf() && !SequenceOf.class.isAssignableFrom(def.getClazz()))
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.propertyIsNotAList);
-            if (SequenceOf.class.isAssignableFrom(def.getClazz()))
-                return readWrapped(queue, def.getInnerType(), contextId);
-        } else {
-            if (def.isSequenceOf())
-                return readSequenceOf(queue, def.getClazz(), contextId);
-            if (SequenceOf.class.isAssignableFrom(def.getClazz()))
-                return readSequenceType(queue, def.getClazz(), contextId);
+        if (propertyArrayIndex == null && def.isCollection()) {
+            return readSequenceOf(queue, def.getClazz(), contextId);
         }
 
-        return readWrapped(queue, def.getClazz(), contextId);
+        //        final int primitiveTypeId = Primitive.getPrimitiveTypeId(queue.peek(getTagLength(queue)));
+        final Encodable result = readWrapped(queue, def.getClazz(), contextId);
+        //        if (primitiveTypeId != -1) {
+        //            // Make sure that the type that was read matches the type that was created.
+        //            if (result instanceof Primitive) {
+        //                final Primitive p = (Primitive) result;
+        //                if (p.getTypeId() != primitiveTypeId) {
+        //                    throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
+        //                }
+        //            } else {
+        //                LOG.warn("Read a type of {} when a primitive of type {} was expected", result.getClass(),
+        //                        primitiveTypeId);
+        //                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
+        //            }
+        //        }
+
+        return result;
     }
 
     protected static Encodable readOptionalANY(final ByteQueue queue, final ObjectType objectType,
