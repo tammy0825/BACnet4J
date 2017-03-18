@@ -34,7 +34,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -64,9 +63,6 @@ public class AbstractMixin {
     protected final void addProperty(final PropertyIdentifier pid, final Encodable value, final boolean overwrite) {
         if (overwrite || !properties().containsKey(pid)) {
             properties().put(pid, value);
-            final SequenceOf<PropertyIdentifier> propList = get(PropertyIdentifier.propertyList);
-            if (!propList.contains(pid))
-                propList.add(pid);
         }
     }
 

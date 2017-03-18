@@ -56,11 +56,10 @@ public class BACnetObjectListenerTest extends AbstractTest {
         d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.multiStateValue, 0),
                 PropertyIdentifier.description, null, new CharacterString("a new description"), null)).get();
 
-        assertEquals(4, changes.size());
+        assertEquals(3, changes.size());
         assertEquals(PropertyIdentifier.description, changes.get(2).pid);
         assertEquals(null, changes.get(2).oldValue);
         assertEquals(new CharacterString("a new description"), changes.get(2).newValue);
-        assertEquals(PropertyIdentifier.propertyList, changes.get(3).pid);
     }
 
     class PropChange {

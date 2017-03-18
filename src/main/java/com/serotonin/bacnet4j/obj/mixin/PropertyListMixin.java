@@ -39,8 +39,8 @@ import java.util.List;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.AbstractMixin;
 import com.serotonin.bacnet4j.obj.BACnetObject;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
@@ -59,13 +59,15 @@ public class PropertyListMixin extends AbstractMixin {
         return false;
     }
 
-    public void update() {
-        final List<PropertyIdentifier> pids = new ArrayList<>();
-        for (final PropertyIdentifier p : properties().keySet()) {
-            if (!p.isOneOf(objectName, objectType, objectIdentifier, propertyList))
-                pids.add(p);
+    @Override
+    protected void beforeReadProperty(final PropertyIdentifier pid) {
+        if (pid.equals(PropertyIdentifier.propertyList)) {
+            final List<PropertyIdentifier> pids = new ArrayList<>();
+            for (final PropertyIdentifier p : properties().keySet()) {
+                if (!p.isOneOf(objectName, objectType, objectIdentifier, propertyList))
+                    pids.add(p);
+            }
+            writePropertyInternal(propertyList, new BACnetArray<>(pids));
         }
-
-        writePropertyInternal(propertyList, new SequenceOf<>(pids));
     }
 }

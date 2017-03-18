@@ -85,7 +85,6 @@ public class BACnetObject {
     private final List<AbstractMixin> mixins = new ArrayList<>();
     private CommandableMixin commandableMixin;
     private HasStatusFlagsMixin hasStatusFlagsMixin;
-    private final PropertyListMixin propertyListMixin;
     private IntrinsicReportingMixin intrinsicReportingMixin;
     private CovReportingMixin changeOfValueMixin;
 
@@ -116,9 +115,7 @@ public class BACnetObject {
         properties.put(PropertyIdentifier.objectType, objectType);
 
         // All objects have a property list.
-        propertyListMixin = new PropertyListMixin(this);
-        addMixin(propertyListMixin);
-        propertyListMixin.update();
+        addMixin(new PropertyListMixin(this));
 
         if (!id.getObjectType().equals(ObjectType.device))
             // The device object will add itself to the local device after it initializes.
@@ -325,7 +322,7 @@ public class BACnetObject {
         if (propertyArrayIndex == null)
             return result;
 
-        if (!(result instanceof SequenceOf<?>))
+        if (!(result instanceof BACnetArray<?>))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
 
         final SequenceOf<?> array = (SequenceOf<?>) result;
@@ -526,10 +523,6 @@ public class BACnetObject {
             for (final BACnetObjectListener l : listeners)
                 l.propertyChange(pid, oldValue, value);
         }
-
-        // Special handling to update the property list
-        if (oldValue == null && !PropertyIdentifier.propertyList.equals(pid))
-            propertyListMixin.update();
 
         return this;
     }

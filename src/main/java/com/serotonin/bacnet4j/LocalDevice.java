@@ -442,9 +442,6 @@ public class LocalDevice {
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.duplicateName);
 
         localObjects.add(obj);
-
-        // Create a reference in the device's object list for the new object.
-        getObjectList().add(obj.getId());
     }
 
     public ObjectIdentifier getNextInstanceObjectIdentifier(final ObjectType objectType) {
@@ -480,18 +477,10 @@ public class LocalDevice {
         if (obj != null) {
             localObjects.remove(obj);
 
-            // Remove the reference in the device's object list for this id.
-            getObjectList().remove(id);
-
             // Notify the object that it was removed.
             obj.terminate();
         } else
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.unknownObject);
-    }
-
-    @SuppressWarnings("unchecked")
-    private SequenceOf<ObjectIdentifier> getObjectList() {
-        return (SequenceOf<ObjectIdentifier>) deviceObject.getProperty(PropertyIdentifier.objectList);
     }
 
     public ServicesSupported getServicesSupported() {

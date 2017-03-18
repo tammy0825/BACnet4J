@@ -90,7 +90,7 @@ public class AlertEnrollmentTest extends AbstractTest {
                 notif.get("eventValues"));
 
         // Make sure the list of properties looks right.
-        final SequenceOf<PropertyIdentifier> propertyList = ae.get(PropertyIdentifier.propertyList);
+        final SequenceOf<PropertyIdentifier> propertyList = ae.getProperty(PropertyIdentifier.propertyList);
         TestUtils.assertListEqualsIgnoreOrder(TestUtils.toList( //
                 PropertyIdentifier.presentValue, //
                 PropertyIdentifier.eventState, //
