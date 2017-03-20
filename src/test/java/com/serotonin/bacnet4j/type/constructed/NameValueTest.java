@@ -36,41 +36,15 @@ public class NameValueTest {
 
     @Test
     public void sequence() {
-        //        final SequenceOf<NameValue> seq = new SequenceOf<>( //
-        //                new NameValue("t1", new CharacterString("v1")), //
-        //                new NameValue("t2"), //
-        //                new NameValue("t3", new CharacterString("v3")));
-        //        TestUtils.assertSequenceEncoding(seq, NameValue.class,
-        //                "0b00743171000b0074320b007433730076310b007434a4ffffffffb4ffffffff0b00743500");
-
-        //        final SequenceOf<NameValue> seq = new SequenceOf<>( //
-        //                new NameValue("t1", new CharacterString("")), //
-        //                new NameValue("t2"), //
-        //                new NameValue("t3", new CharacterString("v1")), //
-        //                new NameValue("t4", DateTime.UNSPECIFIED), //
-        //                new NameValue("t5", Null.instance));
-        //        TestUtils.assertSequenceEncoding(seq, NameValue.class,
-        //                "0b00743171000b0074320b007433730076310b007434a4ffffffffb4ffffffff0b00743500");
-
         final SequenceOf<NameValue> seq = new SequenceOf<>( //
                 new NameValue("t1", new CharacterString("")), //
+                new NameValue("t2"), //
                 new NameValue("t3", new CharacterString("v1")), //
                 new NameValue("t4", DateTime.UNSPECIFIED), //
                 new NameValue("t6", Date.UNSPECIFIED), //
                 new NameValue("t7", Time.UNSPECIFIED), //
                 new NameValue("t5", Null.instance));
         TestUtils.assertSequenceEncoding(seq, NameValue.class,
-                "0b00743171000b007433730076310b007434a4ffffffffb4ffffffff0b007436a4ffffffff0b007437b4ffffffff0b00743500");
-
-        //        final SequenceOf<NameValue> seq = new SequenceOf<>( //
-        //                new NameValue("t1", new CharacterString("")), //
-        //                new NameValue("t2"), //
-        //                new NameValue("t3", new CharacterString("v1")), //
-        //                new NameValue("t4", DateTime.UNSPECIFIED), //
-        //                new NameValue("t6", Date.UNSPECIFIED), //
-        //                new NameValue("t7", Time.UNSPECIFIED), //
-        //                new NameValue("t5", Null.instance));
-        //        TestUtils.assertEncoding(seq,
-        //                "0b00743171000b0074320b007433730076310b007434a4ffffffffb4ffffffff0b007436a4ffffffff0b007437b4ffffffff0b00743500");
+                "0b00743171000b0074320b007433730076310b007434a4ffffffffb4ffffffff0b007436a4ffffffff0b007437b4ffffffff0b00743500");
     }
 }
