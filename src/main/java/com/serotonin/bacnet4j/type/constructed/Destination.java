@@ -92,7 +92,7 @@ public class Destination extends BaseType {
         // Only check date fields if the timestamp is not a sequence number.
         if (!timeStamp.isSequenceNumber()) {
             // Check if the timestamp day of week is in the valid days of week list.
-            if (!validDays.contains(timeStamp.getDateTime().getDate().getDayOfWeek().getId()))
+            if (!validDays.contains(timeStamp.getDateTime().getDate().getDayOfWeek()))
                 return false;
 
             // Check if the timestamp is between the from and to times.

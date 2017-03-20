@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -42,6 +43,10 @@ public class DaysOfWeek extends BitString {
 
     public DaysOfWeek(final ByteQueue queue) {
         super(queue);
+    }
+
+    public boolean contains(final DayOfWeek dayOfWeek) {
+        return getValue()[dayOfWeek.getId() - 1];
     }
 
     public boolean contains(final int day) {
