@@ -32,11 +32,15 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -64,7 +68,19 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
 
     @Override
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
-        throw new NotImplementedException();
+        if (!StringUtils.isBlank(localDevice.getPassword())) {
+            // Validate the password
+            if (password == null || !localDevice.getPassword().equals(password.toString())) {
+                throw new BACnetErrorException(getChoiceId(), ErrorClass.security, ErrorCode.passwordFailure);
+            }
+        }
+
+        int minutes = 0;
+        if (timeDuration != null)
+            minutes = timeDuration.intValue();
+        localDevice.setCommunicationControl(enableDisable, minutes);
+
+        return null;
     }
 
     @Override
@@ -78,6 +94,11 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
         timeDuration = readOptional(queue, UnsignedInteger.class, 0);
         enableDisable = read(queue, EnableDisable.class, 1);
         password = readOptional(queue, CharacterString.class, 2);
+    }
+
+    @Override
+    public boolean isCommunicationControlOverride() {
+        return true;
     }
 
     public static class EnableDisable extends Enumerated {

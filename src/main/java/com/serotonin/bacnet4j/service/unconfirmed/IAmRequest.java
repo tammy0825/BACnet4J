@@ -53,12 +53,26 @@ public class IAmRequest extends UnconfirmedRequestService {
     private final Segmentation segmentationSupported;
     private final UnsignedInteger vendorId;
 
+    /**
+     * This field allows us to properly implement 16.1.2.
+     */
+    private boolean isResponseToWhoIs;
+
     public IAmRequest(final ObjectIdentifier iamDeviceIdentifier, final UnsignedInteger maxAPDULengthAccepted,
             final Segmentation segmentationSupported, final UnsignedInteger vendorId) {
         this.iAmDeviceIdentifier = iamDeviceIdentifier;
         this.maxAPDULengthAccepted = maxAPDULengthAccepted;
         this.segmentationSupported = segmentationSupported;
         this.vendorId = vendorId;
+    }
+
+    public IAmRequest withIsResponseToWhoIs(final boolean isResponseToWhoIs) {
+        this.isResponseToWhoIs = isResponseToWhoIs;
+        return this;
+    }
+
+    public boolean isResponseToWhoIs() {
+        return isResponseToWhoIs;
     }
 
     @Override

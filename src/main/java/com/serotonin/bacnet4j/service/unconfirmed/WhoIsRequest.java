@@ -71,7 +71,7 @@ public class WhoIsRequest extends UnconfirmedRequestService {
             return;
 
         // Return the result in a i am message.
-        final IAmRequest iam = localDevice.getIAm();
+        final IAmRequest iam = localDevice.getIAm().withIsResponseToWhoIs(true);
         localDevice.sendGlobalBroadcast(iam);
     }
 

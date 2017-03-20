@@ -170,4 +170,13 @@ abstract public class ConfirmedRequestService extends Service {
     }
 
     abstract public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException;
+
+    /**
+     * This method determines whether responses to requests are sent when the device has had its communication set
+     * to disabled with a DeviceCommunicationControlRequest. Method for maintaining this state are found in
+     * LocalDevice. This method defaults to false, and is overridden by requests as necessary.
+     */
+    public boolean isCommunicationControlOverride() {
+        return false;
+    }
 }

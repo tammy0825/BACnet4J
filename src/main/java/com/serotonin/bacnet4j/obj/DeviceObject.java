@@ -60,7 +60,7 @@ public class DeviceObject extends BACnetObject {
         servicesSupported.setReadPropertyMultiple(true);
         servicesSupported.setWriteProperty(true);
         servicesSupported.setWritePropertyMultiple(true);
-        //        servicesSupported.setDeviceCommunicationControl(true);
+        servicesSupported.setDeviceCommunicationControl(true);
         servicesSupported.setConfirmedPrivateTransfer(true);
         servicesSupported.setConfirmedTextMessage(true);
         //        servicesSupported.setReinitializeDevice(true);

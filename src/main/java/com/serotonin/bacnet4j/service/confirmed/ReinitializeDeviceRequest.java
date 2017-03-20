@@ -73,6 +73,25 @@ public class ReinitializeDeviceRequest extends ConfirmedRequestService {
         password = readOptional(queue, CharacterString.class, 1);
     }
 
+    @Override
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        if (!StringUtils.isBlank(localDevice.getPassword())) {
+            // Validate the password
+            if (!localDevice.getPassword().equals(password.toString())) {
+                throw new BACnetErrorException(getChoiceId(), ErrorClass.security, ErrorCode.passwordFailure);
+            }
+        }
+
+        localDevice.getEventHandler().reinitializeDevice(from, reinitializedStateOfDevice);
+
+        return null;
+    }
+
+    @Override
+    public boolean isCommunicationControlOverride() {
+        return true;
+    }
+
     public static class ReinitializedStateOfDevice extends Enumerated {
         public static final ReinitializedStateOfDevice coldstart = new ReinitializedStateOfDevice(0);
         public static final ReinitializedStateOfDevice warmstart = new ReinitializedStateOfDevice(1);
@@ -122,23 +141,6 @@ public class ReinitializeDeviceRequest extends ConfirmedRequestService {
         public String toString() {
             return super.toString(prettyMap);
         }
-    }
-
-    @Override
-    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
-        String password = null;
-        if (this.password != null)
-            password = this.password.getValue();
-        if (password == null)
-            password = "";
-
-        // Check the password
-        if (StringUtils.equals(localDevice.getPassword(), password)) {
-            localDevice.getEventHandler().reinitializeDevice(from, reinitializedStateOfDevice);
-            return null;
-        }
-
-        throw new BACnetErrorException(getChoiceId(), ErrorClass.security, ErrorCode.passwordFailure);
     }
 
     @Override

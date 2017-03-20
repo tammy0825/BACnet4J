@@ -55,6 +55,7 @@ import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRejectException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
+import com.serotonin.bacnet4j.exception.CommunicationDisabledException;
 import com.serotonin.bacnet4j.exception.NotImplementedException;
 import com.serotonin.bacnet4j.exception.ServiceTooBigException;
 import com.serotonin.bacnet4j.npdu.NPDU;
@@ -62,6 +63,8 @@ import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
+import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
+import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
@@ -221,8 +224,24 @@ public class DefaultTransport implements Transport, Runnable {
     //
     @Override
     public void send(final Address address, final UnconfirmedRequestService service, final boolean broadcast) {
-        outgoing.add(new OutgoingUnconfirmed(address, service, broadcast, new Exception()));
-        ThreadUtils.notifySync(pauseLock);
+        // 16.1.2
+        boolean allowSend = true;
+        if (!EnableDisable.enable.equals(localDevice.getCommunicationControlState())) {
+            allowSend = false;
+
+            // Check if this is an IAm.
+            if (service instanceof IAmRequest) {
+                // IAms are allowed to be sent if they are issued in accordance with the WhoIs procedure.
+                if (((IAmRequest) service).isResponseToWhoIs()) {
+                    allowSend = true;
+                }
+            }
+        }
+
+        if (allowSend) {
+            outgoing.add(new OutgoingUnconfirmed(address, service, broadcast, new Exception()));
+            ThreadUtils.notifySync(pauseLock);
+        }
     }
 
     @Override
@@ -239,9 +258,16 @@ public class DefaultTransport implements Transport, Runnable {
     @Override
     public void send(final Address address, final int maxAPDULengthAccepted, final Segmentation segmentationSupported,
             final ConfirmedRequestService service, final ResponseConsumer consumer) {
-        outgoing.add(new OutgoingConfirmed(address, maxAPDULengthAccepted, segmentationSupported, service, consumer,
-                new Exception()));
-        ThreadUtils.notifySync(pauseLock);
+        // 16.1.2
+        if (EnableDisable.enable.equals(localDevice.getCommunicationControlState())) {
+            outgoing.add(new OutgoingConfirmed(address, maxAPDULengthAccepted, segmentationSupported, service, consumer,
+                    new Exception()));
+            ThreadUtils.notifySync(pauseLock);
+        } else {
+            // Communication has been disabled as the result of a DeviceCommunicationControlRequest. The consumer
+            // is informed with an exception.
+            consumer.ex(new CommunicationDisabledException());
+        }
     }
 
     @Override
@@ -708,7 +734,23 @@ public class DefaultTransport implements Transport, Runnable {
                 confAPDU.parseServiceData();
                 final AcknowledgementService ackService = handleConfirmedRequest(address, invokeId,
                         confAPDU.getServiceRequest());
-                sendConfirmedResponse(address, linkService, confAPDU, ackService);
+
+                // 16.1.2: Check if communication is currently disabled. If so, only certain requests are responded.
+                boolean allowResponse = true;
+                if (EnableDisable.disable.equals(localDevice.getCommunicationControlState())) {
+                    // Communication is disabled. Check if the response should be allowed anyway. This includes at
+                    // least communication control and reinitialize device.
+                    if (!confAPDU.getServiceRequest().isCommunicationControlOverride()) {
+                        allowResponse = false;
+                    }
+                }
+
+                if (allowResponse) {
+                    // Send the response.
+                    sendConfirmedResponse(address, linkService, confAPDU, ackService);
+                } else {
+                    LOG.info("Response suppressed because communication has been disabled.");
+                }
             } catch (final BACnetErrorException e) {
                 network.sendAPDU(address, linkService,
                         new com.serotonin.bacnet4j.apdu.Error(invokeId, e.getBacnetError()), false);

@@ -66,6 +66,7 @@ import com.serotonin.bacnet4j.obj.mixin.CovContext;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
+import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
 import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
@@ -199,6 +200,8 @@ public class LocalDevice {
     }
 
     public void setClock(final Clock clock) {
+        if (initialized)
+            throw new IllegalStateException("Clock needs to be set before LocalDevice is initialized");
         this.clock = clock;
     }
 
@@ -961,6 +964,44 @@ public class LocalDevice {
         }
 
         return sendExceptions;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Communication control
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final Object communicationControlMonitor = new Object();
+    private EnableDisable communicationControlState = EnableDisable.enable;
+    private ScheduledFuture<?> communicationControlFuture;
+
+    public void setCommunicationControl(final EnableDisable enableDisable, final int minutes) {
+        synchronized (communicationControlMonitor) {
+            communicationControlState = enableDisable;
+            cancelCommunicationControlFuture();
+            if (enableDisable.isOneOf(EnableDisable.disableInitiation, EnableDisable.disable)) {
+                if (minutes > 0) {
+                    communicationControlFuture = schedule(() -> {
+                        synchronized (communicationControlMonitor) {
+                            communicationControlState = EnableDisable.enable;
+                            communicationControlFuture = null;
+                        }
+                    }, minutes, TimeUnit.MINUTES);
+                }
+            }
+        }
+    }
+
+    private void cancelCommunicationControlFuture() {
+        if (communicationControlFuture != null) {
+            communicationControlFuture.cancel(false);
+            communicationControlFuture = null;
+        }
+    }
+
+    public EnableDisable getCommunicationControlState() {
+        return communicationControlState;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
