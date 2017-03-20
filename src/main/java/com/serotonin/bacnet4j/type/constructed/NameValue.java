@@ -70,20 +70,23 @@ public class NameValue extends BaseType {
     public NameValue(final ByteQueue queue) throws BACnetException {
         name = read(queue, CharacterString.class, 0);
 
+        // Reading the optional ANY
         Encodable e = null;
         if (queue.size() > 0) {
-            final int typeId = Primitive.getPrimitiveTypeId(queue.peek(0));
-            if (typeId == Date.TYPE_ID) {
-                // Read the date and then check if there is a time following.
-                final Date d = new Date(queue);
-                if (queue.size() > 0 && Primitive.getPrimitiveTypeId(queue.peek(0)) == Time.TYPE_ID) {
-                    final Time t = new Time(queue);
-                    e = new DateTime(d, t);
-                } else {
-                    e = d;
+            if (!isContextTag(queue)) {
+                final int typeId = Primitive.getPrimitiveTypeId(queue.peek(0));
+                if (typeId == Date.TYPE_ID) {
+                    // Read the date and then check if there is a time following.
+                    final Date d = new Date(queue);
+                    if (queue.size() > 0 && Primitive.getPrimitiveTypeId(queue.peek(0)) == Time.TYPE_ID) {
+                        final Time t = new Time(queue);
+                        e = new DateTime(d, t);
+                    } else {
+                        e = d;
+                    }
+                } else if (typeId != -1) {
+                    e = Primitive.createPrimitive(queue);
                 }
-            } else if (typeId != -1) {
-                e = Primitive.createPrimitive(queue);
             }
         }
         value = e;
