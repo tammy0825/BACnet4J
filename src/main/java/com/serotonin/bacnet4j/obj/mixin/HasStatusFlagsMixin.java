@@ -79,7 +79,7 @@ public class HasStatusFlagsMixin extends AbstractMixin {
                 !EventState.normal.equals(eventState), //
                 reliability == null ? false : !Reliability.noFaultDetected.equals(reliability), //
                 overridden, //
-                outOfService.booleanValue());
+                outOfService == null ? false : outOfService.booleanValue());
         writePropertyInternal(PropertyIdentifier.statusFlags, statusFlags);
     }
 

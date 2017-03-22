@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -135,13 +134,17 @@ public class CovReportingMixin extends AbstractMixin {
                     }
 
                     if (!sent) {
-                        // Rows in Table 13-1a are not distinguished because currently no alternative increment
-                        // value is supported.
-                        if (pid.equals(PropertyIdentifier.statusFlags) || pid.equals(ctx.getMonitoredProperty())) {
-                            final SequenceOf<PropertyValue> values = new SequenceOf<>();
-                            addPropertyValues(ctx, values, ctx.getMonitoredProperty(), PropertyIdentifier.statusFlags);
-                            sendNotification(ctx, now, values);
-                            sent = true;
+                        // Table 13-1a for properties other than those listed in Table 13-1
+                        if (!pid.isOneOf(criteria.monitoredProperties)) {
+                            // Rows in Table 13-1a are not distinguished because currently no alternative increment
+                            // value is supported.
+                            if (pid.equals(PropertyIdentifier.statusFlags) || pid.equals(ctx.getMonitoredProperty())) {
+                                final SequenceOf<PropertyValue> values = new SequenceOf<>();
+                                addPropertyValues(ctx, values, ctx.getMonitoredProperty(),
+                                        PropertyIdentifier.statusFlags);
+                                sendNotification(ctx, now, values);
+                                sent = true;
+                            }
                         }
                     }
 
@@ -212,13 +215,13 @@ public class CovReportingMixin extends AbstractMixin {
 
             // "Immediately" send a notification
             final CovContext _ctx = ctx;
-            getLocalDevice().schedule(() -> {
+            getLocalDevice().execute(() -> {
                 final long now = getLocalDevice().getClock().millis();
                 if (_ctx.getMonitoredProperty() != null)
                     sendPropertyNotification(_ctx, now);
                 else
                     sendObjectNotification(_ctx, now);
-            }, 20, TimeUnit.MILLISECONDS);
+            });
         }
     }
 
@@ -309,15 +312,17 @@ public class CovReportingMixin extends AbstractMixin {
         if (lastValue == null)
             return true;
 
-        Encodable covIncrement = subscription.getCovIncrement();
-        if (covIncrement == null && subscription.isObjectSubscription())
-            covIncrement = get(PropertyIdentifier.covIncrement);
+        Real covIncrement = subscription.getCovIncrement();
         if (covIncrement == null)
-            covIncrement = new Real(0);
+            covIncrement = get(PropertyIdentifier.covIncrement);
+        //        if (covIncrement == null && subscription.isObjectSubscription())
+        //            covIncrement = get(PropertyIdentifier.covIncrement);
+        //        if (covIncrement == null)
+        //            covIncrement = new Real(0);
 
         double increment, last, newValue;
         if (value instanceof Real) {
-            increment = ((Real) covIncrement).floatValue();
+            increment = covIncrement.floatValue();
             last = ((Real) lastValue).floatValue();
             newValue = ((Real) value).floatValue();
         } else

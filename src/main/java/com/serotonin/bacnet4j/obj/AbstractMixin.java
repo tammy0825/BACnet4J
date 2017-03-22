@@ -107,6 +107,7 @@ public class AbstractMixin {
      * @param value
      * @return true of the validation was handled, false otherwise.
      * @throws BACnetServiceException
+     *             if the property was so bad that an exception had to be thrown
      */
     protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
             throws BACnetServiceException {

@@ -28,6 +28,8 @@
  */
 package com.serotonin.bacnet4j.obj.mixin.event;
 
+import java.util.function.Consumer;
+
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultAlgorithm;
@@ -60,6 +62,12 @@ public class IntrinsicReportingMixin extends EventReportingMixin {
         // Update the state with the current values in the object.
         for (final PropertyIdentifier pid : triggerProperties)
             afterWriteProperty(pid, null, get(pid));
+    }
+
+    public IntrinsicReportingMixin withPostNotificationAction(
+            final Consumer<NotificationParameters> postNotificationAction) {
+        setPostNotificationAction(postNotificationAction);
+        return this;
     }
 
     @Override

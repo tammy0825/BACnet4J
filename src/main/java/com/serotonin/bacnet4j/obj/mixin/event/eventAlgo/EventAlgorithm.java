@@ -60,7 +60,7 @@ abstract public class EventAlgorithm {
     abstract public StateTransition evaluateAlgorithmicEventState(BACnetObject bo, Encodable monitoredValue,
             AbstractEventParameter parameters);
 
-    abstract public NotificationParameters getAlgorithmicNotificationParameters(EventState fromState,
+    abstract public NotificationParameters getAlgorithmicNotificationParameters(BACnetObject bo, EventState fromState,
             EventState toState, Encodable monitoredValue, Map<PropertyIdentifier, Encodable> additionalValues,
             AbstractEventParameter parameters);
 }

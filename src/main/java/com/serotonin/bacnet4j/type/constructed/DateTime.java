@@ -36,7 +36,7 @@ import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class DateTime extends BaseType {
+public class DateTime extends BaseType implements Comparable<DateTime> {
     public static final DateTime UNSPECIFIED = new DateTime(Date.UNSPECIFIED, Time.UNSPECIFIED);
 
     private final Date date;
@@ -87,6 +87,19 @@ public class DateTime extends BaseType {
                 date.getDay(), time.getHour(), time.getMinute(), time.getSecond());
         gc.set(Calendar.MILLISECOND, time.getHundredth() * 10);
         return gc;
+    }
+
+    @Override
+    public int compareTo(final DateTime o) {
+        final int comp = date.compareTo(o.date);
+        if (comp == 0) {
+            if (time.equals(o.time))
+                return 0;
+            if (time.before(o.time))
+                return -1;
+            return 1;
+        }
+        return comp;
     }
 
     @Override

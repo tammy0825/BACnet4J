@@ -84,6 +84,11 @@ public class MstpNetwork extends Network {
     }
 
     @Override
+    public Address getLoopbackAddress() {
+        return MstpNetworkUtils.toAddress(getLocalNetworkNumber(), node.getThisStation());
+    }
+
+    @Override
     public long getBytesOut() {
         return node.getBytesOut();
     }

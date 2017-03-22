@@ -46,6 +46,10 @@ public class AlgoReportingMixin extends EventReportingMixin {
         this.eventParameter = eventParameter;
         this.faultParameter = faultParameter;
         this.objectPropertyReference = objectPropertyReference;
+
+        setPostNotificationAction((notifParams) -> {
+            eventParameter.postNotification(notifParams);
+        });
     }
 
     public synchronized void updateValue(final Encodable newValue,
@@ -84,7 +88,7 @@ public class AlgoReportingMixin extends EventReportingMixin {
     @Override
     protected NotificationParameters getNotificationParameters(final EventState fromState, final EventState toState,
             final BACnetObject bo, final EventAlgorithm eventAlgo) {
-        return eventAlgo.getAlgorithmicNotificationParameters(fromState, toState, monitoredPropertyValue,
+        return eventAlgo.getAlgorithmicNotificationParameters(bo, fromState, toState, monitoredPropertyValue,
                 additionalValues, eventParameter);
     }
 

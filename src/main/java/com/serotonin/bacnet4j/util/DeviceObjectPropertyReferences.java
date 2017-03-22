@@ -59,7 +59,11 @@ public class DeviceObjectPropertyReferences {
 
     public DeviceObjectPropertyReferences addIndex(final int deviceId, final ObjectType objectType,
             final int objectNumber, final PropertyIdentifier pid, final UnsignedInteger pin) {
-        final ObjectIdentifier oid = new ObjectIdentifier(objectType, objectNumber);
+        return addIndex(deviceId, new ObjectIdentifier(objectType, objectNumber), pid, pin);
+    }
+
+    public DeviceObjectPropertyReferences addIndex(final int deviceId, final ObjectIdentifier oid,
+            final PropertyIdentifier pid, final UnsignedInteger pin) {
         final PropertyReferences refs = getDeviceProperties(deviceId);
         refs.addIndex(oid, pid, pin);
         return this;

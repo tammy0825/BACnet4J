@@ -43,6 +43,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -173,6 +174,11 @@ public class LocalDevice {
     public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceRequestResolutions = new HashMap<>();
     public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResultResolutions = new HashMap<>();
 
+    /**
+     * Useful when objects want to make COV subscriptions, in that it will provide a device-unique id.
+     */
+    private final AtomicInteger nextProcessId = new AtomicInteger(1);
+
     public LocalDevice(final int deviceNumber, final Transport transport) {
         this.transport = transport;
         transport.setLocalDevice(this);
@@ -246,6 +252,10 @@ public class LocalDevice {
         return exceptionDispatcher;
     }
 
+    public int getNextProcessId() {
+        return nextProcessId.getAndIncrement();
+    }
+
     /**
      * @return the number of bytes sent by the transport
      */
@@ -261,7 +271,6 @@ public class LocalDevice {
     }
 
     public synchronized LocalDevice initialize() throws Exception {
-        //        timer = new ScheduledExecutorServiceVariablePool(clock);
         timer = new WarpScheduledExecutorService(clock);
         transport.initialize();
         initialized = true;
@@ -534,7 +543,7 @@ public class LocalDevice {
         Objects.requireNonNull(callback);
 
         // Check for a cached instance.
-        final RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+        final RemoteDevice rd = getCachedRemoteDevice(instanceNumber);
 
         if (rd != null) {
             LOG.debug("Found a cached device: {}", instanceNumber);
@@ -574,7 +583,7 @@ public class LocalDevice {
 
             {
                 // Check for a cached instance
-                final RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+                final RemoteDevice rd = getCachedRemoteDevice(instanceNumber);
 
                 if (rd != null) {
                     LOG.debug("Found a cached device: {}", instanceNumber);
@@ -645,7 +654,7 @@ public class LocalDevice {
     public RemoteDevice getRemoteDeviceBlocking(final int instanceNumber, final long timeoutMillis)
             throws BACnetException {
         // Check for a cached instance
-        RemoteDevice rd = remoteDeviceCache.getCachedEntity(instanceNumber);
+        RemoteDevice rd = getCachedRemoteDevice(instanceNumber);
 
         if (rd == null) {
             RemoteDeviceFuture future;
@@ -727,7 +736,7 @@ public class LocalDevice {
     public void updateRemoteDevice(final int instanceNumber, final Address address) {
         if (address == null)
             throw new NullPointerException("addr cannot be null");
-        final RemoteDevice d = remoteDeviceCache.getCachedEntity(instanceNumber);
+        final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
         if (d != null) {
             d.setAddress(address);
         }
@@ -838,8 +847,8 @@ public class LocalDevice {
             // Just use some hopeful defaults.
             transport.send(address, MaxApduLength.UP_TO_50.getMaxLengthInt(), Segmentation.noSegmentation,
                     serviceRequest, consumer);
-        }
-        send(d, serviceRequest, consumer);
+        } else
+            send(d, serviceRequest, consumer);
     }
 
     public void send(final RemoteDevice d, final UnconfirmedRequestService serviceRequest) {
@@ -1012,6 +1021,10 @@ public class LocalDevice {
 
     public Address[] getAllLocalAddresses() {
         return transport.getNetwork().getAllLocalAddresses();
+    }
+
+    public Address getLoopbackAddress() {
+        return transport.getNetwork().getLoopbackAddress();
     }
 
     public IAmRequest getIAm() {

@@ -2,6 +2,7 @@ package com.serotonin.bacnet4j.obj.mixin.event;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
     private final EventAlgorithm eventAlgo;
     private final FaultAlgorithm faultAlgo;
     private final CORPropertyValueProducer[] changeOfReliabilityProperties;
+    private Consumer<NotificationParameters> postNotificationAction;
 
     // Runtime
     private Delayer delayer;
@@ -91,6 +93,10 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
         //ee.writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibitRef, new ObjectPropertyReference()); Not supported
         bo.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
+    }
+
+    public void setPostNotificationAction(final Consumer<NotificationParameters> postNotificationAction) {
+        this.postNotificationAction = postNotificationAction;
     }
 
     abstract protected StateTransition evaluateEventState(BACnetObject bo, EventAlgorithm eventAlgo);
@@ -263,7 +269,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             final BACnetArray<UnsignedInteger> priority = nc.get(PropertyIdentifier.priority);
 
             EventType eventType;
-            NotificationParameters eventValues;
+            NotificationParameters notifParams;
             if (fromState.equals(EventState.fault) || toState.equals(EventState.fault)) {
                 eventType = EventType.changeOfReliability;
 
@@ -275,17 +281,17 @@ abstract public class EventReportingMixin extends AbstractMixin {
                         propertyValues.add(propertyValue);
                 }
 
-                eventValues = new NotificationParameters(new ChangeOfReliabilityNotif( //
+                notifParams = new NotificationParameters(new ChangeOfReliabilityNotif( //
                         (Reliability) get(PropertyIdentifier.reliability), //
                         (StatusFlags) get(PropertyIdentifier.statusFlags), //
                         propertyValues));
             } else {
                 eventType = getEventType(eventAlgo);
-                eventValues = getNotificationParameters(fromState, toState, bo, eventAlgo);
+                notifParams = getNotificationParameters(fromState, toState, bo, eventAlgo);
             }
 
             sendNotifications(recipientList, now, nc, priority, toState, eventType, null, notifyType, //
-                    new Boolean(isAckRequired), fromState, eventValues);
+                    new Boolean(isAckRequired), fromState, notifParams);
         }
     }
 
@@ -325,7 +331,12 @@ abstract public class EventReportingMixin extends AbstractMixin {
     private void sendNotifications(final SequenceOf<Destination> recipientList, final TimeStamp timeStamp,
             final BACnetObject nc, final BACnetArray<UnsignedInteger> priority, final EventState toState,
             final EventType eventType, final CharacterString messageText, final NotifyType notifyType,
-            final Boolean ackRequired, final EventState fromState, final NotificationParameters eventValues) {
+            final Boolean ackRequired, final EventState fromState, final NotificationParameters notifParams) {
+        final ObjectIdentifier initiatingDeviceIdentifier = getLocalDevice().getId();
+        final ObjectIdentifier eventObjectIdentifier = (ObjectIdentifier) get(PropertyIdentifier.objectIdentifier);
+        final UnsignedInteger notificationClass = (UnsignedInteger) nc.get(PropertyIdentifier.notificationClass);
+        final UnsignedInteger priorityNum = priority.get(toState.getTransitionIndex());
+
         for (final Destination destination : recipientList) {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
                 Address address;
@@ -345,37 +356,35 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 LOG.debug("Sending {} to {}", notifyType, destination.getRecipient());
 
                 final UnsignedInteger processIdentifier = destination.getProcessIdentifier();
-                final ObjectIdentifier initiatingDeviceIdentifier = getLocalDevice().getId();
-                final ObjectIdentifier eventObjectIdentifier = (ObjectIdentifier) get(
-                        PropertyIdentifier.objectIdentifier);
-                final UnsignedInteger notificationClass = (UnsignedInteger) nc
-                        .get(PropertyIdentifier.notificationClass);
-                final UnsignedInteger priorityNum = priority.get(toState.getTransitionIndex());
 
                 if (destination.getIssueConfirmedNotifications().booleanValue()) {
                     // Confirmed notification
                     final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(
                             processIdentifier, initiatingDeviceIdentifier, eventObjectIdentifier, timeStamp,
                             notificationClass, priorityNum, eventType, messageText, notifyType, ackRequired, fromState,
-                            toState, eventValues);
+                            toState, notifParams);
                     getLocalDevice().send(address, req, null);
                 } else {
                     // Unconfirmed notification
                     final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(
                             processIdentifier, initiatingDeviceIdentifier, eventObjectIdentifier, timeStamp,
                             notificationClass, priorityNum, eventType, messageText, notifyType, ackRequired, fromState,
-                            toState, eventValues);
+                            toState, notifParams);
                     getLocalDevice().send(address, req);
                 }
-
-                // Internal (proprietary) handling of notifications for NotificationClass objects.
-                // If the nc is a NotificationClassObject, provide notification to it directly as well.
-                if (nc instanceof NotificationClassObject) {
-                    final NotificationClassObject nco = (NotificationClassObject) nc;
-                    nco.fireEventNotification(eventObjectIdentifier, timeStamp, notificationClass, priorityNum,
-                            eventType, messageText, notifyType, ackRequired, fromState, toState, eventValues);
-                }
             }
+        }
+
+        // Internal (proprietary) handling of notifications for NotificationClass objects.
+        // If the nc is a NotificationClassObject, provide notification to it directly as well.
+        if (nc instanceof NotificationClassObject) {
+            final NotificationClassObject nco = (NotificationClassObject) nc;
+            nco.fireEventNotification(eventObjectIdentifier, timeStamp, notificationClass, priorityNum, eventType,
+                    messageText, notifyType, ackRequired, fromState, toState, notifParams);
+        }
+
+        if (postNotificationAction != null) {
+            postNotificationAction.accept(notifParams);
         }
     }
 

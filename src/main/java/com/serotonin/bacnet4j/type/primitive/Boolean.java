@@ -42,6 +42,10 @@ public class Boolean extends Primitive {
         return !falsey(b);
     }
 
+    public static Boolean valueOf(final boolean b) {
+        return b ? TRUE : FALSE;
+    }
+
     public static final byte TYPE_ID = 1;
 
     protected final boolean value;

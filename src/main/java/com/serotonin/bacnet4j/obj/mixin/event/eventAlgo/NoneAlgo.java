@@ -73,8 +73,8 @@ public class NoneAlgo extends EventAlgorithm {
     }
 
     @Override
-    public NotificationParameters getAlgorithmicNotificationParameters(final EventState fromState,
-            final EventState toState, final Encodable monitoredValue,
+    public NotificationParameters getAlgorithmicNotificationParameters(final BACnetObject bo,
+            final EventState fromState, final EventState toState, final Encodable monitoredValue,
             final Map<PropertyIdentifier, Encodable> additionalValues, final AbstractEventParameter parameters) {
         return null;
     }

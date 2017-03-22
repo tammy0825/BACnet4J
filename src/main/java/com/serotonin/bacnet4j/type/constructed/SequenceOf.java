@@ -46,6 +46,10 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         values = new ArrayList<>();
     }
 
+    public SequenceOf(final int capacity) {
+        values = new ArrayList<>(capacity);
+    }
+
     public SequenceOf(final List<E> values) {
         this.values = values;
     }

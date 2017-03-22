@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.obj.logBuffer.ILogRecord;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -36,7 +37,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 /**
  * @author Matthew Lohbihler
  */
-public class EventLogRecord extends BaseType {
+public class EventLogRecord extends BaseType implements ILogRecord {
     private static ChoiceOptions choiceOptions = new ChoiceOptions();
     static {
         choiceOptions.addContextual(0, LogStatus.class);

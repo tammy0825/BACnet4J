@@ -29,9 +29,10 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.obj.logBuffer.ILogRecord;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class LogMultipleRecord extends BaseType {
+public class LogMultipleRecord extends BaseType implements ILogRecord {
     private final DateTime timestamp;
     private final LogData logData;
 

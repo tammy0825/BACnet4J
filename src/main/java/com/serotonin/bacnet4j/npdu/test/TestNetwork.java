@@ -149,6 +149,11 @@ public class TestNetwork extends Network implements Runnable {
     }
 
     @Override
+    public Address getLoopbackAddress() {
+        return address;
+    }
+
+    @Override
     public void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
             final boolean broadcast, final boolean expectsReply) throws BACnetException {
         final SendData d = new SendData();

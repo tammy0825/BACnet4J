@@ -72,6 +72,13 @@ public class UnsignedInteger extends Primitive {
         return bigValue;
     }
 
+    /**
+     * Return an UnsignedInteger that is one larger than this, wrapping at 0x100000000.
+     */
+    public UnsignedInteger increment32() {
+        return new UnsignedInteger((longValue() + 1) % 0x100000000L);
+    }
+
     //
     // Reading and writing
     //

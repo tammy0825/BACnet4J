@@ -95,7 +95,7 @@ public class Time extends Primitive {
     }
 
     public boolean isFullySpecified() {
-        return isHourUnspecified() && isMinuteUnspecified() && isSecondUnspecified() && isHundredthUnspecified();
+        return !isHourUnspecified() && !isMinuteUnspecified() && !isSecondUnspecified() && !isHundredthUnspecified();
     }
 
     public int getHundredthInDay() {

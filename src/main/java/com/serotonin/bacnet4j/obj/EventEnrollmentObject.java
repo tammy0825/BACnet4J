@@ -42,6 +42,10 @@ import com.serotonin.bacnet4j.util.PropertyReferences;
 import com.serotonin.bacnet4j.util.PropertyValues;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
+/**
+ * TODO
+ * - consider using a polling delegate
+ */
 public class EventEnrollmentObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(EventEnrollmentObject.class);
 

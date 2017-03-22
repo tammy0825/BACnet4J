@@ -80,7 +80,7 @@ public class AnalogInputTest extends AbstractTest {
         Thread.sleep(600);
         assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
-        // Do a real state change. Write an out of range value. After 1 seconds the alarm will be raised.
+        // Do a real state change. Write an out of range value. After 1 second the alarm will be raised.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(10));
         Thread.sleep(500);
         assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.

@@ -76,8 +76,8 @@ public class AnalogInputObject extends BACnetObject {
         // ?? faultLowLimit
     }
 
-    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final float highLimit,
-            final float lowLimit, final float deadband, final LimitEnable limitEnable,
+    public AnalogInputObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,
+            final float highLimit, final float lowLimit, final float deadband, final LimitEnable limitEnable,
             final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
 
         // Prepare the object with all of the properties that intrinsic reporting will need.
@@ -97,9 +97,12 @@ public class AnalogInputObject extends BACnetObject {
         addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(), null, //
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.highLimit,
                         PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable }));
+
+        return this;
     }
 
-    public void supportCovReporting(final float covIncrement) {
+    public AnalogInputObject supportCovReporting(final float covIncrement) {
         _supportCovReporting(new Real(covIncrement));
+        return this;
     }
 }

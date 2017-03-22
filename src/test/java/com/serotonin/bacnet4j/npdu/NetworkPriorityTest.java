@@ -161,6 +161,11 @@ public class NetworkPriorityTest {
             public Address[] getAllLocalAddresses() {
                 throw new RuntimeException();
             }
+
+            @Override
+            public Address getLoopbackAddress() {
+                throw new RuntimeException();
+            }
         };
 
         network.sendAPDU(new Address(2, new byte[] { 2 }), new OctetString(new byte[] { 5 }), apdu, false);

@@ -141,7 +141,7 @@ public class BACnetObject {
         return name.getValue();
     }
 
-    LocalDevice getLocalDevice() {
+    public LocalDevice getLocalDevice() {
         return localDevice;
     }
 
@@ -289,6 +289,7 @@ public class BACnetObject {
     @SuppressWarnings("unchecked")
     public final <T extends Encodable> T getProperty(final PropertyIdentifier pid) {
         // Do some property-specific checking here.
+        // TODO this should be done in the device object.
         if (PropertyIdentifier.localTime.equals(pid))
             return (T) new Time();
         if (PropertyIdentifier.localDate.equals(pid))
@@ -309,15 +310,11 @@ public class BACnetObject {
         return (T) properties.get(pid);
     }
 
-    public final Encodable getPropertyRequired(final PropertyIdentifier pid) throws BACnetServiceException {
-        final Encodable p = getProperty(pid);
-        if (p == null)
-            throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
-        return p;
-    }
-
     public final Encodable getProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
             throws BACnetServiceException {
+        // Notify the object of the get request.
+        beforeGetProperty(pid, propertyArrayIndex);
+
         final Encodable result = getProperty(pid);
         if (propertyArrayIndex == null)
             return result;
@@ -334,6 +331,13 @@ public class BACnetObject {
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidArrayIndex);
 
         return array.get(index);
+    }
+
+    public final Encodable getPropertyRequired(final PropertyIdentifier pid) throws BACnetServiceException {
+        final Encodable p = getProperty(pid);
+        if (p == null)
+            throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
+        return p;
     }
 
     public final Encodable getPropertyRequired(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
@@ -394,6 +398,8 @@ public class BACnetObject {
             if (handled)
                 break;
         }
+        if (!handled)
+            handled = validateProperty(valueSource, value);
 
         if (!handled) {
             // Validate the value to be written. First get the definition for the property.
@@ -512,11 +518,12 @@ public class BACnetObject {
      */
     public BACnetObject writePropertyInternal(final PropertyIdentifier pid, final Encodable value) {
         final Encodable oldValue = properties.get(pid);
-        properties.put(pid, value);
+        set(pid, value);
 
         // After writing.
         for (final AbstractMixin mixin : mixins)
             mixin.afterWriteProperty(pid, oldValue, value);
+        afterWriteProperty(pid, oldValue, value);
 
         if (!Objects.equals(value, oldValue)) {
             // Notify listeners
@@ -525,6 +532,54 @@ public class BACnetObject {
         }
 
         return this;
+    }
+
+    /**
+     * Write a property with no notifications.
+     *
+     * @param pid
+     * @param value
+     */
+    protected void set(final PropertyIdentifier pid, final Encodable value) {
+        properties.put(pid, value);
+    }
+
+    /**
+     * Allows the object itself to validate the property before being written.
+     *
+     * @param valueSource
+     * @param value
+     * @return true if no more validation should occur, including the generic data type validation.
+     * @throws BACnetServiceException
+     *             to abort the write.
+     */
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
+        return false;
+    }
+
+    /**
+     * Allows notification to the object itself of a property write, in the same manner as it works for mixins.
+     *
+     * @param pid
+     * @param oldValue
+     * @param newValue
+     */
+    protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
+        // no op
+    }
+
+    /**
+     * Allows notification to the object itself before a property read.
+     *
+     * @param pid
+     * @param propertyArrayIndex
+     * @throws BACnetServiceException
+     */
+    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
+            throws BACnetServiceException {
+        // no op
     }
 
     //
