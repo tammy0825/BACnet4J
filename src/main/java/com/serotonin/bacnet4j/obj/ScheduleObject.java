@@ -79,6 +79,14 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
+/**
+ * TODO
+ * - use reliability to convey schedule problems.
+ *
+ * @author Matthew
+ *
+ * @param <T>
+ */
 public class ScheduleObject<T extends Primitive> extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(ScheduleObject.class);
 
@@ -109,16 +117,17 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             throw new BACnetRuntimeException("listOfObjectPropertyReferences cannot be null");
 
         writePropertyInternal(PropertyIdentifier.effectivePeriod, effectivePeriod);
+        writePropertyInternal(PropertyIdentifier.scheduleDefault, scheduleDefault);
         if (weeklySchedule != null) {
             if (weeklySchedule.getCount() != 7)
                 throw new BACnetRuntimeException("weeklySchedule must have 7 elements");
-            writePropertyInternal(PropertyIdentifier.weeklySchedule, weeklySchedule);
+            writeProperty(null, new PropertyValue(PropertyIdentifier.weeklySchedule, weeklySchedule));
         }
         if (exceptionSchedule != null)
-            writePropertyInternal(PropertyIdentifier.exceptionSchedule, exceptionSchedule);
-        writePropertyInternal(PropertyIdentifier.scheduleDefault, scheduleDefault);
+            writeProperty(null, new PropertyValue(PropertyIdentifier.exceptionSchedule, exceptionSchedule));
         writePropertyInternal(PropertyIdentifier.presentValue, scheduleDefault);
-        writePropertyInternal(PropertyIdentifier.listOfObjectPropertyReferences, listOfObjectPropertyReferences);
+        writeProperty(null,
+                new PropertyValue(PropertyIdentifier.listOfObjectPropertyReferences, listOfObjectPropertyReferences));
         writePropertyInternal(PropertyIdentifier.priorityForWriting, new UnsignedInteger(priorityForWriting));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
@@ -135,11 +144,6 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         // initialization of the objects in the list, force a write.
         if (Objects.equals(oldValue, newValue))
             doWrites(newValue);
-
-        // Validations
-        // 1) entries in the list of property references must reference properties of this type
-        // 2) time value entries in the weekly and exception schedules must be of this type
-        // 3) time values must have times that are fully specific.
     }
 
     public void supportIntrinsicReporting(final int notificationClass, final EventTransitionBits eventEnable,
@@ -154,6 +158,54 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
+    }
+
+    @Override
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
+        if (PropertyIdentifier.listOfObjectPropertyReferences.equals(value.getPropertyIdentifier())) {
+            // Entries must reference properties of this type
+            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final SequenceOf<DeviceObjectPropertyReference> refs = value.getValue();
+            for (final DeviceObjectPropertyReference ref : refs) {
+                final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinition(
+                        ref.getObjectIdentifier().getObjectType(), ref.getPropertyIdentifier());
+                if (def != null) {
+                    if (scheduleDefault.getClass() != def.getPropertyTypeDefinition().getClazz()) {
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                    }
+                }
+            }
+        } else if (PropertyIdentifier.weeklySchedule.equals(value.getPropertyIdentifier())) {
+            // Time value entries must be of this type
+            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final BACnetArray<DailySchedule> weeklySchedule = value.getValue();
+            for (final DailySchedule daily : weeklySchedule) {
+                for (final TimeValue timeValue : daily.getDaySchedule()) {
+                    if (scheduleDefault.getClass() != timeValue.getValue().getClass()) {
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                    }
+                    if (!timeValue.getTime().isFullySpecified()) {
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidConfigurationData);
+                    }
+                }
+            }
+        } else if (PropertyIdentifier.exceptionSchedule.equals(value.getPropertyIdentifier())) {
+            // Time value entries must be of this type
+            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final SequenceOf<SpecialEvent> exceptionSchedule = value.getValue();
+            for (final SpecialEvent specialEvent : exceptionSchedule) {
+                for (final TimeValue timeValue : specialEvent.getListOfTimeValues()) {
+                    if (scheduleDefault.getClass() != timeValue.getValue().getClass()) {
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
+                    }
+                    if (!timeValue.getTime().isFullySpecified()) {
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidConfigurationData);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

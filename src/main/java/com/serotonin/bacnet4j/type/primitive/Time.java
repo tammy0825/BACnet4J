@@ -35,7 +35,8 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Time extends Primitive {
     public static final int MAX_TIME = 24 * 60 * 60 * 100;
-    public static final Time UNSPECIFIED = new Time(255, 255, 255, 255);
+    public static final int UNSPECIFIC = 255;
+    public static final Time UNSPECIFIED = new Time(UNSPECIFIC, UNSPECIFIC, UNSPECIFIC, UNSPECIFIC);
 
     public static final byte TYPE_ID = 11;
 
@@ -63,7 +64,7 @@ public class Time extends Primitive {
     }
 
     public boolean isHourUnspecified() {
-        return hour == 255;
+        return hour == UNSPECIFIC;
     }
 
     public int getHour() {
@@ -71,7 +72,7 @@ public class Time extends Primitive {
     }
 
     public boolean isMinuteUnspecified() {
-        return minute == 255;
+        return minute == UNSPECIFIC;
     }
 
     public int getMinute() {
@@ -79,7 +80,7 @@ public class Time extends Primitive {
     }
 
     public boolean isSecondUnspecified() {
-        return second == 255;
+        return second == UNSPECIFIC;
     }
 
     public int getSecond() {
@@ -87,7 +88,7 @@ public class Time extends Primitive {
     }
 
     public boolean isHundredthUnspecified() {
-        return hundredth == 255;
+        return hundredth == UNSPECIFIC;
     }
 
     public int getHundredth() {

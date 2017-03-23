@@ -8,6 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
@@ -29,7 +30,10 @@ import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.constructed.TimeValue;
 import com.serotonin.bacnet4j.type.constructed.WeekNDay;
 import com.serotonin.bacnet4j.type.constructed.WeekNDay.WeekOfMonth;
+import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
@@ -247,5 +251,67 @@ public class ScheduleObjectTest extends AbstractTest {
                 new SequenceOf<Encodable>(remote10, local1))).get();
         list = RequestUtils.getProperty(d2, rd1, so.getId(), PropertyIdentifier.listOfObjectPropertyReferences);
         assertEquals(list, new SequenceOf<>(remote11));
+    }
+
+    @Test
+    public void validations() throws Exception {
+        final AnalogValueObject av = new AnalogValueObject(d2, 0, "av0", 98, EngineeringUnits.amperes, false)
+                .supportCommandable(-2);
+
+        //
+        // Entries in the list of property references must reference properties of this type
+        TestUtils.assertBACnetServiceException(() -> {
+            new ScheduleObject<>(d1, 0, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null,
+                    new SequenceOf<>(), BinaryPV.inactive,
+                    new SequenceOf<>(new DeviceObjectPropertyReference(1, av.getId(), PropertyIdentifier.presentValue)),
+                    12, false, d1.getClock());
+        }, ErrorClass.property, ErrorCode.invalidDataType);
+
+        //
+        // Time value entries in the weekly and exception schedules must be of this type
+        TestUtils.assertBACnetServiceException(() -> {
+            final BACnetArray<DailySchedule> weekly = new BACnetArray<>( //
+                    new DailySchedule(new SequenceOf<>(new TimeValue(new Time(), new Real(0)))), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()));
+            new ScheduleObject<>(d1, 1, "sch1", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
+                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+        }, ErrorClass.property, ErrorCode.invalidDataType);
+
+        TestUtils.assertBACnetServiceException(() -> {
+            final SequenceOf<SpecialEvent> exceptions = new SequenceOf<>( //
+                    new SpecialEvent(new CalendarEntry(new Date()),
+                            new SequenceOf<>(new TimeValue(new Time(), new Real(0))), new UnsignedInteger(10)));
+            new ScheduleObject<>(d1, 2, "sch2", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
+                    BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+        }, ErrorClass.property, ErrorCode.invalidDataType);
+
+        //
+        // Time values must have times that are fully specific.
+        TestUtils.assertBACnetServiceException(() -> {
+            final BACnetArray<DailySchedule> weekly = new BACnetArray<>( //
+                    new DailySchedule(new SequenceOf<>(new TimeValue(Time.UNSPECIFIED, BinaryPV.active))), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()), //
+                    new DailySchedule(new SequenceOf<>()));
+            new ScheduleObject<>(d1, 3, "sch3", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
+                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+        }, ErrorClass.property, ErrorCode.invalidConfigurationData);
+
+        TestUtils.assertBACnetServiceException(() -> {
+            final SequenceOf<SpecialEvent> exceptions = new SequenceOf<>( //
+                    new SpecialEvent(new CalendarEntry(new Date()),
+                            new SequenceOf<>(new TimeValue(new Time(20, Time.UNSPECIFIC, 0, 0), BinaryPV.active)),
+                            new UnsignedInteger(10)));
+            new ScheduleObject<>(d1, 4, "sch4", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
+                    BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+        }, ErrorClass.property, ErrorCode.invalidConfigurationData);
     }
 }
