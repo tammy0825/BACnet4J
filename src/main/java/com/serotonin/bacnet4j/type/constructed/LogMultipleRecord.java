@@ -36,9 +36,16 @@ public class LogMultipleRecord extends BaseType implements ILogRecord {
     private final DateTime timestamp;
     private final LogData logData;
 
+    private long sequenceNumber;
+
     public LogMultipleRecord(final DateTime timestamp, final LogData logData) {
         this.timestamp = timestamp;
         this.logData = logData;
+    }
+
+    public LogMultipleRecord(final ByteQueue queue) throws BACnetException {
+        timestamp = read(queue, DateTime.class, 0);
+        logData = read(queue, LogData.class, 1);
     }
 
     @Override
@@ -47,6 +54,7 @@ public class LogMultipleRecord extends BaseType implements ILogRecord {
         write(queue, logData, 1);
     }
 
+    @Override
     public DateTime getTimestamp() {
         return timestamp;
     }
@@ -55,9 +63,13 @@ public class LogMultipleRecord extends BaseType implements ILogRecord {
         return logData;
     }
 
-    public LogMultipleRecord(final ByteQueue queue) throws BACnetException {
-        timestamp = read(queue, DateTime.class, 0);
-        logData = read(queue, LogData.class, 1);
+    @Override
+    public long getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(final long sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     @Override

@@ -35,11 +35,12 @@ import java.util.ListIterator;
 import java.util.Objects;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.service.confirmed.ReadRangeRequest.RangeReadable;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
-public class SequenceOf<E extends Encodable> extends BaseType implements Iterable<E> {
+public class SequenceOf<E extends Encodable> extends BaseType implements Iterable<E>, RangeReadable<E> {
     protected final List<E> values;
 
     public SequenceOf() {
@@ -90,9 +91,19 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         return values.get(indexBase1 - 1);
     }
 
+    @Override
+    public E get0Index(final int index) {
+        return values.get(index);
+    }
+
     public boolean has(final UnsignedInteger indexBase1) {
         final int index = indexBase1.intValue() - 1;
         return index >= 0 && index < values.size();
+    }
+
+    @Override
+    public int size() {
+        return values.size();
     }
 
     public int getCount() {

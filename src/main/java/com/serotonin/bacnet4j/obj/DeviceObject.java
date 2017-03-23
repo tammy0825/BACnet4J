@@ -76,7 +76,7 @@ public class DeviceObject extends BACnetObject {
         servicesSupported.setTimeSynchronization(true);
         servicesSupported.setWhoHas(true);
         servicesSupported.setWhoIs(true);
-        //        servicesSupported.setReadRange(true);
+        servicesSupported.setReadRange(true);
         servicesSupported.setUtcTimeSynchronization(true);
         //        servicesSupported.setLifeSafetyOperation(true);
         servicesSupported.setSubscribeCovProperty(true);

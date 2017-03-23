@@ -146,6 +146,7 @@ public class LogRecord extends BaseType implements ILogRecord {
         writeOptional(queue, statusFlags, 2);
     }
 
+    @Override
     public DateTime getTimestamp() {
         return timestamp;
     }
@@ -208,6 +209,7 @@ public class LogRecord extends BaseType implements ILogRecord {
         statusFlags = readOptional(queue, StatusFlags.class, 2);
     }
 
+    @Override
     public long getSequenceNumber() {
         return sequenceNumber;
     }
@@ -255,6 +257,7 @@ public class LogRecord extends BaseType implements ILogRecord {
 
     @Override
     public String toString() {
-        return "LogRecord [timestamp=" + timestamp + ", choice=" + choice + ", statusFlags=" + statusFlags + "]";
+        return "LogRecord [seq=" + sequenceNumber + ", timestamp=" + timestamp + ", choice=" + choice + ", statusFlags="
+                + statusFlags + "]";
     }
 }

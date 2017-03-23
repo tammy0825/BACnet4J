@@ -89,6 +89,10 @@ public class DateTime extends BaseType implements Comparable<DateTime> {
         return gc;
     }
 
+    public boolean isFullySpecified() {
+        return date.isSpecific() && time.isFullySpecified();
+    }
+
     @Override
     public int compareTo(final DateTime o) {
         final int comp = date.compareTo(o.date);

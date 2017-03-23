@@ -242,7 +242,7 @@ public class TrendLogObject extends BACnetObject {
             if (dt.equals(DateTime.UNSPECIFIED))
                 return false;
 
-            if (!dt.getDate().isSpecific() || !dt.getTime().isFullySpecified())
+            if (!dt.isFullySpecified())
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.parameterOutOfRange);
 
         } else if (PropertyIdentifier.logDeviceObjectProperty.equals(value.getPropertyIdentifier())) {
@@ -309,8 +309,10 @@ public class TrendLogObject extends BACnetObject {
                 // Turning StopWhenFull on.
                 final UnsignedInteger bufferSize = get(PropertyIdentifier.bufferSize);
                 if (buffer.size() >= bufferSize.intValue()) {
-                    while (buffer.size() >= bufferSize.intValue())
-                        buffer.remove();
+                    synchronized (buffer) {
+                        while (buffer.size() >= bufferSize.intValue())
+                            buffer.remove();
+                    }
                     updateRecordCount();
                     writePropertyInternal(PropertyIdentifier.enable, Boolean.FALSE);
                 }
@@ -319,8 +321,10 @@ public class TrendLogObject extends BACnetObject {
         } else if (PropertyIdentifier.bufferSize.equals(pid)) {
             final UnsignedInteger bufferSize = (UnsignedInteger) newValue;
             // In case the buffer size was reduced, remove extra entries in the buffer.
-            while (buffer.size() >= bufferSize.intValue())
-                buffer.remove();
+            synchronized (buffer) {
+                while (buffer.size() >= bufferSize.intValue())
+                    buffer.remove();
+            }
             updateRecordCount();
 
         } else if (PropertyIdentifier.recordCount.equals(pid)) {
@@ -346,7 +350,9 @@ public class TrendLogObject extends BACnetObject {
     }
 
     private void purge() {
-        buffer.clear();
+        synchronized (buffer) {
+            buffer.clear();
+        }
         writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
         addLogRecordImpl(new LogRecord(getNow(), new LogStatus(logDisabled, true, false), null));
     }
@@ -670,13 +676,15 @@ public class TrendLogObject extends BACnetObject {
     private void addLogRecordImpl(final LogRecord record) {
         final UnsignedInteger bufferSize = get(PropertyIdentifier.bufferSize);
 
-        // Don't add more to the buffer than capacity.
-        if (buffer.size() == bufferSize.intValue()) {
-            // Buffer is already full. Drop the oldest record.
-            buffer.remove();
-        }
+        synchronized (buffer) {
+            // Don't add more to the buffer than capacity.
+            if (buffer.size() == bufferSize.intValue()) {
+                // Buffer is already full. Drop the oldest record.
+                buffer.remove();
+            }
 
-        buffer.add(record);
+            buffer.add(record);
+        }
 
         updateRecordCount();
 
@@ -689,7 +697,7 @@ public class TrendLogObject extends BACnetObject {
         UnsignedInteger totalRecordCount = get(PropertyIdentifier.totalRecordCount);
         totalRecordCount = totalRecordCount.increment32();
         if (totalRecordCount.longValue() == 0)
-            // Value has overflown. As per 12.25.16 set to 1.
+            // Value overflowed. As per 12.25.16 set to 1.
             totalRecordCount = new UnsignedInteger(1);
         record.setSequenceNumber(totalRecordCount.longValue());
         writePropertyInternal(PropertyIdentifier.totalRecordCount, totalRecordCount);

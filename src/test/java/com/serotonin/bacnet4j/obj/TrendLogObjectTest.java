@@ -106,7 +106,7 @@ public class TrendLogObjectTest {
 
         //
         // Advance the clock one minute. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 200);
+        clock.plus(1, MINUTES, 1, SECONDS, 10, 300);
 
         assertEquals(1, tl.getBuffer().size());
         final LogRecord record1 = tl.getBuffer().get(0);
@@ -368,7 +368,7 @@ public class TrendLogObjectTest {
         //
         // Write one more and make sure a notification was received.
         doTriggers(tl, 1);
-        Thread.sleep(30);
+        Thread.sleep(50);
         assertEquals(5, tl.getBuffer().size());
         assertEquals(1, listener.notifs.size());
         Map<String, Object> notif = listener.notifs.remove(0);

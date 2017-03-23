@@ -48,6 +48,8 @@ public class EventLogRecord extends BaseType implements ILogRecord {
     private final DateTime timestamp;
     private final Choice choice;
 
+    private long sequenceNumber;
+
     public EventLogRecord(final DateTime timestamp, final LogStatus datum) {
         this.timestamp = timestamp;
         choice = new Choice(0, datum, choiceOptions);
@@ -63,12 +65,18 @@ public class EventLogRecord extends BaseType implements ILogRecord {
         choice = new Choice(2, datum, choiceOptions);
     }
 
+    public EventLogRecord(final ByteQueue queue) throws BACnetException {
+        timestamp = read(queue, DateTime.class, 0);
+        choice = new Choice(queue, choiceOptions, 1);
+    }
+
     @Override
     public void write(final ByteQueue queue) {
         write(queue, timestamp, 0);
         write(queue, choice, 1);
     }
 
+    @Override
     public DateTime getTimestamp() {
         return timestamp;
     }
@@ -89,9 +97,13 @@ public class EventLogRecord extends BaseType implements ILogRecord {
         return choice;
     }
 
-    public EventLogRecord(final ByteQueue queue) throws BACnetException {
-        timestamp = read(queue, DateTime.class, 0);
-        choice = new Choice(queue, choiceOptions, 1);
+    @Override
+    public long getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(final long sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     @Override
