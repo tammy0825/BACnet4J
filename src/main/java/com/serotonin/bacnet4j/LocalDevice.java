@@ -105,6 +105,7 @@ import lohbihler.warp.WarpUtils;
 /**
  * Enhancements:
  * - Optional persistence of COV subscriptions
+ * - Rename SequenceOf.get to SequenceOf.getIndexBase1, and RangeReadable.get0Index to RangeReadable.get.
  * - default character string encoding
  * - BIBBs (B-OWS) (services to implement)
  * - AE-N-A
