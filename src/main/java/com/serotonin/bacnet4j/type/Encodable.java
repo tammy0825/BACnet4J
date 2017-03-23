@@ -276,7 +276,7 @@ abstract public class Encodable {
         try {
             return readChoice(queue, choiceOptions);
         } finally {
-            popEnd(queue, 0);
+            popEnd(queue, contextId);
         }
     }
 
@@ -291,7 +291,7 @@ abstract public class Encodable {
             final int contextId) throws BACnetException {
         if (!matchNonEndTag(queue, contextId))
             return null;
-        return readChoice(queue, choiceOptions);
+        return readChoice(queue, choiceOptions, contextId);
     }
 
     //
