@@ -919,12 +919,12 @@ public class LocalDevice {
             final SequenceOf<UnsignedInteger> priorities = (SequenceOf<UnsignedInteger>) nc
                     .getPropertyRequired(PropertyIdentifier.priority);
             if (toState.equals(EventState.normal))
-                priority = priorities.get(3);
+                priority = priorities.getBase1(3);
             else if (toState.equals(EventState.fault))
-                priority = priorities.get(2);
+                priority = priorities.getBase1(2);
             else
                 // everything else is offnormal
-                priority = priorities.get(1);
+                priority = priorities.getBase1(1);
         } catch (final BACnetServiceException e) {
             // Should never happen, so wrap in a RTE
             throw new RuntimeException(e);

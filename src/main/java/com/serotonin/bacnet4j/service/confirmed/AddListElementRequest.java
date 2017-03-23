@@ -102,7 +102,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
             if (index < 1 || index > array.getCount())
                 throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, new UnsignedInteger(0));
 
-            e = array.get(index);
+            e = array.getBase1(index);
             if (e == null)
                 // This should never happen, but check.
                 throw new RuntimeException("Array with null element: " + array);
@@ -120,7 +120,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
         final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
         final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
         for (int i = 0; i < listOfElements.getCount(); i++) {
-            final Encodable pr = listOfElements.get(i + 1);
+            final Encodable pr = listOfElements.getBase1(i + 1);
 
             if (def != null) {
                 // If we have a property def, check it.
@@ -130,7 +130,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
             } else {
                 // Otherwise, if there are already elements in the list, we can check against the first one.
                 if (list.getCount() > 0) {
-                    if (list.get(1).getClass() != pr.getClass()) {
+                    if (list.getBase1(1).getClass() != pr.getClass()) {
                         throw createException(ErrorClass.property, ErrorCode.invalidDataType,
                                 new UnsignedInteger(i + 1));
                     }

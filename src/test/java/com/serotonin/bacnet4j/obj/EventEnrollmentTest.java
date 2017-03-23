@@ -109,7 +109,7 @@ public class EventEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
         assertEquals(EventType.changeOfState, notif.get("eventType"));
@@ -154,7 +154,7 @@ public class EventEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
         assertEquals(EventType.changeOfState, notif.get("eventType"));
@@ -213,7 +213,7 @@ public class EventEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
@@ -246,7 +246,7 @@ public class EventEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
@@ -279,7 +279,7 @@ public class EventEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));

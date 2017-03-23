@@ -87,7 +87,7 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
             values.add(read(queue, clazz));
     }
 
-    public E get(final int indexBase1) {
+    public E getBase1(final int indexBase1) {
         return values.get(indexBase1 - 1);
     }
 

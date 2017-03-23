@@ -230,7 +230,7 @@ public class RequestUtils {
             specs.add(new ReadAccessSpecification(oid, new SequenceOf<>(refs)));
             final ReadPropertyMultipleAck ack = (ReadPropertyMultipleAck) localDevice
                     .send(d, new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
-            return ack.getListOfReadAccessResults().get(1).getListOfResults().get(1).getReadResult().getDatum();
+            return ack.getListOfReadAccessResults().getBase1(1).getListOfResults().getBase1(1).getReadResult().getDatum();
         }
 
         throw new BACnetException("Device does not support readProperty nor readPropertyMultiple");

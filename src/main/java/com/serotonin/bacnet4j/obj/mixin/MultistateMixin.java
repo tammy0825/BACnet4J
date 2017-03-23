@@ -82,7 +82,7 @@ public class MultistateMixin extends AbstractMixin {
                     final int min = newText.getCount() < stateText.getCount() ? newText.getCount()
                             : stateText.getCount();
                     for (int i = 0; i < min; i++)
-                        newText.set(i + 1, stateText.get(i + 1));
+                        newText.set(i + 1, stateText.getBase1(i + 1));
 
                     writePropertyInternal(PropertyIdentifier.stateText, newText);
                 }

@@ -194,7 +194,7 @@ public class ScheduleObjectTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(so.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) so.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(7), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));

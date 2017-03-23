@@ -326,7 +326,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
                 TimeValue currentTv = null;
                 int tvIndex = schedule.getCount();
                 for (; tvIndex > 0; tvIndex--) {
-                    final TimeValue tv = schedule.get(tvIndex);
+                    final TimeValue tv = schedule.getBase1(tvIndex);
 
                     if (!tv.getTime().after(now.getTime())) {
                         // Found a time value entry that can be used.
@@ -343,7 +343,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
                 // Determine the next time this method should run.
                 if (tvIndex < schedule.getCount()) {
-                    final TimeValue nextTv = schedule.get(tvIndex + 1);
+                    final TimeValue nextTv = schedule.getBase1(tvIndex + 1);
                     nextCheck = timeOf(now.getDate(), nextTv);
                 } else
                     nextCheck = nextDay(now);
@@ -409,7 +409,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         if (!dow.isSpecific())
             dow = DayOfWeek.forDate(now.getDate());
 
-        return weeklySchedule.get(dow.getId());
+        return weeklySchedule.getBase1(dow.getId());
     }
 
     void doWrites(final Encodable value) {

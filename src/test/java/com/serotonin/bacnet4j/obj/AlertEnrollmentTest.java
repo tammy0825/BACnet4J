@@ -70,7 +70,7 @@ public class AlertEnrollmentTest extends AbstractTest {
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ae.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ae.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(55), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(201), notif.get("priority"));
         assertEquals(EventType.extended, notif.get("eventType"));

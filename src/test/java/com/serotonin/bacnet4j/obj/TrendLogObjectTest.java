@@ -203,7 +203,7 @@ public class TrendLogObjectTest {
         assertEquals(1, subscriptions.getCount());
 
         // Remember the process id.
-        final int processId = subscriptions.get(1).getRecipient().getProcessIdentifier().intValue();
+        final int processId = subscriptions.getBase1(1).getRecipient().getProcessIdentifier().intValue();
 
         // The initial notification should be there.
         assertEquals(1, tl.getBuffer().size());
@@ -275,7 +275,7 @@ public class TrendLogObjectTest {
         // Check that there is still only one subscription, and that it has a different process id.
         subscriptions = d.getObject(d.getId()).getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, subscriptions.getCount());
-        final int processId2 = subscriptions.get(1).getRecipient().getProcessIdentifier().intValue();
+        final int processId2 = subscriptions.getBase1(1).getRecipient().getProcessIdentifier().intValue();
         assertEquals(processId + 1, processId2);
 
         // Check that an update was sent due to the resubscription.
@@ -376,7 +376,7 @@ public class TrendLogObjectTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
         assertEquals(EventType.bufferReady, notif.get("eventType"));
@@ -407,7 +407,7 @@ public class TrendLogObjectTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
         assertEquals(EventType.bufferReady, notif.get("eventType"));
@@ -440,7 +440,7 @@ public class TrendLogObjectTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
         assertEquals(EventType.bufferReady, notif.get("eventType"));
@@ -515,7 +515,7 @@ public class TrendLogObjectTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
         assertEquals(EventType.bufferReady, notif.get("eventType"));
@@ -539,7 +539,7 @@ public class TrendLogObjectTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
         assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
-                .get(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
         assertEquals(EventType.bufferReady, notif.get("eventType"));

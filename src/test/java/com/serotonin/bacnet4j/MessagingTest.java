@@ -120,17 +120,17 @@ public class MessagingTest {
         final ReadPropertyMultipleAck ack = future.get();
 
         assertEquals(1, ack.getListOfReadAccessResults().getCount());
-        final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
+        final ReadAccessResult readResult = ack.getListOfReadAccessResults().getBase1(1);
         assertEquals(d2.getId(), readResult.getObjectIdentifier());
         assertEquals(1, readResult.getListOfResults().getCount());
-        final Result result = readResult.getListOfResults().get(1);
+        final Result result = readResult.getListOfResults().getBase1(1);
         assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
         final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
         System.out.println(idList);
         assertEquals(2, idList.getCount());
-        assertEquals(d2.getId(), idList.get(1));
-        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), idList.get(2));
+        assertEquals(d2.getId(), idList.getBase1(1));
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), idList.getBase1(2));
 
         // Send the same request, but with a null consumer.
         d1.send(r2, new ReadPropertyMultipleRequest(new SequenceOf<>(specs)), null);
@@ -172,15 +172,15 @@ public class MessagingTest {
         final ReadPropertyMultipleAck ack = future.get();
 
         assertEquals(1, ack.getListOfReadAccessResults().getCount());
-        final ReadAccessResult readResult = ack.getListOfReadAccessResults().get(1);
+        final ReadAccessResult readResult = ack.getListOfReadAccessResults().getBase1(1);
         assertEquals(d2.getId(), readResult.getObjectIdentifier());
         assertEquals(1, readResult.getListOfResults().getCount());
-        final Result result = readResult.getListOfResults().get(1);
+        final Result result = readResult.getListOfResults().getBase1(1);
         assertEquals(PropertyIdentifier.objectList, result.getPropertyIdentifier());
         @SuppressWarnings("unchecked")
         final SequenceOf<ObjectIdentifier> idList = (SequenceOf<ObjectIdentifier>) result.getReadResult().getDatum();
         assertEquals(1001, idList.getCount());
-        assertEquals(d2.getId(), idList.get(1));
+        assertEquals(d2.getId(), idList.getBase1(1));
         //        Assert.assertEquals(av0, idList.get(2));
 
         // Send the same request, but with a null consumer.
@@ -310,7 +310,7 @@ public class MessagingTest {
         final ReadPropertyMultipleAck ack = d1.send(rd2, new ReadPropertyMultipleRequest(listOfReadAccessSpecs)).get();
 
         assertEquals(1, ack.getListOfReadAccessResults().getCount());
-        final ReadAccessResult readAccessResult = ack.getListOfReadAccessResults().get(1);
+        final ReadAccessResult readAccessResult = ack.getListOfReadAccessResults().getBase1(1);
         assertEquals(ObjectType.analogValue, readAccessResult.getObjectIdentifier().getObjectType());
         assertEquals(0, readAccessResult.getObjectIdentifier().getInstanceNumber());
 

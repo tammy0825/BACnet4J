@@ -95,7 +95,7 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
 
     private BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
             final WriteAccessSpecification spec, final PropertyValue pv) {
-        final PropertyValue pvToUse = pv == null ? spec.getListOfProperties().get(1) : pv;
+        final PropertyValue pvToUse = pv == null ? spec.getListOfProperties().getBase1(1) : pv;
         return new BACnetErrorException(getChoiceId(),
                 new WritePropertyMultipleError(new ErrorClassAndCode(errorClass, errorCode),
                         new ObjectPropertyReference(spec.getObjectIdentifier(), pvToUse.getPropertyIdentifier(),

@@ -244,7 +244,7 @@ public class CommandableMixin extends AbstractMixin {
         PriorityValue topValue = null;
         int topIndex = 17;
         for (int i = 1; i <= pa.getCount(); i++) {
-            final PriorityValue priv = pa.get(i);
+            final PriorityValue priv = pa.getBase1(i);
             if (!priv.isa(Null.class)) {
                 topValue = priv;
                 topIndex = i;
@@ -316,7 +316,7 @@ public class CommandableMixin extends AbstractMixin {
                 vs = getLocalValueSource();
             } else {
                 final BACnetArray<ValueSource> vsa = get(valueSourceArray);
-                vs = vsa.get(topIndex);
+                vs = vsa.getBase1(topIndex);
             }
             writePropertyInternal(PropertyIdentifier.valueSource, vs);
 

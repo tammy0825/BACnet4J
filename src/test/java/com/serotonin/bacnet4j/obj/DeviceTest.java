@@ -33,14 +33,14 @@ public class DeviceTest extends AbstractTest {
     public void objectList() throws BACnetException {
         // Get the whole list.
         final SequenceOf<ObjectIdentifier> oids = RequestUtils.getProperty(d2, rd1, PropertyIdentifier.objectList);
-        assertEquals(new ObjectIdentifier(ObjectType.device, 1), oids.get(1));
-        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), oids.get(2));
-        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 1), oids.get(3));
-        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 2), oids.get(4));
-        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 0), oids.get(5));
-        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 1), oids.get(6));
-        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 2), oids.get(7));
-        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 3), oids.get(8));
+        assertEquals(new ObjectIdentifier(ObjectType.device, 1), oids.getBase1(1));
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 0), oids.getBase1(2));
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 1), oids.getBase1(3));
+        assertEquals(new ObjectIdentifier(ObjectType.analogValue, 2), oids.getBase1(4));
+        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 0), oids.getBase1(5));
+        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 1), oids.getBase1(6));
+        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 2), oids.getBase1(7));
+        assertEquals(new ObjectIdentifier(ObjectType.binaryValue, 3), oids.getBase1(8));
 
         // Get one element of the list.
         final UnsignedInteger length = RequestUtils.getProperty(d2, rd1, new ObjectIdentifier(ObjectType.device, 1),

@@ -330,7 +330,7 @@ public class BACnetObject {
         if (index > array.getCount())
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidArrayIndex);
 
-        return array.get(index);
+        return array.getBase1(index);
     }
 
     public final Encodable getPropertyRequired(final PropertyIdentifier pid) throws BACnetServiceException {
@@ -470,7 +470,7 @@ public class BACnetObject {
                     // No property definition available, but we can check that the data type to write matches that
                     // of any existing elements.
                     if (arr.getCount() > 0) {
-                        if (arr.get(1).getClass() != value.getValue().getClass()) {
+                        if (arr.getBase1(1).getClass() != value.getValue().getClass()) {
                             throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
                         }
                     }

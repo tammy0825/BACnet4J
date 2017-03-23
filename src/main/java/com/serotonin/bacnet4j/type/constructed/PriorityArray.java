@@ -103,7 +103,7 @@ public class PriorityArray extends SequenceOf<PriorityValue> {
 
         boolean first = true;
         for (int i = 1; i < LENGTH + 1; i++) {
-            final Encodable e = get(i).getValue();
+            final Encodable e = getBase1(i).getValue();
             if (!(e instanceof Null)) {
                 if (first)
                     first = false;

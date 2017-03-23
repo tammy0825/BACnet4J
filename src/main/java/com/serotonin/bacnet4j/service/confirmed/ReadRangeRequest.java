@@ -396,8 +396,8 @@ public class ReadRangeRequest extends ConfirmedRequestService {
         }
 
         UnsignedInteger firstSequenceNumber = null;
-        if (data.get(1) instanceof Sequenced) {
-            firstSequenceNumber = new UnsignedInteger(((Sequenced) data.get(1)).getSequenceNumber());
+        if (data.getBase1(1) instanceof Sequenced) {
+            firstSequenceNumber = new UnsignedInteger(((Sequenced) data.getBase1(1)).getSequenceNumber());
         }
 
         // Return the result.

@@ -335,7 +335,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
         final ObjectIdentifier initiatingDeviceIdentifier = getLocalDevice().getId();
         final ObjectIdentifier eventObjectIdentifier = (ObjectIdentifier) get(PropertyIdentifier.objectIdentifier);
         final UnsignedInteger notificationClass = (UnsignedInteger) nc.get(PropertyIdentifier.notificationClass);
-        final UnsignedInteger priorityNum = priority.get(toState.getTransitionIndex());
+        final UnsignedInteger priorityNum = priority.getBase1(toState.getTransitionIndex());
 
         for (final Destination destination : recipientList) {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
@@ -400,7 +400,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 timeOfAcknowledgment);
         // Verify that the timestamp for the given acknowledgement matches.
         final BACnetArray<TimeStamp> ets = get(PropertyIdentifier.eventTimeStamps);
-        final TimeStamp ts = ets.get(eventStateAcknowledged.getTransitionIndex());
+        final TimeStamp ts = ets.getBase1(eventStateAcknowledged.getTransitionIndex());
         if (!timeStamp.equals(ts))
             throw new BACnetServiceException(ErrorClass.services, ErrorCode.invalidTimeStamp);
 
@@ -500,7 +500,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             final BACnetObject nc = getLocalDevice()
                     .getObject(new ObjectIdentifier(ObjectType.notificationClass, ncId.intValue()));
             final BACnetArray<UnsignedInteger> priorities = nc.get(PropertyIdentifier.priority);
-            final UnsignedInteger priority = priorities.get(eventState.getTransitionIndex());
+            final UnsignedInteger priority = priorities.getBase1(eventState.getTransitionIndex());
 
             boolean include = true;
 

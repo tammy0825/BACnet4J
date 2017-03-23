@@ -64,9 +64,9 @@ public class RemoteDeviceTest {
 
         final SequenceOf<ObjectIdentifier> objectList = rd.getDeviceProperty(PropertyIdentifier.objectList);
         assertEquals(3, objectList.getCount());
-        assertNull(objectList.get(1));
-        assertNull(objectList.get(2));
-        assertEquals(ai3, objectList.get(3));
+        assertNull(objectList.getBase1(1));
+        assertNull(objectList.getBase1(2));
+        assertEquals(ai3, objectList.getBase1(3));
 
         rd.setDeviceProperty(PropertyIdentifier.objectList, new SequenceOf<>(ai1, ai2, ai3, ai4, ai5));
 

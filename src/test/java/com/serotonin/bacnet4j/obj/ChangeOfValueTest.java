@@ -129,7 +129,7 @@ public class ChangeOfValueTest extends AbstractTest {
         // Ensure the subscription is in the device's list.
         final SequenceOf<CovSubscription> deviceList = d1.getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
-        final CovSubscription subscription = deviceList.get(1);
+        final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
         assertEquals(new Boolean(true), subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.presentValue),
@@ -222,7 +222,7 @@ public class ChangeOfValueTest extends AbstractTest {
         // Ensure the subscription is in the device's list.
         SequenceOf<CovSubscription> deviceList = d1.getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
-        final CovSubscription subscription = deviceList.get(1);
+        final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
         assertEquals(new Boolean(true), subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.presentValue),
@@ -253,7 +253,7 @@ public class ChangeOfValueTest extends AbstractTest {
         // Ensure the subscription is in the device's list.
         final SequenceOf<CovSubscription> deviceList = d1.getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
-        final CovSubscription subscription = deviceList.get(1);
+        final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
         assertEquals(new Boolean(false), subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.statusFlags),
@@ -452,14 +452,14 @@ public class ChangeOfValueTest extends AbstractTest {
         // Wait a bit and make sure the remaining times were updated.
         Thread.sleep(1000);
         deviceList = d1.getProperty(PropertyIdentifier.activeCovSubscriptions);
-        assertEquals(new UnsignedInteger(359), deviceList.get(1).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.get(2).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.get(3).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.get(4).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.get(5).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.get(6).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.get(7).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.get(8).getTimeRemaining());
+        assertEquals(new UnsignedInteger(359), deviceList.getBase1(1).getTimeRemaining());
+        assertEquals(new UnsignedInteger(0), deviceList.getBase1(2).getTimeRemaining());
+        assertEquals(new UnsignedInteger(359), deviceList.getBase1(3).getTimeRemaining());
+        assertEquals(new UnsignedInteger(0), deviceList.getBase1(4).getTimeRemaining());
+        assertEquals(new UnsignedInteger(359), deviceList.getBase1(5).getTimeRemaining());
+        assertEquals(new UnsignedInteger(0), deviceList.getBase1(6).getTimeRemaining());
+        assertEquals(new UnsignedInteger(359), deviceList.getBase1(7).getTimeRemaining());
+        assertEquals(new UnsignedInteger(0), deviceList.getBase1(8).getTimeRemaining());
 
         // Cancel the subscriptions
         d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), null, //
@@ -563,7 +563,7 @@ public class ChangeOfValueTest extends AbstractTest {
         Map<String, Object> notif = listener.notifs.remove(0);
         SequenceOf<PropertyValue> values = (SequenceOf<PropertyValue>) notif.get("listOfValues");
         // Ensure that the last command time looks like the set time.
-        TimeStamp lastCommandTime = (TimeStamp) values.get(4).getValue();
+        TimeStamp lastCommandTime = (TimeStamp) values.getBase1(4).getValue();
         TestUtils.assertEquals(setTime, lastCommandTime, 2);
         assertEquals(
                 new SequenceOf<>( //
@@ -587,7 +587,7 @@ public class ChangeOfValueTest extends AbstractTest {
         notif = listener.notifs.remove(0);
         values = (SequenceOf<PropertyValue>) notif.get("listOfValues");
         // Ensure that the last command time looks like the set time.
-        lastCommandTime = (TimeStamp) values.get(4).getValue();
+        lastCommandTime = (TimeStamp) values.getBase1(4).getValue();
         assertEquals(
                 new SequenceOf<>( //
                         new PropertyValue(PropertyIdentifier.presentValue, new Real(15)),
