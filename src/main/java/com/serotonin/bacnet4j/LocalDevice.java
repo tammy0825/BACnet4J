@@ -159,7 +159,7 @@ public class LocalDevice {
     /**
      * The local password of the device. Used in the ReinitializeDeviceRequest service.
      */
-    private String password = "";
+    private String password;
 
     /**
      * The list of all COV subscriptions currently active in the device.
@@ -390,10 +390,7 @@ public class LocalDevice {
     }
 
     public void setPassword(final String password) {
-        if (password == null)
-            this.password = "";
-        else
-            this.password = password;
+        this.password = password;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

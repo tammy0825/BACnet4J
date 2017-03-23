@@ -160,13 +160,8 @@ public class DeviceCommunicationControlRequestTest {
             // Expected
         }
 
-        // Reinitialize "works", or at least returns an error.
-        try {
-            d2.send(rd1, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.activateChanges, null)).get();
-            fail("ErrorAPDUException should have been thrown");
-        } catch (final ErrorAPDUException e) {
-            // Expected
-        }
+        // Reinitialize "works", or at least doesn't return an error.
+        d2.send(rd1, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.activateChanges, null)).get();
 
         // Re-enable
         d2.send(rd1, new DeviceCommunicationControlRequest(null, EnableDisable.enable, null)).get();

@@ -63,7 +63,7 @@ public class DeviceObject extends BACnetObject {
         servicesSupported.setDeviceCommunicationControl(true);
         servicesSupported.setConfirmedPrivateTransfer(true);
         servicesSupported.setConfirmedTextMessage(true);
-        //        servicesSupported.setReinitializeDevice(true);
+        servicesSupported.setReinitializeDevice(true);
         //        servicesSupported.setVtOpen(true);
         //        servicesSupported.setVtClose(true);
         //        servicesSupported.setVtData(true);
