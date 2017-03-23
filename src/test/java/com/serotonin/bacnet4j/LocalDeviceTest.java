@@ -111,11 +111,7 @@ public class LocalDeviceTest {
         final LocalDevice ld = new LocalDevice(ObjectIdentifier.UNINITIALIZED,
                 new DefaultTransport(new TestNetwork(3, 10)));
         ld.setClock(clock);
-        new Thread(() -> {
-            for (int i = 0; i < 20; i++) {
-                clock.plusSeconds(10);
-            }
-        }).start();
+        new Thread(() -> clock.plus(200, TimeUnit.SECONDS, 10, TimeUnit.SECONDS, 10, 0)).start();
         ld.initialize();
 
         LOG.info("Local device initialized with device id {}", ld.getInstanceNumber());
