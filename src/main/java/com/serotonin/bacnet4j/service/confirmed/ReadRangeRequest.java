@@ -237,7 +237,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
 
             data = new SequenceOf<>(readCount);
             for (int i = 0; i < readCount; i++) {
-                data.add((Encodable) list.get0Index(i));
+                data.add((Encodable) list.get(i));
             }
         }
 
@@ -267,7 +267,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
                 return null;
 
             // Ensure that this list contains Sequenced elements.
-            if (!(list.get0Index(0) instanceof Sequenced))
+            if (!(list.get(0) instanceof Sequenced))
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.datatypeNotSupported);
 
             // Use a binary search to find the index of the record we need.
@@ -301,9 +301,9 @@ public class ReadRangeRequest extends ConfirmedRequestService {
                 return null;
 
             // Ensure that this list contains Sequenced and Timestamped elements.
-            if (!(list.get0Index(0) instanceof Sequenced))
+            if (!(list.get(0) instanceof Sequenced))
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.datatypeNotSupported);
-            if (!(list.get0Index(0) instanceof Timestamped))
+            if (!(list.get(0) instanceof Timestamped))
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.datatypeNotSupported);
 
             // Use a binary search to find the index of the record we need.
@@ -392,7 +392,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
 
         final SequenceOf<Encodable> data = new SequenceOf<>(endIndex - startIndex + 1);
         for (int i = startIndex; i <= endIndex; i++) {
-            data.add((Encodable) list.get0Index(i));
+            data.add((Encodable) list.get(i));
         }
 
         UnsignedInteger firstSequenceNumber = null;
@@ -411,7 +411,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
 
         while (low <= high) {
             final int mid = low + high >>> 1;
-            final RangeComparable midVal = list.get0Index(mid);
+            final RangeComparable midVal = list.get(mid);
             final int cmp;
             if (key instanceof Timestamped) {
                 cmp = ((Timestamped) midVal).compareTimestamp((Timestamped) key);
@@ -440,7 +440,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
     public static interface RangeReadable<E> {
         int size();
 
-        E get0Index(int index);
+        E get(int index);
     }
 
     /**

@@ -92,7 +92,7 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
     }
 
     @Override
-    public E get0Index(final int index) {
+    public E get(final int index) {
         return values.get(index);
     }
 

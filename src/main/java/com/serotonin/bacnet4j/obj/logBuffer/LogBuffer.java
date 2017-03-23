@@ -48,10 +48,6 @@ abstract public class LogBuffer<E extends ILogRecord> extends Encodable implemen
     /**
      * Returns the record at the given index where 0 is the oldest.
      */
-    abstract public E get(int index);
-
     @Override
-    public E get0Index(final int index) {
-        return get(index);
-    }
+    abstract public E get(int index);
 }

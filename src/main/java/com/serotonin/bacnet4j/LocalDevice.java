@@ -105,24 +105,7 @@ import lohbihler.warp.WarpUtils;
 /**
  * Enhancements:
  * - Optional persistence of COV subscriptions
- * - Rename SequenceOf.get to SequenceOf.getIndexBase1, and RangeReadable.get0Index to RangeReadable.get.
  * - default character string encoding
- * - BIBBs (B-OWS) (services to implement)
- * - AE-N-A
- * - AE-ACK-A
- * - AE-INFO-A
- * - AE-ESUM-A
- * - SCHED-A
- * - T-VMT-A
- * - T-ATR-A
- * - DM-DDB-A,B
- * - DM-DOB-A,B
- * - DM-DCC-A
- * - DM-TS-A
- * - DM-UTC-A
- * - DM-RD-A
- * - DM-BR-A
- * - NM-CE-A
  */
 public class LocalDevice {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
