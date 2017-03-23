@@ -581,7 +581,7 @@ public class ChangeOfValueTest extends AbstractTest {
 
         // Write a new value to the present value. This will trigger three notifications because multiple values
         // will be updated.
-        av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(12));
+        av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(15));
         Thread.sleep(50);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -590,7 +590,7 @@ public class ChangeOfValueTest extends AbstractTest {
         lastCommandTime = (TimeStamp) values.get(4).getValue();
         assertEquals(
                 new SequenceOf<>( //
-                        new PropertyValue(PropertyIdentifier.presentValue, new Real(12)),
+                        new PropertyValue(PropertyIdentifier.presentValue, new Real(15)),
                         new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
                         new PropertyValue(PropertyIdentifier.valueSource, vs),
                         new PropertyValue(PropertyIdentifier.lastCommandTime, lastCommandTime),
