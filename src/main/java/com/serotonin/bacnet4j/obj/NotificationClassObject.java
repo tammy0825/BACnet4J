@@ -41,9 +41,13 @@ import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.NoneAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
@@ -92,6 +96,18 @@ public class NotificationClassObject extends BACnetObject {
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
+    }
+
+    @Override
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
+        if (PropertyIdentifier.priority.equals(value.getPropertyIdentifier())) {
+            final BACnetArray<UnsignedInteger> priority = value.getValue();
+            if (priority.getCount() != 3)
+                throw new BACnetServiceException(ErrorClass.property, ErrorCode.valueOutOfRange);
+        }
+
+        return false;
     }
 
     public void addEventListener(final NotificationClassListener l) {
