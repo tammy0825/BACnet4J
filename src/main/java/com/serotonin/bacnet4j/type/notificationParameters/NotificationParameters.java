@@ -62,7 +62,7 @@ public class NotificationParameters extends BaseType {
     private final Choice choice;
 
     public NotificationParameters(final AbstractNotificationParameter parameters) {
-        choice = new Choice(choiceOptions.getContextId(parameters.getClass()), parameters, choiceOptions);
+        choice = new Choice(choiceOptions.getContextId(parameters.getClass(), false), parameters, choiceOptions);
     }
 
     @Override
