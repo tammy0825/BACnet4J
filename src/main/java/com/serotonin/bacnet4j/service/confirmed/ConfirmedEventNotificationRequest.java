@@ -102,6 +102,16 @@ public class ConfirmedEventNotificationRequest extends ConfirmedRequestService {
     }
 
     @Override
+    public String toString() {
+        return "ConfirmedEventNotificationRequest [processIdentifier=" + processIdentifier
+                + ", initiatingDeviceIdentifier=" + initiatingDeviceIdentifier + ", eventObjectIdentifier="
+                + eventObjectIdentifier + ", timeStamp=" + timeStamp + ", notificationClass=" + notificationClass
+                + ", priority=" + priority + ", eventType=" + eventType + ", messageText=" + messageText
+                + ", notifyType=" + notifyType + ", ackRequired=" + ackRequired + ", fromState=" + fromState
+                + ", toState=" + toState + ", eventValues=" + eventValues + "]";
+    }
+
+    @Override
     public void write(final ByteQueue queue) {
         write(queue, processIdentifier, 0);
         write(queue, initiatingDeviceIdentifier, 1);

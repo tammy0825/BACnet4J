@@ -50,19 +50,19 @@ public class EventLogRecord extends BaseType implements ILogRecord {
 
     private long sequenceNumber;
 
-    public EventLogRecord(final DateTime timestamp, final LogStatus datum) {
+    public EventLogRecord(final DateTime timestamp, final LogStatus logStatus) {
         this.timestamp = timestamp;
-        choice = new Choice(0, datum, choiceOptions);
+        choice = new Choice(0, logStatus, choiceOptions);
     }
 
-    public EventLogRecord(final DateTime timestamp, final ConfirmedEventNotificationRequest datum) {
+    public EventLogRecord(final DateTime timestamp, final ConfirmedEventNotificationRequest notification) {
         this.timestamp = timestamp;
-        choice = new Choice(1, datum, choiceOptions);
+        choice = new Choice(1, notification, choiceOptions);
     }
 
-    public EventLogRecord(final DateTime timestamp, final Real datum) {
+    public EventLogRecord(final DateTime timestamp, final Real timeChange) {
         this.timestamp = timestamp;
-        choice = new Choice(2, datum, choiceOptions);
+        choice = new Choice(2, timeChange, choiceOptions);
     }
 
     public EventLogRecord(final ByteQueue queue) throws BACnetException {
@@ -81,16 +81,28 @@ public class EventLogRecord extends BaseType implements ILogRecord {
         return timestamp;
     }
 
+    public boolean isLogStatus() {
+        return choice.getContextId() == 0;
+    }
+
     public LogStatus getLogStatus() {
-        return (LogStatus) choice.getDatum();
+        return choice.getDatum();
     }
 
-    public ConfirmedEventNotificationRequest getConfirmedEventNotificationRequest() {
-        return (ConfirmedEventNotificationRequest) choice.getDatum();
+    public boolean isNotification() {
+        return choice.getContextId() == 1;
     }
 
-    public Real getReal() {
-        return (Real) choice.getDatum();
+    public ConfirmedEventNotificationRequest getNotification() {
+        return choice.getDatum();
+    }
+
+    public boolean isTimeChange() {
+        return choice.getContextId() == 2;
+    }
+
+    public Real getTimeChange() {
+        return choice.getDatum();
     }
 
     public Choice getChoice() {
