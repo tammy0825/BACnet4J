@@ -387,10 +387,8 @@ public class PropertyUtilsTest {
                 .add(2, ObjectType.analogInput, 2, PropertyIdentifier.vendorName);
 
         final DevicesObjectPropertyValues expectedValues = new DevicesObjectPropertyValues() //
-                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus, null,
-                        new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject)) //
-                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted, null,
-                        new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject)) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus, null, DeviceStatus.operational) //
+                .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted, null, new UnsignedInteger(1476)) //
                 .add(2, ObjectType.analogInput, 2, PropertyIdentifier.vendorName, null,
                         new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject));
 
