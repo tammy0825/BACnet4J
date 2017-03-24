@@ -88,6 +88,9 @@ public class BACnetObject {
     private IntrinsicReportingMixin intrinsicReportingMixin;
     private CovReportingMixin changeOfValueMixin;
 
+    // Configuration
+    private boolean deletable;
+
     public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber)
             throws BACnetServiceException {
         this(localDevice, type, instanceNumber, null);
@@ -143,6 +146,14 @@ public class BACnetObject {
 
     public LocalDevice getLocalDevice() {
         return localDevice;
+    }
+
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    public void setDeletable(final boolean deletable) {
+        this.deletable = deletable;
     }
 
     //
