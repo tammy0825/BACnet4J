@@ -512,7 +512,7 @@ public class TrendLogMultipleObject extends BACnetObject {
         UnsignedInteger totalRecordCount = get(PropertyIdentifier.totalRecordCount);
         totalRecordCount = totalRecordCount.increment32();
         if (totalRecordCount.longValue() == 0)
-            // Value overflowed. As per 12.25.16 set to 1.
+            // Value overflowed. As per 12.30.21 set to 1.
             totalRecordCount = new UnsignedInteger(1);
         record.setSequenceNumber(totalRecordCount.longValue());
         writePropertyInternal(PropertyIdentifier.totalRecordCount, totalRecordCount);
