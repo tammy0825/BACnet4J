@@ -230,7 +230,8 @@ public class RequestUtils {
             specs.add(new ReadAccessSpecification(oid, new SequenceOf<>(refs)));
             final ReadPropertyMultipleAck ack = (ReadPropertyMultipleAck) localDevice
                     .send(d, new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
-            return ack.getListOfReadAccessResults().getBase1(1).getListOfResults().getBase1(1).getReadResult().getDatum();
+            return ack.getListOfReadAccessResults().getBase1(1).getListOfResults().getBase1(1).getReadResult()
+                    .getDatum();
         }
 
         throw new BACnetException("Device does not support readProperty nor readPropertyMultiple");
@@ -368,7 +369,13 @@ public class RequestUtils {
                             new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
                     partitions.remove(0);
                 } catch (final ErrorAPDUException e) {
-                    populateWithError(d, properties, updater, e.getError());
+                    // The error returned may only apply to a single reference. If there is more than one reference in
+                    // the partition, send the requests one at a time.
+                    if (partition.size() < 2)
+                        populateWithError(d, properties, updater, e.getError());
+                    else {
+                        sendOneAtATime(localDevice, d, partition, updater);
+                    }
                     partitions.remove(0);
                 } catch (final BACnetException e) {
                     throw new BACnetException("Completed " + counter + " requests. Excepted on: " + request, e);
