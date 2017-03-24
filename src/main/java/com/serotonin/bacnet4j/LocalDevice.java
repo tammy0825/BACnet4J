@@ -185,6 +185,11 @@ public class LocalDevice {
         }
     }
 
+    public LocalDevice withClock(final Clock clock) {
+        setClock(clock);
+        return this;
+    }
+
     public Clock getClock() {
         return clock;
     }

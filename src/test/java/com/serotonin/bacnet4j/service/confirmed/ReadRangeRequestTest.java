@@ -15,6 +15,8 @@ import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.obj.AnalogInputObject;
+import com.serotonin.bacnet4j.obj.TrendLogMultipleObject;
 import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadRangeAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadRangeRequest.ByPosition;
@@ -23,11 +25,17 @@ import com.serotonin.bacnet4j.service.confirmed.ReadRangeRequest.ByTime;
 import com.serotonin.bacnet4j.service.confirmed.ReadRangeRequest.Sequenced;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
+import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
+import com.serotonin.bacnet4j.type.constructed.LogData;
+import com.serotonin.bacnet4j.type.constructed.LogData.LogDataElement;
+import com.serotonin.bacnet4j.type.constructed.LogMultipleRecord;
 import com.serotonin.bacnet4j.type.constructed.LogRecord;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.ResultFlags;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -35,9 +43,12 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+
+import lohbihler.warp.WarpClock;
 
 public class ReadRangeRequestTest {
     final DateTime now = new DateTime();
@@ -85,6 +96,65 @@ public class ReadRangeRequestTest {
         assertEquals(null, ack.getFirstSequenceNumber());
 
         d2.terminate();
+    }
+
+    /**
+     * Read data from a TrendLogMultiple object
+     */
+    @Test
+    public void trendLogMultiple() throws Exception {
+        final WarpClock clock = new WarpClock();
+
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock)
+                .initialize();
+        final AnalogInputObject ai = new AnalogInputObject(d1, 0, "ai", 12, EngineeringUnits.noUnits, false);
+
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock)
+                .initialize();
+        final TrendLogMultipleObject tl = new TrendLogMultipleObject(d2, 0, "tlm", new LinkedListLogBuffer<>(), true,
+                DateTime.UNSPECIFIED, DateTime.UNSPECIFIED,
+                new BACnetArray<>(new DeviceObjectPropertyReference(1, ai.getId(), PropertyIdentifier.presentValue)), 0,
+                false, 100);
+
+        final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+        final DateTime now = new DateTime(clock.millis());
+
+        // Trigger the trend log a few times.
+        doTriggers(tl, 11);
+
+        // Read the buffer.
+        final ReadRangeAck ack = d1.send(rd2, new ReadRangeRequest(tl.getId(), PropertyIdentifier.logBuffer, null))
+                .get();
+
+        assertEquals(tl.getId(), ack.getObjectIdentifier());
+        assertEquals(PropertyIdentifier.logBuffer, ack.getPropertyIdentifier());
+        assertEquals(null, ack.getPropertyArrayIndex());
+        assertEquals(new ResultFlags(true, true, false), ack.getResultFlags());
+        assertEquals(new UnsignedInteger(11), ack.getItemCount());
+        assertEquals(
+                new SequenceOf<>( //
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12))))),
+                        new LogMultipleRecord(now, new LogData(new SequenceOf<>(new LogDataElement(new Real(12)))))),
+                ack.getItemData());
+        assertEquals(null, ack.getFirstSequenceNumber());
+    }
+
+    private static void doTriggers(final TrendLogMultipleObject tl, final int count) throws InterruptedException {
+        int remaining = count;
+        while (remaining > 0) {
+            if (tl.trigger())
+                remaining--;
+            Thread.sleep(10);
+        }
     }
 
     /**

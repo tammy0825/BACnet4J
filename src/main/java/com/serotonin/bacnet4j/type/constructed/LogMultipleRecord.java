@@ -73,6 +73,12 @@ public class LogMultipleRecord extends BaseType implements ILogRecord {
     }
 
     @Override
+    public String toString() {
+        return "LogMultipleRecord [timestamp=" + timestamp + ", logData=" + logData + ", sequenceNumber="
+                + sequenceNumber + "]";
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
