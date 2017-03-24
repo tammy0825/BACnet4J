@@ -176,10 +176,12 @@ public class TrendLogObject extends BACnetObject {
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, algo, null, triggerProps)
                 .withPostNotificationAction((notifParams) -> {
-                    // After a notification has been sent, a couple values need to be updated.
-                    final BufferReadyNotif brn = (BufferReadyNotif) notifParams.getParameter();
-                    writePropertyInternal(PropertyIdentifier.lastNotifyRecord, brn.getCurrentNotification());
-                    writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
+                    if (notifParams.getParameter() instanceof BufferReadyNotif) {
+                        // After a notification has been sent, a couple values need to be updated.
+                        final BufferReadyNotif brn = (BufferReadyNotif) notifParams.getParameter();
+                        writePropertyInternal(PropertyIdentifier.lastNotifyRecord, brn.getCurrentNotification());
+                        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
+                    }
                 }));
 
         updateMonitoredProperty();
@@ -484,7 +486,11 @@ public class TrendLogObject extends BACnetObject {
                 }
             }
 
-            initialDelay += intervalOffset.intValue() * 10;
+            int offsetToUse = intervalOffset.intValue() * 10;
+            offsetToUse %= period;
+
+            initialDelay += offsetToUse;
+            initialDelay %= period;
 
             pollingFuture = getLocalDevice().scheduleAtFixedRate(() -> doPoll(), initialDelay, period,
                     TimeUnit.MILLISECONDS);

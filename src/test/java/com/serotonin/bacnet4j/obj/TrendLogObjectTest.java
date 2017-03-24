@@ -43,9 +43,11 @@ import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.eventParameter.BufferReady;
 import com.serotonin.bacnet4j.type.eventParameter.EventParameter;
 import com.serotonin.bacnet4j.type.notificationParameters.BufferReadyNotif;
+import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliabilityNotif;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Null;
@@ -58,7 +60,7 @@ public class TrendLogObjectTest {
     static final Logger LOG = LoggerFactory.getLogger(TrendLogObjectTest.class);
 
     private final WarpClock clock = new WarpClock();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0).withTimeout(300)));
     private NotificationClassObject nc;
     private AnalogValueObject ao;
     private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
@@ -782,5 +784,49 @@ public class TrendLogObjectTest {
         assertEquals(new LogRecord(now, new LogStatus(false, true, false), null), tl.getBuffer().get(0));
         assertEquals(LogRecord.createFromMonitoredValue(now, new Real(13), sf), tl.getBuffer().get(1));
         assertEquals(LogRecord.createFromMonitoredValue(now, new Real(13), sf), tl.getBuffer().get(2));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void fault() throws Exception {
+        final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+
+        // Add d2 as an event recipient.
+        final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), new Boolean(true),
+                new EventTransitionBits(true, true, true)));
+
+        // Create an event listener on d2 to catch the event notifications.
+        final EventNotifListener listener = new EventNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        LOG.debug("start");
+        // Create a COV trend log that references a device that doesn't exist.
+        final TrendLogObject tl = new TrendLogObject(d1, 0, "tl", new LinkedListLogBuffer<LogRecord>(), true,
+                DateTime.UNSPECIFIED, DateTime.UNSPECIFIED,
+                new DeviceObjectPropertyReference(3, ai.getId(), PropertyIdentifier.presentValue), 0, false, 20)
+                        .supportIntrinsicReporting(20, 23, new EventTransitionBits(true, true, true), NotifyType.event)
+                        .withCov(100, new ClientCov(Null.instance));
+
+        // Wait for the notification.
+        Thread.sleep(500);
+
+        // Validate notification
+        final Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(2), notif.get("priority"));
+        assertEquals(EventType.changeOfReliability, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.event, notif.get("notifyType"));
+        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(EventState.normal, notif.get("fromState"));
+        assertEquals(EventState.fault, notif.get("toState"));
+        assertEquals(new NotificationParameters(new ChangeOfReliabilityNotif(Reliability.configurationError,
+                new StatusFlags(true, true, false, false), new SequenceOf<>())), notif.get("eventValues"));
     }
 }
