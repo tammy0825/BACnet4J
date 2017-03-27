@@ -470,6 +470,7 @@ public class TrendLogObjectTest {
                 remaining--;
             Thread.sleep(10);
         }
+        Thread.sleep(10);
     }
 
     @SuppressWarnings("unchecked")

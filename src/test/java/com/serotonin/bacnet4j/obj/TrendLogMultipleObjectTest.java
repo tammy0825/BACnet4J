@@ -614,7 +614,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(5, tl.getBuffer().size());
 
         // Advance the time past the stop time and do some triggers.
-        clock.plus(5, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 50);
+        clock.plus(5, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 60);
         assertEquals(true, tl.isLogDisabled());
         assertEquals(6, tl.getBuffer().size());
         doTriggers(tl, 2);
