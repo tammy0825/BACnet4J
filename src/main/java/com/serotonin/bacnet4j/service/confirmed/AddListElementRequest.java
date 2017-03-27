@@ -137,7 +137,10 @@ public class AddListElementRequest extends ConfirmedRequestService {
                 }
             }
 
-            if (!list.contains(pr))
+            final int pos = list.indexOf(pr);
+            if (pos != -1)
+                list.set(pos + 1, pr);
+            else
                 list.add(pr);
         }
 
