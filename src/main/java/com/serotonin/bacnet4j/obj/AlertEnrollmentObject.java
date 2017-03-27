@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.AlertReportingMixin;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -39,7 +38,6 @@ public class AlertEnrollmentObject extends BACnetObject {
 
         // Mixins
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.presentValue));
-        addMixin(new PropertyListMixin(this));
 
         alertReporting = new AlertReportingMixin(this);
         addMixin(alertReporting);

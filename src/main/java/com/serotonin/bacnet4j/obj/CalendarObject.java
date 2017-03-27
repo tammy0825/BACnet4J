@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -67,7 +66,6 @@ public class CalendarObject extends BACnetObject {
         updatePresentValue();
 
         addMixin(new CalendarMixin(this));
-        addMixin(new PropertyListMixin(this));
 
         // Schedule a timer task to run every hour. This way we don't need to worry
         // about daylight savings time changeovers.

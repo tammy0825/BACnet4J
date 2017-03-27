@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -55,7 +54,6 @@ public class BinaryOutputObject extends BACnetObject {
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
-        addMixin(new PropertyListMixin(this));
 
         _supportCommandable(relinquishDefault);
         _supportValueSource();
@@ -78,7 +76,7 @@ public class BinaryOutputObject extends BACnetObject {
         //        Event_Algorithm_Inhibit_Ref BACnetObjectPropertyReference O6
         //        Event_Algorithm_Inhibit BOOLEAN O6,7
         //        Time_Delay_Normal Unsigned O6
-        //        Reliability_Evaluation_Inhibit BOOLEAN O8        
+        //        Reliability_Evaluation_Inhibit BOOLEAN O8
 
         // ?? changeOfStateTime
         // ?? changeOfStateCount

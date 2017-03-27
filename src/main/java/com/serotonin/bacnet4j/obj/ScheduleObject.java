@@ -47,7 +47,6 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.NoneAlgo;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
@@ -135,7 +134,6 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ScheduleMixin(this));
-        addMixin(new PropertyListMixin(this));
 
         final T oldValue = get(PropertyIdentifier.presentValue);
         updatePresentValue();

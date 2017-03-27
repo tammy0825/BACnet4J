@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.NotificationClassListener;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.NoneAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
@@ -83,7 +82,6 @@ public class NotificationClassObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
 
-        addMixin(new PropertyListMixin(this));
         addMixin(new HasStatusFlagsMixin(this));
     }
 

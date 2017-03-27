@@ -31,7 +31,6 @@ package com.serotonin.bacnet4j.obj;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.WritablePropertyOutOfServiceMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
@@ -64,7 +63,6 @@ public class AnalogInputObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
-        addMixin(new PropertyListMixin(this));
 
         // TODO
         // ?? deviceType

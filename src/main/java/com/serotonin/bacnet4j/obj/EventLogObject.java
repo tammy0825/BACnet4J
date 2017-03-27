@@ -12,7 +12,6 @@ import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.logBuffer.LogBuffer;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.BufferReadyAlgo;
@@ -87,7 +86,6 @@ public class EventLogObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.logBuffer, PropertyIdentifier.reliability,
                 PropertyIdentifier.totalRecordCount));
-        addMixin(new PropertyListMixin(this));
 
         this.buffer = buffer;
         logDisabled = !allowLogging(getNow());

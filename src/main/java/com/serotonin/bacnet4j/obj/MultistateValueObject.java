@@ -34,7 +34,6 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.MultistateMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.ChangeOfStateAlgo;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultStateAlgo;
@@ -72,7 +71,6 @@ public class MultistateValueObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
         addMixin(new MultistateMixin(this));
-        addMixin(new PropertyListMixin(this));
 
         writePropertyInternal(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
         if (stateText != null)

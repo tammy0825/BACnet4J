@@ -35,7 +35,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.fileAccess.FileAccess;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -84,8 +83,6 @@ public class FileObject extends BACnetObject {
         getProperty(PropertyIdentifier.modificationDate);
         getProperty(PropertyIdentifier.readOnly);
         getProperty(PropertyIdentifier.recordCount);
-
-        addMixin(new PropertyListMixin(this));
     }
 
     public ReentrantLock getLock() {

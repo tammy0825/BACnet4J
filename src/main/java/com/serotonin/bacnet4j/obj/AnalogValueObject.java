@@ -32,7 +32,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.OutOfRangeAlgo;
@@ -64,7 +63,6 @@ public class AnalogValueObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts));
-        addMixin(new PropertyListMixin(this));
 
         // ?? minPresValue
         // ?? maxPresValue

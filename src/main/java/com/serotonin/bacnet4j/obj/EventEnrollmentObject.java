@@ -14,7 +14,6 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
-import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.AlgoReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
@@ -92,7 +91,6 @@ public class EventEnrollmentObject extends BACnetObject {
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventType));
-        addMixin(new PropertyListMixin(this));
 
         // Event parameters and algo
         final AbstractEventParameter aep = (AbstractEventParameter) eventParameter.getChoice().getDatum();
