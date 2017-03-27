@@ -92,6 +92,58 @@ public class ConfirmedEventNotificationRequest extends ConfirmedRequestService {
         return NetworkPriority.forEventPriority(priority.intValue());
     }
 
+    public UnsignedInteger getProcessIdentifier() {
+        return processIdentifier;
+    }
+
+    public ObjectIdentifier getInitiatingDeviceIdentifier() {
+        return initiatingDeviceIdentifier;
+    }
+
+    public ObjectIdentifier getEventObjectIdentifier() {
+        return eventObjectIdentifier;
+    }
+
+    public TimeStamp getTimeStamp() {
+        return timeStamp;
+    }
+
+    public UnsignedInteger getNotificationClass() {
+        return notificationClass;
+    }
+
+    public UnsignedInteger getPriority() {
+        return priority;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public CharacterString getMessageText() {
+        return messageText;
+    }
+
+    public NotifyType getNotifyType() {
+        return notifyType;
+    }
+
+    public Boolean getAckRequired() {
+        return ackRequired;
+    }
+
+    public EventState getFromState() {
+        return fromState;
+    }
+
+    public EventState getToState() {
+        return toState;
+    }
+
+    public NotificationParameters getEventValues() {
+        return eventValues;
+    }
+
     @Override
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) {
         localDevice.updateRemoteDevice(initiatingDeviceIdentifier.getInstanceNumber(), from);
