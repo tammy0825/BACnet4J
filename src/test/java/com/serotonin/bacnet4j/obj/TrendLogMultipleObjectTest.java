@@ -215,7 +215,7 @@ public class TrendLogMultipleObjectTest {
         // Trigger an update
         LOG.info("Trigger");
         tl.trigger();
-        Thread.sleep(200);
+        Thread.sleep(300);
 
         // The log record should be there.
         assertEquals(1, tl.getBuffer().size());
@@ -585,7 +585,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(2, tl.getBuffer().size());
 
         // Advance the time past the stop time and do some triggers.
-        clock.plus(5, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(5, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 60);
         final DateTime now3 = new DateTime(clock.millis());
         assertEquals(true, tl.isLogDisabled());
         assertEquals(3, tl.getBuffer().size());
