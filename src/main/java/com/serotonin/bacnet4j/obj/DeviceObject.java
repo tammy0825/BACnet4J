@@ -13,6 +13,7 @@ import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
+import com.serotonin.bacnet4j.type.enumerated.BackupState;
 import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -39,6 +40,7 @@ public class DeviceObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.apduTimeout, new UnsignedInteger(Transport.DEFAULT_TIMEOUT));
         writePropertyInternal(PropertyIdentifier.numberOfApduRetries, new UnsignedInteger(Transport.DEFAULT_RETRIES));
         writePropertyInternal(PropertyIdentifier.deviceAddressBinding, new SequenceOf<AddressBinding>());
+        writePropertyInternal(PropertyIdentifier.backupAndRestoreState, BackupState.idle);
         writePropertyInternal(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
         writePropertyInternal(PropertyIdentifier.objectList, new BACnetArray<ObjectIdentifier>());
 

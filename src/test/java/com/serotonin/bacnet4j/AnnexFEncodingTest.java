@@ -244,8 +244,8 @@ public class AnnexFEncodingTest {
                 new ObjectIdentifier(ObjectType.analogInput, 2), new TimeStamp(new UnsignedInteger(16)),
                 new UnsignedInteger(4), new UnsignedInteger(100), EventType.outOfRange, null, NotifyType.alarm,
                 new Boolean(true), EventState.normal, EventState.highLimit,
-                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f), new StatusFlags(true, false, false, false),
-                        new Real(1), new Real(80))));
+                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f),
+                        new StatusFlags(true, false, false, false), new Real(1), new Real(80))));
 
         final ConfirmedRequest pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED,
                 MaxApduLength.UP_TO_206, (byte) 16, (byte) 0, 0, confirmedEventNotificationRequest);
@@ -286,8 +286,8 @@ public class AnnexFEncodingTest {
                 new ObjectIdentifier(ObjectType.analogInput, 2), new TimeStamp(new UnsignedInteger(16)),
                 new UnsignedInteger(4), new UnsignedInteger(100), EventType.outOfRange, null, NotifyType.alarm,
                 new Boolean(true), EventState.normal, EventState.highLimit,
-                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f), new StatusFlags(true, false, false, false),
-                        new Real(1), new Real(80))));
+                new NotificationParameters(new OutOfRangeNotif(new Real(80.1f),
+                        new StatusFlags(true, false, false, false), new Real(1), new Real(80))));
 
         final UnconfirmedRequest pdu = new UnconfirmedRequest(unconfirmedEventNotificationRequest);
 
@@ -603,7 +603,8 @@ public class AnnexFEncodingTest {
     @Test
     public void e2_2aTest() {
         final ConfirmedRequestService service = new AtomicWriteFileRequest(new ObjectIdentifier(ObjectType.file, 1),
-                new SignedInteger(30), new OctetString("Chiller01 On-Time=4.3 Hours".getBytes()));
+                new com.serotonin.bacnet4j.service.confirmed.AtomicWriteFileRequest.StreamAccess(new SignedInteger(30),
+                        new OctetString("Chiller01 On-Time=4.3 Hours".getBytes())));
         final APDU pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED, MaxApduLength.UP_TO_206,
                 (byte) 85, (byte) 0, 0, service);
         compare(pdu, "00025507C4028000010E311E651B4368696C6C65723031204F6E2D54696D653D342E3320486F7572730F");
@@ -622,7 +623,8 @@ public class AnnexFEncodingTest {
         strings.add(new OctetString("12:00,45.6".getBytes()));
         strings.add(new OctetString("12:15,44.8".getBytes()));
         final ConfirmedRequestService service = new AtomicWriteFileRequest(new ObjectIdentifier(ObjectType.file, 2),
-                new SignedInteger(-1), new UnsignedInteger(2), new SequenceOf<>(strings));
+                new com.serotonin.bacnet4j.service.confirmed.AtomicWriteFileRequest.RecordAccess(new SignedInteger(-1),
+                        new UnsignedInteger(2), new SequenceOf<>(strings)));
         final APDU pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED, MaxApduLength.UP_TO_206,
                 (byte) 85, (byte) 0, 0, service);
         compare(pdu, "00025507C4028000021E31FF2102650A31323A30302C34352E36650A31323A31352C34342E381F");

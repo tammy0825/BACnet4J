@@ -28,24 +28,25 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.math.BigInteger;
+import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.obj.fileAccess.FileAccess;
+import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
-import com.serotonin.bacnet4j.type.enumerated.FileAccessMethod;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
-import com.serotonin.bacnet4j.type.primitive.OctetString;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
-import com.serotonin.bacnet4j.util.sero.StreamUtils;
 
 /**
  * @author Matthew Lohbihler
@@ -54,63 +55,85 @@ public class FileObject extends BACnetObject {
     /**
      * The actual file that this object represents.
      */
-    private final File file;
+    private final FileAccess fileAccess;
 
-    public FileObject(final LocalDevice localDevice, final int instanceNumber, final File file,
-            final FileAccessMethod fileAccessMethod) throws BACnetServiceException {
-        super(localDevice, ObjectType.file, instanceNumber, file.getName());
-        this.file = file;
+    /**
+     * The lock is used by AtomicReadFileRequest and AtomicWriteFileRequest services to lock the file object during
+     * the course of the service, thus ensuring the "atomic" thing.
+     */
+    private final ReentrantLock lock = new ReentrantLock();
 
-        if (file.isDirectory())
+    public FileObject(final LocalDevice localDevice, final int instanceNumber, final String fileType,
+            final FileAccess fileAccess) throws BACnetServiceException {
+        super(localDevice, ObjectType.file, instanceNumber, fileAccess.getName());
+        this.fileAccess = fileAccess;
+
+        if (!fileAccess.exists())
+            throw new BACnetRuntimeException("File does not exist");
+        if (fileAccess.isDirectory())
             throw new BACnetRuntimeException("File is a directory");
 
-        updateProperties();
+        Objects.requireNonNull(fileType);
+        Objects.requireNonNull(fileAccess);
 
-        writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccessMethod);
+        writePropertyInternal(PropertyIdentifier.fileType, new CharacterString(fileType));
+        writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccess.getAccessMethod());
+        writePropertyInternal(PropertyIdentifier.archive, Boolean.FALSE);
+
+        getProperty(PropertyIdentifier.fileSize);
+        getProperty(PropertyIdentifier.modificationDate);
+        getProperty(PropertyIdentifier.readOnly);
+        getProperty(PropertyIdentifier.recordCount);
+
+        addMixin(new PropertyListMixin(this));
     }
 
-    public void updateProperties() {
-        // NOTE: This is only a snapshot. Property read methods need to be overridden to report real time values.
-        writePropertyInternal(PropertyIdentifier.fileSize,
-                new UnsignedInteger(new BigInteger(Long.toString(length()))));
-        writePropertyInternal(PropertyIdentifier.modificationDate, new DateTime(file.lastModified()));
-        writePropertyInternal(PropertyIdentifier.readOnly, new Boolean(!file.canWrite()));
+    public ReentrantLock getLock() {
+        return lock;
     }
 
-    public long length() {
-        return file.length();
-    }
-
-    public OctetString readData(final long start, final long length) throws IOException {
-        long skip = start;
-        try (FileInputStream in = new FileInputStream(file)) {
-            while (skip > 0) {
-                final long result = in.skip(skip);
-                if (result == -1)
-                    // EOF
-                    break;
-                skip -= result;
+    @Override
+    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
+            throws BACnetServiceException {
+        if (PropertyIdentifier.fileSize.equals(pid)) {
+            set(PropertyIdentifier.fileSize, new UnsignedInteger(fileAccess.length()));
+        } else if (PropertyIdentifier.modificationDate.equals(pid)) {
+            set(PropertyIdentifier.modificationDate, new DateTime(fileAccess.lastModified()));
+        } else if (PropertyIdentifier.readOnly.equals(pid)) {
+            set(PropertyIdentifier.readOnly, fileAccess.canWrite() ? Boolean.FALSE : Boolean.TRUE);
+        } else if (PropertyIdentifier.recordCount.equals(pid)) {
+            if (fileAccess.hasRecordAccess())
+                set(PropertyIdentifier.recordCount, new UnsignedInteger(fileAccess.recordCount()));
+            else {
+                throw new BACnetServiceException(ErrorClass.property, ErrorCode.readAccessDenied);
             }
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            StreamUtils.transfer(in, out, length);
-            return new OctetString(out.toByteArray());
         }
     }
 
-    public void writeData(final long start, final OctetString fileData) throws IOException {
-        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-            final byte data[] = fileData.getBytes();
-            final long newLength = start + data.length;
-            raf.seek(start);
-            raf.write(data);
-            raf.setLength(newLength);
+    @Override
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
+        if (PropertyIdentifier.fileSize.equals(value.getPropertyIdentifier())) {
+            final UnsignedInteger fileSize = value.getValue();
+            fileAccess.validateFileSizeWrite(fileSize.longValue());
+        } else if (PropertyIdentifier.recordCount.equals(value.getPropertyIdentifier())) {
+            final UnsignedInteger recordCount = value.getValue();
+            fileAccess.validateRecordCountWrite(recordCount.longValue());
         }
-
-        updateProperties();
+        return false;
     }
 
-    //
-    // public SequenceOf<OctetString> readRecords(int start, int length) throws IOException {
-    //
-    // }
+    @Override
+    protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+            final Encodable newValue) {
+        if (PropertyIdentifier.fileSize.equals(pid)) {
+            fileAccess.writeFileSize(((UnsignedInteger) newValue).longValue());
+        } else if (PropertyIdentifier.recordCount.equals(pid)) {
+            fileAccess.writeRecordCount(((UnsignedInteger) newValue).longValue());
+        }
+    }
+
+    public FileAccess getFileAccess() {
+        return fileAccess;
+    }
 }
