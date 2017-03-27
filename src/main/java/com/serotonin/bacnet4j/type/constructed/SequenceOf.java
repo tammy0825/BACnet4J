@@ -162,6 +162,10 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         return false;
     }
 
+    public int indexOf(final Object value) {
+        return values.indexOf(value);
+    }
+
     @Override
     public Iterator<E> iterator() {
         return values.iterator();
