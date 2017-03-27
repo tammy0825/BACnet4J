@@ -512,7 +512,7 @@ public class BACnetObject {
             } else {
                 // Set the value in an array.
                 final BACnetArray<Encodable> arr = (BACnetArray<Encodable>) properties.get(pid);
-                arr.set(pin.intValue(), valueToWrite);
+                arr.setBase1(pin.intValue(), valueToWrite);
                 writePropertyInternal(pid, arr);
             }
         }

@@ -14,8 +14,8 @@ public class BACnetArrayTest {
         final BACnetArray<CharacterString> arr = new BACnetArray<>(3, new CharacterString(""));
         assertEquals(3, arr.getCount());
 
-        arr.set(1, new CharacterString("A"));
-        arr.set(3, new CharacterString("C"));
+        arr.setBase1(1, new CharacterString("A"));
+        arr.setBase1(3, new CharacterString("C"));
         assertEquals(3, arr.getCount());
         assertEquals(arr.getBase1(1), new CharacterString("A"));
         assertEquals(arr.getBase1(2), new CharacterString(""));

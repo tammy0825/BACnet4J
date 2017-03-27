@@ -110,10 +110,14 @@ public class SequenceOf<E extends Encodable> extends BaseType implements Iterabl
         return values.size();
     }
 
-    public void set(final int indexBase1, final E value) {
+    public void setBase1(final int indexBase1, final E value) {
         final int index = indexBase1 - 1;
         while (values.size() <= index)
             values.add(null);
+        values.set(index, value);
+    }
+
+    public void set(final int index, final E value) {
         values.set(index, value);
     }
 

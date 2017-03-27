@@ -161,7 +161,7 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         }
 
         if (array != null) {
-            array.set(propertyArrayIndex.intValue(), origList);
+            array.setBase1(propertyArrayIndex.intValue(), origList);
             e = array;
         } else {
             e = origList;

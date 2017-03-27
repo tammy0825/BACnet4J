@@ -139,13 +139,13 @@ public class AddListElementRequest extends ConfirmedRequestService {
 
             final int pos = list.indexOf(pr);
             if (pos != -1)
-                list.set(pos + 1, pr);
+                list.set(pos, pr);
             else
                 list.add(pr);
         }
 
         if (array != null) {
-            array.set(propertyArrayIndex.intValue(), origList);
+            array.setBase1(propertyArrayIndex.intValue(), origList);
             e = array;
         } else {
             e = origList;

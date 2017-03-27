@@ -114,7 +114,7 @@ public class RemoteObject implements Serializable {
                 }
                 if (pin.intValue() > 0)
                     // No length support
-                    seq.set(pin.intValue(), value);
+                    seq.setBase1(pin.intValue(), value);
             }
         }
     }

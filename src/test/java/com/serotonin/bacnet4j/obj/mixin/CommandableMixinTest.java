@@ -232,12 +232,12 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(12),
                 new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, new UnsignedInteger(12)));
         assertEquals(createValueSource(12), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(12, createValueSource(12)), bv.get(PropertyIdentifier.valueSourceArray));
+        assertEquals(emptyValueSources().putBase1(12, createValueSource(12)), bv.get(PropertyIdentifier.valueSourceArray));
         BACnetArray<TimeStamp> cta = bv.get(PropertyIdentifier.commandTimeArray);
         TimeStamp time12 = cta.getBase1(12);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time12, 1);
         assertEquals(time12, bv.get(PropertyIdentifier.lastCommandTime));
-        assertEquals(emptyCommandTimes().put(12, time12), bv.get(PropertyIdentifier.commandTimeArray));
+        assertEquals(emptyCommandTimes().putBase1(12, time12), bv.get(PropertyIdentifier.commandTimeArray));
 
         // Wait a bit so that last command times don't match.
         Thread.sleep(30);
@@ -246,13 +246,13 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(13),
                 new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.inactive, new UnsignedInteger(13)));
         assertEquals(createValueSource(12), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(12, createValueSource(12)).put(13, createValueSource(13)),
+        assertEquals(emptyValueSources().putBase1(12, createValueSource(12)).putBase1(13, createValueSource(13)),
                 bv.get(PropertyIdentifier.valueSourceArray));
         cta = bv.get(PropertyIdentifier.commandTimeArray);
         TimeStamp time13 = cta.getBase1(13);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time13, 1);
         assertEquals(time12, bv.get(PropertyIdentifier.lastCommandTime));
-        assertEquals(emptyCommandTimes().put(12, time12).put(13, time13), bv.get(PropertyIdentifier.commandTimeArray));
+        assertEquals(emptyCommandTimes().putBase1(12, time12).putBase1(13, time13), bv.get(PropertyIdentifier.commandTimeArray));
 
         // Wait a bit so that last command times don't match.
         Thread.sleep(30);
@@ -261,13 +261,13 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(10),
                 new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.inactive, new UnsignedInteger(10)));
         assertEquals(createValueSource(10), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(10, createValueSource(10)).put(12, createValueSource(12)).put(13,
+        assertEquals(emptyValueSources().putBase1(10, createValueSource(10)).putBase1(12, createValueSource(12)).putBase1(13,
                 createValueSource(13)), bv.get(PropertyIdentifier.valueSourceArray));
         cta = bv.get(PropertyIdentifier.commandTimeArray);
         TimeStamp time10 = cta.getBase1(10);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time10, 1);
         assertEquals(time10, bv.get(PropertyIdentifier.lastCommandTime));
-        assertEquals(emptyCommandTimes().put(10, time10).put(12, time12).put(13, time13),
+        assertEquals(emptyCommandTimes().putBase1(10, time10).putBase1(12, time12).putBase1(13, time13),
                 bv.get(PropertyIdentifier.commandTimeArray));
 
         // Update the value source at priority 10
@@ -282,13 +282,13 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(12),
                 new PropertyValue(PropertyIdentifier.presentValue, null, Null.instance, new UnsignedInteger(12)));
         assertEquals(createValueSource(10), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(10, createValueSource(10)).put(12, createValueSource(12)).put(13,
+        assertEquals(emptyValueSources().putBase1(10, createValueSource(10)).putBase1(12, createValueSource(12)).putBase1(13,
                 createValueSource(13)), bv.get(PropertyIdentifier.valueSourceArray));
         cta = bv.get(PropertyIdentifier.commandTimeArray);
         time12 = cta.getBase1(12);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time12, 1);
         assertEquals(time10, bv.get(PropertyIdentifier.lastCommandTime));
-        assertEquals(emptyCommandTimes().put(10, time10).put(12, time12).put(13, time13),
+        assertEquals(emptyCommandTimes().putBase1(10, time10).putBase1(12, time12).putBase1(13, time13),
                 bv.get(PropertyIdentifier.commandTimeArray));
 
         // Wait a bit so that last command times don't match.
@@ -298,13 +298,13 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(10),
                 new PropertyValue(PropertyIdentifier.presentValue, null, Null.instance, new UnsignedInteger(10)));
         assertEquals(createValueSource(13), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(10, createValueSource(10)).put(12, createValueSource(12)).put(13,
+        assertEquals(emptyValueSources().putBase1(10, createValueSource(10)).putBase1(12, createValueSource(12)).putBase1(13,
                 createValueSource(13)), bv.get(PropertyIdentifier.valueSourceArray));
         cta = bv.get(PropertyIdentifier.commandTimeArray);
         time10 = cta.getBase1(10);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time10, 1);
         assertEquals(time10, bv.get(PropertyIdentifier.lastCommandTime)); // See last paragraph of 19.5.1.4.
-        assertEquals(emptyCommandTimes().put(10, time10).put(12, time12).put(13, time13),
+        assertEquals(emptyCommandTimes().putBase1(10, time10).putBase1(12, time12).putBase1(13, time13),
                 bv.get(PropertyIdentifier.commandTimeArray));
 
         // Wait a bit so that last command times don't match.
@@ -314,11 +314,11 @@ public class CommandableMixinTest {
         bv.writeProperty(createValueSource(13),
                 new PropertyValue(PropertyIdentifier.presentValue, null, Null.instance, new UnsignedInteger(13)));
         assertEquals(createLocalValueSource(bv), bv.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(10, createValueSource(10)).put(12, createValueSource(12)).put(13,
+        assertEquals(emptyValueSources().putBase1(10, createValueSource(10)).putBase1(12, createValueSource(12)).putBase1(13,
                 createValueSource(13)), bv.get(PropertyIdentifier.valueSourceArray));
         time13 = bv.get(PropertyIdentifier.lastCommandTime);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time13, 1);
-        assertEquals(emptyCommandTimes().put(10, time10).put(12, time12).put(13, time13),
+        assertEquals(emptyCommandTimes().putBase1(10, time10).putBase1(12, time12).putBase1(13, time13),
                 bv.get(PropertyIdentifier.commandTimeArray));
 
         assertEquals(true, bv.supportsCommandable());
@@ -364,7 +364,7 @@ public class CommandableMixinTest {
 
         // Validate properties
         assertEquals(createLocalValueSource(bo), bo.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(6, createLocalValueSource(bo)),
+        assertEquals(emptyValueSources().putBase1(6, createLocalValueSource(bo)),
                 bo.get(PropertyIdentifier.valueSourceArray));
         assertEquals(emptyCommandTimes(), bo.get(PropertyIdentifier.commandTimeArray));
 
@@ -375,11 +375,11 @@ public class CommandableMixinTest {
                 new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, new UnsignedInteger(8)));
         assertEquals(BinaryPV.active, bo.get(PropertyIdentifier.presentValue));
         assertEquals(createLocalValueSource(bo), bo.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(6, createLocalValueSource(bo)).put(8, createValueSource(8)),
+        assertEquals(emptyValueSources().putBase1(6, createLocalValueSource(bo)).putBase1(8, createValueSource(8)),
                 bo.get(PropertyIdentifier.valueSourceArray));
         final TimeStamp time6 = bo.get(PropertyIdentifier.lastCommandTime);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time6, 1);
-        assertEquals(emptyCommandTimes().put(6, time6).put(8, time6), bo.get(PropertyIdentifier.commandTimeArray));
+        assertEquals(emptyCommandTimes().putBase1(6, time6).putBase1(8, time6), bo.get(PropertyIdentifier.commandTimeArray));
 
         Thread.sleep(50);
 
@@ -388,26 +388,26 @@ public class CommandableMixinTest {
                 new PropertyValue(PropertyIdentifier.presentValue, null, Null.instance, new UnsignedInteger(8)));
         assertEquals(BinaryPV.active, bo.get(PropertyIdentifier.presentValue));
         assertEquals(createLocalValueSource(bo), bo.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(6, createLocalValueSource(bo)).put(8, createValueSource(8)),
+        assertEquals(emptyValueSources().putBase1(6, createLocalValueSource(bo)).putBase1(8, createValueSource(8)),
                 bo.get(PropertyIdentifier.valueSourceArray));
         final BACnetArray<TimeStamp> cta = bo.get(PropertyIdentifier.commandTimeArray);
         final TimeStamp time8 = cta.getBase1(8);
         TestUtils.assertEquals(new TimeStamp(new DateTime()), time8, 1);
         assertEquals(time6, bo.get(PropertyIdentifier.lastCommandTime));
-        assertEquals(emptyCommandTimes().put(6, time6).put(8, time8), bo.get(PropertyIdentifier.commandTimeArray));
+        assertEquals(emptyCommandTimes().putBase1(6, time6).putBase1(8, time8), bo.get(PropertyIdentifier.commandTimeArray));
 
         // Wait for the timer to complete, and ensure that the PV is not inactive.
         Thread.sleep(2000);
         assertEquals(BinaryPV.inactive, bo.get(PropertyIdentifier.presentValue));
         assertEquals(createLocalValueSource(bo), bo.get(PropertyIdentifier.valueSource));
-        assertEquals(emptyValueSources().put(6, createLocalValueSource(bo)).put(8, createValueSource(8)),
+        assertEquals(emptyValueSources().putBase1(6, createLocalValueSource(bo)).putBase1(8, createValueSource(8)),
                 bo.get(PropertyIdentifier.valueSourceArray));
         final TimeStamp timeComplete = bo.get(PropertyIdentifier.lastCommandTime);
         final GregorianCalendar gc = time6.getDateTime().getGC();
         gc.add(Calendar.SECOND, 2);
         final TimeStamp time6Plus2s = new TimeStamp(new DateTime(gc));
         TestUtils.assertEquals(time6Plus2s, timeComplete, 2);
-        assertEquals(emptyCommandTimes().put(6, timeComplete).put(8, time8),
+        assertEquals(emptyCommandTimes().putBase1(6, timeComplete).putBase1(8, time8),
                 bo.get(PropertyIdentifier.commandTimeArray));
     }
 

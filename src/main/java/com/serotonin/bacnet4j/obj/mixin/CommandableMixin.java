@@ -219,7 +219,7 @@ public class CommandableMixin extends AbstractMixin {
 
         // Set the value in the priority array.
         final PriorityArray priArr = get(priorityArray);
-        priArr.set(pri, new PriorityValue(value));
+        priArr.setBase1(pri, new PriorityValue(value));
 
         final TimeStamp now = new TimeStamp(new DateTime());
         if (supportsValueSource) {
@@ -233,7 +233,7 @@ public class CommandableMixin extends AbstractMixin {
     synchronized void minOnOffCompleted() {
         minOnOffTimerTask = null;
         final PriorityArray priArr = get(priorityArray);
-        priArr.set(MIN_OFF_ON_PRIORITY, new PriorityValue(Null.instance));
+        priArr.setBase1(MIN_OFF_ON_PRIORITY, new PriorityValue(Null.instance));
         updatePresentValue(priArr, new TimeStamp(new DateTime()));
     }
 
@@ -276,7 +276,7 @@ public class CommandableMixin extends AbstractMixin {
                 // If a timer task already exists, there is no action to take.
                 if (minOnOffTimerTask == null) {
                     // Initialize the timer.
-                    pa.set(MIN_OFF_ON_PRIORITY, new PriorityValue(newValue));
+                    pa.setBase1(MIN_OFF_ON_PRIORITY, new PriorityValue(newValue));
                     updateCommandTimeArray(MIN_OFF_ON_PRIORITY, now);
 
                     int time;
@@ -335,11 +335,11 @@ public class CommandableMixin extends AbstractMixin {
 
     private void updateValueSourceArray(final int indexBase1, final ValueSource va) {
         final BACnetArray<ValueSource> vsa = get(valueSourceArray);
-        vsa.set(indexBase1, va);
+        vsa.setBase1(indexBase1, va);
     }
 
     private void updateCommandTimeArray(final int indexBase1, final TimeStamp ts) {
         final BACnetArray<TimeStamp> cta = get(commandTimeArray);
-        cta.set(indexBase1, ts);
+        cta.setBase1(indexBase1, ts);
     }
 }
