@@ -40,49 +40,49 @@ public class CalendarObjectTest extends AbstractTest {
         final CalendarObject co = new CalendarObject(d1, 0, "cal0", dateList, clock);
 
         co.updatePresentValue(); // November to February
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
 
         clock.setTime(2115, Calendar.MARCH, 2, 12, 0, 0);
         co.updatePresentValue();
-        Assert.assertEquals(Boolean.FALSE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(false), co.get(PropertyIdentifier.presentValue));
 
         clock.setTime(2115, Calendar.MARCH, 8, 12, 0, 0); // A Friday
         co.updatePresentValue();
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
 
         clock.setTime(2115, Calendar.MAY, 27, 12, 0, 0);
         co.updatePresentValue();
-        Assert.assertEquals(Boolean.FALSE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(false), co.get(PropertyIdentifier.presentValue));
 
         clock.setTime(2115, Calendar.MAY, 22, 12, 0, 0); // The Wednesday during the 4th week of each month.
         co.updatePresentValue();
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
 
         // Set the time source to a time that does not match the current date list, but
         // will match a new entry.
         clock.setTime(2115, Calendar.JUNE, 17, 12, 0, 0);
         co.updatePresentValue(); // Uses the above time source.
-        Assert.assertEquals(Boolean.FALSE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(false), co.get(PropertyIdentifier.presentValue));
 
         final CalendarEntry newEntry = new CalendarEntry(new Date(-1, Month.JUNE, -1, null));
         final AddListElementRequest addReq = new AddListElementRequest(co.getId(), PropertyIdentifier.dateList, null,
                 new SequenceOf<>(newEntry));
         d2.send(rd1, addReq).get();
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
 
         clock.setTime(2115, Calendar.JULY, 24, 12, 0, 0);
         co.updatePresentValue(); // Uses the above time source.
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
 
         final RemoveListElementRequest remReq = new RemoveListElementRequest(co.getId(), PropertyIdentifier.dateList,
                 null, new SequenceOf<>(ce));
         d2.send(rd1, remReq).get();
-        Assert.assertEquals(Boolean.FALSE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(false), co.get(PropertyIdentifier.presentValue));
 
         // Check that the compensatory time works.
         co.setTimeTolerance(1000 * 60 * 3);
         clock.setTime(2115, Calendar.AUGUST, 8, 23, 58, 0);
         co.updatePresentValue(); // Uses the above time source.
-        Assert.assertEquals(Boolean.TRUE, co.get(PropertyIdentifier.presentValue));
+        Assert.assertEquals(new Boolean(true), co.get(PropertyIdentifier.presentValue));
     }
 }

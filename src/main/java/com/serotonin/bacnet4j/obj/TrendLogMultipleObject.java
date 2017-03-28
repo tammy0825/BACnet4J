@@ -71,19 +71,19 @@ public class TrendLogMultipleObject extends BACnetObject {
         Objects.requireNonNull(stopTime);
         Objects.requireNonNull(logDeviceObjectProperty);
 
-        set(PropertyIdentifier.enable, Boolean.valueOf(enable));
+        set(PropertyIdentifier.enable, new Boolean(enable));
         set(PropertyIdentifier.startTime, startTime);
         set(PropertyIdentifier.stopTime, stopTime);
         set(PropertyIdentifier.logDeviceObjectProperty, logDeviceObjectProperty);
         set(PropertyIdentifier.logInterval, new UnsignedInteger(logInterval));
-        set(PropertyIdentifier.stopWhenFull, Boolean.valueOf(stopWhenFull));
+        set(PropertyIdentifier.stopWhenFull, new Boolean(stopWhenFull));
         set(PropertyIdentifier.bufferSize, new UnsignedInteger(bufferSize));
         set(PropertyIdentifier.logBuffer, buffer);
         set(PropertyIdentifier.recordCount, new UnsignedInteger(0));
         set(PropertyIdentifier.totalRecordCount, new UnsignedInteger(0));
-        set(PropertyIdentifier.alignIntervals, Boolean.TRUE);
+        set(PropertyIdentifier.alignIntervals, new Boolean(true));
         set(PropertyIdentifier.intervalOffset, new UnsignedInteger(0));
-        set(PropertyIdentifier.trigger, Boolean.FALSE);
+        set(PropertyIdentifier.trigger, new Boolean(false));
         set(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
         set(PropertyIdentifier.reliability, Reliability.noFaultDetected);
 
@@ -104,7 +104,7 @@ public class TrendLogMultipleObject extends BACnetObject {
     public TrendLogMultipleObject withPolled(final int logInterval, final TimeUnit logIntervalUnit,
             final boolean alignIntervals, final int intervalOffset, final TimeUnit offsetUnit) {
         set(PropertyIdentifier.logInterval, new UnsignedInteger(logIntervalUnit.toMillis(logInterval) / 10));
-        set(PropertyIdentifier.alignIntervals, Boolean.valueOf(alignIntervals));
+        set(PropertyIdentifier.alignIntervals, new Boolean(alignIntervals));
         set(PropertyIdentifier.intervalOffset, new UnsignedInteger(offsetUnit.toMillis(intervalOffset) / 10));
         set(PropertyIdentifier.loggingType, LoggingType.polled);
         updateLoggingType();
@@ -167,7 +167,7 @@ public class TrendLogMultipleObject extends BACnetObject {
     }
 
     public void setEnabled(final boolean enabled) {
-        writePropertyInternal(PropertyIdentifier.enable, enabled ? Boolean.TRUE : Boolean.FALSE);
+        writePropertyInternal(PropertyIdentifier.enable, new Boolean(enabled));
     }
 
     /**
@@ -181,7 +181,7 @@ public class TrendLogMultipleObject extends BACnetObject {
         if (trigger.booleanValue()) {
             return false;
         }
-        set(PropertyIdentifier.trigger, Boolean.TRUE);
+        set(PropertyIdentifier.trigger, new Boolean(true));
         doTrigger();
         return true;
     }
@@ -276,7 +276,7 @@ public class TrendLogMultipleObject extends BACnetObject {
                             buffer.remove();
                     }
                     updateRecordCount();
-                    writePropertyInternal(PropertyIdentifier.enable, Boolean.FALSE);
+                    writePropertyInternal(PropertyIdentifier.enable, new Boolean(false));
                 }
             }
 
@@ -428,7 +428,7 @@ public class TrendLogMultipleObject extends BACnetObject {
             doPoll();
 
             // Set the trigger value back to false.
-            writePropertyInternal(PropertyIdentifier.trigger, Boolean.FALSE);
+            writePropertyInternal(PropertyIdentifier.trigger, new Boolean(false));
 
             LOG.info("Trigger complete");
         });
@@ -482,7 +482,7 @@ public class TrendLogMultipleObject extends BACnetObject {
         final UnsignedInteger bufferSize = get(PropertyIdentifier.bufferSize);
         if (stopWhenFull.booleanValue() && buffer.size() == bufferSize.intValue() - 1) {
             // There is only one spot left in the buffer, and StopWhenFull is true. Set Enable to false.
-            writePropertyInternal(PropertyIdentifier.enable, Boolean.FALSE);
+            writePropertyInternal(PropertyIdentifier.enable, new Boolean(false));
         }
     }
 

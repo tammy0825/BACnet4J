@@ -77,7 +77,7 @@ public class FileObject extends BACnetObject {
 
         writePropertyInternal(PropertyIdentifier.fileType, new CharacterString(fileType));
         writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccess.getAccessMethod());
-        writePropertyInternal(PropertyIdentifier.archive, Boolean.FALSE);
+        writePropertyInternal(PropertyIdentifier.archive, new Boolean(false));
 
         getProperty(PropertyIdentifier.fileSize);
         getProperty(PropertyIdentifier.modificationDate);
@@ -97,7 +97,7 @@ public class FileObject extends BACnetObject {
         } else if (PropertyIdentifier.modificationDate.equals(pid)) {
             set(PropertyIdentifier.modificationDate, new DateTime(fileAccess.lastModified()));
         } else if (PropertyIdentifier.readOnly.equals(pid)) {
-            set(PropertyIdentifier.readOnly, fileAccess.canWrite() ? Boolean.FALSE : Boolean.TRUE);
+            set(PropertyIdentifier.readOnly, new Boolean(!fileAccess.canWrite()));
         } else if (PropertyIdentifier.recordCount.equals(pid)) {
             if (fileAccess.hasRecordAccess())
                 set(PropertyIdentifier.recordCount, new UnsignedInteger(fileAccess.recordCount()));

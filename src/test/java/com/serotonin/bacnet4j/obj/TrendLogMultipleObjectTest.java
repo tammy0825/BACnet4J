@@ -497,8 +497,8 @@ public class TrendLogMultipleObjectTest {
         assertEquals(true, tl.isLogDisabled());
 
         // Set StopWhenFull to false and write a couple records.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.FALSE));
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, Boolean.TRUE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(false)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, new Boolean(true)));
         doTriggers(tl, 2);
         assertEquals(4, tl.getBuffer().size());
         assertEquals(logData, tl.getBuffer().get(0).getLogData().getData());
@@ -510,7 +510,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(false, tl.isLogDisabled());
 
         // Set StopWhenFull back to true.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.TRUE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(true)));
         assertEquals(4, tl.getBuffer().size());
         assertEquals(new LogStatus(true, false, false), tl.getBuffer().get(0).getLogData().getLogStatus());
         assertEquals(logData, tl.getBuffer().get(1).getLogData().getData());

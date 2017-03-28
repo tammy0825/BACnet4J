@@ -68,10 +68,10 @@ public class EventLogObject extends BACnetObject {
         Objects.requireNonNull(startTime);
         Objects.requireNonNull(stopTime);
 
-        set(PropertyIdentifier.enable, Boolean.valueOf(enable));
+        set(PropertyIdentifier.enable, new Boolean(enable));
         set(PropertyIdentifier.startTime, startTime);
         set(PropertyIdentifier.stopTime, stopTime);
-        set(PropertyIdentifier.stopWhenFull, Boolean.valueOf(stopWhenFull));
+        set(PropertyIdentifier.stopWhenFull, new Boolean(stopWhenFull));
         set(PropertyIdentifier.bufferSize, new UnsignedInteger(bufferSize));
         set(PropertyIdentifier.logBuffer, buffer);
         set(PropertyIdentifier.recordCount, new UnsignedInteger(0));
@@ -153,7 +153,7 @@ public class EventLogObject extends BACnetObject {
     }
 
     public void setEnabled(final boolean enabled) {
-        writePropertyInternal(PropertyIdentifier.enable, enabled ? Boolean.TRUE : Boolean.FALSE);
+        writePropertyInternal(PropertyIdentifier.enable, new Boolean(enabled));
     }
 
     @Override
@@ -222,7 +222,7 @@ public class EventLogObject extends BACnetObject {
                             buffer.remove();
                     }
                     updateRecordCount();
-                    writePropertyInternal(PropertyIdentifier.enable, Boolean.FALSE);
+                    writePropertyInternal(PropertyIdentifier.enable, new Boolean(false));
                 }
             }
 
@@ -304,7 +304,7 @@ public class EventLogObject extends BACnetObject {
         final UnsignedInteger bufferSize = get(PropertyIdentifier.bufferSize);
         if (stopWhenFull.booleanValue() && buffer.size() == bufferSize.intValue() - 1) {
             // There is only one spot left in the buffer, and StopWhenFull is true. Set Enable to false.
-            writePropertyInternal(PropertyIdentifier.enable, Boolean.FALSE);
+            writePropertyInternal(PropertyIdentifier.enable, new Boolean(false));
         }
     }
 

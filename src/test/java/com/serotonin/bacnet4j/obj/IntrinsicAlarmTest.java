@@ -163,7 +163,7 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new StatusFlags(true, false, false, false), bv.getProperty(PropertyIdentifier.statusFlags));
 
         // Inhibit
-        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, Boolean.TRUE);
+        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(true));
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
 
         // Write the normal value and wait 2 seconds: there should be no change.
@@ -177,7 +177,7 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
 
         // Remove inhibition. After two seconds the state should become offnormal.
-        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, Boolean.FALSE);
+        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
         Thread.sleep(1000);
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));

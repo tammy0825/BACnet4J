@@ -206,7 +206,7 @@ public class AnalogInputTest extends AbstractTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        ai.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
+        ai.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
         ai.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null));
     }
 

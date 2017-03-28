@@ -139,11 +139,11 @@ public class FileObjectTest {
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
 
         if (file.setWritable(true)) {
-            assertEquals(Boolean.FALSE, f.getProperty(PropertyIdentifier.readOnly, null));
+            assertEquals(new Boolean(false), f.getProperty(PropertyIdentifier.readOnly, null));
         }
 
         if (file.setReadable(false)) {
-            assertEquals(Boolean.TRUE, f.getProperty(PropertyIdentifier.readOnly, null));
+            assertEquals(new Boolean(true), f.getProperty(PropertyIdentifier.readOnly, null));
         }
     }
 

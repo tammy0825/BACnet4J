@@ -66,7 +66,8 @@ public class EventLogObjectTest {
     private final ConfirmedEventNotificationRequest n1 = new ConfirmedEventNotificationRequest(new UnsignedInteger(123),
             new ObjectIdentifier(ObjectType.device, 50), new ObjectIdentifier(ObjectType.device, 50),
             new TimeStamp(now), new UnsignedInteger(456), new UnsignedInteger(1), EventType.accessEvent,
-            new CharacterString("message"), NotifyType.event, Boolean.FALSE, EventState.fault, EventState.highLimit,
+            new CharacterString("message"), NotifyType.event, new Boolean(false), EventState.fault,
+            EventState.highLimit,
             new NotificationParameters(
                     new BufferReadyNotif(
                             new DeviceObjectPropertyReference(51, new ObjectIdentifier(ObjectType.trendLog, 0),
@@ -75,9 +76,9 @@ public class EventLogObjectTest {
     private final ConfirmedEventNotificationRequest n2 = new ConfirmedEventNotificationRequest(new UnsignedInteger(124),
             new ObjectIdentifier(ObjectType.device, 60), new ObjectIdentifier(ObjectType.device, 60),
             new TimeStamp(now), new UnsignedInteger(789), new UnsignedInteger(109), EventType.commandFailure,
-            new CharacterString("message2"), NotifyType.alarm, Boolean.TRUE, EventState.offnormal, EventState.normal,
-            new NotificationParameters(new OutOfRangeNotif(new Real(34), new StatusFlags(true, true, true, true),
-                    new Real(35), new Real(36))));
+            new CharacterString("message2"), NotifyType.alarm, new Boolean(true), EventState.offnormal,
+            EventState.normal, new NotificationParameters(new OutOfRangeNotif(new Real(34),
+                    new StatusFlags(true, true, true, true), new Real(35), new Real(36))));
 
     @Before
     public void before() throws Exception {
@@ -392,8 +393,8 @@ public class EventLogObjectTest {
         assertEquals(true, el.isLogDisabled());
 
         // Set StopWhenFull to false and write a couple records.
-        el.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.FALSE));
-        el.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, Boolean.TRUE));
+        el.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(false)));
+        el.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, new Boolean(true)));
         d2.send(rd1, n1).get();
         d2.send(rd1, n1).get();
         assertEquals(4, el.getBuffer().size());
@@ -406,7 +407,7 @@ public class EventLogObjectTest {
         assertEquals(false, el.isLogDisabled());
 
         // Set StopWhenFull back to true.
-        el.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.TRUE));
+        el.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(true)));
         assertEquals(4, el.getBuffer().size());
         assertEquals(new LogStatus(true, false, false), el.getBuffer().get(0).getLogStatus());
         assertEquals(n1, el.getBuffer().get(1).getNotification());

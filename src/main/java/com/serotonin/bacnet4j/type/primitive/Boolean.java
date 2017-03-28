@@ -31,8 +31,10 @@ package com.serotonin.bacnet4j.type.primitive;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Boolean extends Primitive {
-    public static final Boolean FALSE = new Boolean(false);
-    public static final Boolean TRUE = new Boolean(true);
+    // The Boolean type cannot have these static values because, due to the contentSpecific
+    // field, the class is stateful.
+    //    public static final Boolean FALSE = new Boolean(false);
+    //    public static final Boolean TRUE = new Boolean(true);
 
     public static boolean falsey(final Boolean b) {
         return b == null || !b.booleanValue();
@@ -40,10 +42,6 @@ public class Boolean extends Primitive {
 
     public static boolean truthy(final Boolean b) {
         return !falsey(b);
-    }
-
-    public static Boolean valueOf(final boolean b) {
-        return b ? TRUE : FALSE;
     }
 
     public static final byte TYPE_ID = 1;

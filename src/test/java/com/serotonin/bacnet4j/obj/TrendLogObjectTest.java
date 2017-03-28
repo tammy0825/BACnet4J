@@ -602,8 +602,8 @@ public class TrendLogObjectTest {
         final DateTime now2 = new DateTime(clock.millis());
 
         // Set StopWhenFull to false and write a couple records.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.FALSE));
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, Boolean.TRUE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(false)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, new Boolean(true)));
         doTriggers(tl, 2);
         assertEquals(4, tl.getBuffer().size());
         assertEquals(LogRecord.createFromMonitoredValue(now, new Real(0), sf), tl.getBuffer().get(0));
@@ -615,7 +615,7 @@ public class TrendLogObjectTest {
         assertEquals(false, tl.isLogDisabled());
 
         // Set StopWhenFull back to true.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.TRUE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(true)));
         assertEquals(4, tl.getBuffer().size());
         assertEquals(new LogRecord(now, new LogStatus(true, false, false), null), tl.getBuffer().get(0));
         assertEquals(LogRecord.createFromMonitoredValue(now2, new Real(0), sf), tl.getBuffer().get(1));
