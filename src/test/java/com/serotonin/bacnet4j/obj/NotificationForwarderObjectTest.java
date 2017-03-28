@@ -2,6 +2,8 @@ package com.serotonin.bacnet4j.obj;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkUtils;
 import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
+import com.serotonin.bacnet4j.persistence.FilePersistence;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
@@ -105,7 +108,7 @@ public class NotificationForwarderObjectTest {
 
     @Test
     public void subscriptions() throws Exception {
-        final NotificationForwarderObject nf = new NotificationForwarderObject(d1, 0, "nf", false, new SequenceOf<>(),
+        final NotificationForwarderObject nf = new NotificationForwarderObject(d1, 0, "nf", false,
                 new ProcessIdSelection(Null.instance), portFilter, false);
 
         // Add a few subscribers.
@@ -194,7 +197,7 @@ public class NotificationForwarderObjectTest {
 
     @Test
     public void notifications() throws Exception {
-        final NotificationForwarderObject nf = new NotificationForwarderObject(d1, 0, "nf", false, new SequenceOf<>(),
+        final NotificationForwarderObject nf = new NotificationForwarderObject(d1, 0, "nf", false,
                 new ProcessIdSelection(Null.instance), portFilter, false);
 
         // Create EventLog objects to track forwardings
@@ -298,7 +301,7 @@ public class NotificationForwarderObjectTest {
         assertEquals(2, el3.getBuffer().size());
         assertEquals(2, el4.getBuffer().size());
 
-        // Now send an event from d1, and ensure that it was recevied by all.
+        // Now send an event from d1, and ensure that it was received by all.
         n2.handle(d1, TestNetworkUtils.toAddress(1));
         Thread.sleep(100);
         assertEquals(3, el2.getBuffer().size());
@@ -313,5 +316,60 @@ public class NotificationForwarderObjectTest {
         assertEquals(4, el2.getBuffer().size());
         assertEquals(3, el3.getBuffer().size());
         assertEquals(4, el4.getBuffer().size());
+    }
+
+    @Test
+    public void persistence() throws Exception {
+        final File file = new File("nfo-persistence.properties");
+        file.delete();
+        System.out.println(file.getPath());
+
+        d1.setPersistence(new FilePersistence(file));
+
+        NotificationForwarderObject nf = new NotificationForwarderObject(d1, 0, "nf", false,
+                new ProcessIdSelection(Null.instance), portFilter, false);
+
+        // Ensure that there are no recipients or subscriptions.
+        SequenceOf<Destination> recipients = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        assertEquals(0, recipients.size());
+
+        SequenceOf<EventNotificationSubscription> subscriptions = nf
+                .getProperty(PropertyIdentifier.subscribedRecipients);
+        assertEquals(0, subscriptions.size());
+
+        //
+        // Write some of each.
+        new AddListElementRequest(nf.getId(), PropertyIdentifier.recipientList, null,
+                new SequenceOf<>(
+                        new Destination(new Recipient(d2.getId()), new Unsigned32(1), Boolean.FALSE,
+                                new EventTransitionBits(true, true, true)),
+                        new Destination(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
+                                new EventTransitionBits(true, true, false)))).handle(d1, null);
+        new AddListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
+                new SequenceOf<>(new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(3),
+                        Boolean.FALSE, new UnsignedInteger(50)))).handle(d1, null);
+
+        // Make sure they are there.
+        recipients = nf.getProperty(PropertyIdentifier.recipientList);
+        assertEquals(2, recipients.size());
+
+        subscriptions = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        assertEquals(1, subscriptions.size());
+
+        //
+        // Destroy the object.
+        d1.removeObject(nf.getId());
+
+        //
+        // Create the object new again and ensure that the lists were loaded from the file.
+        nf = new NotificationForwarderObject(d1, 0, "nf", false, new ProcessIdSelection(Null.instance), portFilter,
+                false);
+        recipients = nf.getProperty(PropertyIdentifier.recipientList);
+        assertEquals(2, recipients.size());
+        subscriptions = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        assertEquals(1, subscriptions.size());
+
+        // Clean up
+        file.delete();
     }
 }

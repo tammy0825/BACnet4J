@@ -18,6 +18,7 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedEventNotificationRequest;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -51,20 +52,32 @@ public class NotificationForwarderObject extends BACnetObject {
     private final List<Subscription> subscriptions = new ArrayList<>();
 
     public NotificationForwarderObject(final LocalDevice localDevice, final int instanceNumber, final String name,
-            final boolean outOfService, final SequenceOf<Destination> recipientList,
-            final ProcessIdSelection processIdentifierFilter, final BACnetArray<PortPermission> portFilter,
-            final boolean localForwardingOnly) throws BACnetServiceException {
+            final boolean outOfService, final ProcessIdSelection processIdentifierFilter,
+            final BACnetArray<PortPermission> portFilter, final boolean localForwardingOnly)
+            throws BACnetServiceException {
         super(localDevice, ObjectType.notificationForwarder, instanceNumber, name);
 
-        Objects.requireNonNull(recipientList);
         Objects.requireNonNull(processIdentifierFilter);
         Objects.requireNonNull(portFilter);
 
+        // Load values from persistence
+        SequenceOf<Destination> recipientList = getLocalDevice().getPersistence()
+                .loadSequenceOf(getPersistenceKey(PropertyIdentifier.recipientList), Destination.class);
+        if (recipientList == null) {
+            recipientList = new SequenceOf<>();
+        }
+
+        SequenceOf<EventNotificationSubscription> subscribedRecipients = getLocalDevice().getPersistence()
+                .loadSequenceOf(getPersistenceKey(PropertyIdentifier.subscribedRecipients),
+                        EventNotificationSubscription.class);
+        if (subscribedRecipients == null) {
+            subscribedRecipients = new SequenceOf<>();
+        }
+
+        // Set up object properties.
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
-        writePropertyInternal(PropertyIdentifier.recipientList, recipientList);
-        writePropertyInternal(PropertyIdentifier.subscribedRecipients, new SequenceOf<>());
         writePropertyInternal(PropertyIdentifier.processIdentifierFilter, processIdentifierFilter);
         writePropertyInternal(PropertyIdentifier.portFilter, portFilter);
         writePropertyInternal(PropertyIdentifier.localForwardingOnly, Boolean.valueOf(localForwardingOnly));
@@ -72,6 +85,9 @@ public class NotificationForwarderObject extends BACnetObject {
 
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new SubscriptionManagementMixin(this));
+
+        writePropertyInternal(PropertyIdentifier.recipientList, recipientList);
+        writeProperty(null, PropertyIdentifier.subscribedRecipients, subscribedRecipients);
 
         eventListener = new DeviceEventAdapter() {
             @Override
@@ -310,11 +326,28 @@ public class NotificationForwarderObject extends BACnetObject {
                     }
                 }
 
+                // Persist
+                getLocalDevice().getPersistence().saveEncodable(
+                        getPersistenceKey(PropertyIdentifier.subscribedRecipients), subscribedRecipients);
+
                 // Consider the write handled.
                 return true;
             }
             return false;
         }
+
+        @Override
+        protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
+                final Encodable newValue) {
+            if (pid.isOneOf(PropertyIdentifier.recipientList, PropertyIdentifier.subscribedRecipients)) {
+                // Persist the latest written values.
+                getLocalDevice().getPersistence().saveEncodable(getPersistenceKey(pid), newValue);
+            }
+        }
+    }
+
+    private String getPersistenceKey(final PropertyIdentifier pid) {
+        return "NotificationForwarderObject." + getInstanceId() + "." + pid;
     }
 
     private void updateSubscribedRecipients() {

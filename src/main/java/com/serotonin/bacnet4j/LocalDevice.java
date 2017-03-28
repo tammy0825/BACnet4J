@@ -64,6 +64,8 @@ import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.DeviceObject;
 import com.serotonin.bacnet4j.obj.mixin.CovContext;
+import com.serotonin.bacnet4j.persistence.IPersistence;
+import com.serotonin.bacnet4j.persistence.NullPersistence;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
@@ -106,6 +108,7 @@ import lohbihler.warp.WarpUtils;
  * Enhancements:
  * - Optional persistence of COV subscriptions
  * - default character string encoding
+ * - persistence of recipient lists in notification forwarder object
  */
 public class LocalDevice {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
@@ -162,6 +165,9 @@ public class LocalDevice {
      * Useful when objects want to make COV subscriptions, in that it will provide a device-unique id.
      */
     private final AtomicInteger nextProcessId = new AtomicInteger(1);
+
+    // Default persistence to null.
+    private IPersistence persistence = new NullPersistence();
 
     public LocalDevice(final int deviceNumber, final Transport transport) {
         this.transport = transport;
@@ -997,6 +1003,24 @@ public class LocalDevice {
 
     public EnableDisable getCommunicationControlState() {
         return communicationControlState;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Persistence
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public IPersistence getPersistence() {
+        return persistence;
+    }
+
+    public void setPersistence(final IPersistence persistence) {
+        if (persistence == null) {
+            this.persistence = new NullPersistence();
+        } else {
+            this.persistence = persistence;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
