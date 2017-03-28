@@ -582,7 +582,7 @@ public class ChangeOfValueTest extends AbstractTest {
         // Write a new value to the present value. This will trigger three notifications because multiple values
         // will be updated.
         av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(15));
-        Thread.sleep(50);
+        Thread.sleep(60);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         values = (SequenceOf<PropertyValue>) notif.get("listOfValues");
