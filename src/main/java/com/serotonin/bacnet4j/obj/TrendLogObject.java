@@ -517,7 +517,7 @@ public class TrendLogObject extends BACnetObject {
                         final ObjectIdentifier initiatingDeviceIdentifier,
                         final ObjectIdentifier monitoredObjectIdentifier, final UnsignedInteger timeRemaining,
                         final SequenceOf<PropertyValue> listOfValues) {
-                    LOG.info("Received COV notification");
+                    LOG.debug("Received COV notification");
 
                     // Handle the COV subscription. Check if it matches the subscription.
                     if (localCovSubscription.getSubscriberProcessIdentifier().equals(subscriberProcessIdentifier) //
@@ -538,7 +538,7 @@ public class TrendLogObject extends BACnetObject {
                             LOG.warn("Requested property not found in COV notification: {}", listOfValues);
                             updateConfigurationError(true);
                         } else {
-                            LOG.info("COV update: " + value);
+                            LOG.debug("COV update: " + value);
                             addLogRecord(LogRecord.createFromMonitoredValue(getNow(), value, statusFlags));
                         }
                     }
@@ -552,7 +552,7 @@ public class TrendLogObject extends BACnetObject {
                 resubscriptionFuture = getLocalDevice().scheduleAtFixedRate(() -> {
                     try {
                         covSubscription.handle(getLocalDevice(), getLocalDevice().getLoopbackAddress());
-                        LOG.info("COV subscription successful");
+                        LOG.debug("COV subscription successful");
                     } catch (final BACnetException e) {
                         LOG.warn("COV subscription failed", e);
                         updateConfigurationError(true);
@@ -575,7 +575,7 @@ public class TrendLogObject extends BACnetObject {
                 resubscriptionFuture = getLocalDevice().scheduleAtFixedRate(() -> {
                     try {
                         getLocalDevice().send(rd, covSubscription).get();
-                        LOG.info("COV subscription successful");
+                        LOG.debug("COV subscription successful");
                     } catch (final BACnetException e) {
                         LOG.warn("COV subscription failed", e);
                         updateConfigurationError(true);
@@ -600,7 +600,7 @@ public class TrendLogObject extends BACnetObject {
             // Set the trigger value back to false.
             writePropertyInternal(PropertyIdentifier.trigger, new Boolean(false));
 
-            LOG.info("Trigger complete");
+            LOG.debug("Trigger complete");
         });
     }
 
@@ -719,14 +719,14 @@ public class TrendLogObject extends BACnetObject {
         final DateTime stop = get(PropertyIdentifier.stopTime);
 
         if (!start.equals(DateTime.UNSPECIFIED)) {
-            LOG.info("Checking start time");
+            LOG.debug("Checking start time");
             if (now.compareTo(start) < 0)
                 return false;
         }
 
         if (!stop.equals(DateTime.UNSPECIFIED)) {
-            LOG.info("Checking stop time");
-            if (now.compareTo(stop) > 0)
+            LOG.debug("Checking stop time, now={}, stop={}", now, stop);
+            if (now.compareTo(stop) >= 0)
                 return false;
         }
 
