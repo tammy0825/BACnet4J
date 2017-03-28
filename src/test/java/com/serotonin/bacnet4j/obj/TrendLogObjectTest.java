@@ -142,7 +142,7 @@ public class TrendLogObjectTest {
         assertEquals(3, tl.getBuffer().size());
         final LogRecord record3 = tl.getBuffer().get(2);
         assertEquals(2, record3.getTimestamp().getTime().getSecond());
-        assertEquals(record1.getTimestamp().getTime().getMinute() + 2 % 60,
+        assertEquals((record1.getTimestamp().getTime().getMinute() + 2) % 60,
                 record3.getTimestamp().getTime().getMinute());
         assertEquals(new Real(2), record3.getChoice());
         assertEquals(new StatusFlags(false, false, true, false), record3.getStatusFlags());
