@@ -12,11 +12,6 @@ public interface IPersistence {
     default void saveEncodable(final String key, final Encodable value) {
         final ByteQueue queue = new ByteQueue();
         value.write(queue);
-
-        System.out.println("Serialization");
-        System.out.println(queue.toHexString());
-        System.out.println(queue.toString());
-
         save(key, queue.toHexString());
     }
 
