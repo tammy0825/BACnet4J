@@ -158,7 +158,7 @@ public class TrendLogMultipleObjectTest {
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(3));
 
         // Advance the clock an hour to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, HOURS, 1, MINUTES, 10, 100);
+        clock.plus(1, HOURS, 1, MINUTES, 20, 100);
 
         assertEquals(3, tl.getBuffer().size());
         final LogMultipleRecord record2 = tl.getBuffer().get(2);
