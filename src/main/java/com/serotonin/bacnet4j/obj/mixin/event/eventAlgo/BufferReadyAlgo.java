@@ -69,8 +69,9 @@ public class BufferReadyAlgo extends EventAlgorithm {
                 p.getMutablePreviousNotificationCount());
     }
 
-    public StateTransition evaluateEventState(final EventState currentState, final UnsignedInteger monitoredValue,
-            final UnsignedInteger threshold, final UnsignedInteger previousCount) {
+    private static StateTransition evaluateEventState(final EventState currentState,
+            final UnsignedInteger monitoredValue, final UnsignedInteger threshold,
+            final UnsignedInteger previousCount) {
         final long mon = monitoredValue.longValue();
         final long thr = threshold.longValue();
         final long pre = previousCount.longValue();
@@ -116,8 +117,9 @@ public class BufferReadyAlgo extends EventAlgorithm {
                 (UnsignedInteger) monitoredValue);
     }
 
-    public NotificationParameters getNotificationParameters(final DeviceObjectPropertyReference logBufferReference,
-            final UnsignedInteger previousNotification, final UnsignedInteger currentNotification) {
+    private static NotificationParameters getNotificationParameters(
+            final DeviceObjectPropertyReference logBufferReference, final UnsignedInteger previousNotification,
+            final UnsignedInteger currentNotification) {
         return new NotificationParameters(
                 new BufferReadyNotif(logBufferReference, previousNotification, currentNotification));
     }
