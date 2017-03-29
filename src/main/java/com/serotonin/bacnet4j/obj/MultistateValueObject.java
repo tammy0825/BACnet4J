@@ -53,7 +53,7 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class MultistateValueObject extends BACnetObject {
     public MultistateValueObject(final LocalDevice localDevice, final int instanceNumber, final String name,
-            final int numberOfStates, final BACnetArray<CharacterString> stateText, final int presentValue,
+            final int numberOfStates, final BACnetArray<CharacterString> stateText, final int presentValueBase1,
             final boolean outOfService) throws BACnetServiceException {
         super(localDevice, ObjectType.multiStateValue, instanceNumber, name);
 
@@ -63,7 +63,7 @@ public class MultistateValueObject extends BACnetObject {
         final ValueSource valueSource = new ValueSource(new DeviceObjectReference(localDevice.getId(), getId()));
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
+        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
 
@@ -75,7 +75,7 @@ public class MultistateValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
         if (stateText != null)
             writeProperty(null, PropertyIdentifier.stateText, stateText);
-        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
+        writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
         if (!outOfService)
             writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
     }
