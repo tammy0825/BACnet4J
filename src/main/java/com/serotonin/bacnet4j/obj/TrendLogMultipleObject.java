@@ -370,7 +370,7 @@ public class TrendLogMultipleObject extends BACnetObject {
                     prop.getPropertyIdentifier(), prop.getPropertyArrayIndex());
         }
 
-        pollingDelegate = new PollingDelegate(this, refs);
+        pollingDelegate = new PollingDelegate(getLocalDevice(), refs);
     }
 
     /**

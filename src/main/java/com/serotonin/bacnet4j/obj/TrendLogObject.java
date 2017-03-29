@@ -446,7 +446,7 @@ public class TrendLogObject extends BACnetObject {
                     PropertyIdentifier.statusFlags);
         }
 
-        pollingDelegate = new PollingDelegate(this, refs);
+        pollingDelegate = new PollingDelegate(getLocalDevice(), refs);
     }
 
     /**
