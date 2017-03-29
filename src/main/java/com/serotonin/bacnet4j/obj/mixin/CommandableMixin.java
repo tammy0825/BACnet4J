@@ -321,7 +321,6 @@ public class CommandableMixin extends AbstractMixin {
             writePropertyInternal(PropertyIdentifier.valueSource, vs);
 
             if (!newIndex.equals(oldIndex) || !newValue.equals(oldValue)) {
-                System.out.println("setting last command time to " + now);
                 writePropertyInternal(PropertyIdentifier.lastCommandTime, now);
             }
         }
