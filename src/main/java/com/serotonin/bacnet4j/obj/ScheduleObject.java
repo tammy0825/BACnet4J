@@ -155,7 +155,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
+        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, null, new PropertyIdentifier[0]));
     }
 
     @Override

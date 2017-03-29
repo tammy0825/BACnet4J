@@ -93,7 +93,7 @@ public class NotificationClassObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, new PropertyIdentifier[0]));
+        addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, null, new PropertyIdentifier[0]));
     }
 
     @Override

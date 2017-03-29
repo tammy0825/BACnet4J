@@ -86,7 +86,7 @@ public class BinaryValueObject extends BACnetObject {
 
         final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValue);
-        addMixin(new IntrinsicReportingMixin(this, eventAlgo, null,
+        addMixin(new IntrinsicReportingMixin(this, eventAlgo, null, PropertyIdentifier.presentValue,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
     }
 

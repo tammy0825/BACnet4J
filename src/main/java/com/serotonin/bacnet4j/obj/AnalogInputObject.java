@@ -92,7 +92,7 @@ public class AnalogInputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
 
         // Now add the mixin.
-        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(), null, //
+        addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(), null, PropertyIdentifier.presentValue, //
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.highLimit,
                         PropertyIdentifier.lowLimit, PropertyIdentifier.deadband, PropertyIdentifier.limitEnable }));
 
