@@ -102,7 +102,7 @@ public class CommandableMixin extends AbstractMixin {
 
         if (supportsValueSource) {
             addProperty(valueSourceArray, new BACnetArray<>(16, new ValueSource()), false);
-            addProperty(lastCommandTime, new TimeStamp(new DateTime()), false);
+            addProperty(lastCommandTime, new TimeStamp(new DateTime(getLocalDevice())), false);
             addProperty(commandTimeArray, new BACnetArray<>(16, TimeStamp.UNSPECIFIED_TIME), false);
         }
     }
@@ -117,7 +117,7 @@ public class CommandableMixin extends AbstractMixin {
         addProperty(valueSource, getLocalValueSource(), false);
         if (supportsCommandable) {
             addProperty(valueSourceArray, new BACnetArray<>(16, new ValueSource()), false);
-            addProperty(lastCommandTime, new TimeStamp(new DateTime()), false);
+            addProperty(lastCommandTime, new TimeStamp(new DateTime(getLocalDevice())), false);
             addProperty(commandTimeArray, new BACnetArray<>(16, TimeStamp.UNSPECIFIED_TIME), false);
         }
     }
@@ -197,7 +197,7 @@ public class CommandableMixin extends AbstractMixin {
             final Encodable newValue) {
         if (relinquishDefault.equals(pid)) {
             // The relinquish default was changed. Ensure that the present value gets updated if necessary.
-            updatePresentValue(null, new TimeStamp(new DateTime()));
+            updatePresentValue(null, new TimeStamp(new DateTime(getLocalDevice())));
         } else if (minimumOffTime.equals(pid) || minimumOnTime.equals(pid)) {
             if (supportsValueSource)
                 updateValueSourceArray(MIN_OFF_ON_PRIORITY, getLocalValueSource());
@@ -221,7 +221,7 @@ public class CommandableMixin extends AbstractMixin {
         final PriorityArray priArr = get(priorityArray);
         priArr.setBase1(pri, new PriorityValue(value));
 
-        final TimeStamp now = new TimeStamp(new DateTime());
+        final TimeStamp now = new TimeStamp(new DateTime(getLocalDevice()));
         if (supportsValueSource) {
             updateValueSourceArray(pri, valueSource);
             updateCommandTimeArray(pri, now);
@@ -234,7 +234,7 @@ public class CommandableMixin extends AbstractMixin {
         minOnOffTimerTask = null;
         final PriorityArray priArr = get(priorityArray);
         priArr.setBase1(MIN_OFF_ON_PRIORITY, new PriorityValue(Null.instance));
-        updatePresentValue(priArr, new TimeStamp(new DateTime()));
+        updatePresentValue(priArr, new TimeStamp(new DateTime(getLocalDevice())));
     }
 
     private void updatePresentValue(final PriorityArray priorityArray, final TimeStamp now) {

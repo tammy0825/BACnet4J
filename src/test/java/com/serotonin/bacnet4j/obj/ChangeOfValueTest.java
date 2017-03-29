@@ -551,7 +551,7 @@ public class ChangeOfValueTest extends AbstractTest {
         // Write a new present value to set up all of the commandable values.
         final ValueSource vs = new ValueSource(new Address(new byte[] { 2 }));
         av.writeProperty(vs, PropertyIdentifier.presentValue, new Real(11));
-        final TimeStamp setTime = new TimeStamp(new DateTime());
+        final TimeStamp setTime = new TimeStamp(new DateTime(d1));
 
         // Subscribe to changes.
         d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //

@@ -65,7 +65,7 @@ public class NetworkPriorityTest {
     private static int getNetworkPriorityCEN(final int eventPriority) throws Exception {
         final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(new UnsignedInteger(2),
                 new ObjectIdentifier(ObjectType.device, 8), new ObjectIdentifier(ObjectType.analogInput, 9),
-                new TimeStamp(new DateTime()), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
+                new TimeStamp(new DateTime(123456789)), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(
@@ -79,7 +79,7 @@ public class NetworkPriorityTest {
     private static int getNetworkPriorityUEN(final int eventPriority) throws Exception {
         final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(new UnsignedInteger(2),
                 new ObjectIdentifier(ObjectType.device, 8), new ObjectIdentifier(ObjectType.analogInput, 9),
-                new TimeStamp(new DateTime()), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
+                new TimeStamp(new DateTime(123456789)), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
                 EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(

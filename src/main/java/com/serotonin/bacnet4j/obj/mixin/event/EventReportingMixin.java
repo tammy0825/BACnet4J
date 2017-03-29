@@ -217,7 +217,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
         //
         writePropertyInternal(PropertyIdentifier.eventState, toState);
 
-        final TimeStamp now = new TimeStamp(new DateTime());
+        final TimeStamp now = new TimeStamp(new DateTime(getLocalDevice()));
 
         BACnetArray<TimeStamp> ets = get(PropertyIdentifier.eventTimeStamps);
         // Make a copy in which to make the change so that the write property method works properly.

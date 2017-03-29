@@ -51,13 +51,13 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import lohbihler.warp.WarpClock;
 
 public class ReadRangeRequestTest {
-    final DateTime now = new DateTime();
     final PropertyIdentifier pid = PropertyIdentifier.forId(9999);
-    private LocalDevice d1;
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+    final DateTime now = new DateTime(d1);
 
     @Before
     public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).initialize();
+        d1.initialize();
     }
 
     @After
@@ -431,13 +431,13 @@ public class ReadRangeRequestTest {
 
         d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(new UnsignedInteger(0)));
         TestUtils.assertRequestHandleException(() -> {
-            new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(new DateTime(), 1))
+            new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(new DateTime(d1), 1))
                     .handle(d1, null);
         }, ErrorClass.property, ErrorCode.datatypeNotSupported);
 
         d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(new SequencedNotTimestamped()));
         TestUtils.assertRequestHandleException(() -> {
-            new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(new DateTime(), 1))
+            new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(new DateTime(d1), 1))
                     .handle(d1, null);
         }, ErrorClass.property, ErrorCode.datatypeNotSupported);
     }

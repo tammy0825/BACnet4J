@@ -80,7 +80,7 @@ public class NotificationForwarderObjectTest {
         d4.terminate();
     }
 
-    private final TimeStamp now = new TimeStamp(new DateTime());
+    private final TimeStamp now = new TimeStamp(new DateTime(d1));
     private final ConfirmedEventNotificationRequest n1 = new ConfirmedEventNotificationRequest(new UnsignedInteger(122),
             new ObjectIdentifier(ObjectType.device, 50), new ObjectIdentifier(ObjectType.device, 50), now,
             new UnsignedInteger(456), new UnsignedInteger(1), EventType.accessEvent, new CharacterString("message"),

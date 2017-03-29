@@ -499,7 +499,7 @@ public class IntrinsicAlarmTest extends AbstractTest {
         assertEquals(new UnsignedInteger(5), eventSummary.getEventPriorities().getBase1(2));
         assertEquals(new UnsignedInteger(200), eventSummary.getEventPriorities().getBase1(3));
 
-        final TimeStamp now = new TimeStamp(new DateTime());
+        final TimeStamp now = new TimeStamp(new DateTime(d1));
         final AcknowledgeAlarmRequest req = new AcknowledgeAlarmRequest( //
                 (UnsignedInteger) notif.get("processIdentifier"), //
                 (ObjectIdentifier) notif.get("eventObjectIdentifier"), //
@@ -610,7 +610,7 @@ public class IntrinsicAlarmTest extends AbstractTest {
         final Map<String, Object> notif = listener.notifs.remove(0);
         //        System.out.println(notif);
 
-        final TimeStamp now = new TimeStamp(new DateTime());
+        final TimeStamp now = new TimeStamp(new DateTime(d1));
         bv.acknowledgeAlarm((UnsignedInteger) notif.get("processIdentifier"), //
                 (EventState) notif.get("toState"), //
                 (TimeStamp) notif.get("timeStamp"), //

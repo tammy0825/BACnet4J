@@ -37,7 +37,7 @@ public class UTCTimeSynchronizationRequestTest {
 
     @Test
     public void timeSync() throws Exception {
-        final DateTime dateTime = new DateTime();
+        final DateTime dateTime = new DateTime(ld1);
 
         // Create the listener in device 2
         final AtomicReference<Address> receivedAddress = new AtomicReference<>(null);
@@ -71,7 +71,7 @@ public class UTCTimeSynchronizationRequestTest {
     public void disabledTimeSync() throws Exception {
         ld2.getServicesSupported().setUtcTimeSynchronization(false);
 
-        final DateTime dateTime = new DateTime();
+        final DateTime dateTime = new DateTime(ld1);
 
         // Create the listener in device 2
         final AtomicReference<Address> receivedAddress = new AtomicReference<>(null);
