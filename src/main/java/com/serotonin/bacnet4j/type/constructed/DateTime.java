@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.type.constructed;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Time;
@@ -42,8 +43,16 @@ public class DateTime extends BaseType implements Comparable<DateTime> {
     private final Date date;
     private final Time time;
 
+    /**
+     * @deprecated Use DateTime(LocalDevice) instead.
+     */
+    @Deprecated
     public DateTime() {
         this(new GregorianCalendar());
+    }
+
+    public DateTime(final LocalDevice localDevice) {
+        this(localDevice.getClock().millis());
     }
 
     public DateTime(final Date date, final Time time) {

@@ -18,6 +18,7 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.obj.AccumulatorObject.ValueSetWrite;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -114,6 +115,9 @@ public class AccumulatorObjectTest {
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.
         assertEquals(0, listener.notifs.size());
 
+        // Advance the clock half a second so that pulses are out of time with scheduled tasks.
+        clock.plusMillis(500);
+
         //
         // Write enough pulses to stay normal. NOTE: the pulse rate is updated by the scheduled task in the
         // accumulator, which doesn't run until the next second. To get it to run, we add one more pulse than
@@ -192,7 +196,7 @@ public class AccumulatorObjectTest {
         // Re-enable low limit checking. Will return to low-limit after 3s.
         a.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(true, true));
         assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState));
-        doPulses(29, 28, 27, 26);
+        doPulses(27, 27, 27, 27);
         assertEquals(EventState.lowLimit, a.getProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -233,14 +237,17 @@ public class AccumulatorObjectTest {
                         new StatusFlags(false, false, false, false),
                         new SequenceOf<>( //
                                 new PropertyValue(PropertyIdentifier.pulseRate, new UnsignedInteger(52)), //
-                                new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(117))))),
+                                new PropertyValue(PropertyIdentifier.presentValue, new UnsignedInteger(116))))),
                 notif.get("eventValues"));
+
+        // Remove the object.
+        d1.removeObject(a.getId());
     }
 
     private void doPulses(final int... pulses) {
         for (final int i : pulses) {
             a.pulses(i);
-            clock.plus(1, TimeUnit.SECONDS, 1, TimeUnit.SECONDS, 0, 50);
+            clock.plus(1, TimeUnit.SECONDS, 1, TimeUnit.SECONDS, 20, 0);
         }
     }
 
@@ -373,7 +380,7 @@ public class AccumulatorObjectTest {
         assertEquals(0, listener.notifs.size());
 
         // Go to high limit.
-        doEventPulses(53, 54, 55, 56, 57);
+        doPulses(53, 53, 53, 53, 53);
         Thread.sleep(40);
         assertEquals(EventState.highLimit, ee.getProperty(PropertyIdentifier.eventState));
         assertEquals(Reliability.noFaultDetected, ee.getProperty(PropertyIdentifier.reliability));
@@ -395,13 +402,12 @@ public class AccumulatorObjectTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
         assertEquals(
-                new NotificationParameters(new UnsignedRangeNotif(new UnsignedInteger(56),
-                        // TODO are these status flag right?
+                new NotificationParameters(new UnsignedRangeNotif(new UnsignedInteger(53),
                         new StatusFlags(false, false, false, false), new UnsignedInteger(50))),
                 notif.get("eventValues"));
 
         // Go to a fault value.
-        doEventPulses(10, 9);
+        doPulses(10, 9);
         Thread.sleep(40);
         assertEquals(EventState.fault, ee.getProperty(PropertyIdentifier.eventState));
         assertEquals(Reliability.underRange, ee.getProperty(PropertyIdentifier.reliability));
@@ -433,10 +439,57 @@ public class AccumulatorObjectTest {
                 notif.get("eventValues"));
     }
 
-    private void doEventPulses(final int... pulses) {
-        for (final int i : pulses) {
-            a.pulses(i);
-            clock.plus(1, TimeUnit.SECONDS, 1, TimeUnit.SECONDS, 0, 50);
-        }
+    @Test
+    public void construction() throws Exception {
+        final AccumulatorObject a1 = new AccumulatorObject(d1, 1, "a1", 456, 0, EngineeringUnits.amperes, false,
+                new Scale(new Real(1)), new Prescale(new UnsignedInteger(2), new UnsignedInteger(15)), 200, 1);
+        assertEquals(new UnsignedInteger(456), a1.get(PropertyIdentifier.presentValue));
+    }
+
+    @Test
+    public void valueSet() throws Exception {
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.presentValue));
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueBeforeChange));
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueSet));
+        assertEquals(DateTime.UNSPECIFIED, a.get(PropertyIdentifier.valueChangeTime));
+
+        //
+        // The object defaults to read only. Ensure that the properties cannot be written.
+        TestUtils.assertBACnetServiceException(
+                () -> a.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0))),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+        TestUtils.assertBACnetServiceException(
+                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(0))),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+
+        //
+        // Set to allow valueBeforeChange
+        a.supportValueWrite(ValueSetWrite.valueBeforeChange);
+
+        TestUtils.assertBACnetServiceException(
+                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(0))),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+
+        a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(7)));
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.presentValue));
+        assertEquals(new UnsignedInteger(7), a.get(PropertyIdentifier.valueBeforeChange));
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueSet));
+        assertEquals(new DateTime(d1), a.get(PropertyIdentifier.valueChangeTime));
+
+        //
+        // Set to allow valueSet
+        a.supportValueWrite(ValueSetWrite.valueSet);
+
+        TestUtils.assertBACnetServiceException(
+                () -> a.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0))),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+
+        a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(13)));
+        assertEquals(new UnsignedInteger(13), a.get(PropertyIdentifier.presentValue));
+        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueBeforeChange));
+        assertEquals(new UnsignedInteger(13), a.get(PropertyIdentifier.valueSet));
+        assertEquals(new DateTime(d1), a.get(PropertyIdentifier.valueChangeTime));
     }
 }

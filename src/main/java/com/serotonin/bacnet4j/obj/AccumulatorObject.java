@@ -73,9 +73,9 @@ public class AccumulatorObject extends BACnetObject {
             writePropertyInternal(PropertyIdentifier.prescale, prescale);
         writePropertyInternal(PropertyIdentifier.maxPresValue, new UnsignedInteger(maxPresValue));
         writePropertyInternal(PropertyIdentifier.limitMonitoringInterval, new UnsignedInteger(limitMonitoringInterval));
-        writePropertyInternal(PropertyIdentifier.valueChangeTime, DateTime.UNSPECIFIED);
-        writePropertyInternal(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0));
-        writePropertyInternal(PropertyIdentifier.valueSet, new UnsignedInteger(0));
+        set(PropertyIdentifier.valueChangeTime, DateTime.UNSPECIFIED);
+        set(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0));
+        set(PropertyIdentifier.valueSet, new UnsignedInteger(0));
 
         this.accumulation = accumulation;
 
@@ -160,13 +160,13 @@ public class AccumulatorObject extends BACnetObject {
             final Prescale prescale = get(PropertyIdentifier.prescale);
             final UnsignedInteger maxPresValue = get(PropertyIdentifier.maxPresValue);
 
-            long newPresentValue;
+            long newPresentValue = presentValue.longValue();
             if (prescale == null) {
                 // Just add the pulse count to the present value.
-                newPresentValue = presentValue.longValue() + count;
+                newPresentValue += count;
             } else {
                 accumulation += count * prescale.getMultiplier().longValue();
-                newPresentValue = presentValue.longValue() + accumulation / prescale.getModuloDivide().longValue();
+                newPresentValue += accumulation / prescale.getModuloDivide().longValue();
                 accumulation %= prescale.getModuloDivide().longValue();
             }
 
@@ -211,7 +211,7 @@ public class AccumulatorObject extends BACnetObject {
                 final UnsignedInteger presentValue = get(PropertyIdentifier.presentValue);
                 // Cannot call writePropertyInternal here because then the code below will be run.
                 set(PropertyIdentifier.valueSet, presentValue);
-                writePropertyInternal(PropertyIdentifier.valueChangeTime, new DateTime());
+                writePropertyInternal(PropertyIdentifier.valueChangeTime, new DateTime(getLocalDevice()));
             }
         } else if (PropertyIdentifier.valueSet.equals(pid)) {
             synchronized (lock) {
@@ -220,7 +220,7 @@ public class AccumulatorObject extends BACnetObject {
                 // Cannot call writePropertyInternal here because then the code above will be run.
                 set(PropertyIdentifier.valueBeforeChange, presentValue);
                 set(PropertyIdentifier.presentValue, newValue);
-                writePropertyInternal(PropertyIdentifier.valueChangeTime, new DateTime());
+                writePropertyInternal(PropertyIdentifier.valueChangeTime, new DateTime(getLocalDevice()));
             }
         }
     }
@@ -228,7 +228,6 @@ public class AccumulatorObject extends BACnetObject {
     @Override
     public void terminate() {
         super.terminate();
-        if (limitMonitoringFuture != null)
-            limitMonitoringFuture.cancel(false);
+        limitMonitoringFuture.cancel(false);
     }
 }
