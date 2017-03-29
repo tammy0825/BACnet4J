@@ -38,6 +38,7 @@ import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.OutOfRangeAlgo;
 import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultOutOfRangeAlgo;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
+import com.serotonin.bacnet4j.type.constructed.OptionalReal;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -60,7 +61,7 @@ public class AnalogInputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.units, units);
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
-        writePropertyInternal(PropertyIdentifier.interfaceValue, Null.instance);
+        writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalReal(Null.instance));
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
@@ -68,7 +69,6 @@ public class AnalogInputObject extends BACnetObject {
                 PropertyIdentifier.reliability));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.eventMessageTexts, PropertyIdentifier.resolution,
                 PropertyIdentifier.ackedTransitions, PropertyIdentifier.eventTimeStamps,
-                PropertyIdentifier.eventMessageTexts, PropertyIdentifier.propertyList,
                 PropertyIdentifier.interfaceValue));
     }
 
