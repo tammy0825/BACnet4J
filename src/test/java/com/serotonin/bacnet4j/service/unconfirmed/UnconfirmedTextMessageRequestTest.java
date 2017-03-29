@@ -12,7 +12,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.service.confirmed.ConfirmedTextMessageRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.enumerated.MessagePriority;
@@ -92,8 +91,7 @@ public class UnconfirmedTextMessageRequestTest {
             ld1.send(rd2,
                     new UnconfirmedTextMessageRequest(new ObjectIdentifier(ObjectType.accessCredential, 0),
                             new CharacterString("Some message class"), MessagePriority.normal,
-                            new CharacterString("The message")))
-                    ;
+                            new CharacterString("The message")));
             monitor.wait(1000);
         }
 
