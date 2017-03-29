@@ -632,6 +632,11 @@ abstract public class EventReportingMixin extends AbstractMixin {
 
         if (ObjectType.accessZone.equals(objectType))
             return new CORPropertyValueProducer[] { //
+                    new ObjectCORProperyProducer(PropertyIdentifier.occupancyState), //
+            };
+
+        if (ObjectType.accumulator.equals(objectType))
+            return new CORPropertyValueProducer[] { //
                     new ObjectCORProperyProducer(PropertyIdentifier.pulseRate), //
                     new ObjectCORProperyProducer(PropertyIdentifier.presentValue), //
             };
