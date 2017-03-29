@@ -73,10 +73,25 @@ public class UnsignedInteger extends Primitive {
     }
 
     /**
-     * Return an UnsignedInteger that is one larger than this, wrapping at 0x100000000.
+     * Returns an UnsignedInteger that is one larger than this, wrapping at 0x100000000.
      */
     public UnsignedInteger increment32() {
-        return new UnsignedInteger((longValue() + 1) % 0x100000000L);
+        return increment32(1);
+    }
+
+    public UnsignedInteger increment32(final long amount) {
+        return new UnsignedInteger((longValue() + amount) % 0x100000000L);
+    }
+
+    /**
+     * Returns an UnsignedInteger that is one larger than this, wrapping at 0x10000.
+     */
+    public UnsignedInteger increment16() {
+        return increment16(1);
+    }
+
+    public UnsignedInteger increment16(final int amount) {
+        return new UnsignedInteger((intValue() + amount) % 0x10000L);
     }
 
     //
