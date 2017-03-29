@@ -92,7 +92,7 @@ public class OutOfRangeAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    public StateTransition evaluateEventState(final EventState currentState, final Real monitoredValue,
+    private static StateTransition evaluateEventState(final EventState currentState, final Real monitoredValue,
             final Real highLimit, final Real lowLimit, final Real deadband, final UnsignedInteger timeDelay,
             final LimitEnable limitEnable, UnsignedInteger timeDelayNormal) {
         final float monitoredValueFloat = monitoredValue.floatValue();
@@ -161,9 +161,9 @@ public class OutOfRangeAlgo extends EventAlgorithm {
                 p.getDeadband());
     }
 
-    public NotificationParameters getNotificationParameters(final EventState fromState, final EventState toState,
-            final Real lowLimit, final Real highLimit, final Real presentValue, final StatusFlags statusFlags,
-            final Real deadband) {
+    private static NotificationParameters getNotificationParameters(final EventState fromState,
+            final EventState toState, final Real lowLimit, final Real highLimit, final Real presentValue,
+            final StatusFlags statusFlags, final Real deadband) {
         Real exceededLimit;
         if (EventState.lowLimit.equals(toState) //
                 || EventState.lowLimit.equals(fromState) && EventState.normal.equals(toState))

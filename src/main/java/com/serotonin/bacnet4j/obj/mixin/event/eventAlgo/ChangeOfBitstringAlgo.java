@@ -103,7 +103,7 @@ public class ChangeOfBitstringAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    public StateTransition evaluateEventState(final EventState currentState, final BitString monitoredValue,
+    private static StateTransition evaluateEventState(final EventState currentState, final BitString monitoredValue,
             final SequenceOf<BitString> alarmValues, final BitString bitmask, final UnsignedInteger timeDelay,
             UnsignedInteger timeDelayNormal) {
         if (timeDelayNormal == null)
@@ -141,7 +141,8 @@ public class ChangeOfBitstringAlgo extends EventAlgorithm {
                 (BitString) monitoredValue);
     }
 
-    public NotificationParameters getNotificationParameters(StatusFlags statusFlags, final BitString monitoredValue) {
+    private static NotificationParameters getNotificationParameters(StatusFlags statusFlags,
+            final BitString monitoredValue) {
         if (statusFlags == null)
             statusFlags = new StatusFlags(false, false, false, false);
 

@@ -70,9 +70,9 @@ public class UnsignedRangeAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    public StateTransition evaluateEventState(final EventState currentState, final UnsignedInteger monitoredValue,
-            final UnsignedInteger highLimit, final UnsignedInteger lowLimit, final LimitEnable limitEnable,
-            final UnsignedInteger timeDelay, UnsignedInteger timeDelayNormal) {
+    private static StateTransition evaluateEventState(final EventState currentState,
+            final UnsignedInteger monitoredValue, final UnsignedInteger highLimit, final UnsignedInteger lowLimit,
+            final LimitEnable limitEnable, final UnsignedInteger timeDelay, UnsignedInteger timeDelayNormal) {
         final float monitoredValueInt = monitoredValue.intValue();
         final float highLimitInt = highLimit.intValue();
         final float lowLimitInt = lowLimit.intValue();
@@ -143,9 +143,9 @@ public class UnsignedRangeAlgo extends EventAlgorithm {
                 (StatusFlags) additionalValues.get(PropertyIdentifier.statusFlags));
     }
 
-    public NotificationParameters getNotificationParameters(final EventState fromState, final EventState toState,
-            final UnsignedInteger lowLimit, final UnsignedInteger highLimit, final UnsignedInteger monitoredValue,
-            final StatusFlags statusFlags) {
+    private static NotificationParameters getNotificationParameters(final EventState fromState,
+            final EventState toState, final UnsignedInteger lowLimit, final UnsignedInteger highLimit,
+            final UnsignedInteger monitoredValue, final StatusFlags statusFlags) {
         UnsignedInteger exceededLimit;
         if (EventState.lowLimit.equals(toState) //
                 || EventState.lowLimit.equals(fromState) && EventState.normal.equals(toState))

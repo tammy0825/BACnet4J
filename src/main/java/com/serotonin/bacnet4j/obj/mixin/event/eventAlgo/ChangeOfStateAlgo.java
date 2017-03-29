@@ -101,7 +101,7 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    public StateTransition evaluateEventState(final EventState currentState, final Encodable monitoredValue,
+    private static StateTransition evaluateEventState(final EventState currentState, final Encodable monitoredValue,
             final Encodable alarmValues, final UnsignedInteger timeDelay, UnsignedInteger timeDelayNormal) {
         if (timeDelayNormal == null)
             timeDelayNormal = timeDelay;
@@ -160,7 +160,8 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
                 monitoredValue);
     }
 
-    public NotificationParameters getNotificationParameters(StatusFlags statusFlags, final Encodable monitoredValue) {
+    private static NotificationParameters getNotificationParameters(StatusFlags statusFlags,
+            final Encodable monitoredValue) {
         if (statusFlags == null)
             statusFlags = new StatusFlags(false, false, false, false);
 
