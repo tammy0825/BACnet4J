@@ -594,13 +594,14 @@ public class TrendLogObject extends BACnetObject {
     private void doTrigger() {
         // Perform the trigger asynchronously
         getLocalDevice().execute(() -> {
-            // Do the poll.
-            doPoll();
-
-            // Set the trigger value back to false.
-            writePropertyInternal(PropertyIdentifier.trigger, new Boolean(false));
-
-            LOG.debug("Trigger complete");
+            try {
+                // Do the poll.
+                doPoll();
+                LOG.debug("Trigger complete");
+            } finally {
+                // Set the trigger value back to false.
+                writePropertyInternal(PropertyIdentifier.trigger, new Boolean(false));
+            }
         });
     }
 
