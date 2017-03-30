@@ -139,6 +139,10 @@ public class CommandableMixin extends AbstractMixin {
 
             if (supportsCommandable && value.getValue() instanceof Null)
                 return true;
+        } else if (value.getPropertyIdentifier().isOneOf(PropertyIdentifier.priorityArray,
+                PropertyIdentifier.currentCommandPriority, PropertyIdentifier.valueSourceArray,
+                PropertyIdentifier.lastCommandTime, PropertyIdentifier.commandTimeArray)) {
+            throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         } else if (PropertyIdentifier.valueSource.equals(value.getPropertyIdentifier())) {
             if (!supportsValueSource)
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
