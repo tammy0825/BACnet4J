@@ -91,6 +91,11 @@ public class ChangeOfLifeSafety extends AbstractEventParameter {
     }
 
     @Override
+    public DeviceObjectPropertyReference getReference() {
+        return modePropertyReference;
+    }
+
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
