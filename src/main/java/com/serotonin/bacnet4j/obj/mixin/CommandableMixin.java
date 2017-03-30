@@ -184,10 +184,6 @@ public class CommandableMixin extends AbstractMixin {
             }
 
             if (supportsCommandable) {
-                if (value.getPriority() == null) {
-                    // When commandable never allow a write without a priority.
-                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
-                }
                 command(valueSource, value.getValue(), value.getPriority());
                 return true;
             }
