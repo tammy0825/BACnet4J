@@ -32,8 +32,8 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class AnalogValueTest extends AbstractTest {
-    static final Logger LOG = LoggerFactory.getLogger(AnalogValueTest.class);
+public class AnalogValueObjectTest extends AbstractTest {
+    static final Logger LOG = LoggerFactory.getLogger(AnalogValueObjectTest.class);
 
     AnalogValueObject av;
     NotificationClassObject nc;

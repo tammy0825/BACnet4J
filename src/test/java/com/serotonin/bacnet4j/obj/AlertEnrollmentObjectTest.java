@@ -27,7 +27,7 @@ import com.serotonin.bacnet4j.type.primitive.Double;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class AlertEnrollmentTest extends AbstractTest {
+public class AlertEnrollmentObjectTest extends AbstractTest {
     private AnalogValueObject av0;
     private NotificationClassObject nc;
 

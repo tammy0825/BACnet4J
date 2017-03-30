@@ -46,8 +46,8 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 import lohbihler.warp.WarpClock;
 
-public class AnalogInputTest {
-    static final Logger LOG = LoggerFactory.getLogger(AnalogInputTest.class);
+public class AnalogInputObjectTest {
+    static final Logger LOG = LoggerFactory.getLogger(AnalogInputObjectTest.class);
 
     private final WarpClock clock = new WarpClock();
     private LocalDevice d1;
