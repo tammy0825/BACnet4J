@@ -169,22 +169,26 @@ public class CommandableMixin extends AbstractMixin {
     synchronized protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
             throws BACnetServiceException {
         if (pvProperty.equals(value.getPropertyIdentifier())) {
-            if (overridden)
+            if (overridden) {
                 // Never allow a write if the object is overridden.
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
-
-            if (supportsCommandable) {
-                command(valueSource, value.getValue(), value.getPriority());
-                return true;
             }
 
-            // Not commandable.
             final Boolean oos = get(outOfService);
             if (oos.booleanValue()) {
                 // Writable while the object is out of service.
                 writePropertyInternal(pvProperty, value.getValue());
                 if (supportsValueSource)
                     writePropertyInternal(PropertyIdentifier.valueSource, valueSource);
+                return true;
+            }
+
+            if (supportsCommandable) {
+                if (value.getPriority() == null) {
+                    // When commandable never allow a write without a priority.
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
+                }
+                command(valueSource, value.getValue(), value.getPriority());
                 return true;
             }
 
