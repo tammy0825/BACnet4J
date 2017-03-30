@@ -205,6 +205,11 @@ public class Enumerated extends Primitive {
     }
 
     @Override
+    public String toString() {
+        return "Enumerated [smallValue=" + smallValue + ", bigValue=" + bigValue + "]";
+    }
+
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
