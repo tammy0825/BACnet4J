@@ -101,4 +101,9 @@ public class DeviceObjectPropertyReferences {
     public void clear() {
         properties.clear();
     }
+
+    @Override
+    public String toString() {
+        return "DeviceObjectPropertyReferences [properties=" + properties + "]";
+    }
 }
