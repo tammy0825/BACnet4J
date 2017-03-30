@@ -5,29 +5,70 @@ import static com.serotonin.bacnet4j.type.enumerated.BinaryPV.inactive;
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.presentValue;
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.priorityArray;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.type.AmbiguousValue;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
+import com.serotonin.bacnet4j.type.constructed.DateTime;
+import com.serotonin.bacnet4j.type.constructed.Destination;
+import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
+import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
+import com.serotonin.bacnet4j.type.constructed.Recipient;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.StatusFlags;
+import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
+import com.serotonin.bacnet4j.type.enumerated.EventState;
+import com.serotonin.bacnet4j.type.enumerated.EventType;
+import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.Polarity;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.eventParameter.CommandFailure;
+import com.serotonin.bacnet4j.type.eventParameter.EventParameter;
+import com.serotonin.bacnet4j.type.notificationParameters.CommandFailureNotif;
+import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class BinaryOutputTest extends AbstractTest {
+import lohbihler.warp.WarpClock;
+
+public class BinaryOutputTest {
     static final Logger LOG = LoggerFactory.getLogger(BinaryOutputTest.class);
 
-    BinaryOutputObject obj;
+    private final WarpClock clock = new WarpClock();
+    private LocalDevice d1;
+    private LocalDevice d2;
+    private RemoteDevice rd1;
+    private RemoteDevice rd2;
+    private BinaryOutputObject obj;
+    private NotificationClassObject nc;
 
-    @Override
+    @Before
     public void before() throws Exception {
-        obj = new BinaryOutputObject(d1, 0, "boName1", BinaryPV.inactive, true, Polarity.normal, BinaryPV.inactive);
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock).initialize();
+        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock).initialize();
+
+        rd1 = d2.getRemoteDevice(1).get();
+        rd2 = d1.getRemoteDevice(2).get();
+
+        obj = new BinaryOutputObject(d1, 0, "boName1", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);
         obj.addListener(new BACnetObjectListener() {
             @Override
             public void propertyChange(final PropertyIdentifier pid, final Encodable oldValue,
@@ -35,11 +76,19 @@ public class BinaryOutputTest extends AbstractTest {
                 LOG.debug("{} changed from {} to {}", pid, oldValue, newValue);
             }
         });
+
+        nc = new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
+    }
+
+    @After
+    public void abstractAfter() {
+        d1.terminate();
+        d2.terminate();
     }
 
     @Test
     public void initialization() throws Exception {
-        new BinaryOutputObject(d1, 1, "boName2", BinaryPV.inactive, false, Polarity.normal, BinaryPV.inactive);
+        new BinaryOutputObject(d1, 1, "boName2", BinaryPV.inactive, true, Polarity.normal, BinaryPV.inactive);
     }
 
     @Test
@@ -75,7 +124,7 @@ public class BinaryOutputTest extends AbstractTest {
         assertEquals(active, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
         // e), f) Wait for the timer to expire. Starts min off timer for 4s
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         LOG.debug("e,f");
         assertEquals(new PriorityArray().put(6, inactive).put(7, inactive), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
@@ -89,7 +138,7 @@ public class BinaryOutputTest extends AbstractTest {
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
         // Wait for the timer to expire.
-        Thread.sleep(2100);
+        clock.plus(2100, TimeUnit.MILLISECONDS, 2100, TimeUnit.MILLISECONDS, 0, 40);
         LOG.debug("B");
         assertEquals(new PriorityArray().put(10, inactive), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
@@ -113,22 +162,292 @@ public class BinaryOutputTest extends AbstractTest {
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
         // Relinquish at 5. Timer remains active.
-        Thread.sleep(1500);
+        clock.plus(1500, TimeUnit.MILLISECONDS, 1500, TimeUnit.MILLISECONDS, 0, 40);
         LOG.debug("F");
         RequestUtils.writeProperty(d2, rd1, obj.getId(), presentValue, Null.instance, 5);
         assertEquals(new PriorityArray().put(6, inactive).put(9, active), pa);
         assertEquals(inactive, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
         // Wait for the timer to expire. Starts min on timer for 2s
-        Thread.sleep(600);
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
         LOG.debug("G");
         assertEquals(new PriorityArray().put(6, active).put(9, active), pa);
         assertEquals(active, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
 
         // Wait for the timer to expire.
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         LOG.debug("H");
         assertEquals(new PriorityArray().put(9, active), pa);
         assertEquals(active, RequestUtils.getProperty(d2, rd1, obj.getId(), presentValue));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void intrinsicReporting() throws Exception {
+        final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+                new EventTransitionBits(true, true, true)));
+
+        // Create an event listener on d2 to catch the event notifications.
+        final EventNotifListener listener = new EventNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        obj.supportIntrinsicReporting(5, 17, BinaryPV.inactive, new EventTransitionBits(true, true, true),
+                NotifyType.alarm, 12);
+        // Ensure that initializing the intrinsic reporting didn't fire any notifications.
+        Thread.sleep(40);
+        assertEquals(0, listener.notifs.size());
+
+        // Check the starting values.
+        assertEquals(BinaryPV.inactive, obj.get(PropertyIdentifier.presentValue));
+        assertEquals(BinaryPV.inactive, obj.get(PropertyIdentifier.feedbackValue));
+
+        // Do a state change. Write a value to indicate a command failure. After 5s the alarm will be raised.
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
+        clock.plus(4500, TimeUnit.MILLISECONDS, 4500, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.normal, obj.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.offnormal, obj.getProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), obj.getProperty(PropertyIdentifier.statusFlags));
+
+        // Ensure that a proper looking event notification was received.
+        assertEquals(1, listener.notifs.size());
+        Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
+        assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
+        assertEquals(obj.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) obj.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(100), notif.get("priority"));
+        assertEquals(EventType.commandFailure, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.alarm, notif.get("notifyType"));
+        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(EventState.normal, notif.get("fromState"));
+        assertEquals(EventState.offnormal, notif.get("toState"));
+        CommandFailureNotif commandFailure = ((NotificationParameters) notif.get("eventValues")).getParameter();
+        assertEquals(BinaryPV.inactive, AmbiguousValue.convertTo(commandFailure.getCommandValue(), BinaryPV.class));
+        assertEquals(new StatusFlags(true, false, false, false), commandFailure.getStatusFlags());
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getFeedbackValue(), BinaryPV.class));
+
+        // Return to normal. After 12s the notification will be sent.
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        clock.plus(11500, TimeUnit.MILLISECONDS, 11500, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.offnormal, obj.getProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.normal, obj.getProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(false, false, false, false), obj.getProperty(PropertyIdentifier.statusFlags));
+
+        // Ensure that a proper looking event notification was received.
+        assertEquals(1, listener.notifs.size());
+        notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
+        assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
+        assertEquals(obj.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) obj.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(200), notif.get("priority"));
+        assertEquals(EventType.commandFailure, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.alarm, notif.get("notifyType"));
+        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(EventState.offnormal, notif.get("fromState"));
+        assertEquals(EventState.normal, notif.get("toState"));
+        commandFailure = ((NotificationParameters) notif.get("eventValues")).getParameter();
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getCommandValue(), BinaryPV.class));
+        assertEquals(new StatusFlags(false, false, false, false), commandFailure.getStatusFlags());
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getFeedbackValue(), BinaryPV.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void algorithmicReporting() throws Exception {
+        final DeviceObjectPropertyReference ref = new DeviceObjectPropertyReference(1, obj.getId(),
+                PropertyIdentifier.presentValue);
+        final EventEnrollmentObject ee = new EventEnrollmentObject(d1, 0, "ee", ref, NotifyType.alarm,
+                new EventParameter(new CommandFailure(new UnsignedInteger(30),
+                        new DeviceObjectPropertyReference(1, obj.getId(), PropertyIdentifier.feedbackValue))),
+                new EventTransitionBits(true, true, true), 17, 1000, null, null);
+
+        // Set up the notification destination
+        final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+                new EventTransitionBits(true, true, true)));
+
+        // Create an event listener on d2 to catch the event notifications.
+        final EventNotifListener listener = new EventNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        // Ensure that initializing the event enrollment object didn't fire any notifications.
+        Thread.sleep(40);
+        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(0, listener.notifs.size());
+
+        //
+        // Go to high limit.
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
+        // Allow the EE to poll
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        // Wait until just before the time delay.
+        clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        // Wait until after the time delay.
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+
+        // Ensure that a proper looking event notification was received.
+        assertEquals(1, listener.notifs.size());
+        Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(100), notif.get("priority"));
+        assertEquals(EventType.commandFailure, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.alarm, notif.get("notifyType"));
+        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(EventState.normal, notif.get("fromState"));
+        assertEquals(EventState.offnormal, notif.get("toState"));
+        CommandFailureNotif commandFailure = ((NotificationParameters) notif.get("eventValues")).getParameter();
+        assertEquals(BinaryPV.inactive, AmbiguousValue.convertTo(commandFailure.getCommandValue(), BinaryPV.class));
+        assertEquals(new StatusFlags(false, false, false, false), commandFailure.getStatusFlags());
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getFeedbackValue(), BinaryPV.class));
+
+        //
+        // Return to normal
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        // Allow the EE to poll
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        // Wait until just before the time delay.
+        clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        // Wait until after the time delay.
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
+        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+
+        // Ensure that a proper looking event notification was received.
+        assertEquals(1, listener.notifs.size());
+        notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(200), notif.get("priority"));
+        assertEquals(EventType.commandFailure, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.alarm, notif.get("notifyType"));
+        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(EventState.offnormal, notif.get("fromState"));
+        assertEquals(EventState.normal, notif.get("toState"));
+        commandFailure = ((NotificationParameters) notif.get("eventValues")).getParameter();
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getCommandValue(), BinaryPV.class));
+        assertEquals(new StatusFlags(false, false, false, false), commandFailure.getStatusFlags());
+        assertEquals(BinaryPV.active, AmbiguousValue.convertTo(commandFailure.getFeedbackValue(), BinaryPV.class));
+
+    }
+
+    @Test
+    public void activeTime() {
+        try {
+            obj.supportActiveTime(true);
+            fail("Should have thrown an IllegalStateException");
+        } catch (@SuppressWarnings("unused") final IllegalStateException e) {
+            // Expected
+        }
+
+        final DateTime start = new DateTime(d1);
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.inactive);
+        obj.supportActiveTime(true);
+
+        clock.plusMillis(3500);
+        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
+        clock.plusMillis(1600); // Total active time 1600ms
+        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
+        clock.plusMillis(1600); // Total active time 3200ms
+        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.inactive);
+        clock.plusMillis(7000);
+        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.inactive);
+        clock.plusMillis(500);
+        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
+        clock.plusMillis(4700); // Total active time 7900ms
+        assertEquals(new UnsignedInteger(7), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(5));
+        assertEquals(new UnsignedInteger(5), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+
+        clock.plusMillis(1234);
+        obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(0));
+        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(new DateTime(d1), obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+    }
+
+    @Test
+    public void stateChanges() {
+        final DateTime start = new DateTime(d1);
+        assertEquals(DateTime.UNSPECIFIED, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+
+        clock.plusMinutes(4);
+        final DateTime t1 = new DateTime(d1);
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        assertEquals(t1, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+
+        clock.plusMinutes(5);
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        assertEquals(t1, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+
+        clock.plusMinutes(6);
+        final DateTime t2 = new DateTime(d1);
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);
+        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(4), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+
+        clock.plusMinutes(7);
+        obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(123));
+        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(123), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+
+        clock.plusMinutes(8);
+        final DateTime t3 = new DateTime(d1);
+        obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(0));
+        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(t3, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
     }
 }
