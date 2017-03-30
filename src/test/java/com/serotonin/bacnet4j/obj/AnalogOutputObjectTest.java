@@ -165,10 +165,6 @@ public class AnalogOutputObjectTest {
         // Should not be writable while in service
         TestUtils.assertBACnetServiceException(
                 () -> ao.writeProperty(null,
-                        new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null)),
-                ErrorClass.property, ErrorCode.writeAccessDenied);
-        TestUtils.assertBACnetServiceException(
-                () -> ao.writeProperty(null,
                         new PropertyValue(PropertyIdentifier.reliability, null, Reliability.unreliableOther, null)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
