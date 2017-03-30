@@ -23,7 +23,6 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -232,35 +231,23 @@ public class BinaryValueObjectTest {
         // When overridden, the present value is not settable
         bv.setOverridden(true);
         bv.writePropertyInternal(outOfService, new Boolean(false));
-        try {
-            RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
-            assertTrue("Should have gotten an error APDU", false);
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
-        }
+        TestUtils.assertErrorAPDUException(
+                () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... even when it is out of service.
         bv.setOverridden(true);
         bv.writePropertyInternal(outOfService, new Boolean(true));
-        try {
-            RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
-            assertTrue("Should have gotten an error APDU", false);
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
-        }
+        TestUtils.assertErrorAPDUException(
+                () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // When not overridden, the present value is not settable while not out of service.
         bv.setOverridden(false);
         bv.writePropertyInternal(outOfService, new Boolean(false));
-        try {
-            RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
-            assertTrue("Should have gotten an error APDU", false);
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
-        }
+        TestUtils.assertErrorAPDUException(
+                () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... but it is when the object is out of service.
         bv.setOverridden(false);
@@ -282,24 +269,16 @@ public class BinaryValueObjectTest {
         // When overridden, the present value is not settable
         bv.setOverridden(true);
         bv.writePropertyInternal(outOfService, new Boolean(false));
-        try {
-            RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
-            assertTrue("Should have gotten an error APDU", false);
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
-        }
+        TestUtils.assertErrorAPDUException(
+                () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... even when it is out of service.
         bv.setOverridden(true);
         bv.writePropertyInternal(outOfService, new Boolean(true));
-        try {
-            RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
-            assertTrue("Should have gotten an error APDU", false);
-        } catch (final ErrorAPDUException e) {
-            assertEquals(ErrorClass.property, e.getError().getErrorClass());
-            assertEquals(ErrorCode.writeAccessDenied, e.getError().getErrorCode());
-        }
+        TestUtils.assertErrorAPDUException(
+                () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // When not overridden, the present value is writable while not out of service.
         bv.setOverridden(false);
