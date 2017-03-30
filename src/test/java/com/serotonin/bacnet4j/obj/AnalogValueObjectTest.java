@@ -4,11 +4,18 @@ import static com.serotonin.bacnet4j.TestUtils.assertBACnetServiceException;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
@@ -32,16 +39,37 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class AnalogValueObjectTest extends AbstractTest {
+import lohbihler.warp.WarpClock;
+
+public class AnalogValueObjectTest {
     static final Logger LOG = LoggerFactory.getLogger(AnalogValueObjectTest.class);
 
-    AnalogValueObject av;
-    NotificationClassObject nc;
+    private final WarpClock clock = new WarpClock();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock);
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock);
+    private RemoteDevice rd1;
+    private RemoteDevice rd2;
 
-    @Override
+    private AnalogValueObject av;
+    private NotificationClassObject nc;
+
+    @Before
     public void before() throws Exception {
+        d1.initialize();
+        d2.initialize();
+
+        // Get d1 as a remote object.
+        rd1 = d2.getRemoteDevice(1).get();
+        rd2 = d1.getRemoteDevice(2).get();
+
         av = new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
         nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200, new EventTransitionBits(false, false, false));
+    }
+
+    @After
+    public void abstractAfter() {
+        d1.terminate();
+        d2.terminate();
     }
 
     @SuppressWarnings("unchecked")
@@ -51,24 +79,11 @@ public class AnalogValueObjectTest extends AbstractTest {
         recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
                 new EventTransitionBits(true, true, true)));
 
-        //        nc.addEventListener(new NotificationClassListener() {
-        //            @Override
-        //            public void event(ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp,
-        //                    UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType,
-        //                    CharacterString messageText, NotifyType notifyType, Boolean ackRequired, EventState fromState,
-        //                    EventState toState, NotificationParameters eventValues) {
-        //                LOG.info("eventObjectIdentifier={}, timeStamp={}, notificationClass={}, priority={}, " //
-        //                        + "eventType={}, messageText={}, notifyType={}, ackRequired={}, fromState={}, toState={}, " //
-        //                        + "eventValues={}", eventObjectIdentifier, timeStamp, notificationClass, priority, eventType,
-        //                        messageText, notifyType, ackRequired, fromState, toState, eventValues);
-        //            }
-        //        });
-
         // Create an event listener on d2 to catch the event notifications.
         final EventNotifListener listener = new EventNotifListener();
         d2.getEventHandler().addListener(listener);
 
-        av.supportIntrinsicReporting(1, 7, 100, 20, 5, new LimitEnable(true, true),
+        av.supportIntrinsicReporting(1, 7, 100, 20, 5, 120, 0, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 2);
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.
         assertEquals(0, listener.notifs.size());
@@ -76,24 +91,24 @@ public class AnalogValueObjectTest extends AbstractTest {
         // Write a different normal value.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(60));
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         // Set an out of range value and then set back to normal before the time delay.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
-        Thread.sleep(500);
+        clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(90));
-        Thread.sleep(600);
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         // Do a real state change. Write an out of range value. After 1 seconds the alarm will be raised.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(10));
-        Thread.sleep(500);
+        clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
-        Thread.sleep(600);
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(new StatusFlags(true, false, false, false), av.getProperty(PropertyIdentifier.statusFlags));
 
@@ -113,14 +128,13 @@ public class AnalogValueObjectTest extends AbstractTest {
         assertEquals(new Boolean(false), notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
-                notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                new StatusFlags(true, false, false, false), new Real(5), new Real(20))), notif.get("eventValues"));
 
         // Disable low limit checking. Will return to normal immediately.
         av.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(false, true));
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
-        Thread.sleep(100);
+        Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
@@ -136,41 +150,42 @@ public class AnalogValueObjectTest extends AbstractTest {
         assertEquals(new Boolean(false), notif.get("ackRequired"));
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                        new StatusFlags(false, false, false, false), new Real(5), new Real(20))),
                 notif.get("eventValues"));
 
         // Re-enable low limit checking. Will return to low-limit after 1 second.
         av.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(true, true));
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(10), new StatusFlags(true, false, false, false), new Real(5), new Real(20))),
-                notif.get("eventValues"));
+        assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(10),
+                new StatusFlags(true, false, false, false), new Real(5), new Real(20))), notif.get("eventValues"));
 
         // Go to a high limit. Will change to high-limit after 1 second.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
         assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(110), new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(110),
+                        new StatusFlags(true, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
 
         // Reduce to within the deadband. No notification.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(95));
         assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
-        Thread.sleep(1100);
+        clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
@@ -178,17 +193,18 @@ public class AnalogValueObjectTest extends AbstractTest {
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(94));
         assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
-        Thread.sleep(1500);
+        clock.plus(1500, TimeUnit.MILLISECONDS, 1500, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
-        Thread.sleep(600);
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.highLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
-        assertEquals(new NotificationParameters(
-                new OutOfRangeNotif(new Real(94), new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
+        assertEquals(
+                new NotificationParameters(new OutOfRangeNotif(new Real(94),
+                        new StatusFlags(false, false, false, false), new Real(5), new Real(100))),
                 notif.get("eventValues"));
     }
 
