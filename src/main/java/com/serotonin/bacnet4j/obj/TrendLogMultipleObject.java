@@ -455,6 +455,11 @@ public class TrendLogMultipleObject extends BACnetObject {
                 element = new LogDataElement(new ErrorClassAndCode(ErrorClass.property, ErrorCode.noPropertySpecified));
             } else {
                 final PropertyValues values = result.getPropertyValues(prop.getDeviceIdentifier().getInstanceNumber());
+                if (values == null) {
+                    throw new NullPointerException("Didn't find device "
+                            + prop.getDeviceIdentifier().getInstanceNumber() + " in results " + result
+                            + ", polling delegate remote references: " + pollingDelegate.getRemoteReferences());
+                }
                 final Encodable value = values.getNoErrorCheck(prop.getObjectIdentifier(),
                         new PropertyReference(prop.getPropertyIdentifier(), prop.getPropertyArrayIndex()));
                 element = LogDataElement.createFromMonitoredValue(value);

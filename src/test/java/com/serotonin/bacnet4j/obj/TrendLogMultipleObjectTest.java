@@ -177,7 +177,7 @@ public class TrendLogMultipleObjectTest {
         tl.trigger();
 
         // Wait for the polling to finish.
-        Thread.sleep(50);
+        Thread.sleep(100);
         assertEquals(4, tl.getBuffer().size());
         final LogMultipleRecord record3 = tl.getBuffer().get(3);
         assertEquals(4, record3.getSequenceNumber());
@@ -373,7 +373,7 @@ public class TrendLogMultipleObjectTest {
         while (remaining > 0) {
             if (tl.trigger())
                 remaining--;
-            Thread.sleep(10);
+            Thread.sleep(20);
         }
     }
 
