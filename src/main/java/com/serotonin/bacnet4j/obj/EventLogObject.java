@@ -357,7 +357,7 @@ public class EventLogObject extends BACnetObject {
 
         if (!stop.equals(DateTime.UNSPECIFIED)) {
             LOG.info("Checking stop time");
-            if (now.compareTo(stop) > 0)
+            if (now.compareTo(stop) >= 0)
                 return false;
         }
 
