@@ -4,6 +4,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
@@ -14,6 +16,7 @@ import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.NameValue;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
@@ -26,12 +29,15 @@ import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.SignedInteger;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
 public class BACnetObjectTest {
-    LocalDevice d1;
-    LocalDevice d2;
-    RemoteDevice rd2;
+    static final Logger LOG = LoggerFactory.getLogger(BACnetObjectTest.class);
+
+    private LocalDevice d1;
+    private LocalDevice d2;
+    private RemoteDevice rd2;
 
     @Before
     public void before() throws Exception {
@@ -148,10 +154,22 @@ public class BACnetObjectTest {
     }
 
     @Test
+    public void undefinedArrayWriteElementLowIndexDirect() {
+        TestUtils.assertBACnetServiceException(() -> {
+            d2.getObject(d2.getId()).writeProperty(null,
+                    new PropertyValue(PropertyIdentifier.forId(6789), new UnsignedInteger(0), new Real(10), null));
+        }, ErrorClass.property, ErrorCode.invalidArrayIndex);
+    }
+
+    @Test
     public void undefinedArrayWriteElementLowIndex() {
-        // Returns invalid data type because the index of 0 indicates a write to the array length.
+        // Returns invalid data type because the index of 0 indicates a write to the array length, which expects
+        // an UnsignedInteger
         TestUtils.assertErrorAPDUException(() -> {
+            LOG.info("Before write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(6789), 0, new Real(10));
+            LOG.info("After write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
+            LOG.info("After write: {}", d1.getProperty(PropertyIdentifier.forId(6789)));
         }, ErrorClass.property, ErrorCode.invalidDataType);
     }
 
@@ -172,7 +190,9 @@ public class BACnetObjectTest {
     @Test
     public void undefinedArrayWriteIncorrectElement() {
         TestUtils.assertErrorAPDUException(() -> {
+            LOG.info("Before write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(6789), 0, new SignedInteger(10));
+            LOG.info("After write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
         }, ErrorClass.property, ErrorCode.invalidDataType);
     }
 

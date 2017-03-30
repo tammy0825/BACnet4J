@@ -260,6 +260,7 @@ public class TrendLogMultipleObjectTest {
         //
         // Write 4 triggers and make sure no notification was sent.
         doTriggers(tl, 4);
+        LOG.info("intrinsicReporting 3.1");
         assertEquals(4, tl.getBuffer().size());
         assertEquals(0, listener.notifs.size());
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.recordCount));

@@ -242,6 +242,9 @@ public class PropertyUtils {
                 @Override
                 public boolean progress(final double deviceProgress, final int did, final ObjectIdentifier oid,
                         final PropertyIdentifier pid, final UnsignedInteger pin, final Encodable value) {
+                    LOG.info("Property read from {}: {}, {}, {}, {}, {}", rd.getInstanceNumber(), did, oid, pid, pin,
+                            value);
+
                     // Notify the callback
                     remaining.decrementAndGet();
 
@@ -269,6 +272,7 @@ public class PropertyUtils {
             LOG.error("Exception while getting properties for device {}", rd.getInstanceNumber(), ex);
         }
     }
+
     //
     //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
