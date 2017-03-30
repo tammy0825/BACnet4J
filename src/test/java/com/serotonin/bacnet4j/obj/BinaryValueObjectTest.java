@@ -11,31 +11,59 @@ import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.reliabil
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.relinquishDefault;
 import static com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier.statusFlags;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.TestUtils;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Null;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class BinaryValueObjectTest extends AbstractTest {
-    BinaryValueObject bv;
+public class BinaryValueObjectTest {
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
+    private RemoteDevice rd1;
+    private BinaryValueObject bv;
 
-    @Override
+    @Before
     public void before() throws Exception {
-        bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
+        d1.initialize();
+        d2.initialize();
+
+        rd1 = d2.getRemoteDeviceBlocking(1);
+
+        bv = new BinaryValueObject(d1, 0, "bv", BinaryPV.inactive, true);
+        new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
+    }
+
+    @After
+    public void after() throws Exception {
+        d1.terminate();
+        d2.terminate();
     }
 
     @Test
@@ -47,7 +75,7 @@ public class BinaryValueObjectTest extends AbstractTest {
     public void name() throws Exception {
         // Ensure that the object has the given name.
         CharacterString name = RequestUtils.getProperty(d2, rd1, bv.getId(), objectName);
-        Assert.assertEquals("bvName1", name.getValue());
+        assertEquals("bv", name.getValue());
 
         // Ensure that the name cannot be changed remotely.
         RequestUtils.writeProperty(d2, rd1, bv.getId(), objectName, new CharacterString("goAheadSetThis"));
@@ -88,20 +116,109 @@ public class BinaryValueObjectTest extends AbstractTest {
     @Test
     public void propertyList() throws Exception {
         SequenceOf<PropertyIdentifier> pids = RequestUtils.getProperty(d2, rd1, bv.getId(), propertyList);
-        assertEquals(4, pids.getCount());
+        assertEquals(8, pids.getCount());
         assertTrue(pids.contains(presentValue));
         assertTrue(pids.contains(statusFlags));
         assertTrue(pids.contains(eventState));
         assertTrue(pids.contains(outOfService));
+        assertTrue(pids.contains(PropertyIdentifier.changeOfStateCount));
+        assertTrue(pids.contains(PropertyIdentifier.changeOfStateTime));
+        assertTrue(pids.contains(PropertyIdentifier.timeOfStateCountReset));
+        assertTrue(pids.contains(PropertyIdentifier.reliability));
 
         bv.writeProperty(null, inactiveText, new CharacterString("someText"));
         pids = RequestUtils.getProperty(d2, rd1, bv.getId(), propertyList);
-        assertEquals(5, pids.getCount());
+        assertEquals(9, pids.getCount());
         assertTrue(pids.contains(presentValue));
         assertTrue(pids.contains(statusFlags));
         assertTrue(pids.contains(eventState));
         assertTrue(pids.contains(outOfService));
         assertTrue(pids.contains(inactiveText));
+        assertTrue(pids.contains(PropertyIdentifier.changeOfStateCount));
+        assertTrue(pids.contains(PropertyIdentifier.changeOfStateTime));
+        assertTrue(pids.contains(PropertyIdentifier.timeOfStateCountReset));
+        assertTrue(pids.contains(PropertyIdentifier.reliability));
+    }
+
+    @Test
+    public void propertyConformanceRequired() {
+        assertNotNull(bv.getProperty(PropertyIdentifier.objectIdentifier));
+        assertNotNull(bv.getProperty(PropertyIdentifier.objectName));
+        assertNotNull(bv.getProperty(PropertyIdentifier.objectType));
+        assertNotNull(bv.getProperty(PropertyIdentifier.presentValue));
+        assertNotNull(bv.getProperty(PropertyIdentifier.statusFlags));
+        assertNotNull(bv.getProperty(PropertyIdentifier.eventState));
+        assertNotNull(bv.getProperty(PropertyIdentifier.outOfService));
+        assertNotNull(bv.getProperty(PropertyIdentifier.propertyList));
+    }
+
+    @Test
+    public void propertyConformanceEditableWhenOutOfService() throws BACnetServiceException {
+        // Should not be writable while in service
+        bv.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(false));
+        TestUtils.assertBACnetServiceException(
+                () -> bv.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+        TestUtils.assertBACnetServiceException(
+                () -> bv.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.reliability, null, Reliability.overRange, null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+
+        // Should be writable while out of service.
+        bv.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        bv.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, null));
+        bv.writeProperty(null, new PropertyValue(PropertyIdentifier.reliability, null, Reliability.overRange, null));
+    }
+
+    @Test
+    public void propertyConformanceReadOnly() {
+        TestUtils.assertBACnetServiceException(
+                () -> bv.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.ackedTransitions, new UnsignedInteger(2),
+                                new CharacterString("should fail"), null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+        TestUtils.assertBACnetServiceException(
+                () -> bv.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.eventTimeStamps, new UnsignedInteger(2),
+                                new CharacterString("should fail"), null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+        TestUtils.assertBACnetServiceException(
+                () -> bv.writeProperty(null,
+                        new PropertyValue(PropertyIdentifier.eventMessageTexts, new UnsignedInteger(2),
+                                new CharacterString("should fail"), null)),
+                ErrorClass.property, ErrorCode.writeAccessDenied);
+    }
+
+    @Test
+    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+        bv.supportIntrinsicReporting(30, 17, BinaryPV.active, new EventTransitionBits(true, true, true),
+                NotifyType.alarm, 60);
+        assertNotNull(bv.getProperty(PropertyIdentifier.timeDelay));
+        assertNotNull(bv.getProperty(PropertyIdentifier.notificationClass));
+        assertNotNull(bv.getProperty(PropertyIdentifier.alarmValue));
+        assertNotNull(bv.getProperty(PropertyIdentifier.eventEnable));
+        assertNotNull(bv.getProperty(PropertyIdentifier.ackedTransitions));
+        assertNotNull(bv.getProperty(PropertyIdentifier.notifyType));
+        assertNotNull(bv.getProperty(PropertyIdentifier.eventTimeStamps));
+        assertNotNull(bv.getProperty(PropertyIdentifier.eventDetectionEnable));
+    }
+
+    @Test
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+        assertNull(bv.getProperty(PropertyIdentifier.timeDelay));
+        assertNull(bv.getProperty(PropertyIdentifier.notificationClass));
+        assertNull(bv.getProperty(PropertyIdentifier.alarmValue));
+        assertNull(bv.getProperty(PropertyIdentifier.eventEnable));
+        assertNull(bv.getProperty(PropertyIdentifier.ackedTransitions));
+        assertNull(bv.getProperty(PropertyIdentifier.notifyType));
+        assertNull(bv.getProperty(PropertyIdentifier.eventTimeStamps));
+        assertNull(bv.getProperty(PropertyIdentifier.eventMessageTexts));
+        assertNull(bv.getProperty(PropertyIdentifier.eventMessageTextsConfig));
+        assertNull(bv.getProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNull(bv.getProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
+        assertNull(bv.getProperty(PropertyIdentifier.eventAlgorithmInhibit));
+        assertNull(bv.getProperty(PropertyIdentifier.timeDelayNormal));
     }
 
     @Test
