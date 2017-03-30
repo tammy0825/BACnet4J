@@ -89,7 +89,7 @@ public class BinaryOutputObject extends BACnetObject {
         addMixin(new StateChangeMixin(this));
     }
 
-    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass,
+    public BinaryOutputObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,
             final BinaryPV feedbackValue, final EventTransitionBits eventEnable, final NotifyType notifyType,
             final int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
@@ -103,6 +103,8 @@ public class BinaryOutputObject extends BACnetObject {
 
         addMixin(new IntrinsicReportingMixin(this, new CommandFailureAlgo(), null, PropertyIdentifier.presentValue,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.feedbackValue }));
+
+        return this;
     }
 
     public BinaryOutputObject supportStateText(final String inactive, final String active) {
