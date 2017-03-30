@@ -70,6 +70,10 @@ public class AbstractMixin {
         bo.writePropertyInternal(pid, value);
     }
 
+    protected final void set(final PropertyIdentifier pid, final Encodable value) {
+        bo.set(pid, value);
+    }
+
     protected final <T extends Encodable> T get(final PropertyIdentifier pid) {
         return bo.get(pid);
     }
