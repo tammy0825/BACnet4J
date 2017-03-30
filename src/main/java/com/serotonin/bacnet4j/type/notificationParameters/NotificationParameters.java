@@ -74,8 +74,9 @@ public class NotificationParameters extends BaseType {
         choice = readChoice(queue, choiceOptions);
     }
 
-    public AbstractNotificationParameter getParameter() {
-        return choice.getDatum();
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractNotificationParameter> T getParameter() {
+        return (T) choice.getDatum();
     }
 
     @Override
