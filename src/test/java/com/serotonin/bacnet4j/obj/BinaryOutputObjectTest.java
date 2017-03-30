@@ -49,8 +49,8 @@ import com.serotonin.bacnet4j.util.RequestUtils;
 
 import lohbihler.warp.WarpClock;
 
-public class BinaryOutputTest {
-    static final Logger LOG = LoggerFactory.getLogger(BinaryOutputTest.class);
+public class BinaryOutputObjectTest {
+    static final Logger LOG = LoggerFactory.getLogger(BinaryOutputObjectTest.class);
 
     private final WarpClock clock = new WarpClock();
     private LocalDevice d1;
@@ -206,7 +206,7 @@ public class BinaryOutputTest {
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         clock.plus(4500, TimeUnit.MILLISECONDS, 4500, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, obj.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
-        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
+        clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 80);
         assertEquals(EventState.offnormal, obj.getProperty(PropertyIdentifier.eventState));
         assertEquals(new StatusFlags(true, false, false, false), obj.getProperty(PropertyIdentifier.statusFlags));
 
@@ -449,5 +449,44 @@ public class BinaryOutputTest {
         assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
         assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));
         assertEquals(t3, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+    }
+
+    @Test
+    public void physicalState() {
+        // Ensure the default state.
+        assertEquals(new Boolean(false), obj.get(PropertyIdentifier.outOfService));
+        assertEquals(BinaryPV.inactive, obj.get(PropertyIdentifier.presentValue));
+        assertEquals(Polarity.normal, obj.get(PropertyIdentifier.polarity));
+
+        // false, inactive, normal
+        assertEquals(BinaryPV.inactive, obj.getPhysicalState());
+
+        // true, inactive, normal
+        obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        assertEquals(BinaryPV.inactive, obj.getPhysicalState());
+
+        // true, active, normal
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
+        assertEquals(BinaryPV.active, obj.getPhysicalState());
+
+        // false, active, normal
+        obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        assertEquals(BinaryPV.active, obj.getPhysicalState());
+
+        // false, active, reverse
+        obj.writePropertyInternal(PropertyIdentifier.polarity, Polarity.reverse);
+        assertEquals(BinaryPV.inactive, obj.getPhysicalState());
+
+        // true, active, reverse
+        obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        assertEquals(BinaryPV.active, obj.getPhysicalState());
+
+        // true, inactive, reverse
+        obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);
+        assertEquals(BinaryPV.inactive, obj.getPhysicalState());
+
+        // false, inactive, reverse
+        obj.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        assertEquals(BinaryPV.active, obj.getPhysicalState());
     }
 }
