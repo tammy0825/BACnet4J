@@ -22,4 +22,22 @@ public class UnsignedIntegerTest {
         i = i.increment32();
         assertEquals(1, i.longValue());
     }
+
+    @Test
+    public void increment16() {
+        UnsignedInteger i = new UnsignedInteger(65533);
+        assertEquals(65533, i.intValue());
+
+        i = i.increment16();
+        assertEquals(65534, i.intValue());
+
+        i = i.increment16();
+        assertEquals(65535, i.intValue());
+
+        i = i.increment16();
+        assertEquals(0, i.intValue());
+
+        i = i.increment16();
+        assertEquals(1, i.intValue());
+    }
 }
