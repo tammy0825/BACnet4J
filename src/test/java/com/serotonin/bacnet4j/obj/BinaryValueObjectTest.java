@@ -30,7 +30,7 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class BinaryValueTest extends AbstractTest {
+public class BinaryValueObjectTest extends AbstractTest {
     BinaryValueObject bv;
 
     @Override

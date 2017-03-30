@@ -17,7 +17,7 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class NotificationClassTest extends AbstractTest {
+public class NotificationClassObjectTest extends AbstractTest {
     NotificationClassObject nc;
 
     @Override

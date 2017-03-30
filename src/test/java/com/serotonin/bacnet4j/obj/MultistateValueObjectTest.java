@@ -16,7 +16,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class MultistateValueTest extends AbstractTest {
+public class MultistateValueObjectTest extends AbstractTest {
     @Override
     public void before() throws Exception {
         // no op
