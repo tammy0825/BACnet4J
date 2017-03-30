@@ -38,6 +38,7 @@ import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.mixin.event.StateTransition;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
+import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
@@ -46,6 +47,7 @@ import com.serotonin.bacnet4j.type.eventParameter.AbstractEventParameter;
 import com.serotonin.bacnet4j.type.eventParameter.OutOfRange;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.notificationParameters.OutOfRangeNotif;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
@@ -79,7 +81,8 @@ public class OutOfRangeAlgo extends EventAlgorithm {
 
     @Override
     public StateTransition evaluateAlgorithmicEventState(final BACnetObject bo, final Encodable monitoredValue,
-            final AbstractEventParameter parameters) {
+            final ObjectIdentifier monitoredObjectReference,
+            final Map<ObjectPropertyReference, Encodable> additionalValues, final AbstractEventParameter parameters) {
         final OutOfRange p = (OutOfRange) parameters;
         return evaluateEventState( //
                 bo.get(PropertyIdentifier.eventState), //
@@ -151,13 +154,15 @@ public class OutOfRangeAlgo extends EventAlgorithm {
     @Override
     public NotificationParameters getAlgorithmicNotificationParameters(final BACnetObject bo,
             final EventState fromState, final EventState toState, final Encodable monitoredValue,
-            final Map<PropertyIdentifier, Encodable> additionalValues, final AbstractEventParameter parameters) {
+            final ObjectIdentifier monitoredObjectReference,
+            final Map<ObjectPropertyReference, Encodable> additionalValues, final AbstractEventParameter parameters) {
         final OutOfRange p = (OutOfRange) parameters;
         return getNotificationParameters(fromState, toState, //
                 p.getLowLimit(), //
                 p.getHighLimit(), //
                 (Real) monitoredValue, //
-                (StatusFlags) additionalValues.get(PropertyIdentifier.statusFlags), //
+                (StatusFlags) additionalValues
+                        .get(new ObjectPropertyReference(monitoredObjectReference, PropertyIdentifier.statusFlags)), //
                 p.getDeadband());
     }
 

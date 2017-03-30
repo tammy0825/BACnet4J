@@ -10,6 +10,7 @@ import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.mixin.event.StateTransition;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
+import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;
@@ -18,6 +19,7 @@ import com.serotonin.bacnet4j.type.eventParameter.AbstractEventParameter;
 import com.serotonin.bacnet4j.type.eventParameter.UnsignedRange;
 import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.notificationParameters.UnsignedRangeNotif;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class UnsignedRangeAlgo extends EventAlgorithm {
@@ -58,7 +60,8 @@ public class UnsignedRangeAlgo extends EventAlgorithm {
 
     @Override
     public StateTransition evaluateAlgorithmicEventState(final BACnetObject bo, final Encodable monitoredValue,
-            final AbstractEventParameter parameters) {
+            final ObjectIdentifier monitoredObjectReference,
+            final Map<ObjectPropertyReference, Encodable> additionalValues, final AbstractEventParameter parameters) {
         final UnsignedRange p = (UnsignedRange) parameters;
         return evaluateEventState( //
                 bo.get(PropertyIdentifier.eventState), //
@@ -134,13 +137,15 @@ public class UnsignedRangeAlgo extends EventAlgorithm {
     @Override
     public NotificationParameters getAlgorithmicNotificationParameters(final BACnetObject bo,
             final EventState fromState, final EventState toState, final Encodable monitoredValue,
-            final Map<PropertyIdentifier, Encodable> additionalValues, final AbstractEventParameter parameters) {
+            final ObjectIdentifier monitoredObjectReference,
+            final Map<ObjectPropertyReference, Encodable> additionalValues, final AbstractEventParameter parameters) {
         final UnsignedRange p = (UnsignedRange) parameters;
         return getNotificationParameters(fromState, toState, //
                 p.getLowLimit(), //
                 p.getHighLimit(), //
                 (UnsignedInteger) monitoredValue, //
-                (StatusFlags) additionalValues.get(PropertyIdentifier.statusFlags));
+                (StatusFlags) additionalValues
+                        .get(new ObjectPropertyReference(monitoredObjectReference, PropertyIdentifier.statusFlags)));
     }
 
     private static NotificationParameters getNotificationParameters(final EventState fromState,
