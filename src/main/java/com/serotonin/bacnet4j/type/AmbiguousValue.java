@@ -35,6 +35,15 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.StreamUtils;
 
 public class AmbiguousValue extends Encodable {
+    @SuppressWarnings("unchecked")
+    public static <T extends Encodable> T convertTo(final Encodable value, final Class<T> clazz)
+            throws BACnetException {
+        if (value instanceof AmbiguousValue) {
+            return ((AmbiguousValue) value).convertTo(clazz);
+        }
+        return (T) value;
+    }
+
     private byte[] data;
 
     public AmbiguousValue(final ByteQueue queue) {
@@ -112,14 +121,17 @@ public class AmbiguousValue extends Encodable {
 
     @Override
     public String toString() {
+        String s;
         if (Primitive.isPrimitive(data[0])) {
             try {
-                return convertTo(Primitive.class).toString();
+                s = convertTo(Primitive.class).toString();
             } catch (final BACnetException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            s = StreamUtils.dumpArrayHex(data);
         }
-        return "Ambiguous(" + StreamUtils.dumpArrayHex(data) + ")";
+        return "Ambiguous(" + s + ")";
     }
 
     private static void copyData(final ByteQueue queue, final int length, final ByteQueue data) {
