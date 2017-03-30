@@ -250,8 +250,8 @@ public class IntrinsicAlarmTest extends AbstractTest {
 
         // 1, 2, and 3 are normal values. 4 and 5 are alarms. 6 and 7 are faults.
         mv.supportIntrinsicReporting(1, 7, //
-                new SequenceOf<>(new UnsignedInteger(4), new UnsignedInteger(5)), //
-                new SequenceOf<>(new UnsignedInteger(6), new UnsignedInteger(7)), //
+                new BACnetArray<>(new UnsignedInteger(4), new UnsignedInteger(5)), //
+                new BACnetArray<>(new UnsignedInteger(6), new UnsignedInteger(7)), //
                 new EventTransitionBits(true, true, true), NotifyType.event, 2);
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.
         assertEquals(0, listener.notifs.size());

@@ -29,7 +29,6 @@
 package com.serotonin.bacnet4j.obj;
 
 import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
@@ -40,13 +39,13 @@ import com.serotonin.bacnet4j.obj.mixin.event.faultAlgo.FaultStateAlgo;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
-import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -57,8 +56,9 @@ public class MultistateValueObject extends BACnetObject {
             final boolean outOfService) throws BACnetServiceException {
         super(localDevice, ObjectType.multiStateValue, instanceNumber, name);
 
-        if (numberOfStates < 1)
-            throw new BACnetRuntimeException("numberOfStates cannot be less than 1");
+        if (numberOfStates < 1) {
+            throw new IllegalArgumentException("numberOfStates cannot be less than 1");
+        }
 
         final ValueSource valueSource = new ValueSource(new DeviceObjectReference(localDevice.getId(), getId()));
 
@@ -66,6 +66,7 @@ public class MultistateValueObject extends BACnetObject {
         writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
         writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
+        writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
@@ -73,15 +74,20 @@ public class MultistateValueObject extends BACnetObject {
         addMixin(new MultistateMixin(this));
 
         writePropertyInternal(PropertyIdentifier.numberOfStates, new UnsignedInteger(numberOfStates));
-        if (stateText != null)
+        if (stateText != null) {
+            if (numberOfStates != stateText.getCount()) {
+                throw new IllegalArgumentException("numberOfStates does not match state text count");
+            }
             writeProperty(null, PropertyIdentifier.stateText, stateText);
+        }
         writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
-        if (!outOfService)
+        if (!outOfService) {
             writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        }
     }
 
-    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass,
-            final SequenceOf<UnsignedInteger> alarmValues, final SequenceOf<UnsignedInteger> faultValues,
+    public MultistateValueObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,
+            final BACnetArray<UnsignedInteger> alarmValues, final BACnetArray<UnsignedInteger> faultValues,
             final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
@@ -98,10 +104,14 @@ public class MultistateValueObject extends BACnetObject {
         // Now add the mixin.
         final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(PropertyIdentifier.presentValue,
                 PropertyIdentifier.alarmValues);
-        final FaultStateAlgo faultAlgo = new FaultStateAlgo(PropertyIdentifier.reliability,
-                PropertyIdentifier.faultValues);
+        FaultStateAlgo faultAlgo = null;
+        if (faultValues != null) {
+            faultAlgo = new FaultStateAlgo(PropertyIdentifier.reliability, PropertyIdentifier.faultValues);
+        }
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, faultAlgo, PropertyIdentifier.presentValue,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
+
+        return this;
     }
 
     public MultistateValueObject supportCovReporting() {
