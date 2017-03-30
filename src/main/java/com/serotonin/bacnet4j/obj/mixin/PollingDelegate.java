@@ -39,6 +39,10 @@ public class PollingDelegate {
         }
     }
 
+    public DeviceObjectPropertyReferences getRemoteReferences() {
+        return remoteReferences;
+    }
+
     public DevicesObjectPropertyValues doPoll() {
         // Get the remote properties first. If there are no remote properties this will return an empty values object.
         final DevicesObjectPropertyValues result = PropertyUtils.readProperties(localDevice, remoteReferences, null);
