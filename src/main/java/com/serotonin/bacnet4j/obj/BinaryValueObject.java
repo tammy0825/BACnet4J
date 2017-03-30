@@ -67,13 +67,15 @@ public class BinaryValueObject extends BACnetObject {
         // ?? timeOfActiveTimeReset
     }
 
-    public void addStateText(final String inactive, final String active) {
+    public BinaryValueObject supportStateText(final String inactive, final String active) {
         writePropertyInternal(PropertyIdentifier.inactiveText, new CharacterString(inactive));
         writePropertyInternal(PropertyIdentifier.activeText, new CharacterString(active));
+        return this;
     }
 
-    public void supportIntrinsicReporting(final int timeDelay, final int notificationClass, final BinaryPV alarmValue,
-            final EventTransitionBits eventEnable, final NotifyType notifyType, final int timeDelayNormal) {
+    public BinaryValueObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,
+            final BinaryPV alarmValue, final EventTransitionBits eventEnable, final NotifyType notifyType,
+            final int timeDelayNormal) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
         writePropertyInternal(PropertyIdentifier.timeDelay, new UnsignedInteger(timeDelay));
@@ -88,6 +90,7 @@ public class BinaryValueObject extends BACnetObject {
                 PropertyIdentifier.alarmValue);
         addMixin(new IntrinsicReportingMixin(this, eventAlgo, null, PropertyIdentifier.presentValue,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue }));
+        return this;
     }
 
     public BinaryValueObject supportCovReporting() {
