@@ -62,8 +62,10 @@ import com.serotonin.bacnet4j.npdu.NPDU;
 import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
+import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
 import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
+import com.serotonin.bacnet4j.service.confirmed.ReadPropertyMultipleRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -337,7 +339,7 @@ public class DefaultTransport implements Transport, Runnable {
             service.write(serviceData);
 
             final UnackedMessageContext ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries,
-                    consumer);
+                    consumer, service);
             final UnackedMessageKey key = unackedMessages.addClient(address, linkService, ctx);
 
             APDU apdu;
@@ -544,7 +546,7 @@ public class DefaultTransport implements Transport, Runnable {
                 UnackedMessageContext ctx;
                 if (confAPDU.getSequenceNumber() == 0)
                     // This is the first segment
-                    ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries, null);
+                    ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries, null, null);
                 else {
                     ctx = unackedMessages.remove(key);
                     if (ctx == null)
@@ -596,9 +598,23 @@ public class DefaultTransport implements Transport, Runnable {
             else if (ctx.getConsumer() != null) {
                 final ResponseConsumer consumer = ctx.getConsumer();
 
-                if (ack instanceof SimpleACK)
+                // TODO specific troubleshooting code.
+                if (ctx.getService() instanceof ReadPropertyMultipleRequest) {
+                    if (ack instanceof SimpleACK) {
+                        LOG.error("Recevied a simple ack when expecting response to ReadPropertyMultipleRequest: "
+                                + "ctx={}, key={}, unackedMessages={}", ctx, key, unackedMessages);
+                    } else if (ack instanceof ComplexACK) {
+                        final AcknowledgementService ackService = ((ComplexACK) ack).getService();
+                        if (!(ackService instanceof ReadPropertyMultipleAck)) {
+                            LOG.error("Recevied a simple ack when expecting response to ReadPropertyMultipleRequest"
+                                    + "ctx={}, key={}, unackedMessages={}", ctx, key, unackedMessages);
+                        }
+                    }
+                }
+
+                if (ack instanceof SimpleACK) {
                     consumer.success(null);
-                else if (ack instanceof ComplexACK) {
+                } else if (ack instanceof ComplexACK) {
                     final ComplexACK cack = (ComplexACK) ack;
                     if (cack.isSegmentedMessage()) {
                         try {
@@ -809,7 +825,7 @@ public class DefaultTransport implements Transport, Runnable {
 
                 // Prepare the segmenting session.
                 final UnackedMessageContext ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries,
-                        null);
+                        null, null);
                 final UnackedMessageKey key = unackedMessages.addServer(address, linkService, request.getInvokeId(),
                         ctx);
 
