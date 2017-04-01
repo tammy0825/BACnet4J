@@ -294,7 +294,6 @@ public class RequestUtils {
 
         if (forceMultiple || refs.size() > 1 && multipleSupported) {
             // Read property multiple can be used. Determine the max references
-
             final int maxRef = d.getMaxReadMultipleReferences();
 
             // If the device supports read property multiple, send them all at once, or at least in partitions.
@@ -364,6 +363,7 @@ public class RequestUtils {
                         // For the first request, rethrow the exception
                         throw e;
                     }
+
                     // Otherwise, populate the properties with errors.
                     populateWithError(d, properties, updater,
                             new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout));
@@ -384,9 +384,10 @@ public class RequestUtils {
                 if (updater.cancelled())
                     break;
             }
-        } else
+        } else {
             // If it doesn't support read property multiple, send them one at a time.
             sendOneAtATime(localDevice, d, refs, updater);
+        }
 
         return propertyValues;
     }

@@ -237,14 +237,10 @@ public class PropertyUtils {
 
         final AtomicInteger remaining = new AtomicInteger(refs.size());
         try {
-            ReadListener deviceCallback = null;
-            deviceCallback = new ReadListener() {
+            final ReadListener deviceCallback = new ReadListener() {
                 @Override
                 public boolean progress(final double deviceProgress, final int did, final ObjectIdentifier oid,
                         final PropertyIdentifier pid, final UnsignedInteger pin, final Encodable value) {
-                    LOG.info("Property read from {}: {}, {}, {}, {}, {}", rd.getInstanceNumber(), did, oid, pid, pin,
-                            value);
-
                     // Notify the callback
                     remaining.decrementAndGet();
 
