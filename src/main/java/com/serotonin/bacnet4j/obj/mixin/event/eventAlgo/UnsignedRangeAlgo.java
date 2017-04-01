@@ -89,37 +89,37 @@ public class UnsignedRangeAlgo extends EventAlgorithm {
         // (a)
         if (currentState.equals(EventState.normal) && limitEnable.isHighLimitEnable()
                 && monitoredValueInt > highLimitInt)
-            return new StateTransition(EventState.highLimit, timeDelay, null);
+            return new StateTransition(EventState.highLimit, timeDelay);
 
         // (b)
         if (currentState.equals(EventState.normal) && limitEnable.isLowLimitEnable() && monitoredValueInt < lowLimitInt)
-            return new StateTransition(EventState.lowLimit, timeDelay, null);
+            return new StateTransition(EventState.lowLimit, timeDelay);
 
         // (c)
         if (currentState.equals(EventState.highLimit) && !limitEnable.isHighLimitEnable())
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
 
         // (d)
         if (currentState.equals(EventState.highLimit) && limitEnable.isLowLimitEnable()
                 && monitoredValueInt < lowLimitInt)
-            return new StateTransition(EventState.lowLimit, timeDelay, null);
+            return new StateTransition(EventState.lowLimit, timeDelay);
 
         // (e)
         if (currentState.equals(EventState.highLimit) && monitoredValueInt < highLimitInt)
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         // (f)
         if (currentState.equals(EventState.lowLimit) && !limitEnable.isLowLimitEnable())
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
 
         // (g)
         if (currentState.equals(EventState.lowLimit) && limitEnable.isHighLimitEnable()
                 && monitoredValueInt > highLimitInt)
-            return new StateTransition(EventState.highLimit, timeDelay, null);
+            return new StateTransition(EventState.highLimit, timeDelay);
 
         // (h)
         if (currentState.equals(EventState.lowLimit) && monitoredValueInt > lowLimitInt)
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         return null;
     }

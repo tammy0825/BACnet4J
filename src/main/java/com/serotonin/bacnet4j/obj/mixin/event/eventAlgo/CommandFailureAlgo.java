@@ -67,10 +67,10 @@ public class CommandFailureAlgo extends EventAlgorithm {
         LOG.debug("Current state: {}, monitored value: {}, feedback values: {}", currentState, feedbackValue);
 
         if (currentState.equals(EventState.normal) && !monitoredValue.equals(feedbackValue))
-            return new StateTransition(EventState.offnormal, timeDelay, monitoredValue);
+            return new StateTransition(EventState.offnormal, timeDelay);
 
         if (currentState.equals(EventState.offnormal) && monitoredValue.equals(feedbackValue))
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         return null;
     }

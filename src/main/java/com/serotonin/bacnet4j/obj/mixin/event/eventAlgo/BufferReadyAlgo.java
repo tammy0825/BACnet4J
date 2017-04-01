@@ -83,14 +83,14 @@ public class BufferReadyAlgo extends EventAlgorithm {
                 && mon >= pre //
                 && mon - pre >= thr //
                 && thr > 0) {
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
         }
 
         if (currentState.equals(EventState.normal) //
                 && mon < pre //
                 && mon - pre + 0xFFFFFFFFL >= thr //
                 && thr > 0) {
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
         }
 
         return null;

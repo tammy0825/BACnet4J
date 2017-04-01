@@ -1,6 +1,8 @@
 package com.serotonin.bacnet4j.obj;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
@@ -50,6 +52,7 @@ public class EventEnrollmentObject extends BACnetObject {
     private final ScheduledFuture<?> pollingFuture;
     private final PropertyIdentifier[] monitoredProperties;
     private final DeviceObjectPropertyReference eventParameterReference;
+    private final List<DeviceObjectPropertyReference> faultParameterReferences;
     private final PropertyReferences monitoredPropertyReferences;
     private boolean configurationError;
 
@@ -116,6 +119,35 @@ public class EventEnrollmentObject extends BACnetObject {
             faultAlgo = afp.createFaultAlgorithm();
             Objects.requireNonNull(faultAlgo,
                     "No algorithm defined for fault parameter type " + faultParameter.getClass());
+
+            if (afp.getReferences() != null) {
+                faultParameterReferences = afp.getReferences();
+                for (final DeviceObjectPropertyReference faultRef : faultParameterReferences) {
+                    // Ensure that any reference made in the fault parameters is to the same device
+                    // as the object property reference.
+                    // TODO allow different devices.
+                    if (!faultRef.getDeviceIdentifier().equals(objectPropertyReference.getDeviceIdentifier())) {
+                        throw new IllegalArgumentException(
+                                "Fault parameter reference must use the same device as the object property reference: parameter="
+                                        + faultRef.getDeviceIdentifier() + ", property="
+                                        + objectPropertyReference.getPropertyIdentifier());
+                    }
+                }
+            } else {
+                faultParameterReferences = new ArrayList<>();
+            }
+
+            // Table 13-5: add change of reliability notification parameters
+            faultParameterReferences.add(new DeviceObjectPropertyReference( //
+                    objectPropertyReference.getDeviceIdentifier().getInstanceNumber(), //
+                    objectPropertyReference.getObjectIdentifier(), //
+                    PropertyIdentifier.reliability));
+            faultParameterReferences.add(new DeviceObjectPropertyReference( //
+                    objectPropertyReference.getDeviceIdentifier().getInstanceNumber(), //
+                    objectPropertyReference.getObjectIdentifier(), //
+                    PropertyIdentifier.statusFlags));
+        } else {
+            faultParameterReferences = null;
         }
 
         // Algo reporting mixin
@@ -139,6 +171,14 @@ public class EventEnrollmentObject extends BACnetObject {
         if (eventParameterReference != null) {
             monitoredPropertyReferences.addIndex(eventParameterReference.getObjectIdentifier(),
                     eventParameterReference.getPropertyIdentifier(), eventParameterReference.getPropertyArrayIndex());
+        }
+
+        // Add the fault parameters references, if any.
+        if (faultParameterReferences != null) {
+            for (final DeviceObjectPropertyReference faultRef : faultParameterReferences) {
+                monitoredPropertyReferences.addIndex(faultRef.getObjectIdentifier(), faultRef.getPropertyIdentifier(),
+                        faultRef.getPropertyArrayIndex());
+            }
         }
 
         //
@@ -188,7 +228,7 @@ public class EventEnrollmentObject extends BACnetObject {
 
         if (ref.getDeviceIdentifier().equals(getLocalDevice().getId())) {
             // A local object
-            BACnetObject bo = getLocalDevice().getObject(ref.getObjectIdentifier());
+            final BACnetObject bo = getLocalDevice().getObject(ref.getObjectIdentifier());
             if (bo == null) {
                 throw new PollException("EventEnrollment could not find local object at " + ref);
             }
@@ -203,22 +243,15 @@ public class EventEnrollmentObject extends BACnetObject {
             }
 
             if (eventParameterReference != null) {
-                bo = getLocalDevice().getObject(eventParameterReference.getObjectIdentifier());
-                if (bo == null) {
-                    throw new PollException("EventEnrollment could not find local object at "
-                            + eventParameterReference.getObjectIdentifier());
-                }
+                addParameterReference(getLocalDevice(), eventParameterReference, additionalValues);
+            }
 
-                try {
-                    additionalValues.put(
-                            new ObjectPropertyReference(bo.getId(), eventParameterReference.getPropertyIdentifier(),
-                                    eventParameterReference.getPropertyArrayIndex()),
-                            bo.getProperty(eventParameterReference.getPropertyIdentifier(),
-                                    eventParameterReference.getPropertyArrayIndex()));
-                } catch (final BACnetServiceException e) {
-                    throw new PollException("Error getting property from local object at " + ref, e);
+            if (faultParameterReferences != null) {
+                for (final DeviceObjectPropertyReference faultRef : faultParameterReferences) {
+                    addParameterReference(getLocalDevice(), faultRef, additionalValues);
                 }
             }
+
         } else {
             // A remote object
             final RemoteDevice rd;
@@ -247,6 +280,12 @@ public class EventEnrollmentObject extends BACnetObject {
                             eventParameterReference.getPropertyArrayIndex());
                 }
 
+                if (faultParameterReferences != null) {
+                    for (final DeviceObjectPropertyReference faultRef : faultParameterReferences) {
+                        transferPropertyValue(results, additionalValues, faultRef.getObjectIdentifier(),
+                                faultRef.getPropertyIdentifier(), faultRef.getPropertyArrayIndex());
+                    }
+                }
             } catch (final BACnetException e) {
                 throw new PollException("Error getting property from remote device at " + ref, e);
             }
@@ -267,6 +306,24 @@ public class EventEnrollmentObject extends BACnetObject {
         }
 
         algoReporting.updateValue(value, additionalValues);
+    }
+
+    private static void addParameterReference(final LocalDevice localDevice,
+            final DeviceObjectPropertyReference paramRef,
+            final Map<ObjectPropertyReference, Encodable> additionalValues) throws PollException {
+        final BACnetObject bo = localDevice.getObject(paramRef.getObjectIdentifier());
+        if (bo == null) {
+            throw new PollException("EventEnrollment could not find local object at " + paramRef.getObjectIdentifier());
+        }
+
+        try {
+            additionalValues.put(
+                    new ObjectPropertyReference(bo.getId(), paramRef.getPropertyIdentifier(),
+                            paramRef.getPropertyArrayIndex()),
+                    bo.getProperty(paramRef.getPropertyIdentifier(), paramRef.getPropertyArrayIndex()));
+        } catch (final BACnetServiceException e) {
+            throw new PollException("Error getting property from local object at " + paramRef, e);
+        }
     }
 
     private static void transferPropertyValue(final PropertyValues results,

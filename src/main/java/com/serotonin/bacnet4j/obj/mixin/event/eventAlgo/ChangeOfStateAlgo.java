@@ -61,6 +61,9 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
     private final PropertyIdentifier monitoredValueProperty;
     private final PropertyIdentifier alarmValuesProperty;
 
+    private Encodable lastValue;
+    private Encodable lastValueCausingTransition;
+
     public ChangeOfStateAlgo() {
         this(null, null);
     }
@@ -104,7 +107,7 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    private static StateTransition evaluateEventState(final EventState currentState, final Encodable monitoredValue,
+    private StateTransition evaluateEventState(final EventState currentState, final Encodable monitoredValue,
             final Encodable alarmValues, final UnsignedInteger timeDelay, UnsignedInteger timeDelayNormal) {
         if (timeDelayNormal == null)
             timeDelayNormal = timeDelay;
@@ -113,14 +116,27 @@ public class ChangeOfStateAlgo extends EventAlgorithm {
                 alarmValues);
 
         final boolean isAlarmValue = isAlarmValue(monitoredValue, alarmValues);
+        lastValue = monitoredValue;
 
+        // (a)
         if (currentState.equals(EventState.normal) && isAlarmValue)
-            return new StateTransition(EventState.offnormal, timeDelay, monitoredValue);
+            return new StateTransition(EventState.offnormal, timeDelay);
 
-        if (currentState.isOffNormal() && !isAlarmValue)
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+        // (b)
+        if (currentState.equals(EventState.offnormal) && !isAlarmValue)
+            return new StateTransition(EventState.normal, timeDelayNormal);
+
+        // (c)
+        if (currentState.equals(EventState.offnormal) && isAlarmValue
+                && !monitoredValue.equals(lastValueCausingTransition))
+            return new StateTransition(EventState.offnormal, timeDelay);
 
         return null;
+    }
+
+    @Override
+    public void stateChangeNotify(final EventState toState) {
+        lastValueCausingTransition = lastValue;
     }
 
     private static boolean isAlarmValue(final Encodable monitoredValue, final Encodable alarmValue) {

@@ -98,14 +98,17 @@ public class AlgoReportingMixin extends EventReportingMixin {
     protected Reliability evaluateFaultState(final Encodable oldMonitoredValue, final Encodable newMonitoredValue,
             final BACnetObject bo, final FaultAlgorithm faultAlgo) {
         return faultAlgo.evaluateAlgorithmic(oldMonitoredValue, newMonitoredValue,
-                bo.get(PropertyIdentifier.reliability), faultParameter);
+                bo.get(PropertyIdentifier.reliability), objectPropertyReference.getObjectIdentifier(), additionalValues,
+                faultParameter);
     }
 
     @Override
     protected PropertyValue getEventEnrollmentMonitoredProperty(final PropertyIdentifier pid) {
-        if (pid == null)
+        // Have to do this while the monitored property is not in the additional values.
+        if (pid.equals(objectPropertyReference.getPropertyIdentifier())) {
             return new PropertyValue(objectPropertyReference.getPropertyIdentifier(),
                     objectPropertyReference.getPropertyArrayIndex(), monitoredPropertyValue, null);
+        }
 
         final Encodable value = additionalValues
                 .get(new ObjectPropertyReference(objectPropertyReference.getObjectIdentifier(), pid));

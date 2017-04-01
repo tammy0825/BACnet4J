@@ -61,6 +61,9 @@ public class ChangeOfBitstringAlgo extends EventAlgorithm {
     private final PropertyIdentifier monitoredValueProperty;
     private final PropertyIdentifier alarmValuesProperty;
 
+    private BitString lastValue;
+    private BitString lastValueCausingTransition;
+
     public ChangeOfBitstringAlgo() {
         this(null, null);
     }
@@ -106,7 +109,7 @@ public class ChangeOfBitstringAlgo extends EventAlgorithm {
                 bo.get(PropertyIdentifier.timeDelayNormal));
     }
 
-    private static StateTransition evaluateEventState(final EventState currentState, final BitString monitoredValue,
+    private StateTransition evaluateEventState(final EventState currentState, final BitString monitoredValue,
             final SequenceOf<BitString> alarmValues, final BitString bitmask, final UnsignedInteger timeDelay,
             UnsignedInteger timeDelayNormal) {
         if (timeDelayNormal == null)
@@ -116,14 +119,24 @@ public class ChangeOfBitstringAlgo extends EventAlgorithm {
                 alarmValues);
 
         final BitString anded = monitoredValue.and(bitmask);
+        lastValue = monitoredValue;
 
         if (currentState.equals(EventState.normal) && isAlarmValue(anded, alarmValues))
-            return new StateTransition(EventState.offnormal, timeDelay, monitoredValue);
+            return new StateTransition(EventState.offnormal, timeDelay);
 
-        if (currentState.isOffNormal() && !isAlarmValue(monitoredValue, alarmValues))
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+        if (currentState.equals(EventState.offnormal) && !isAlarmValue(monitoredValue, alarmValues))
+            return new StateTransition(EventState.normal, timeDelayNormal);
+
+        if (currentState.equals(EventState.offnormal) && isAlarmValue(monitoredValue, alarmValues)
+                && !monitoredValue.equals(lastValueCausingTransition))
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         return null;
+    }
+
+    @Override
+    public void stateChangeNotify(final EventState toState) {
+        lastValueCausingTransition = lastValue;
     }
 
     private static boolean isAlarmValue(final BitString monitoredValue, final SequenceOf<BitString> alarmValues) {

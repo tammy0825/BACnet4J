@@ -29,6 +29,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.Destination;
+import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
@@ -135,10 +136,10 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 final Reliability reli = (Reliability) newValue;
                 if (!reli.equals(Reliability.noFaultDetected))
                     // Fault detected. Do an immediate state change to fault.
-                    doStateTransition(EventState.fault);
+                    doStateTransitionInternal(EventState.fault);
                 else if (!newValue.equals(oldValue)) {
                     // No fault detected. Do an immediate state change to normal.
-                    doStateTransition(EventState.normal);
+                    doStateTransitionInternal(EventState.normal);
                     // Now call the event algorithm in case we need a change to offnormal.
                     executeEventAlgo();
                 }
@@ -151,7 +152,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
                 final Boolean eai = (Boolean) newValue;
                 if (eai.booleanValue())
                     // Inhibited. Update the event state immediately to normal.
-                    doStateTransition(EventState.normal);
+                    doStateTransitionInternal(EventState.normal);
                 else
                     // Uninhibited.
                     executeEventAlgo();
@@ -162,7 +163,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
     protected void updateEventState(final StateTransition transition) {
         if (transition.getDelay() == null)
             // Do an immediate state transition.
-            doStateTransition(transition.getToState());
+            doStateTransitionInternal(transition.getToState());
         else {
             synchronized (this) {
                 if (delayer != null && delayer.transition.equals(transition))
@@ -203,6 +204,13 @@ abstract public class EventReportingMixin extends AbstractMixin {
             }
         }
         return false;
+    }
+
+    private void doStateTransitionInternal(final EventState toState) {
+        // Notify the algo of the state change.
+        eventAlgo.stateChangeNotify(toState);
+
+        doStateTransition(toState);
     }
 
     protected void doStateTransition(final EventState toState) {
@@ -317,7 +325,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             LOG.debug("Timer completed for transition {}", transition);
             synchronized (EventReportingMixin.this) {
                 delayer = null;
-                doStateTransition(transition.getToState());
+                doStateTransitionInternal(transition.getToState());
             }
         }
 
@@ -601,6 +609,18 @@ abstract public class EventReportingMixin extends AbstractMixin {
         }
     }
 
+    private static class EventEnrollmentMonitoredReferencedPropertyProducer extends CORPropertyValueProducer {
+        public EventEnrollmentMonitoredReferencedPropertyProducer(final PropertyIdentifier pid) {
+            super(pid);
+        }
+
+        @Override
+        PropertyValue get(final EventReportingMixin mixin) {
+            final DeviceObjectPropertyReference reference = mixin.get(pid);
+            return mixin.getEventEnrollmentMonitoredProperty(reference.getPropertyIdentifier());
+        }
+    }
+
     private static class NotImplementedProducer extends CORPropertyValueProducer {
         public NotImplementedProducer(final PropertyIdentifier pid) {
             super(pid);
@@ -683,7 +703,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
         if (ObjectType.eventEnrollment.equals(objectType))
             return new CORPropertyValueProducer[] { //
                     new ObjectCORProperyProducer(PropertyIdentifier.objectPropertyReference), //
-                    new EventEnrollmentMonitoredPropertyProducer(null), //
+                    new EventEnrollmentMonitoredReferencedPropertyProducer(PropertyIdentifier.objectPropertyReference), //
                     new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.reliability), //
                     new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.statusFlags), //
             };
@@ -707,25 +727,25 @@ abstract public class EventReportingMixin extends AbstractMixin {
         if (ObjectType.loop.equals(objectType))
             return new CORPropertyValueProducer[] { //
                     new ObjectCORProperyProducer(PropertyIdentifier.presentValue), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.controlledVariableValue), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.setpoint), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.controlledVariableValue), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.setpoint), //
             };
 
         if (ObjectType.program.equals(objectType))
             return new CORPropertyValueProducer[] { //
                     new ObjectCORProperyProducer(PropertyIdentifier.programState), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.controlledVariableValue), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.descriptionOfHalt), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.controlledVariableValue), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.descriptionOfHalt), //
             };
 
         if (ObjectType.timer.equals(objectType))
             return new CORPropertyValueProducer[] { //
                     new ObjectCORProperyProducer(PropertyIdentifier.presentValue), //
                     new ObjectCORProperyProducer(PropertyIdentifier.timerState), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.updateTime), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.lastStateChange), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.initialTimeout), //
-                    new EventEnrollmentMonitoredPropertyProducer(PropertyIdentifier.expirationTime), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.updateTime), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.lastStateChange), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.initialTimeout), //
+                    new ObjectCORProperyProducer(PropertyIdentifier.expirationTime), //
             };
 
         return new CORPropertyValueProducer[] {};

@@ -111,31 +111,31 @@ public class OutOfRangeAlgo extends EventAlgorithm {
 
         if (currentState.equals(EventState.normal) && limitEnable.isHighLimitEnable()
                 && monitoredValueFloat > highLimitFloat)
-            return new StateTransition(EventState.highLimit, timeDelay, null);
+            return new StateTransition(EventState.highLimit, timeDelay);
 
         if (currentState.equals(EventState.normal) && limitEnable.isLowLimitEnable()
                 && monitoredValueFloat < lowLimitFloat)
-            return new StateTransition(EventState.lowLimit, timeDelay, null);
+            return new StateTransition(EventState.lowLimit, timeDelay);
 
         if (currentState.equals(EventState.highLimit) && !limitEnable.isHighLimitEnable())
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
 
         if (currentState.equals(EventState.highLimit) && limitEnable.isLowLimitEnable()
                 && monitoredValueFloat < lowLimitFloat)
-            return new StateTransition(EventState.lowLimit, timeDelay, null);
+            return new StateTransition(EventState.lowLimit, timeDelay);
 
         if (currentState.equals(EventState.highLimit) && monitoredValueFloat < highLimitFloat - deadbandFloat)
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         if (currentState.equals(EventState.lowLimit) && !limitEnable.isLowLimitEnable())
-            return new StateTransition(EventState.normal, null, null);
+            return new StateTransition(EventState.normal, null);
 
         if (currentState.equals(EventState.lowLimit) && limitEnable.isHighLimitEnable()
                 && monitoredValueFloat > highLimitFloat)
-            return new StateTransition(EventState.highLimit, timeDelay, null);
+            return new StateTransition(EventState.highLimit, timeDelay);
 
         if (currentState.equals(EventState.lowLimit) && monitoredValueFloat > lowLimitFloat + deadbandFloat)
-            return new StateTransition(EventState.normal, timeDelayNormal, null);
+            return new StateTransition(EventState.normal, timeDelayNormal);
 
         return null;
     }

@@ -106,4 +106,13 @@ abstract public class EventAlgorithm {
     abstract public NotificationParameters getAlgorithmicNotificationParameters(BACnetObject ee, EventState fromState,
             EventState toState, Encodable monitoredValue, ObjectIdentifier monitoredObjectReference,
             Map<ObjectPropertyReference, Encodable> additionalValues, AbstractEventParameter parameters);
+
+    /**
+     * Override as required to handle actual state changes.
+     *
+     * @param toState
+     */
+    public void stateChangeNotify(final EventState toState) {
+        // no op
+    }
 }
