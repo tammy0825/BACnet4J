@@ -97,7 +97,7 @@ public class BBMDTest {
         ld11.ld.sendLocalBroadcast(ld11.ld.getIAm());
         ld12.ld.sendLocalBroadcast(ld12.ld.getIAm());
         ld33.ld.sendLocalBroadcast(new WhoIsRequest());
-        clock.plus(400, TimeUnit.MILLISECONDS, 400, TimeUnit.MILLISECONDS, 0, 400);
+        clock.plus(400, TimeUnit.MILLISECONDS, 400, TimeUnit.MILLISECONDS, 0, 600);
 
         // Confirm that the above broadcasts were only received on their subnets.
         assertEquals(1, ld11.iamCount()); // IAm from 12

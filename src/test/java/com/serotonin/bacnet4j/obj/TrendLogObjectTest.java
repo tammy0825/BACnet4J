@@ -108,7 +108,7 @@ public class TrendLogObjectTest {
 
         //
         // Advance the clock one minute. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 300);
+        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
 
         assertEquals(1, tl.getBuffer().size());
         final LogRecord record1 = tl.getBuffer().get(0);
@@ -122,7 +122,7 @@ public class TrendLogObjectTest {
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(2));
 
         // Advance the clock another minute to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 100);
+        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
 
         assertEquals(2, tl.getBuffer().size());
         final LogRecord record2 = tl.getBuffer().get(1);
@@ -137,7 +137,7 @@ public class TrendLogObjectTest {
         bo.setOverridden(true);
 
         // Advance the clock another minute to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 100);
+        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
 
         assertEquals(3, tl.getBuffer().size());
         final LogRecord record3 = tl.getBuffer().get(2);
@@ -153,7 +153,7 @@ public class TrendLogObjectTest {
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(3));
 
         // Advance the clock an hour to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, HOURS, 1, MINUTES, 10, 100);
+        clock.plus(1, HOURS, 1, MINUTES, 20, 0);
 
         assertEquals(4, tl.getBuffer().size());
         final LogRecord record4 = tl.getBuffer().get(3);

@@ -408,7 +408,7 @@ public class AccumulatorObjectTest {
 
         // Go to a fault value.
         doPulses(10, 9);
-        Thread.sleep(40);
+        Thread.sleep(60);
         assertEquals(EventState.fault, ee.getProperty(PropertyIdentifier.eventState));
         assertEquals(Reliability.underRange, ee.getProperty(PropertyIdentifier.reliability));
         assertEquals(new StatusFlags(true, true, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
