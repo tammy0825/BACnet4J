@@ -213,7 +213,6 @@ public class TrendLogMultipleObjectTest {
         assertEquals(0, tl.getBuffer().size());
 
         // Trigger an update
-        LOG.info("Trigger");
         tl.trigger();
         Thread.sleep(300);
 
@@ -236,15 +235,12 @@ public class TrendLogMultipleObjectTest {
     @SuppressWarnings("unchecked")
     @Test
     public void intrinsicReporting() throws Exception {
-        LOG.info("intrinsicReporting 1");
-
         // Create a triggered trend log with intrinsic reporting enabled.
         final TrendLogMultipleObject tl = new TrendLogMultipleObject(d1, 0, "tlm",
                 new LinkedListLogBuffer<LogMultipleRecord>(), true, DateTime.UNSPECIFIED, DateTime.UNSPECIFIED, props,
                 0, false, 20) //
                         .supportIntrinsicReporting(5, 23, new EventTransitionBits(true, true, true), NotifyType.event);
 
-        LOG.info("intrinsicReporting 2");
         final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
 
         // Add d2 as an event recipient.
@@ -256,11 +252,9 @@ public class TrendLogMultipleObjectTest {
         final EventNotifListener listener = new EventNotifListener();
         d2.getEventHandler().addListener(listener);
 
-        LOG.info("intrinsicReporting 3");
         //
         // Write 4 triggers and make sure no notification was sent.
         doTriggers(tl, 4);
-        LOG.info("intrinsicReporting 3.1");
         assertEquals(4, tl.getBuffer().size());
         assertEquals(0, listener.notifs.size());
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.recordCount));
@@ -268,7 +262,6 @@ public class TrendLogMultipleObjectTest {
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.lastNotifyRecord));
 
-        LOG.info("intrinsicReporting 4");
         //
         // Write one more and make sure a notification was received.
         doTriggers(tl, 1);
@@ -294,7 +287,6 @@ public class TrendLogMultipleObjectTest {
                         new UnsignedInteger(0), new UnsignedInteger(5))),
                 notif.get("eventValues"));
 
-        LOG.info("intrinsicReporting 5");
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(5), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(5), tl.get(PropertyIdentifier.totalRecordCount));
@@ -325,7 +317,6 @@ public class TrendLogMultipleObjectTest {
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, tl.getId(), PropertyIdentifier.logBuffer),
                         new UnsignedInteger(5), new UnsignedInteger(10))),
                 notif.get("eventValues"));
-        LOG.info("intrinsicReporting 6");
 
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(10), tl.get(PropertyIdentifier.recordCount));
@@ -359,14 +350,12 @@ public class TrendLogMultipleObjectTest {
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, tl.getId(), PropertyIdentifier.logBuffer),
                         new UnsignedInteger(0xFFFFFFFDL), new UnsignedInteger(3))),
                 notif.get("eventValues"));
-        LOG.info("intrinsicReporting 7");
 
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(15), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(3), tl.get(PropertyIdentifier.totalRecordCount));
         assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(3), tl.get(PropertyIdentifier.lastNotifyRecord));
-        LOG.info("intrinsicReporting 8");
     }
 
     private static void doTriggers(final TrendLogMultipleObject tl, final int count) throws InterruptedException {
