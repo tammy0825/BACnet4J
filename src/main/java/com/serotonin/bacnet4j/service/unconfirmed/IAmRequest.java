@@ -117,7 +117,8 @@ public class IAmRequest extends UnconfirmedRequestService {
                     DiscoveryUtils.getExtendedDeviceInformation(localDevice, rd);
                     localDevice.getEventHandler().fireIAmReceived(rd);
                 } catch (final BACnetException e) {
-                    LOG.warn("Error while discovering extended device information from {} at {}", remoteDoi, from, e);
+                    LOG.warn("Error in {} while discovering extended device information from {} at {}",
+                            localDevice.getId(), remoteDoi, from, e);
                 }
             });
         } else {
