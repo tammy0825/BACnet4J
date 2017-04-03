@@ -226,8 +226,7 @@ public class AccumulatorObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
-        super.terminate();
+    protected void terminateImpl() {
         limitMonitoringFuture.cancel(false);
     }
 }

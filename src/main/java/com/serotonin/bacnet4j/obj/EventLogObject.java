@@ -276,8 +276,7 @@ public class EventLogObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
-        super.terminate();
+    protected void terminateImpl() {
         cancelFuture(startTimeFuture);
         cancelFuture(stopTimeFuture);
         getLocalDevice().getEventHandler().removeListener(eventListener);

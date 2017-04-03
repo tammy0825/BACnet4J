@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -348,17 +347,11 @@ abstract public class EventReportingMixin extends AbstractMixin {
         for (final Destination destination : recipientList) {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
                 Address address;
-                if (destination.getRecipient().isAddress())
-                    address = destination.getRecipient().getAddress();
-                else {
-                    final int deviceId = destination.getRecipient().getDevice().getInstanceNumber();
-                    try {
-                        final RemoteDevice rd = getLocalDevice().getRemoteDevice(deviceId).get();
-                        address = rd.getAddress();
-                    } catch (final BACnetException e) {
-                        LOG.warn("Unknown device id {}, send failed", deviceId, e);
-                        continue;
-                    }
+                try {
+                    address = destination.getRecipient().toAddress(getLocalDevice());
+                } catch (final BACnetException e) {
+                    LOG.warn("Failed to get address for recipient {}", destination.getRecipient(), e);
+                    continue;
                 }
 
                 LOG.debug("Sending {} to {}", notifyType, destination.getRecipient());

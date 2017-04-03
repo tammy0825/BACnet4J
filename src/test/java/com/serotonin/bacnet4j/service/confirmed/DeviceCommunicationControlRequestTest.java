@@ -246,7 +246,7 @@ public class DeviceCommunicationControlRequestTest {
      */
     @Test
     public void password() throws BACnetException {
-        d1.setPassword("asdf");
+        d1.withPassword("asdf");
 
         // Try to disable with null
         try {

@@ -231,7 +231,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
+    protected void terminateImpl() {
         cancelRefresher();
         cancelPeriodicWriter();
     }

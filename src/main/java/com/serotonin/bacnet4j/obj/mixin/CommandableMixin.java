@@ -345,4 +345,10 @@ public class CommandableMixin extends AbstractMixin {
         final BACnetArray<TimeStamp> cta = get(commandTimeArray);
         cta.setBase1(indexBase1, ts);
     }
+
+    @Override
+    protected void terminate() {
+        if (minOnOffTimerTask != null)
+            minOnOffTimerTask.cancel(false);
+    }
 }

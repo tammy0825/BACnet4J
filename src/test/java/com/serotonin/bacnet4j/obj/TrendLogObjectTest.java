@@ -1,10 +1,10 @@
 package com.serotonin.bacnet4j.obj;
 
-import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -110,8 +110,9 @@ public class TrendLogObjectTest {
         assertEquals(0, tl.getBuffer().size());
 
         //
-        // Advance the clock one minute. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
+        // Advance the clock to the polling time.
+        final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60;
+        clock.plus(seconds, SECONDS, 300);
 
         assertEquals(1, tl.getBuffer().size());
         final LogRecord record1 = tl.getBuffer().get(0);
@@ -124,8 +125,8 @@ public class TrendLogObjectTest {
         // Update the object present value.
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(2));
 
-        // Advance the clock another minute to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
+        // Advance the clock another minute to poll again.
+        clock.plus(1, MINUTES, 100);
 
         assertEquals(2, tl.getBuffer().size());
         final LogRecord record2 = tl.getBuffer().get(1);
@@ -139,8 +140,8 @@ public class TrendLogObjectTest {
         // Update the object overridden.
         bo.setOverridden(true);
 
-        // Advance the clock another minute to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 20, 0);
+        // Advance the clock another minute to poll again.
+        clock.plus(1, MINUTES, 100);
 
         assertEquals(3, tl.getBuffer().size());
         final LogRecord record3 = tl.getBuffer().get(2);
@@ -155,12 +156,13 @@ public class TrendLogObjectTest {
         tl.writeProperty(null, PropertyIdentifier.logInterval, new UnsignedInteger(60 * 60 * 100));
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(3));
 
-        // Advance the clock an hour to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, HOURS, 1, MINUTES, 20, 0);
+        // Advance the clock to the new polling time.
+        final int minutes = (62 - clock.get(ChronoField.MINUTE_OF_HOUR)) % 60;
+        clock.plus(minutes, MINUTES, 100);
 
         assertEquals(4, tl.getBuffer().size());
         final LogRecord record4 = tl.getBuffer().get(3);
-        assertEquals(0, record4.getTimestamp().getTime().getMinute());
+        assertEquals(2, record4.getTimestamp().getTime().getMinute());
         assertEquals(new Real(3), record4.getChoice());
         assertEquals(new StatusFlags(false, false, true, false), record4.getStatusFlags());
 

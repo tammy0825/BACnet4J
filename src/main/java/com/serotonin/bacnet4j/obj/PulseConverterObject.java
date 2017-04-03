@@ -232,8 +232,7 @@ public class PulseConverterObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
-        super.terminate();
+    protected void terminateImpl() {
         if (inputMonitoringFuture != null)
             inputMonitoringFuture.cancel(false);
     }

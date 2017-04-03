@@ -188,8 +188,7 @@ public class EventEnrollmentObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
-        super.terminate();
+    protected void terminateImpl() {
         pollingFuture.cancel(false);
     }
 

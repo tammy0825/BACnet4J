@@ -112,6 +112,7 @@ import lohbihler.warp.WarpUtils;
  */
 public class LocalDevice {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
+    public static final String VERSION = "4.0.0";
 
     private final Transport transport;
 
@@ -133,7 +134,7 @@ public class LocalDevice {
     /**
      * The BACnet object that represents this as the local device.
      */
-    private BACnetObject deviceObject;
+    private DeviceObject deviceObject;
 
     /**
      * The clock used for all timing, except for Object.wait and Thread.sleep calls.
@@ -204,6 +205,10 @@ public class LocalDevice {
         if (initialized)
             throw new IllegalStateException("Clock needs to be set before LocalDevice is initialized");
         this.clock = clock;
+    }
+
+    public DeviceObject getDeviceObject() {
+        return deviceObject;
     }
 
     public Network getNetwork() {
@@ -383,8 +388,27 @@ public class LocalDevice {
         return password;
     }
 
-    public void setPassword(final String password) {
+    public LocalDevice withPassword(final String password) {
         this.password = password;
+        return this;
+    }
+
+    public LocalDevice withAPDUSegmentTimeout(final UnsignedInteger apduSegmentTimeout) {
+        deviceObject.writePropertyInternal(PropertyIdentifier.apduSegmentTimeout, apduSegmentTimeout);
+        transport.setSegTimeout(apduSegmentTimeout.intValue());
+        return this;
+    }
+
+    public LocalDevice withAPDUTimeout(final UnsignedInteger apduTimeout) {
+        deviceObject.writePropertyInternal(PropertyIdentifier.apduTimeout, apduTimeout);
+        transport.setTimeout(apduTimeout.intValue());
+        return this;
+    }
+
+    public LocalDevice withNumberOfApduRetries(final UnsignedInteger numberOfApduRetries) {
+        deviceObject.writePropertyInternal(PropertyIdentifier.numberOfApduRetries, numberOfApduRetries);
+        transport.setTimeout(numberOfApduRetries.intValue());
+        return this;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -420,11 +444,6 @@ public class LocalDevice {
     }
 
     public BACnetObject getObject(final String name) {
-        // TODO validate that this is not necessary.
-        //        // Check if we need to look into the local device.
-        //        if (name.equals(getObjectName()))
-        //            return this;
-
         for (final BACnetObject obj : localObjects) {
             if (name.equals(obj.getObjectName()))
                 return obj;
@@ -929,37 +948,22 @@ public class LocalDevice {
         final List<BACnetException> sendExceptions = new ArrayList<>();
         for (final Destination destination : recipientList) {
             if (destination.isSuitableForEvent(timeStamp, toState)) {
+                Address address;
+                try {
+                    address = destination.getRecipient().toAddress(this);
+                } catch (final BACnetException e) {
+                    sendExceptions.add(e);
+                    continue;
+                }
+
                 if (destination.getIssueConfirmedNotifications().booleanValue()) {
-                    final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(
-                            destination.getProcessIdentifier(), getId(), eventObjectIdentifier, timeStamp,
-                            new UnsignedInteger(notificationClassId), priority, eventType, messageText, notifyType,
-                            ackRequired, fromState, toState, eventValues);
-
-                    if (destination.getRecipient().isAddress()) {
-                        send(destination.getRecipient().getAddress(), req);
-                    } else {
-                        final RemoteDevice remoteDevice = getRemoteDevice(
-                                destination.getRecipient().getDevice().getInstanceNumber()).get();
-                        send(remoteDevice, req);
-                    }
+                    send(address, new ConfirmedEventNotificationRequest(destination.getProcessIdentifier(), getId(),
+                            eventObjectIdentifier, timeStamp, new UnsignedInteger(notificationClassId), priority,
+                            eventType, messageText, notifyType, ackRequired, fromState, toState, eventValues));
                 } else {
-                    Address address = null;
-                    if (destination.getRecipient().isAddress())
-                        address = destination.getRecipient().getAddress();
-                    else {
-                        final RemoteDevice remoteDevice = getRemoteDevice(
-                                destination.getRecipient().getDevice().getInstanceNumber()).get();
-                        if (remoteDevice != null)
-                            address = remoteDevice.getAddress();
-                    }
-
-                    if (address != null) {
-                        final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(
-                                destination.getProcessIdentifier(), getId(), eventObjectIdentifier, timeStamp,
-                                new UnsignedInteger(notificationClassId), priority, eventType, messageText, notifyType,
-                                ackRequired, fromState, toState, eventValues);
-                        transport.send(address, req, false);
-                    }
+                    send(address, new UnconfirmedEventNotificationRequest(destination.getProcessIdentifier(), getId(),
+                            eventObjectIdentifier, timeStamp, new UnsignedInteger(notificationClassId), priority,
+                            eventType, messageText, notifyType, ackRequired, fromState, toState, eventValues));
                 }
             }
         }

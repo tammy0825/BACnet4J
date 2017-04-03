@@ -344,7 +344,7 @@ public class TrendLogMultipleObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
+    protected void terminateImpl() {
         super.terminate();
         cancelFuture(startTimeFuture);
         cancelFuture(stopTimeFuture);
@@ -392,6 +392,7 @@ public class TrendLogMultipleObject extends BACnetObject {
                 period = TimeUnit.MINUTES.toMillis(5);
 
             long initialDelay = 0;
+            int offsetToUse = 0;
             if (alignIntervals.booleanValue()) {
                 final long now = getLocalDevice().getClock().millis();
 
@@ -405,10 +406,10 @@ public class TrendLogMultipleObject extends BACnetObject {
                 } else if (period % TimeUnit.SECONDS.toMillis(1) == 0) {
                     initialDelay = TimeUnit.SECONDS.toMillis(1) - now % TimeUnit.SECONDS.toMillis(1);
                 }
-            }
 
-            int offsetToUse = intervalOffset.intValue() * 10;
-            offsetToUse %= period;
+                offsetToUse = intervalOffset.intValue() * 10;
+                offsetToUse %= period;
+            }
 
             initialDelay += offsetToUse;
             initialDelay %= period;

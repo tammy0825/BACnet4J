@@ -97,7 +97,7 @@ public class CalendarObject extends BACnetObject {
     }
 
     @Override
-    public void terminate() {
+    protected void terminateImpl() {
         if (presentValueRefresher != null) {
             presentValueRefresher.cancel(false);
             presentValueRefresher = null;

@@ -69,10 +69,8 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
-import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
-import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 /**
@@ -168,7 +166,15 @@ public class BACnetObject {
     /**
      * Called when the object is removed from the device.
      */
-    public void terminate() {
+    final public void terminate() {
+        // Notify the mixins
+        for (final AbstractMixin mixin : mixins) {
+            mixin.terminate();
+        }
+        terminateImpl();
+    }
+
+    protected void terminateImpl() {
         // no op, override as required
     }
 
@@ -304,13 +310,6 @@ public class BACnetObject {
     //
     @SuppressWarnings("unchecked")
     public final <T extends Encodable> T getProperty(final PropertyIdentifier pid) {
-        // Do some property-specific checking here.
-        // TODO this should be done in the device object.
-        if (PropertyIdentifier.localTime.equals(pid))
-            return (T) new Time();
-        if (PropertyIdentifier.localDate.equals(pid))
-            return (T) new Date();
-
         // Give the mixins notice that the property is being read.
         for (final AbstractMixin mixin : mixins)
             mixin.beforeReadProperty(pid);
@@ -396,8 +395,6 @@ public class BACnetObject {
      */
     @SuppressWarnings("unchecked")
     public void writeProperty(final ValueSource valueSource, final PropertyValue value) throws BACnetServiceException {
-        LOG.info("Attempting to write property {} from {}", value, valueSource);
-
         final PropertyIdentifier pid = value.getPropertyIdentifier();
         final UnsignedInteger pin = value.getPropertyArrayIndex();
         Encodable valueToWrite = value.getValue();
@@ -477,8 +474,9 @@ public class BACnetObject {
             } else {
                 // Writing to an array index.
                 final Encodable prop = properties.get(pid);
-                if (prop == null)
+                if (prop == null) {
                     throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
+                }
                 if (!(prop instanceof BACnetArray)) {
                     throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
                 }
@@ -512,8 +510,6 @@ public class BACnetObject {
                 break;
         }
         if (!handled) {
-            LOG.info("Writing property value {} to {}, pin={}", valueToWrite, pid, pin);
-
             // Set the property
             if (pin == null) {
                 // Set the value of a property

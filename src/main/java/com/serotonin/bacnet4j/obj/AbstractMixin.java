@@ -140,4 +140,11 @@ public class AbstractMixin {
             final Encodable newValue) {
         // no op
     }
+
+    /**
+     * Provides notice to the mixin that the object was removed from the device.
+     */
+    protected void terminate() {
+        // no op
+    }
 }

@@ -65,7 +65,7 @@ public class ReinitializeDeviceRequestTest {
 
     @Test
     public void badPassword() throws Exception {
-        ld2.setPassword("testPassword");
+        ld2.withPassword("testPassword");
 
         try {
             ld1.send(rd2, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.abortRestore,
@@ -78,7 +78,7 @@ public class ReinitializeDeviceRequestTest {
 
     @Test
     public void password() throws Exception {
-        ld2.setPassword("testPassword");
+        ld2.withPassword("testPassword");
 
         // Create the listener in device 2
         final AtomicReference<Address> receivedAddress = new AtomicReference<>(null);

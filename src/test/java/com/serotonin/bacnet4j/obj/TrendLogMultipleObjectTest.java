@@ -1,10 +1,10 @@
 package com.serotonin.bacnet4j.obj;
 
-import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -110,6 +110,7 @@ public class TrendLogMultipleObjectTest {
 
     @Test
     public void pollingAlignedWithOffset() throws Exception {
+        // Construct the log to poll each minute, aligned, and with a 2s offset.
         final TrendLogMultipleObject tl = new TrendLogMultipleObject(d1, 0, "tlm",
                 new LinkedListLogBuffer<LogMultipleRecord>(), true, DateTime.UNSPECIFIED, DateTime.UNSPECIFIED, props,
                 0, false, 20) //
@@ -118,9 +119,10 @@ public class TrendLogMultipleObjectTest {
         assertEquals(0, tl.getBuffer().size());
 
         //
-        // Advance the clock one minute. Somewhere in this advancement the polling will occur.
+        // Advance the clock to the polling time.
         LOG.info("start");
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 300);
+        final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60;
+        clock.plus(seconds, SECONDS, 300);
 
         assertEquals(1, tl.getBuffer().size());
         final LogMultipleRecord record0 = tl.getBuffer().get(0);
@@ -138,13 +140,13 @@ public class TrendLogMultipleObjectTest {
         // Update the object present value.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(2));
 
-        // Advance the clock another minute to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, MINUTES, 1, SECONDS, 10, 100);
+        // Advance the clock another minute to poll again
+        clock.plus(1, MINUTES, 100);
 
         assertEquals(2, tl.getBuffer().size());
         final LogMultipleRecord record1 = tl.getBuffer().get(1);
         assertEquals(2, record1.getTimestamp().getTime().getSecond());
-        assertEquals(record0.getTimestamp().getTime().getMinute() + 1 % 60,
+        assertEquals((record0.getTimestamp().getTime().getMinute() + 1) % 60,
                 record1.getTimestamp().getTime().getMinute());
         assertEquals(2, record1.getSequenceNumber());
         assertEquals(5, record1.getLogData().getData().size());
@@ -159,12 +161,13 @@ public class TrendLogMultipleObjectTest {
         tl.writeProperty(null, PropertyIdentifier.logInterval, new UnsignedInteger(60 * 60 * 100));
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(3));
 
-        // Advance the clock an hour to poll again. Somewhere in this advancement the polling will occur.
-        clock.plus(1, HOURS, 1, MINUTES, 20, 100);
+        // Advance the clock to the new polling time.
+        final int minutes = (62 - clock.get(ChronoField.MINUTE_OF_HOUR)) % 60;
+        clock.plus(minutes, MINUTES, 100);
 
         assertEquals(3, tl.getBuffer().size());
         final LogMultipleRecord record2 = tl.getBuffer().get(2);
-        assertEquals(0, record2.getTimestamp().getTime().getMinute());
+        assertEquals(2, record2.getTimestamp().getTime().getMinute());
         assertEquals(3, record2.getSequenceNumber());
         assertEquals(5, record2.getLogData().getData().size());
         assertEquals(new Real(3), record2.getLogData().getData().get(0).getDatum());
