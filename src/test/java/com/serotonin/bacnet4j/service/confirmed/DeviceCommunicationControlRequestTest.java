@@ -19,6 +19,7 @@ import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.CommunicationDisabledException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
@@ -37,6 +38,7 @@ import lohbihler.warp.WarpClock;
  * All tests modify the communication control in device d1.
  */
 public class DeviceCommunicationControlRequestTest {
+    private final TestNetworkMap map = new TestNetworkMap();
     private WarpClock clock;
     private LocalDevice d1;
     private LocalDevice d2;
@@ -47,11 +49,11 @@ public class DeviceCommunicationControlRequestTest {
     public void before() throws Exception {
         clock = new WarpClock();
 
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0).withTimeout(200)));
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0).withTimeout(200)));
         d1.setClock(clock);
         d1.initialize();
 
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0).withTimeout(200))).initialize();
+        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0).withTimeout(200))).initialize();
 
         rd1 = d2.getRemoteDeviceBlocking(1);
         rd2 = d1.getRemoteDeviceBlocking(2);

@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AnalogInputObject;
 import com.serotonin.bacnet4j.obj.FileObject;
 import com.serotonin.bacnet4j.obj.fileAccess.CrlfDelimitedFileAccess;
@@ -31,6 +32,7 @@ import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class AtomicWriteFileRequestTest {
+    private final TestNetworkMap map = new TestNetworkMap();
     private final String filename = "fileObjectTest.txt";
     private final String path = getClass().getClassLoader().getResource(filename).getPath();
 
@@ -39,7 +41,7 @@ public class AtomicWriteFileRequestTest {
 
     @Before
     public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).initialize();
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).initialize();
         ai = new AnalogInputObject(d1, 0, "ai", 0, EngineeringUnits.noUnits, false);
     }
 

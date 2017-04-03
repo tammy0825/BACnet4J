@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -48,9 +49,13 @@ import lohbihler.warp.WarpClock;
 
 public class EventEnrollmentObjectTest {
     private final WarpClock clock = new WarpClock();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock);
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock);
-    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(3, 0))).withClock(clock);
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
+            .withClock(clock);
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
+            .withClock(clock);
+    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
+            .withClock(clock);
     private RemoteDevice rd1;
     private RemoteDevice rd2;
 

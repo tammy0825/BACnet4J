@@ -24,6 +24,7 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
@@ -43,8 +44,9 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
 public class BinaryValueObjectTest {
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0)));
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)));
     private RemoteDevice rd1;
     private BinaryValueObject bv;
 

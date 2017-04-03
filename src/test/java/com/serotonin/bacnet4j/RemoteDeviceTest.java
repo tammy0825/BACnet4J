@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
@@ -16,9 +17,11 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RemoteDeviceTest {
+    private final TestNetworkMap map = new TestNetworkMap();
+
     @Test
     public void nonsequenceProperties() {
-        final LocalDevice d = new LocalDevice(1234, new DefaultTransport(new TestNetwork(1, 10)));
+        final LocalDevice d = new LocalDevice(1234, new DefaultTransport(new TestNetwork(map, 1, 10)));
         final RemoteDevice rd = new RemoteDevice(d, 1235);
         final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.binaryValue, 0);
 
@@ -45,7 +48,7 @@ public class RemoteDeviceTest {
     }
 
     public void sequenceProperties() {
-        final LocalDevice d = new LocalDevice(1234, new DefaultTransport(new TestNetwork(1, 10)));
+        final LocalDevice d = new LocalDevice(1234, new DefaultTransport(new TestNetwork(map, 1, 10)));
         final RemoteDevice rd = new RemoteDevice(d, 1235);
         final ObjectIdentifier ai1 = new ObjectIdentifier(ObjectType.analogInput, 0);
         final ObjectIdentifier ai2 = new ObjectIdentifier(ObjectType.analogInput, 1);

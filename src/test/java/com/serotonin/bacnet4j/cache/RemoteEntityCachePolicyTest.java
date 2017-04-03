@@ -9,15 +9,18 @@ import org.junit.Test;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.TestClock;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 
 public class RemoteEntityCachePolicyTest {
+    private final TestNetworkMap map = new TestNetworkMap();
+
     @Test
     public void test() {
         final TestClock clock = new TestClock();
 
-        final LocalDevice d = new LocalDevice(0, new DefaultTransport(new TestNetwork(1, 10)));
+        final LocalDevice d = new LocalDevice(0, new DefaultTransport(new TestNetwork(map, 1, 10)));
         d.setClock(clock);
 
         final Object neverCache = RemoteEntityCachePolicy.NEVER_CACHE.prepareState(d);

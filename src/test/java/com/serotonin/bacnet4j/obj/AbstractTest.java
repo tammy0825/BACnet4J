@@ -6,9 +6,11 @@ import org.junit.Before;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 
 abstract public class AbstractTest {
+    private final TestNetworkMap map = new TestNetworkMap();
     LocalDevice d1;
     LocalDevice d2;
     LocalDevice d3;
@@ -18,13 +20,13 @@ abstract public class AbstractTest {
 
     @Before
     public void abstractBefore() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 10)));
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 10)));
         d1.initialize();
 
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 20)));
+        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 20)));
         d2.initialize();
 
-        d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(3, 0)));
+        d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)));
         d3.initialize();
 
         // Announce d1 to d2.

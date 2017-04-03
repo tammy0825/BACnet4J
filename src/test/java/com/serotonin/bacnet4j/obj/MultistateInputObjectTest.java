@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -46,6 +47,7 @@ public class MultistateInputObjectTest {
     static final Logger LOG = LoggerFactory.getLogger(MultistateInputObjectTest.class);
 
     private final WarpClock clock = new WarpClock();
+    private final TestNetworkMap map = new TestNetworkMap();
     private LocalDevice d1;
     private LocalDevice d2;
     private RemoteDevice rd1;
@@ -55,8 +57,8 @@ public class MultistateInputObjectTest {
 
     @Before
     public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock).initialize();
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock).initialize();
+        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).withClock(clock).initialize();
 
         rd1 = d2.getRemoteDevice(1).get();
         rd2 = d1.getRemoteDevice(2).get();

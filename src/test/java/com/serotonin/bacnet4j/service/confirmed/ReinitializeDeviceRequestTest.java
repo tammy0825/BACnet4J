@@ -15,6 +15,7 @@ import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -23,14 +24,15 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 
 public class ReinitializeDeviceRequestTest {
+    private final TestNetworkMap map = new TestNetworkMap();
     private LocalDevice ld1;
     private LocalDevice ld2;
     private RemoteDevice rd2;
 
     @Before
     public void before() throws Exception {
-        ld1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).initialize();
-        ld2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).initialize();
+        ld1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).initialize();
+        ld2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).initialize();
 
         rd2 = ld1.getRemoteDevice(2).get();
     }

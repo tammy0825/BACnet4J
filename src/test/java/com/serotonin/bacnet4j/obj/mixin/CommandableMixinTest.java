@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AnalogValueObject;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.BinaryOutputObject;
@@ -42,12 +44,16 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
+import lohbihler.warp.WarpClock;
+
 public class CommandableMixinTest {
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final WarpClock clock = new WarpClock();
     private LocalDevice localDevice;
 
     @Before
     public void before() throws Exception {
-        localDevice = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+        localDevice = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock);
         localDevice.initialize();
     }
 
@@ -401,7 +407,7 @@ public class CommandableMixinTest {
                 bo.get(PropertyIdentifier.commandTimeArray));
 
         // Wait for the timer to complete, and ensure that the PV is not inactive.
-        Thread.sleep(2000);
+        clock.plus(2, TimeUnit.SECONDS, 2, TimeUnit.SECONDS, 0, 40);
         assertEquals(BinaryPV.inactive, bo.get(PropertyIdentifier.presentValue));
         assertEquals(createLocalValueSource(bo), bo.get(PropertyIdentifier.valueSource));
         assertEquals(emptyValueSources().putBase1(6, createLocalValueSource(bo)).putBase1(8, createValueSource(8)),

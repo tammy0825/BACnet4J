@@ -26,6 +26,7 @@ import com.serotonin.bacnet4j.exception.AbortAPDUException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.ServiceTooBigException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AnalogInputObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
@@ -53,6 +54,8 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class RequestUtilsTest {
+    private final TestNetworkMap map = new TestNetworkMap();
+
     /**
      * Test that occasionally throws ServiceTooBig exception so that RequestUtils is forced to repartition the request
      * on the fly.
@@ -146,8 +149,8 @@ public class RequestUtilsTest {
      */
     @Test
     public void sendOneAtATimeOnError() throws Exception {
-        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).initialize();
-        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).initialize();
+        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).initialize();
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).initialize();
         final AnalogInputObject ai = new AnalogInputObject(d2, 0, "ai", 0, EngineeringUnits.noUnits, false);
         final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
 

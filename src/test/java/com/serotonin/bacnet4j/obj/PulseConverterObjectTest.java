@@ -18,6 +18,7 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
@@ -57,6 +58,7 @@ public class PulseConverterObjectTest {
     static final Logger LOG = LoggerFactory.getLogger(AccumulatorObjectTest.class);
 
     private final WarpClock clock = new WarpClock();
+    private final TestNetworkMap map = new TestNetworkMap();
 
     private LocalDevice d1;
     private LocalDevice d2;
@@ -67,8 +69,8 @@ public class PulseConverterObjectTest {
 
     @Before
     public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 20))).withClock(clock).initialize();
+        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock).initialize();
+        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 20))).withClock(clock).initialize();
 
         rd1 = d2.getRemoteDevice(1).get();
         rd2 = d1.getRemoteDevice(2).get();

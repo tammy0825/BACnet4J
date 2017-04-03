@@ -15,6 +15,7 @@ import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AnalogInputObject;
 import com.serotonin.bacnet4j.obj.TrendLogMultipleObject;
 import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
@@ -51,8 +52,9 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import lohbihler.warp.WarpClock;
 
 public class ReadRangeRequestTest {
+    private final TestNetworkMap map = new TestNetworkMap();
     final PropertyIdentifier pid = PropertyIdentifier.forId(9999);
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0)));
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
     final DateTime now = new DateTime(d1);
 
     @Before
@@ -70,7 +72,6 @@ public class ReadRangeRequestTest {
      */
     @Test
     public void networkRead() throws Exception {
-        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).initialize();
         final SequenceOf<Recipient> recipients = new SequenceOf<>(
                 new Recipient(new ObjectIdentifier(ObjectType.device, 1)),
                 new Recipient(new ObjectIdentifier(ObjectType.device, 2)),
@@ -80,7 +81,7 @@ public class ReadRangeRequestTest {
                 new Recipient(new ObjectIdentifier(ObjectType.device, 6)));
         d1.getObject(d1.getId()).writePropertyInternal(PropertyIdentifier.restartNotificationRecipients, recipients);
 
-        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).initialize();
+        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).initialize();
 
         final RemoteDevice rd1 = d2.getRemoteDeviceBlocking(1);
         final ReadRangeAck ack = d2
@@ -105,25 +106,25 @@ public class ReadRangeRequestTest {
     public void trendLogMultiple() throws Exception {
         final WarpClock clock = new WarpClock();
 
-        final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(1, 0))).withClock(clock)
+        final LocalDevice d11 = new LocalDevice(11, new DefaultTransport(new TestNetwork(map, 11, 0))).withClock(clock)
                 .initialize();
-        final AnalogInputObject ai = new AnalogInputObject(d1, 0, "ai", 12, EngineeringUnits.noUnits, false);
+        final AnalogInputObject ai = new AnalogInputObject(d11, 0, "ai", 12, EngineeringUnits.noUnits, false);
 
-        final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(2, 0))).withClock(clock)
+        final LocalDevice d12 = new LocalDevice(12, new DefaultTransport(new TestNetwork(map, 12, 0))).withClock(clock)
                 .initialize();
-        final TrendLogMultipleObject tl = new TrendLogMultipleObject(d2, 0, "tlm", new LinkedListLogBuffer<>(), true,
+        final TrendLogMultipleObject tl = new TrendLogMultipleObject(d12, 0, "tlm", new LinkedListLogBuffer<>(), true,
                 DateTime.UNSPECIFIED, DateTime.UNSPECIFIED,
-                new BACnetArray<>(new DeviceObjectPropertyReference(1, ai.getId(), PropertyIdentifier.presentValue)), 0,
-                false, 100);
+                new BACnetArray<>(new DeviceObjectPropertyReference(11, ai.getId(), PropertyIdentifier.presentValue)),
+                0, false, 100);
 
-        final RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+        final RemoteDevice rd12 = d11.getRemoteDeviceBlocking(12);
         final DateTime now = new DateTime(clock.millis());
 
         // Trigger the trend log a few times.
         doTriggers(tl, 11);
 
         // Read the buffer.
-        final ReadRangeAck ack = d1.send(rd2, new ReadRangeRequest(tl.getId(), PropertyIdentifier.logBuffer, null))
+        final ReadRangeAck ack = d11.send(rd12, new ReadRangeRequest(tl.getId(), PropertyIdentifier.logBuffer, null))
                 .get();
 
         assertEquals(tl.getId(), ack.getObjectIdentifier());

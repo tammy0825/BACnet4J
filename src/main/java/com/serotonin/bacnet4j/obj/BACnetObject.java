@@ -35,6 +35,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -76,6 +79,8 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  * @author Matthew
  */
 public class BACnetObject {
+    static final Logger LOG = LoggerFactory.getLogger(BACnetObject.class);
+
     private final LocalDevice localDevice;
     private final ObjectType objectType;
     protected final Map<PropertyIdentifier, Encodable> properties = new ConcurrentHashMap<>();
@@ -391,6 +396,8 @@ public class BACnetObject {
      */
     @SuppressWarnings("unchecked")
     public void writeProperty(final ValueSource valueSource, final PropertyValue value) throws BACnetServiceException {
+        LOG.info("Attempting to write property {} from {}", value, valueSource);
+
         final PropertyIdentifier pid = value.getPropertyIdentifier();
         final UnsignedInteger pin = value.getPropertyArrayIndex();
         Encodable valueToWrite = value.getValue();
@@ -505,6 +512,8 @@ public class BACnetObject {
                 break;
         }
         if (!handled) {
+            LOG.info("Writing property value {} to {}, pin={}", valueToWrite, pid, pin);
+
             // Set the property
             if (pin == null) {
                 // Set the value of a property
