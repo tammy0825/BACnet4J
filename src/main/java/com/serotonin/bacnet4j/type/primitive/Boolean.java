@@ -57,7 +57,23 @@ public class Boolean extends Primitive {
     }
 
     public Boolean(final ByteQueue queue) {
-        final long length = readTag(queue);
+        final byte b = queue.pop();
+        int tagNumber = (b & 0xff) >> 4;
+        final boolean contextSpecific = (b & 8) != 0;
+        long length = b & 7;
+
+        if (tagNumber == 0xf)
+            // Extended tag.
+            tagNumber = queue.popU1B();
+
+        if (length == 5) {
+            length = queue.popU1B();
+            if (length == 254)
+                length = queue.popU2B();
+            else if (length == 255)
+                length = queue.popU4B();
+        }
+
         if (contextSpecific)
             value = queue.pop() == 1;
         else
@@ -65,16 +81,25 @@ public class Boolean extends Primitive {
     }
 
     @Override
+    public void write(final ByteQueue queue) {
+        writeTag(queue, getTypeId(), false, value ? 1 : 0);
+        //        writeImpl(queue);
+    }
+
+    @Override
+    public void write(final ByteQueue queue, final int contextId) {
+        writeTag(queue, contextId, true, 1);
+        queue.push((byte) (value ? 1 : 0));
+    }
+
+    @Override
     public void writeImpl(final ByteQueue queue) {
-        if (contextSpecific)
-            queue.push((byte) (value ? 1 : 0));
+        throw new RuntimeException("Should not be called because length is context specific");
     }
 
     @Override
     protected long getLength() {
-        if (contextSpecific)
-            return 1;
-        return (byte) (value ? 1 : 0);
+        throw new RuntimeException("Should not be called because length is context specific");
     }
 
     @Override
