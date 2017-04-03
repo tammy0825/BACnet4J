@@ -83,22 +83,22 @@ public class BACnetObjectTest {
         //        TestUtils.assertErrorAPDUException(() -> {
         RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.description, new Real(0));
         //        }, ErrorClass.property, ErrorCode.invalidDataType);
-        System.out.println(d2.getProperty(PropertyIdentifier.description));
+        System.out.println(d2.get(PropertyIdentifier.description));
     }
 
     @Test
     public void definedScalarWithCorrectType() throws BACnetException {
         RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.description, new CharacterString("a"));
-        Assert.assertEquals(new CharacterString("a"), d2.getProperty(PropertyIdentifier.description));
+        Assert.assertEquals(new CharacterString("a"), d2.get(PropertyIdentifier.description));
     }
 
     @Test
     public void undefinedScalar() throws BACnetException {
         RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(5557), new Real(55));
-        Assert.assertEquals(new Real(55), d2.getProperty(PropertyIdentifier.forId(5557)));
+        Assert.assertEquals(new Real(55), d2.get(PropertyIdentifier.forId(5557)));
 
         RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(5557), new CharacterString("b"));
-        Assert.assertEquals(new CharacterString("b"), d2.getProperty(PropertyIdentifier.forId(5557)));
+        Assert.assertEquals(new CharacterString("b"), d2.get(PropertyIdentifier.forId(5557)));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class BACnetObjectTest {
         Assert.assertEquals(new BACnetArray<>( //
                 new NameValue("tag1", DateTime.UNSPECIFIED), //
                 new NameValue("tag2", new Real(234)), //
-                new NameValue("t3", new Real(3.14F))), d2.getProperty(PropertyIdentifier.tags));
+                new NameValue("t3", new Real(3.14F))), d2.get(PropertyIdentifier.tags));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class BACnetObjectTest {
                         new NameValue("t2", DateTime.UNSPECIFIED)));
         Assert.assertEquals(new BACnetArray<>( //
                 new NameValue("t1", new CharacterString("v1")), //
-                new NameValue("t2", DateTime.UNSPECIFIED)), d2.getProperty(PropertyIdentifier.tags));
+                new NameValue("t2", DateTime.UNSPECIFIED)), d2.get(PropertyIdentifier.tags));
     }
 
     @Test
@@ -168,10 +168,10 @@ public class BACnetObjectTest {
         // Returns invalid data type because the index of 0 indicates a write to the array length, which expects
         // an UnsignedInteger
         TestUtils.assertErrorAPDUException(() -> {
-            LOG.info("Before write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
+            LOG.info("Before write: {}", d2.get(PropertyIdentifier.forId(6789)));
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(6789), 0, new Real(10));
-            LOG.info("After write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
-            LOG.info("After write: {}", d1.getProperty(PropertyIdentifier.forId(6789)));
+            LOG.info("After write: {}", d2.get(PropertyIdentifier.forId(6789)));
+            LOG.info("After write: {}", d1.get(PropertyIdentifier.forId(6789)));
         }, ErrorClass.property, ErrorCode.invalidDataType);
     }
 
@@ -186,15 +186,15 @@ public class BACnetObjectTest {
     public void undefinedArrayWriteElement() throws BACnetException {
         RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(6789), 2, new Real(10));
         Assert.assertEquals(new BACnetArray<>(new Real(0), new Real(10), new Real(2)),
-                d2.getProperty(PropertyIdentifier.forId(6789)));
+                d2.get(PropertyIdentifier.forId(6789)));
     }
 
     @Test
     public void undefinedArrayWriteIncorrectElement() {
         TestUtils.assertErrorAPDUException(() -> {
-            LOG.info("Before write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
+            LOG.info("Before write: {}", d2.get(PropertyIdentifier.forId(6789)));
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(6789), 0, new SignedInteger(10));
-            LOG.info("After write: {}", d2.getProperty(PropertyIdentifier.forId(6789)));
+            LOG.info("After write: {}", d2.get(PropertyIdentifier.forId(6789)));
         }, ErrorClass.property, ErrorCode.invalidDataType);
     }
 
@@ -212,6 +212,6 @@ public class BACnetObjectTest {
                         new Recipient(new ObjectIdentifier(ObjectType.device, 11)), //
                         new Recipient(new ObjectIdentifier(ObjectType.device, 12)), //
                         new Recipient(new ObjectIdentifier(ObjectType.device, 13))),
-                d2.getProperty(PropertyIdentifier.restartNotificationRecipients));
+                d2.get(PropertyIdentifier.restartNotificationRecipients));
     }
 }

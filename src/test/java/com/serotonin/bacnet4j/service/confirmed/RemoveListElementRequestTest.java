@@ -199,7 +199,7 @@ public class RemoveListElementRequestTest {
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 7), TestNetworkUtils.toAddress(7))) //
         ).handle(localDevice, addr);
 
-        SequenceOf<AddressBinding> dabs = localDevice.getProperty(PropertyIdentifier.deviceAddressBinding);
+        SequenceOf<AddressBinding> dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
         assertEquals(
                 new SequenceOf<>( //
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 2), TestNetworkUtils.toAddress(2)),
@@ -219,7 +219,7 @@ public class RemoveListElementRequestTest {
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 8), TestNetworkUtils.toAddress(8))) //
         ).handle(localDevice, addr);
 
-        dabs = localDevice.getProperty(PropertyIdentifier.deviceAddressBinding);
+        dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
         assertEquals(
                 new SequenceOf<>( //
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4))),
@@ -234,7 +234,7 @@ public class RemoveListElementRequestTest {
                         new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4))) //
         ).handle(localDevice, addr);
 
-        dabs = localDevice.getProperty(PropertyIdentifier.deviceAddressBinding);
+        dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
         assertEquals(new SequenceOf<>(), dabs);
     }
 
@@ -248,7 +248,7 @@ public class RemoveListElementRequestTest {
                 new SequenceOf<>(new Real(5), new Real(7), new Real(8)) //
         ).handle(localDevice, addr);
 
-        SequenceOf<?> aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
+        SequenceOf<?> aol = localDevice.get(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
                 new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
                 new SequenceOf<>(), //
@@ -264,7 +264,7 @@ public class RemoveListElementRequestTest {
                 new SequenceOf<>(new CharacterString("a"), new CharacterString("b")) //
         ).handle(localDevice, addr);
 
-        aol = localDevice.getProperty(PropertyIdentifier.forId(5555));
+        aol = localDevice.get(PropertyIdentifier.forId(5555));
         assertEquals(new BACnetArray<>( //
                 new SequenceOf<>(new Real(0), new Real(1), new Real(2)), //
                 new SequenceOf<>(), //

@@ -27,7 +27,7 @@ public class AlertEnrollmentObject extends BACnetObject {
             final int notificationClass, final NotifyType notifyType) throws BACnetServiceException {
         super(localDevice, ObjectType.alertEnrollment, instanceNumber, name);
 
-        defaultVendorId = localDevice.getProperty(PropertyIdentifier.vendorIdentifier);
+        defaultVendorId = localDevice.get(PropertyIdentifier.vendorIdentifier);
 
         writePropertyInternal(PropertyIdentifier.presentValue, localDevice.getId());
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);

@@ -242,7 +242,7 @@ public class BinaryInputObjectTest {
     }
 
     @Test
-    public void activeTime() {
+    public void activeTime() throws Exception {
         final DateTime start = new DateTime(d1);
 
         bi.supportActiveTime();
@@ -287,7 +287,7 @@ public class BinaryInputObjectTest {
     }
 
     @Test
-    public void stateChanges() {
+    public void stateChanges() throws Exception {
         final DateTime start = new DateTime(d1);
         assertEquals(DateTime.UNSPECIFIED, bi.getProperty(PropertyIdentifier.changeOfStateTime));
         assertEquals(new UnsignedInteger(0), bi.getProperty(PropertyIdentifier.changeOfStateCount));

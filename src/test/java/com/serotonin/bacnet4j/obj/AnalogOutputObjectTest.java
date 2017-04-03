@@ -147,7 +147,7 @@ public class AnalogOutputObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequired() {
+    public void propertyConformanceRequired() throws Exception {
         assertNotNull(ao.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(ao.getProperty(PropertyIdentifier.objectName));
         assertNotNull(ao.getProperty(PropertyIdentifier.objectType));
@@ -179,13 +179,13 @@ public class AnalogOutputObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequiredWhenCOVReporting() {
+    public void propertyConformanceRequiredWhenCOVReporting() throws Exception {
         ao.supportCovReporting(1);
         assertNotNull(ao.getProperty(PropertyIdentifier.covIncrement));
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         ao.supportIntrinsicReporting(30, 17, 60, 40, 1, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 10);
         assertNotNull(ao.getProperty(PropertyIdentifier.timeDelay));
@@ -202,7 +202,7 @@ public class AnalogOutputObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
         assertNull(ao.getProperty(PropertyIdentifier.timeDelay));
         assertNull(ao.getProperty(PropertyIdentifier.notificationClass));
         assertNull(ao.getProperty(PropertyIdentifier.highLimit));

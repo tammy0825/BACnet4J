@@ -254,7 +254,7 @@ public class AccumulatorObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequired() {
+    public void propertyConformanceRequired() throws Exception {
         assertNotNull(a.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(a.getProperty(PropertyIdentifier.objectName));
         assertNotNull(a.getProperty(PropertyIdentifier.objectType));
@@ -316,7 +316,7 @@ public class AccumulatorObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         a.supportIntrinsicReporting(30, 17, 60, 40, 10, new UnsignedInteger(15), 54, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm);
         assertNotNull(a.getProperty(PropertyIdentifier.pulseRate));
@@ -334,7 +334,7 @@ public class AccumulatorObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
         assertNull(a.getProperty(PropertyIdentifier.timeDelay));
         assertNull(a.getProperty(PropertyIdentifier.notificationClass));
         assertNull(a.getProperty(PropertyIdentifier.highLimit));

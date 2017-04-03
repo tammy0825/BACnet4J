@@ -90,8 +90,7 @@ public class FileObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
-            throws BACnetServiceException {
+    protected void beforeGetProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         if (PropertyIdentifier.fileSize.equals(pid)) {
             set(PropertyIdentifier.fileSize, new UnsignedInteger(fileAccess.length()));
         } else if (PropertyIdentifier.modificationDate.equals(pid)) {

@@ -142,7 +142,7 @@ public class BinaryValueObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequired() {
+    public void propertyConformanceRequired() throws Exception {
         assertNotNull(bv.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(bv.getProperty(PropertyIdentifier.objectName));
         assertNotNull(bv.getProperty(PropertyIdentifier.objectType));
@@ -192,7 +192,7 @@ public class BinaryValueObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         bv.supportIntrinsicReporting(30, 17, BinaryPV.active, new EventTransitionBits(true, true, true),
                 NotifyType.alarm, 60);
         assertNotNull(bv.getProperty(PropertyIdentifier.timeDelay));
@@ -206,7 +206,7 @@ public class BinaryValueObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
         assertNull(bv.getProperty(PropertyIdentifier.timeDelay));
         assertNull(bv.getProperty(PropertyIdentifier.notificationClass));
         assertNull(bv.getProperty(PropertyIdentifier.alarmValue));

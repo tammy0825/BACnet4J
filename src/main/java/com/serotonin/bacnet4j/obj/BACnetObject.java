@@ -45,6 +45,7 @@ import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
+import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.service.acknowledgement.GetAlarmSummaryAck.AlarmSummary;
 import com.serotonin.bacnet4j.service.acknowledgement.GetEnrollmentSummaryAck.EnrollmentSummary;
@@ -122,6 +123,8 @@ public class BACnetObject {
 
         // All objects have a property list.
         addMixin(new PropertyListMixin(this));
+        // If changes to name or id are allowed, the database revision number should be incremented. See 12.11.35.
+        addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.objectName, PropertyIdentifier.objectIdentifier));
 
         if (!id.getObjectType().equals(ObjectType.device))
             // The device object will add itself to the local device after it initializes.
@@ -308,15 +311,6 @@ public class BACnetObject {
     //
     // Get property
     //
-    @SuppressWarnings("unchecked")
-    public final <T extends Encodable> T getProperty(final PropertyIdentifier pid) {
-        // Give the mixins notice that the property is being read.
-        for (final AbstractMixin mixin : mixins)
-            mixin.beforeReadProperty(pid);
-
-        return (T) get(pid);
-    }
-
     /**
      * This method should only be used internally. Services should use the getProperty method.
      */
@@ -325,11 +319,25 @@ public class BACnetObject {
         return (T) properties.get(pid);
     }
 
+    @SuppressWarnings("unchecked")
+    public final <T extends Encodable> T getProperty(final PropertyIdentifier pid) throws BACnetServiceException {
+        // Give the mixins notice that the property is being read.
+        for (final AbstractMixin mixin : mixins)
+            mixin.beforeReadProperty(pid);
+        beforeGetProperty(pid);
+
+        return (T) get(pid);
+    }
+
+    public final Encodable getPropertyRequired(final PropertyIdentifier pid) throws BACnetServiceException {
+        final Encodable p = getProperty(pid);
+        if (p == null)
+            throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
+        return p;
+    }
+
     public final Encodable getProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
             throws BACnetServiceException {
-        // Notify the object of the get request.
-        beforeGetProperty(pid, propertyArrayIndex);
-
         final Encodable result = getProperty(pid);
         if (propertyArrayIndex == null)
             return result;
@@ -346,13 +354,6 @@ public class BACnetObject {
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidArrayIndex);
 
         return array.getBase1(index);
-    }
-
-    public final Encodable getPropertyRequired(final PropertyIdentifier pid) throws BACnetServiceException {
-        final Encodable p = getProperty(pid);
-        if (p == null)
-            throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
-        return p;
     }
 
     public final Encodable getPropertyRequired(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
@@ -590,11 +591,9 @@ public class BACnetObject {
      * Allows notification to the object itself before a property read.
      *
      * @param pid
-     * @param propertyArrayIndex
      * @throws BACnetServiceException
      */
-    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
-            throws BACnetServiceException {
+    protected void beforeGetProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         // no op
     }
 

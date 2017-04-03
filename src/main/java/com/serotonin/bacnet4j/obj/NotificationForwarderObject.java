@@ -234,8 +234,7 @@ public class NotificationForwarderObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
-            throws BACnetServiceException {
+    protected void beforeGetProperty(final PropertyIdentifier pid) {
         if (PropertyIdentifier.subscribedRecipients.equals(pid)) {
             updateSubscribedRecipients();
         }

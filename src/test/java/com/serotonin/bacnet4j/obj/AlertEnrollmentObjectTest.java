@@ -80,7 +80,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ExtendedNotif( //
-                d1.getProperty(PropertyIdentifier.vendorIdentifier), //
+                d1.get(PropertyIdentifier.vendorIdentifier), //
                 new UnsignedInteger(123), //
                 new SequenceOf<>( //
                         new Parameter(av0.getId()), //

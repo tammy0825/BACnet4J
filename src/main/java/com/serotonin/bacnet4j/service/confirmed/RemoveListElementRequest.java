@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.service.confirmed;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
 import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
@@ -103,9 +104,12 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         ObjectPropertyTypeDefinition def = ObjectProperties
                 .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
 
-        Encodable e = obj.getProperty(propertyIdentifier);
-        if (e == null)
-            throw createException(ErrorClass.property, ErrorCode.unknownProperty, new UnsignedInteger(0));
+        Encodable e;
+        try {
+            e = obj.getPropertyRequired(propertyIdentifier);
+        } catch (final BACnetServiceException ex) {
+            throw createException(ex.getErrorClass(), ex.getErrorCode(), new UnsignedInteger(0));
+        }
 
         BACnetArray<Encodable> array = null;
         if (propertyArrayIndex != null) {

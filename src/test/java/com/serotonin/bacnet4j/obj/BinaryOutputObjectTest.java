@@ -358,7 +358,7 @@ public class BinaryOutputObjectTest {
     }
 
     @Test
-    public void activeTime() {
+    public void activeTime() throws Exception {
         try {
             obj.supportActiveTime(true);
             fail("Should have thrown an IllegalStateException");
@@ -411,7 +411,7 @@ public class BinaryOutputObjectTest {
     }
 
     @Test
-    public void stateChanges() {
+    public void stateChanges() throws Exception {
         final DateTime start = new DateTime(d1);
         assertEquals(DateTime.UNSPECIFIED, obj.getProperty(PropertyIdentifier.changeOfStateTime));
         assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));

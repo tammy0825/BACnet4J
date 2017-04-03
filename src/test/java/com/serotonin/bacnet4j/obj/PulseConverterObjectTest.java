@@ -191,7 +191,7 @@ public class PulseConverterObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequired() {
+    public void propertyConformanceRequired() throws Exception {
         assertNotNull(pc.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(pc.getProperty(PropertyIdentifier.objectName));
         assertNotNull(pc.getProperty(PropertyIdentifier.objectType));
@@ -245,20 +245,20 @@ public class PulseConverterObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotCov() {
+    public void propertyConformanceForbiddenWhenNotCov() throws Exception {
         assertNull(pc.getProperty(PropertyIdentifier.covIncrement));
         assertNull(pc.getProperty(PropertyIdentifier.covPeriod));
     }
 
     @Test
-    public void propertyConformanceRequiredWhenCov() {
+    public void propertyConformanceRequiredWhenCov() throws Exception {
         pc.supportCovReporting(2);
         assertNotNull(pc.getProperty(PropertyIdentifier.covIncrement));
         assertNotNull(pc.getProperty(PropertyIdentifier.covPeriod));
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         pc.supportIntrinsicReporting(90, 10, 10, 10, new UnsignedInteger(15), 54, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm);
         assertNotNull(pc.getProperty(PropertyIdentifier.timeDelay));
@@ -275,7 +275,7 @@ public class PulseConverterObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
         assertNull(pc.getProperty(PropertyIdentifier.timeDelay));
         assertNull(pc.getProperty(PropertyIdentifier.notificationClass));
         assertNull(pc.getProperty(PropertyIdentifier.highLimit));

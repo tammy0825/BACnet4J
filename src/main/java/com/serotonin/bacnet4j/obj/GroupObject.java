@@ -22,7 +22,6 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class GroupObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(GroupObject.class);
@@ -40,8 +39,7 @@ public class GroupObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid, final UnsignedInteger propertyArrayIndex)
-            throws BACnetServiceException {
+    protected void beforeGetProperty(final PropertyIdentifier pid) {
         if (PropertyIdentifier.presentValue.equals(pid)) {
             // Construct the present value.
             final SequenceOf<ReadAccessResult> presentValue = new SequenceOf<>();

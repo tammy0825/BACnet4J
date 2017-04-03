@@ -71,16 +71,16 @@ public class DeviceCommunicationControlRequestTest {
     @Test
     public void communicationEnabled() throws BACnetException {
         // Send a request.
-        assertNull(d2.getProperty(PropertyIdentifier.description));
+        assertNull(d2.get(PropertyIdentifier.description));
         d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 2),
                 PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-        assertEquals(new CharacterString("a"), d2.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d2.get(PropertyIdentifier.description));
 
         // Receive a request.
-        assertNull(d1.getProperty(PropertyIdentifier.description));
+        assertNull(d1.get(PropertyIdentifier.description));
         d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-        assertEquals(new CharacterString("a"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d1.get(PropertyIdentifier.description));
     }
 
     /**
@@ -102,10 +102,10 @@ public class DeviceCommunicationControlRequestTest {
         }
 
         // Receive a request
-        assertNull(d1.getProperty(PropertyIdentifier.description));
+        assertNull(d1.get(PropertyIdentifier.description));
         d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-        assertEquals(new CharacterString("a"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d1.get(PropertyIdentifier.description));
 
         // Sending of IAms...
         final AtomicInteger iamCount = new AtomicInteger(0);
@@ -130,10 +130,10 @@ public class DeviceCommunicationControlRequestTest {
         d2.send(rd1, new DeviceCommunicationControlRequest(null, EnableDisable.enable, null)).get();
 
         // Send a request. This time it succeeds.
-        assertNull(d2.getProperty(PropertyIdentifier.description));
+        assertNull(d2.get(PropertyIdentifier.description));
         d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 2),
                 PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-        assertEquals(new CharacterString("a"), d2.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d2.get(PropertyIdentifier.description));
     }
 
     /**
@@ -169,17 +169,17 @@ public class DeviceCommunicationControlRequestTest {
         d2.send(rd1, new DeviceCommunicationControlRequest(null, EnableDisable.enable, null)).get();
 
         // Send a request. This time it succeeds.
-        assertNull(d2.getProperty(PropertyIdentifier.description));
+        assertNull(d2.get(PropertyIdentifier.description));
         d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 2),
                 PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-        assertEquals(new CharacterString("a"), d2.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d2.get(PropertyIdentifier.description));
 
         // Receive a request. This time it too succeeds. Note that the value is already "a", because requests are
         // still processed, just not responded.
-        assertEquals(new CharacterString("a"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d1.get(PropertyIdentifier.description));
         d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.description, null, new CharacterString("b"), null)).get();
-        assertEquals(new CharacterString("b"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("b"), d1.get(PropertyIdentifier.description));
     }
 
     /**
@@ -204,10 +204,10 @@ public class DeviceCommunicationControlRequestTest {
 
         // Receive a request. This time it too succeeds. Note that the value is already "a", because requests are
         // still processed, just not responded.
-        assertEquals(new CharacterString("a"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d1.get(PropertyIdentifier.description));
         d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.description, null, new CharacterString("b"), null)).get();
-        assertEquals(new CharacterString("b"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("b"), d1.get(PropertyIdentifier.description));
     }
 
     /**
@@ -235,10 +235,10 @@ public class DeviceCommunicationControlRequestTest {
 
         // Receive a request. This time it too succeeds. Note that the value is already "a", because requests are
         // still processed, just not responded.
-        assertEquals(new CharacterString("a"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("a"), d1.get(PropertyIdentifier.description));
         d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
                 PropertyIdentifier.description, null, new CharacterString("b"), null)).get();
-        assertEquals(new CharacterString("b"), d1.getProperty(PropertyIdentifier.description));
+        assertEquals(new CharacterString("b"), d1.get(PropertyIdentifier.description));
     }
 
     /**

@@ -383,8 +383,13 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
                 final CalendarObject co = (CalendarObject) getLocalDevice().getObject(e.getCalendarReference());
                 if (co != null) {
                     // Getting the property this way ensures that the calendar's present value gets is calculated.
-                    final Boolean pv = co.getProperty(PropertyIdentifier.presentValue);
-                    active = pv.booleanValue();
+                    try {
+                        final Boolean pv = co.getProperty(PropertyIdentifier.presentValue);
+                        active = pv.booleanValue();
+                    } catch (final BACnetServiceException ex) {
+                        LOG.warn("Error while retrieving calendar's present value", ex);
+                        active = false;
+                    }
                 } else
                     active = false;
             } else

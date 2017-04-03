@@ -260,7 +260,7 @@ public class AnalogInputObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequired() {
+    public void propertyConformanceRequired() throws Exception {
         assertNotNull(ai.getProperty(PropertyIdentifier.objectIdentifier));
         assertNotNull(ai.getProperty(PropertyIdentifier.objectName));
         assertNotNull(ai.getProperty(PropertyIdentifier.objectType));
@@ -295,13 +295,13 @@ public class AnalogInputObjectTest {
     }
 
     @Test
-    public void propertyConformanceRequiredWhenCOVReporting() {
+    public void propertyConformanceRequiredWhenCOVReporting() throws Exception {
         ai.supportCovReporting(1);
         assertNotNull(ai.getProperty(PropertyIdentifier.covIncrement));
     }
 
     @Test
-    public void propertyConformanceRequiredWhenIntrinsicReporting() {
+    public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         ai.supportIntrinsicReporting(30, 17, 60, 40, 1, 70, 30, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 10);
         assertNotNull(ai.getProperty(PropertyIdentifier.timeDelay));
@@ -320,7 +320,7 @@ public class AnalogInputObjectTest {
     }
 
     @Test
-    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() {
+    public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
         assertNull(ai.getProperty(PropertyIdentifier.timeDelay));
         assertNull(ai.getProperty(PropertyIdentifier.notificationClass));
         assertNull(ai.getProperty(PropertyIdentifier.highLimit));
