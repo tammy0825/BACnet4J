@@ -601,13 +601,14 @@ public class DefaultTransport implements Transport, Runnable {
                 // TODO specific troubleshooting code.
                 if (ctx.getService() instanceof ReadPropertyMultipleRequest) {
                     if (ack instanceof SimpleACK) {
-                        LOG.error("Recevied a simple ack when expecting response to ReadPropertyMultipleRequest: "
-                                + "ctx={}, key={}, unackedMessages={}", ctx, key, unackedMessages);
+                        LOG.error("Received a simple ack when expecting response to ReadPropertyMultipleRequest: "
+                                + "ctx={}, key={}, ack={}, unackedMessages={}", ctx, key, ack, unackedMessages);
                     } else if (ack instanceof ComplexACK) {
-                        final AcknowledgementService ackService = ((ComplexACK) ack).getService();
-                        if (!(ackService instanceof ReadPropertyMultipleAck)) {
-                            LOG.error("Recevied a simple ack when expecting response to ReadPropertyMultipleRequest"
-                                    + "ctx={}, key={}, unackedMessages={}", ctx, key, unackedMessages);
+                        if (((ComplexACK) ack).getServiceChoice() != ReadPropertyMultipleAck.TYPE_ID) {
+                            LOG.error(
+                                    "Did not receive a ReadPropertyMultipleAck for ReadPropertyMultipleRequest: "
+                                            + "ctx={}, key={}, ack={}, unackedMessages={}",
+                                    ctx, key, ack, unackedMessages);
                         }
                     }
                 }
