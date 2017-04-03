@@ -536,10 +536,12 @@ public class RequestUtils {
             multiple = true;
 
         if (multiple) {
+            LOG.info("Writing {} specs multiple", specs.size());
             // TODO We could be sending more specs than the device will accept at once. If an error is returned
             // indicating such, and write single is supported, we can try writing one at a time.
             localDevice.send(d, new WritePropertyMultipleRequest(new SequenceOf<>(specs))).get();
         } else {
+            LOG.info("Writing {} specs one at a time", specs.size());
             for (final WriteAccessSpecification spec : specs) {
                 for (final PropertyValue pv : spec.getListOfProperties())
                     localDevice.send(d, new WritePropertyRequest(spec.getObjectIdentifier(), pv.getPropertyIdentifier(),

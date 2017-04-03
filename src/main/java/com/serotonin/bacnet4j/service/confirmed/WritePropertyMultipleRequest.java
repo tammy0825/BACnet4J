@@ -28,6 +28,9 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
@@ -47,6 +50,7 @@ import com.serotonin.bacnet4j.type.error.WritePropertyMultipleError;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class WritePropertyMultipleRequest extends ConfirmedRequestService {
+    static final Logger LOG = LoggerFactory.getLogger(WritePropertyMultipleRequest.class);
     public static final byte TYPE_ID = 16;
 
     private final SequenceOf<WriteAccessSpecification> listOfWriteAccessSpecifications;
@@ -78,6 +82,7 @@ public class WritePropertyMultipleRequest extends ConfirmedRequestService {
                 throw createException(ErrorClass.property, ErrorCode.unknownObject, spec, null);
 
             for (final PropertyValue pv : spec.getListOfProperties()) {
+                LOG.info("Writing property {} into {}", pv, obj);
                 try {
                     if (localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv)) {
                         obj.writeProperty(new ValueSource(from), pv);
