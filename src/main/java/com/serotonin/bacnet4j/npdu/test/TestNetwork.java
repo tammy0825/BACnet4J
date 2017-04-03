@@ -116,11 +116,13 @@ public class TestNetwork extends Network implements Runnable {
     public void initialize(final Transport transport) throws Exception {
         super.initialize(transport);
 
+        running = true;
         transport.setTimeout(timeout);
         transport.setRetries(0); // no retries, there's no network here after all
         transport.setSegTimeout(segTimeout);
 
-        thread = new Thread(this, "BACnet4J test network");
+        thread = new Thread(this,
+                "BACnet4J test network for address " + (address.getMacAddress().getBytes()[0] & 0xff));
         thread.start();
 
         networkMap.add(address, this);

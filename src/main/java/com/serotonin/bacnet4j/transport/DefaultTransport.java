@@ -178,8 +178,9 @@ public class DefaultTransport implements Transport, Runnable {
     public void initialize() throws Exception {
         servicesSupported = localDevice.getServicesSupported();
 
+        running = true;
         network.initialize(this);
-        thread = new Thread(this, "BACnet4J transport");
+        thread = new Thread(this, "BACnet4J transport for device " + localDevice.getInstanceNumber());
         thread.start();
 
         // Send a WhoIsRouter message.
@@ -225,7 +226,9 @@ public class DefaultTransport implements Transport, Runnable {
     // Adding new requests and responses.
     //
     @Override
-    public void send(final Address address, final UnconfirmedRequestService service, final boolean broadcast) {
+    public void send(final Address address, final UnconfirmedRequestService service) {
+        final boolean broadcast = address.equals(getLocalBroadcastAddress()) || address.equals(Address.GLOBAL);
+
         // 16.1.2
         boolean allowSend = true;
         if (!EnableDisable.enable.equals(localDevice.getCommunicationControlState())) {
