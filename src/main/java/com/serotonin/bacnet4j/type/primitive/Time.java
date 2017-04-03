@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.type.primitive;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Time extends Primitive {
@@ -52,8 +53,14 @@ public class Time extends Primitive {
         this.hundredth = hundredth;
     }
 
-    public Time() {
-        this(new GregorianCalendar());
+    public Time(final LocalDevice localDevice) {
+        this(getNow(localDevice));
+    }
+
+    private static GregorianCalendar getNow(final LocalDevice localDevice) {
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(localDevice.getClock().millis());
+        return gc;
     }
 
     public Time(final GregorianCalendar now) {

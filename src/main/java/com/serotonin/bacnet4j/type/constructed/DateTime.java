@@ -43,14 +43,6 @@ public class DateTime extends BaseType implements Comparable<DateTime> {
     private final Date date;
     private final Time time;
 
-    /**
-     * @deprecated Use DateTime(LocalDevice) instead.
-     */
-    @Deprecated
-    public DateTime() {
-        this(new GregorianCalendar());
-    }
-
     public DateTime(final LocalDevice localDevice) {
         this(localDevice.getClock().millis());
     }

@@ -271,7 +271,7 @@ public class ScheduleObjectTest extends AbstractTest {
         // Time value entries in the weekly and exception schedules must be of this type
         TestUtils.assertBACnetServiceException(() -> {
             final BACnetArray<DailySchedule> weekly = new BACnetArray<>( //
-                    new DailySchedule(new SequenceOf<>(new TimeValue(new Time(), new Real(0)))), //
+                    new DailySchedule(new SequenceOf<>(new TimeValue(new Time(d1), new Real(0)))), //
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()), //
@@ -284,8 +284,8 @@ public class ScheduleObjectTest extends AbstractTest {
 
         TestUtils.assertBACnetServiceException(() -> {
             final SequenceOf<SpecialEvent> exceptions = new SequenceOf<>( //
-                    new SpecialEvent(new CalendarEntry(new Date()),
-                            new SequenceOf<>(new TimeValue(new Time(), new Real(0))), new UnsignedInteger(10)));
+                    new SpecialEvent(new CalendarEntry(new Date(d1)),
+                            new SequenceOf<>(new TimeValue(new Time(d1), new Real(0))), new UnsignedInteger(10)));
             new ScheduleObject<>(d1, 2, "sch2", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
                     BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
         }, ErrorClass.property, ErrorCode.invalidDataType);
@@ -307,7 +307,7 @@ public class ScheduleObjectTest extends AbstractTest {
 
         TestUtils.assertBACnetServiceException(() -> {
             final SequenceOf<SpecialEvent> exceptions = new SequenceOf<>( //
-                    new SpecialEvent(new CalendarEntry(new Date()),
+                    new SpecialEvent(new CalendarEntry(new Date(d1)),
                             new SequenceOf<>(new TimeValue(new Time(20, Time.UNSPECIFIC, 0, 0), BinaryPV.active)),
                             new UnsignedInteger(10)));
             new ScheduleObject<>(d1, 4, "sch4", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
