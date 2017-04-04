@@ -19,6 +19,7 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.error.BaseError;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -149,19 +150,21 @@ public class TestUtils {
         void call() throws BACnetException;
     }
 
-    public static void assertErrorAPDUException(final BACnetExceptionCommand command, final ErrorClass errorClass,
-            final ErrorCode errorCode) {
+    @SuppressWarnings("unchecked")
+    public static <T extends BaseError> T assertErrorAPDUException(final BACnetExceptionCommand command,
+            final ErrorClass errorClass, final ErrorCode errorCode) {
         try {
             command.call();
             fail("BACnetException was expected");
         } catch (final BACnetException e) {
             if (e instanceof ErrorAPDUException) {
-                assertErrorClassAndCode(((ErrorAPDUException) e).getError().getErrorClassAndCode(), errorClass,
-                        errorCode);
-            } else {
-                fail("Embedded ErrorAPDUException was expected: " + e.getCause().getClass());
+                final ErrorAPDUException eae = (ErrorAPDUException) e;
+                assertErrorClassAndCode(eae.getError().getErrorClassAndCode(), errorClass, errorCode);
+                return (T) eae.getApdu().getError();
             }
+            fail("Embedded ErrorAPDUException was expected: " + e.getCause().getClass());
         }
+        return null;
     }
 
     @FunctionalInterface

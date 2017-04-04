@@ -28,18 +28,34 @@
  */
 package com.serotonin.bacnet4j.service.confirmed;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.exception.NotImplementedException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.obj.BACnetObject;
+import com.serotonin.bacnet4j.obj.GroupObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
+import com.serotonin.bacnet4j.service.acknowledgement.CreateObjectAck;
 import com.serotonin.bacnet4j.type.ThreadLocalObjectTypeStack;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
+import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
+import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.error.CreateObjectError;
+import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
+import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CreateObjectRequest extends ConfirmedRequestService {
@@ -49,6 +65,11 @@ public class CreateObjectRequest extends ConfirmedRequestService {
     static {
         choiceOptions.addContextual(0, ObjectType.class);
         choiceOptions.addContextual(1, ObjectIdentifier.class);
+    }
+
+    private static Map<ObjectType, ObjectCreator> creators = new HashMap<>();
+    static {
+        creators.put(ObjectType.group, new GroupCreator());
     }
 
     private final Choice objectSpecifier;
@@ -65,53 +86,14 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         this.listOfInitialValues = listOfInitialValues;
     }
 
-    @Override
-    public byte getChoiceId() {
-        return TYPE_ID;
-    }
-
-    @Override
-    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
-        // TODO object created this way should be the actual object classes where possible. This implies:
-        // 1) A method to select the class to create based upon the provided object type
-        // 2) A way to validate the given list of initial values in the same way that constructors validate parameters
-
-        throw new NotImplementedException();
-
-        //        ObjectIdentifier id;
-        //        if (objectSpecifier.getContextId() == 0) {
-        //            ObjectType type = (ObjectType) objectSpecifier.getDatum();
-        //            id = localDevice.getNextInstanceObjectIdentifier(type);
-        //        }
-        //        else
-        //            id = (ObjectIdentifier) objectSpecifier.getDatum();
-        //
-        //        BACnetObject obj = new BACnetObject(localDevice, id.getObjectType(), id.getInstanceNumber(), null);
-        //
-        //        if (listOfInitialValues != null) {
-        //            for (int i = 0; i < listOfInitialValues.getCount(); i++) {
-        //                PropertyValue pv = listOfInitialValues.get(i + 1);
-        //                try {
-        //                    obj.writeProperty(pv);
-        //                }
-        //                catch (BACnetServiceException e) {
-        //                    throw new BACnetErrorException(new CreateObjectError(getChoiceId(), e, new UnsignedInteger(i + 1)));
-        //                }
-        //            }
-        //        }
-        //
-        //        try {
-        //            localDevice.addObject(obj);
-        //
-        //            localDevice.incrementDatabaseRevision();
-        //        }
-        //        catch (BACnetServiceException e) {
-        //            throw new BACnetErrorException(new CreateObjectError(getChoiceId(), e, null));
-        //        }
-        //
-        //        // Return a create object ack.
-        //        return new CreateObjectAck(id);
-
+    CreateObjectRequest(final ByteQueue queue) throws BACnetException {
+        objectSpecifier = readChoice(queue, choiceOptions, 0);
+        try {
+            ThreadLocalObjectTypeStack.set(getObjectType());
+            listOfInitialValues = readOptionalSequenceOf(queue, PropertyValue.class, 1);
+        } finally {
+            ThreadLocalObjectTypeStack.remove();
+        }
     }
 
     @Override
@@ -120,17 +102,63 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         writeOptional(queue, listOfInitialValues, 1);
     }
 
-    CreateObjectRequest(final ByteQueue queue) throws BACnetException {
-        objectSpecifier = readChoice(queue, choiceOptions, 0);
-        try {
-            if (objectSpecifier.isa(ObjectType.class))
-                ThreadLocalObjectTypeStack.set((ObjectType) objectSpecifier.getDatum());
-            else
-                ThreadLocalObjectTypeStack.set(((ObjectIdentifier) objectSpecifier.getDatum()).getObjectType());
-            listOfInitialValues = readOptionalSequenceOf(queue, PropertyValue.class, 1);
-        } finally {
-            ThreadLocalObjectTypeStack.remove();
+    @Override
+    public byte getChoiceId() {
+        return TYPE_ID;
+    }
+
+    private ObjectType getObjectType() {
+        if (objectSpecifier.isa(ObjectType.class)) {
+            return objectSpecifier.getDatum();
         }
+        final ObjectIdentifier oid = objectSpecifier.getDatum();
+        return oid.getObjectType();
+    }
+
+    @Override
+    public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
+        final ObjectType objectType;
+        int instanceNumber;
+
+        if (objectSpecifier.isa(ObjectType.class)) {
+            objectType = objectSpecifier.getDatum();
+            instanceNumber = -1;
+        } else {
+            final ObjectIdentifier oid = objectSpecifier.getDatum();
+            objectType = oid.getObjectType();
+            instanceNumber = oid.getInstanceNumber();
+        }
+
+        // Get the list of object types supported by the local device.
+        final ObjectTypesSupported objectTypesSupported = localDevice.getDeviceObject()
+                .get(PropertyIdentifier.protocolObjectTypesSupported);
+        if (!objectTypesSupported.is(objectType)) {
+            throw createException(ErrorClass.object, ErrorCode.unsupportedObjectType, 0);
+        }
+
+        // Find the creator
+        final ObjectCreator creator = creators.get(objectType);
+        if (creator == null) {
+            throw createException(ErrorClass.object, ErrorCode.dynamicCreationNotSupported, 0);
+        }
+
+        // Get a new instance number if needed.
+        if (instanceNumber == -1) {
+            instanceNumber = localDevice.getNextInstanceObjectNumber(objectType);
+        }
+
+        final BACnetObject bo = creator.create(localDevice, instanceNumber, listOfInitialValues);
+
+        // Dynamically created objects can also be deleted.
+        bo.setDeletable(true);
+
+        return new CreateObjectAck(bo.getId());
+    }
+
+    private static BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
+            final int firstFailedElementNumber) {
+        return new BACnetErrorException(TYPE_ID, new CreateObjectError(new ErrorClassAndCode(errorClass, errorCode),
+                new UnsignedInteger(firstFailedElementNumber)));
     }
 
     @Override
@@ -162,5 +190,37 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         } else if (!objectSpecifier.equals(other.objectSpecifier))
             return false;
         return true;
+    }
+
+    public static interface ObjectCreator {
+        BACnetObject create(LocalDevice d, int instanceNumber, final SequenceOf<PropertyValue> listOfInitialValues)
+                throws BACnetErrorException;
+    }
+
+    static class GroupCreator implements ObjectCreator {
+        @Override
+        public BACnetObject create(final LocalDevice d, final int instanceNumber,
+                final SequenceOf<PropertyValue> listOfInitialValues) throws BACnetErrorException {
+            CharacterString name = new CharacterString(ObjectType.group.toString() + " " + instanceNumber);
+            SequenceOf<ReadAccessSpecification> listOfGroupMembers = new SequenceOf<>();
+
+            // Pull the initialization values out of the given list.
+            for (int i = 0; i < listOfInitialValues.getCount(); i++) {
+                final PropertyValue pv = listOfInitialValues.get(i);
+                if (pv.getPropertyIdentifier().equals(PropertyIdentifier.objectName)) {
+                    name = pv.getValue();
+                } else if (pv.getPropertyIdentifier().equals(PropertyIdentifier.listOfGroupMembers)) {
+                    listOfGroupMembers = pv.getValue();
+                } else {
+                    throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, i + 1);
+                }
+            }
+
+            try {
+                return new GroupObject(d, instanceNumber, name.getValue(), listOfGroupMembers);
+            } catch (final BACnetServiceException e) {
+                throw createException(e.getErrorClass(), e.getErrorCode(), 0);
+            }
+        }
     }
 }
