@@ -61,8 +61,8 @@ import com.serotonin.bacnet4j.util.RequestUtils;
 
 import lohbihler.warp.WarpClock;
 
-public class DeviceTest {
-    static final Logger LOG = LoggerFactory.getLogger(DeviceTest.class);
+public class DeviceObjectTest {
+    static final Logger LOG = LoggerFactory.getLogger(DeviceObjectTest.class);
 
     private final TestNetworkMap map = new TestNetworkMap();
     private final WarpClock clock = new WarpClock();
