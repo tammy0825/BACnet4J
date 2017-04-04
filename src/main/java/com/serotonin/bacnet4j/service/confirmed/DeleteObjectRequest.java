@@ -64,6 +64,8 @@ public class DeleteObjectRequest extends ConfirmedRequestService {
                 throw new BACnetServiceException(ErrorClass.object, ErrorCode.objectDeletionNotPermitted);
 
             localDevice.removeObject(objectIdentifier);
+
+            localDevice.incrementDatabaseRevision();
         } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }

@@ -20,6 +20,7 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.VtClass;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
@@ -34,15 +35,9 @@ public class RemoveListElementRequestTest {
     @Before
     public void before() throws Exception {
         localDevice = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
-        localDevice.writePropertyInternal(PropertyIdentifier.deviceAddressBinding,
-                new SequenceOf<>( //
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 2), TestNetworkUtils.toAddress(2)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 3), TestNetworkUtils.toAddress(3)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 5), TestNetworkUtils.toAddress(5)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 6), TestNetworkUtils.toAddress(6)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 7), TestNetworkUtils.toAddress(7)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 8), TestNetworkUtils.toAddress(8))));
+        localDevice.writePropertyInternal(PropertyIdentifier.vtClassesSupported,
+                new SequenceOf<>(VtClass.defaultTerminal, VtClass.ansi_x3_64, VtClass.dec_vt52, VtClass.dec_vt100,
+                        VtClass.dec_vt220, VtClass.hp_700_94, VtClass.ibm_3130));
         // Create an array of lists.
         localDevice.writePropertyInternal(PropertyIdentifier.forId(5555),
                 new BACnetArray<>( //
@@ -191,51 +186,34 @@ public class RemoveListElementRequestTest {
         // Remove a few elements.
         new RemoveListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
-                PropertyIdentifier.deviceAddressBinding, //
+                PropertyIdentifier.vtClassesSupported, //
                 null, //
-                new SequenceOf<>(//
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 3), TestNetworkUtils.toAddress(3)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 5), TestNetworkUtils.toAddress(5)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 7), TestNetworkUtils.toAddress(7))) //
-        ).handle(localDevice, addr);
+                new SequenceOf<>(VtClass.ansi_x3_64, VtClass.dec_vt100, VtClass.hp_700_94)).handle(localDevice, addr);
 
-        SequenceOf<AddressBinding> dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
-        assertEquals(
-                new SequenceOf<>( //
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 2), TestNetworkUtils.toAddress(2)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 6), TestNetworkUtils.toAddress(6)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 8), TestNetworkUtils.toAddress(8))),
-                dabs);
+        SequenceOf<AddressBinding> vcss = localDevice.get(PropertyIdentifier.vtClassesSupported);
+        assertEquals(new SequenceOf<>(VtClass.defaultTerminal, VtClass.dec_vt52, VtClass.dec_vt220, VtClass.ibm_3130),
+                vcss);
 
         // Remove a few more.
         new RemoveListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
-                PropertyIdentifier.deviceAddressBinding, //
+                PropertyIdentifier.vtClassesSupported, //
                 null, //
-                new SequenceOf<>(//
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 2), TestNetworkUtils.toAddress(2)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 6), TestNetworkUtils.toAddress(6)),
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 8), TestNetworkUtils.toAddress(8))) //
-        ).handle(localDevice, addr);
+                new SequenceOf<>(VtClass.defaultTerminal, VtClass.dec_vt220, VtClass.ibm_3130)).handle(localDevice,
+                        addr);
 
-        dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
-        assertEquals(
-                new SequenceOf<>( //
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4))),
-                dabs);
+        vcss = localDevice.get(PropertyIdentifier.vtClassesSupported);
+        assertEquals(new SequenceOf<>(VtClass.dec_vt52), vcss);
 
         // Remove the last one.
         new RemoveListElementRequest( //
                 new ObjectIdentifier(ObjectType.device, 1), //
-                PropertyIdentifier.deviceAddressBinding, //
+                PropertyIdentifier.vtClassesSupported, //
                 null, //
-                new SequenceOf<>(//
-                        new AddressBinding(new ObjectIdentifier(ObjectType.device, 4), TestNetworkUtils.toAddress(4))) //
-        ).handle(localDevice, addr);
+                new SequenceOf<>(VtClass.dec_vt52)).handle(localDevice, addr);
 
-        dabs = localDevice.get(PropertyIdentifier.deviceAddressBinding);
-        assertEquals(new SequenceOf<>(), dabs);
+        vcss = localDevice.get(PropertyIdentifier.vtClassesSupported);
+        assertEquals(new SequenceOf<>(), vcss);
     }
 
     @Test

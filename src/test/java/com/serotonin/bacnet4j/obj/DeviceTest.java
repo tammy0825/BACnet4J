@@ -1,32 +1,94 @@
 package com.serotonin.bacnet4j.obj;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.time.temporal.ChronoField;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.event.DeviceEventAdapter;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
+import com.serotonin.bacnet4j.service.confirmed.DeleteObjectRequest;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.AddressBinding;
+import com.serotonin.bacnet4j.type.constructed.DateTime;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
+import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
+import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.RestartReason;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
+import com.serotonin.bacnet4j.type.primitive.Boolean;
+import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.SignedInteger;
+import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class DeviceTest extends AbstractTest {
-    @Override
+import lohbihler.warp.WarpClock;
+
+public class DeviceTest {
+    static final Logger LOG = LoggerFactory.getLogger(DeviceTest.class);
+
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final WarpClock clock = new WarpClock();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
+            .withClock(clock);
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
+            .withClock(clock);
+    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
+            .withClock(clock);
+    private RemoteDevice rd1;
+    private AnalogValueObject av0;
+
+    @Before
     public void before() throws Exception {
-        new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
+        d1.initialize();
+        d2.initialize();
+        d3.initialize();
+
+        // Get d1 as a remote object.
+        rd1 = d2.getRemoteDevice(1).get();
+
+        av0 = new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
         new AnalogValueObject(d1, 1, "av1", 50, EngineeringUnits.amperes, false);
         new AnalogValueObject(d1, 2, "av2", 50, EngineeringUnits.amperes, false);
         new BinaryValueObject(d1, 0, "bv0", BinaryPV.inactive, false);
         new BinaryValueObject(d1, 1, "bv1", BinaryPV.inactive, false);
         new BinaryValueObject(d1, 2, "bv2", BinaryPV.inactive, false);
         new BinaryValueObject(d1, 3, "bv3", BinaryPV.inactive, false);
+    }
+
+    @After
+    public void after() {
+        // Shut down
+        d1.terminate();
+        d2.terminate();
+        d3.terminate();
     }
 
     @Test
@@ -63,5 +125,104 @@ public class DeviceTest extends AbstractTest {
                 PropertyIdentifier.objectList, 9);
         assertEquals(ErrorClass.property, e.getErrorClass());
         assertEquals(ErrorCode.invalidArrayIndex, e.getErrorCode());
+    }
+
+    @Test
+    public void incrementDatabaseRevision() throws BACnetErrorException {
+        av0.setDeletable(true);
+        final UnsignedInteger databaseRevision = d1.getDeviceObject().get(PropertyIdentifier.databaseRevision);
+        new DeleteObjectRequest(av0.getId()).handle(d1, null);
+        assertEquals(databaseRevision.increment32(), d1.getDeviceObject().get(PropertyIdentifier.databaseRevision));
+    }
+
+    @Test
+    public void timeSynchronization() throws Exception {
+        // Set up time sync for every 4 hours aligned with a 5 minute offset.
+        d1.getDeviceObject().supportTimeSynchronization(new SequenceOf<>(new Recipient(d2.getId())),
+                new SequenceOf<>(new Recipient(d3.getId())), 240, true, 5);
+
+        // Add listeners to d2 and d3
+        final AtomicReference<DateTime> d2Time = new AtomicReference<>();
+        final AtomicBoolean d2Utc = new AtomicBoolean();
+        d2.getEventHandler().addListener(new DeviceEventAdapter() {
+            @Override
+            public void synchronizeTime(final Address from, final DateTime dateTime, final boolean utc) {
+                d2Time.set(dateTime);
+                d2Utc.set(utc);
+            }
+        });
+
+        final AtomicReference<DateTime> d3Time = new AtomicReference<>();
+        final AtomicBoolean d3Utc = new AtomicBoolean();
+        d3.getEventHandler().addListener(new DeviceEventAdapter() {
+            @Override
+            public void synchronizeTime(final Address from, final DateTime dateTime, final boolean utc) {
+                d3Time.set(dateTime);
+                d3Utc.set(utc);
+            }
+        });
+
+        //
+        // Advance the clock to the notification time.
+        clock.plusMillis((1000 - clock.get(ChronoField.MILLI_OF_SECOND)) % 1000);
+        clock.plusSeconds((60 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60);
+        final int minutes = (1445 - clock.get(ChronoField.MINUTE_OF_DAY)) % 240;
+        clock.plus(minutes, MINUTES, 30);
+
+        // Check the results.
+        assertNotNull(d2Time.get());
+        assertNotNull(d3Time.get());
+
+        final int offsetHundredths = TimeZone.getDefault().getOffset(clock.millis()) / 10;
+        final int adjustedHundredths = (d3Time.get().getTime().getHundredthInDay() + offsetHundredths + 8_640_000)
+                % 8_640_000;
+        assertEquals(new DateTime(d1), d2Time.get());
+        assertEquals(d2Time.get().getTime().getHundredthInDay(), adjustedHundredths);
+
+        assertEquals(false, d2Utc.get());
+        assertEquals(true, d3Utc.get());
+    }
+
+    @Test
+    public void calculatedProperties() throws Exception {
+        final TimeZone tz = TimeZone.getDefault();
+
+        assertEquals(new Date(d1), d1.getDeviceObject().getProperty(PropertyIdentifier.localDate));
+        assertEquals(new Time(d1), d1.getDeviceObject().getProperty(PropertyIdentifier.localTime));
+        assertEquals(new SignedInteger(tz.getOffset(clock.millis()) / 1000 / 60),
+                d1.getDeviceObject().getProperty(PropertyIdentifier.utcOffset));
+        assertEquals(new Boolean(tz.inDaylightTime(new java.util.Date(clock.millis()))),
+                d1.getDeviceObject().getProperty(PropertyIdentifier.daylightSavingsStatus));
+
+        d1.getRemoteDevice(2).get();
+        d1.getRemoteDevice(3).get();
+        assertEquals(
+                new SequenceOf<>(new AddressBinding(d2.getId(), d2.getAllLocalAddresses()[0]),
+                        new AddressBinding(d3.getId(), d3.getAllLocalAddresses()[0])),
+                d1.getDeviceObject().getProperty(PropertyIdentifier.deviceAddressBinding));
+    }
+
+    @Test
+    public void restartNotification() throws Exception {
+        final CovNotifListener listener = new CovNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        // Stop the device.
+        d1.terminate();
+        // Restart the device.
+        d1.initialize(RestartReason.warmstart);
+        Thread.sleep(30);
+
+        assertEquals(1, listener.notifs.size());
+        final Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(0), notif.get("subscriberProcessIdentifier"));
+        assertEquals(d1.getId(), notif.get("monitoredObjectIdentifier"));
+        assertEquals(new UnsignedInteger(0), notif.get("timeRemaining"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(
+                new SequenceOf<>(new PropertyValue(PropertyIdentifier.systemStatus, DeviceStatus.operational),
+                        new PropertyValue(PropertyIdentifier.timeOfDeviceRestart, new TimeStamp(new DateTime(d1))),
+                        new PropertyValue(PropertyIdentifier.lastRestartReason, RestartReason.warmstart)),
+                notif.get("listOfValues"));
     }
 }

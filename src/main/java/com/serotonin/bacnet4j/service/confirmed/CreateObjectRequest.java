@@ -102,6 +102,8 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         //
         //        try {
         //            localDevice.addObject(obj);
+        //
+        //            localDevice.incrementDatabaseRevision();
         //        }
         //        catch (BACnetServiceException e) {
         //            throw new BACnetErrorException(new CreateObjectError(getChoiceId(), e, null));
@@ -109,6 +111,7 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         //
         //        // Return a create object ack.
         //        return new CreateObjectAck(id);
+
     }
 
     @Override

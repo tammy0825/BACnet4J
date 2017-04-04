@@ -23,6 +23,8 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class ActiveCovSubscriptionMixin extends AbstractMixin {
     public ActiveCovSubscriptionMixin(final BACnetObject bo) {
         super(bo);
+
+        writePropertyInternal(PropertyIdentifier.activeCovSubscriptions, new SequenceOf<CovSubscription>());
     }
 
     @Override

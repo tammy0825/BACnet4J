@@ -78,11 +78,6 @@ public class FileObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.fileType, new CharacterString(fileType));
         writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccess.getAccessMethod());
         writePropertyInternal(PropertyIdentifier.archive, new Boolean(false));
-
-        getProperty(PropertyIdentifier.fileSize);
-        getProperty(PropertyIdentifier.modificationDate);
-        getProperty(PropertyIdentifier.readOnly);
-        getProperty(PropertyIdentifier.recordCount);
     }
 
     public ReentrantLock getLock() {

@@ -44,8 +44,8 @@ import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.mixin.CommandableMixin;
 import com.serotonin.bacnet4j.obj.mixin.CovReportingMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
+import com.serotonin.bacnet4j.obj.mixin.ObjectIdAndNameMixin;
 import com.serotonin.bacnet4j.obj.mixin.PropertyListMixin;
-import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
 import com.serotonin.bacnet4j.obj.mixin.event.IntrinsicReportingMixin;
 import com.serotonin.bacnet4j.service.acknowledgement.GetAlarmSummaryAck.AlarmSummary;
 import com.serotonin.bacnet4j.service.acknowledgement.GetEnrollmentSummaryAck.EnrollmentSummary;
@@ -123,8 +123,7 @@ public class BACnetObject {
 
         // All objects have a property list.
         addMixin(new PropertyListMixin(this));
-        // If changes to name or id are allowed, the database revision number should be incremented. See 12.11.35.
-        addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.objectName, PropertyIdentifier.objectIdentifier));
+        addMixin(new ObjectIdAndNameMixin(this));
 
         if (!id.getObjectType().equals(ObjectType.device))
             // The device object will add itself to the local device after it initializes.
