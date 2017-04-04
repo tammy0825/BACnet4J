@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -32,7 +33,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
     private NotificationClassObject nc;
 
     @Override
-    public void before() throws Exception {
+    public void afterInit() throws Exception {
         av0 = new AnalogValueObject(d1, 0, "av0", 0, EngineeringUnits.noUnits, false);
         nc = new NotificationClassObject(d1, 55, "nc55", 101, 4, 201, new EventTransitionBits(false, false, false));
     }

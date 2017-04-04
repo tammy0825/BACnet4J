@@ -6,11 +6,9 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
@@ -18,12 +16,9 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.CommunicationDisabledException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -32,39 +27,10 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
 /**
  * All tests modify the communication control in device d1.
  */
-public class DeviceCommunicationControlRequestTest {
-    private final TestNetworkMap map = new TestNetworkMap();
-    private WarpClock clock;
-    private LocalDevice d1;
-    private LocalDevice d2;
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
-
-    @Before
-    public void before() throws Exception {
-        clock = new WarpClock();
-
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0).withTimeout(200)));
-        d1.setClock(clock);
-        d1.initialize();
-
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0).withTimeout(200))).initialize();
-
-        rd1 = d2.getRemoteDeviceBlocking(1);
-        rd2 = d1.getRemoteDeviceBlocking(2);
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-        d2.terminate();
-    }
-
+public class DeviceCommunicationControlRequestTest extends AbstractTest {
     /**
      * Ensure that requests can be sent and responded when enabled by default
      */

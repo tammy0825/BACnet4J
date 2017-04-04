@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -21,7 +22,7 @@ public class NotificationClassObjectTest extends AbstractTest {
     NotificationClassObject nc;
 
     @Override
-    public void before() throws Exception {
+    public void afterInit() throws Exception {
         nc = new NotificationClassObject(d1, 0, "notifClass", 100, 5, 200, new EventTransitionBits(true, true, true));
     }
 

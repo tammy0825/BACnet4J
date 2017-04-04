@@ -5,15 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
@@ -45,34 +39,13 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class EventEnrollmentObjectTest {
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
-            .withClock(clock);
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
-            .withClock(clock);
-    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
-            .withClock(clock);
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
-
+public class EventEnrollmentObjectTest extends AbstractTest {
     private AnalogValueObject av0;
     private AnalogValueObject av1;
     private NotificationClassObject nc;
 
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-        d3.initialize();
-
-        // Get d1 as a remote object.
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-
+    @Override
+    public void afterInit() throws Exception {
         av0 = new AnalogValueObject(d3, 0, "av0", 0, EngineeringUnits.noUnits, false);
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
 
@@ -80,14 +53,6 @@ public class EventEnrollmentObjectTest {
         av1.writePropertyInternal(PropertyIdentifier.minPresValue, new Real(50));
 
         nc = new NotificationClassObject(d1, 5, "nc5", 100, 5, 200, new EventTransitionBits(false, false, false));
-    }
-
-    @After
-    public void after() {
-        // Shut down
-        d1.terminate();
-        d2.terminate();
-        d3.terminate();
     }
 
     @SuppressWarnings("unchecked")

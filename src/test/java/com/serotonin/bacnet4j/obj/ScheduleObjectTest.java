@@ -5,14 +5,21 @@ import static org.junit.Assert.assertEquals;
 import java.util.Calendar;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
@@ -50,10 +57,28 @@ import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class ScheduleObjectTest extends AbstractTest {
-    @Override
+public class ScheduleObjectTest {
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 10)));
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 20)));
+    private RemoteDevice rd1;
+    private RemoteDevice rd2;
+
+    @Before
     public void before() throws Exception {
-        // no op
+        d1.initialize();
+        d2.initialize();
+
+        // Get d1 as a remote object.
+        rd1 = d2.getRemoteDevice(1).get();
+        rd2 = d1.getRemoteDevice(2).get();
+    }
+
+    @After
+    public void after() {
+        // Shut down
+        d1.terminate();
+        d2.terminate();
     }
 
     @Test

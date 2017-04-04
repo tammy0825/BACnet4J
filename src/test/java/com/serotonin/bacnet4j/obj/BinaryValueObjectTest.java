@@ -15,17 +15,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PriorityArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -43,28 +37,13 @@ import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class BinaryValueObjectTest {
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)));
-    private RemoteDevice rd1;
+public class BinaryValueObjectTest extends AbstractTest {
     private BinaryValueObject bv;
 
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-
-        rd1 = d2.getRemoteDeviceBlocking(1);
-
+    @Override
+    public void afterInit() throws Exception {
         bv = new BinaryValueObject(d1, 0, "bv", BinaryPV.inactive, true);
         new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
-    }
-
-    @After
-    public void after() throws Exception {
-        d1.terminate();
-        d2.terminate();
     }
 
     @Test

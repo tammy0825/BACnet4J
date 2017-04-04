@@ -6,21 +6,15 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -47,50 +41,8 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.Utils;
 
-import lohbihler.warp.WarpClock;
-
-public class ChangeOfValueTest {
+public class ChangeOfValueTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(ChangeOfValueTest.class);
-
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final WarpClock clock = new WarpClock();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
-            .withClock(clock);
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
-            .withClock(clock);
-    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
-            .withClock(clock);
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
-    private RemoteDevice rd3;
-
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-        d3.initialize();
-
-        // Announce d1 to d2.
-        d1.sendGlobalBroadcast(d1.getIAm());
-        d2.sendGlobalBroadcast(d2.getIAm());
-        //        d3.sendGlobalBroadcast(d3.getIAm());
-
-        // Wait a bit
-        Thread.sleep(300);
-
-        // Get d1 as a remote object.
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-        rd3 = d1.getRemoteDevice(3).get();
-    }
-
-    @After
-    public void after() {
-        // Shut down
-        d1.terminate();
-        d2.terminate();
-        d3.terminate();
-    }
 
     @Test
     public void objectCovErrors() throws Exception {

@@ -7,20 +7,14 @@ import static org.junit.Assert.assertNull;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkUtils;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
@@ -48,37 +42,16 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class AnalogOutputObjectTest {
+public class AnalogOutputObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(AnalogOutputObjectTest.class);
 
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private LocalDevice d1;
-    private LocalDevice d2;
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
     private AnalogOutputObject ao;
     private NotificationClassObject nc;
 
-    @Before
-    public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).withClock(clock).initialize();
-
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-
+    @Override
+    public void afterInit() throws Exception {
         ao = new AnalogOutputObject(d1, 0, "ao", 50, EngineeringUnits.amperes, false, 45);
-
         nc = new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-        d2.terminate();
     }
 
     @SuppressWarnings("unchecked")

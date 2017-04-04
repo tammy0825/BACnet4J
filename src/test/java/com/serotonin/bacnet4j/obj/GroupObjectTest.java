@@ -2,15 +2,10 @@ package com.serotonin.bacnet4j.obj;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -29,20 +24,7 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class GroupObjectTest {
-    private final TestNetworkMap map = new TestNetworkMap();
-    private LocalDevice d1;
-
-    @Before
-    public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).initialize();
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-    }
-
+public class GroupObjectTest extends AbstractTest {
     @Test
     public void preventGroupReferences() throws Exception {
         final GroupObject g = new GroupObject(d1, 0, "g", new SequenceOf<>());

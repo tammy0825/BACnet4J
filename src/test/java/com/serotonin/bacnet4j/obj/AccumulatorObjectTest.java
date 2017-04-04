@@ -7,20 +7,14 @@ import static org.junit.Assert.assertNull;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AccumulatorObject.ValueSetWrite;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -55,43 +49,21 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
 /**
  * @author Matthew
  */
-public class AccumulatorObjectTest {
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-
-    private LocalDevice d1;
-    private LocalDevice d2;
-    private RemoteDevice rd2;
-
-    @Before
-    public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 20))).withClock(clock).initialize();
-
-        rd2 = d1.getRemoteDevice(2).get();
-
-        a = new AccumulatorObject(d1, 0, "a0", 0, 0, EngineeringUnits.amperes, false, new Scale(new Real(1)),
-                new Prescale(new UnsignedInteger(2), new UnsignedInteger(15)), 200, 1);
-
-        nc = new NotificationClassObject(d1, 54, "nc54", 100, 5, 200, new EventTransitionBits(true, true, true));
-    }
-
-    //
-    @After
-    public void abstractAfter() {
-        d1.terminate();
-        d2.terminate();
-    }
-
+public class AccumulatorObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(AccumulatorObjectTest.class);
 
-    AccumulatorObject a;
-    NotificationClassObject nc;
+    private AccumulatorObject a;
+    private NotificationClassObject nc;
+
+    @Override
+    public void afterInit() throws Exception {
+        a = new AccumulatorObject(d1, 0, "a0", 0, 0, EngineeringUnits.amperes, false, new Scale(new Real(1)),
+                new Prescale(new UnsignedInteger(2), new UnsignedInteger(15)), 200, 1);
+        nc = new NotificationClassObject(d1, 54, "nc54", 100, 5, 200, new EventTransitionBits(true, true, true));
+    }
 
     @SuppressWarnings("unchecked")
     @Test

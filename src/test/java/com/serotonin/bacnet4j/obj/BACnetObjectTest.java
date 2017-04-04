@@ -1,19 +1,13 @@
 package com.serotonin.bacnet4j.obj;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.NameValue;
@@ -33,20 +27,11 @@ import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class BACnetObjectTest {
+public class BACnetObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(BACnetObjectTest.class);
 
-    private final TestNetworkMap map = new TestNetworkMap();
-    private LocalDevice d1;
-    private LocalDevice d2;
-    private RemoteDevice rd2;
-
-    @Before
-    public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
-        d1.initialize();
-
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)));
+    @Override
+    public void afterInit() throws Exception {
         d2.writePropertyInternal(PropertyIdentifier.tags,
                 new BACnetArray<>( //
                         new NameValue("tag1", DateTime.UNSPECIFIED), //
@@ -54,27 +39,6 @@ public class BACnetObjectTest {
                         new NameValue("tag2", Null.instance)));
         d2.writePropertyInternal(PropertyIdentifier.forId(6789),
                 new BACnetArray<>(new Real(0), new Real(1), new Real(2)));
-        d2.initialize();
-
-        // Announce d1 to d2.
-        d1.sendGlobalBroadcast(d1.getIAm());
-        d2.sendGlobalBroadcast(d2.getIAm());
-
-        // Wait a bit
-        Thread.sleep(100);
-
-        // Get d1 as a remote object.
-        rd2 = d1.getRemoteDevice(2).get();
-
-    }
-
-    @After
-    public void after() throws InterruptedException {
-        Thread.sleep(50);
-
-        // Shut down
-        d1.terminate();
-        d2.terminate();
     }
 
     @Test

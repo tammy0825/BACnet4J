@@ -3,16 +3,11 @@ package com.serotonin.bacnet4j.obj;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
@@ -22,20 +17,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-public class MultistateValueObjectTest {
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)));
-
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-    }
-
+public class MultistateValueObjectTest extends AbstractTest {
     @Test
     public void initialization() throws Exception {
         final MultistateValueObject mv = new MultistateValueObject(d1, 1, "mv1", 7, null, 1, false);

@@ -5,21 +5,15 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkUtils;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Destination;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
@@ -55,29 +49,15 @@ import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class LifeSafetyZoneObjectTest {
+public class LifeSafetyZoneObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(LifeSafetyZoneObjectTest.class);
 
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private LocalDevice d1;
-    private LocalDevice d2;
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
     private LifeSafetyZoneObject lsz;
     private NotificationClassObject nc;
     private EventNotifListener listener;
 
-    @Before
-    public void before() throws Exception {
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0))).withClock(clock).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).withClock(clock).initialize();
-
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-
+    @Override
+    public void afterInit() throws Exception {
         lsz = new LifeSafetyZoneObject(d1, 0, "lsz", LifeSafetyState.quiet, LifeSafetyMode.on, false,
                 new SequenceOf<>(LifeSafetyMode.on, LifeSafetyMode.off, LifeSafetyMode.enabled),
                 LifeSafetyOperation.none, SilencedState.unsilenced, new SequenceOf<>());
@@ -90,12 +70,6 @@ public class LifeSafetyZoneObjectTest {
         // Create an event listener on d2 to catch the event notifications.
         listener = new EventNotifListener();
         d2.getEventHandler().addListener(listener);
-    }
-
-    @After
-    public void abstractAfter() {
-        d1.terminate();
-        d2.terminate();
     }
 
     @SuppressWarnings("unchecked")

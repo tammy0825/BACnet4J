@@ -5,6 +5,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.GregorianCalendar;
 
+/**
+ * @deprecated use WarpClock instead.
+ * @author Matthew
+ */
+@Deprecated
 public class TestClock extends Clock {
     GregorianCalendar gc;
 

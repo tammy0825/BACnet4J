@@ -7,16 +7,12 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.RemoteDevice;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.acknowledgement.GetAlarmSummaryAck;
 import com.serotonin.bacnet4j.service.acknowledgement.GetAlarmSummaryAck.AlarmSummary;
 import com.serotonin.bacnet4j.service.acknowledgement.GetEnrollmentSummaryAck;
@@ -30,7 +26,6 @@ import com.serotonin.bacnet4j.service.confirmed.GetEnrollmentSummaryRequest.Ackn
 import com.serotonin.bacnet4j.service.confirmed.GetEnrollmentSummaryRequest.EventStateFilter;
 import com.serotonin.bacnet4j.service.confirmed.GetEnrollmentSummaryRequest.PriorityFilter;
 import com.serotonin.bacnet4j.service.confirmed.GetEventInformationRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -56,33 +51,15 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class IntrinsicAlarmTest {
+public class IntrinsicAlarmTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(IntrinsicAlarmTest.class);
-
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
-            .withClock(clock);
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
-            .withClock(clock);
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
 
     private BinaryValueObject bv;
     private MultistateValueObject mv;
     private NotificationClassObject nc;
 
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-
-        // Get d1 as a remote object.
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-
+    @Override
+    public void afterInit() throws Exception {
         bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
         bv.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
 
@@ -97,13 +74,6 @@ public class IntrinsicAlarmTest {
         mv.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
 
         nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200, new EventTransitionBits(true, true, true));
-    }
-
-    @After
-    public void after() {
-        // Shut down
-        d1.terminate();
-        d2.terminate();
     }
 
     @Test

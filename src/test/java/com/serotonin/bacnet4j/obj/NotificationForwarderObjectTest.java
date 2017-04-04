@@ -4,15 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkUtils;
 import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
 import com.serotonin.bacnet4j.persistence.FilePersistence;
@@ -21,7 +17,6 @@ import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -51,40 +46,11 @@ import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.type.primitive.Unsigned8;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class NotificationForwarderObjectTest {
+public class NotificationForwarderObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(TrendLogMultipleObjectTest.class);
-
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
-            .withClock(clock);
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
-            .withClock(clock);
-    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
-            .withClock(clock);
-    private final LocalDevice d4 = new LocalDevice(4, new DefaultTransport(new TestNetwork(map, 4, 0)))
-            .withClock(clock);
 
     private final BACnetArray<PortPermission> portFilter = new BACnetArray<>(
             new PortPermission(new Unsigned8(0), Boolean.TRUE));
-
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-        d3.initialize();
-        d4.initialize();
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-        d2.terminate();
-        d3.terminate();
-        d4.terminate();
-    }
 
     private final TimeStamp now = new TimeStamp(new DateTime(d1));
     private final ConfirmedEventNotificationRequest n1 = new ConfirmedEventNotificationRequest(new UnsignedInteger(122),

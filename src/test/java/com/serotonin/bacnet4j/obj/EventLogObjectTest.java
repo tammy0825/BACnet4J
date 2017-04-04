@@ -7,20 +7,14 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedEventNotificationRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.Destination;
@@ -51,20 +45,10 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
-import lohbihler.warp.WarpClock;
-
-public class EventLogObjectTest {
+public class EventLogObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(EventLogObjectTest.class);
 
-    private final WarpClock clock = new WarpClock();
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
-            .withClock(clock);
     private NotificationClassObject nc;
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
-            .withClock(clock);
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
 
     private final DateTime now = new DateTime(clock.millis());
     private final ConfirmedEventNotificationRequest n1 = new ConfirmedEventNotificationRequest(new UnsignedInteger(123),
@@ -83,19 +67,9 @@ public class EventLogObjectTest {
             new NotificationParameters(new OutOfRangeNotif(new Real(34), new StatusFlags(true, true, true, true),
                     new Real(35), new Real(36))));
 
-    @Before
-    public void before() throws Exception {
+    @Override
+    public void afterInit() throws Exception {
         nc = new NotificationClassObject(d1, 23, "nc", 1, 2, 3, new EventTransitionBits(true, true, true));
-        d1.initialize();
-        d2.initialize();
-        rd1 = d2.getRemoteDeviceBlocking(1);
-        rd2 = d1.getRemoteDeviceBlocking(2);
-    }
-
-    @After
-    public void after() {
-        d1.terminate();
-        d2.terminate();
     }
 
     @Test
