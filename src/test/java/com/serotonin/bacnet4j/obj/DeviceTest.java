@@ -27,20 +27,30 @@ import com.serotonin.bacnet4j.service.confirmed.DeleteObjectRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.AddressBinding;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
+import com.serotonin.bacnet4j.type.constructed.Destination;
+import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
 import com.serotonin.bacnet4j.type.enumerated.EngineeringUnits;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.EventState;
+import com.serotonin.bacnet4j.type.enumerated.EventType;
+import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.enumerated.RestartReason;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
+import com.serotonin.bacnet4j.type.notificationParameters.ChangeOfReliabilityNotif;
+import com.serotonin.bacnet4j.type.notificationParameters.NotificationParameters;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -63,6 +73,7 @@ public class DeviceTest {
     private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
             .withClock(clock);
     private RemoteDevice rd1;
+    private RemoteDevice rd2;
     private AnalogValueObject av0;
 
     @Before
@@ -73,6 +84,7 @@ public class DeviceTest {
 
         // Get d1 as a remote object.
         rd1 = d2.getRemoteDevice(1).get();
+        rd2 = d1.getRemoteDevice(2).get();
 
         av0 = new AnalogValueObject(d1, 0, "av0", 50, EngineeringUnits.amperes, false);
         new AnalogValueObject(d1, 1, "av1", 50, EngineeringUnits.amperes, false);
@@ -224,5 +236,48 @@ public class DeviceTest {
                         new PropertyValue(PropertyIdentifier.timeOfDeviceRestart, new TimeStamp(new DateTime(d1))),
                         new PropertyValue(PropertyIdentifier.lastRestartReason, RestartReason.warmstart)),
                 notif.get("listOfValues"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void intrinsicAlarms() throws Exception {
+        final DeviceObject dev = d1.getDeviceObject();
+        final NotificationClassObject nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200,
+                new EventTransitionBits(false, false, false));
+        final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(false),
+                new EventTransitionBits(true, true, true)));
+
+        // Create an event listener on d2 to catch the event notifications.
+        final EventNotifListener listener = new EventNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        dev.supportIntrinsicReporting(7, new EventTransitionBits(true, true, true), NotifyType.event);
+        assertEquals(0, listener.notifs.size());
+
+        // Write a fault reliability value.
+        dev.writePropertyInternal(PropertyIdentifier.reliability, Reliability.memberFault);
+        assertEquals(EventState.fault, dev.getProperty(PropertyIdentifier.eventState));
+        Thread.sleep(100);
+        // Ensure that a proper looking event notification was received.
+        assertEquals(1, listener.notifs.size());
+        final Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
+        assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
+        assertEquals(dev.getId(), notif.get("eventObjectIdentifier"));
+        assertEquals(((BACnetArray<TimeStamp>) dev.getProperty(PropertyIdentifier.eventTimeStamps))
+                .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
+        assertEquals(new UnsignedInteger(7), notif.get("notificationClass"));
+        assertEquals(new UnsignedInteger(5), notif.get("priority"));
+        assertEquals(EventType.changeOfReliability, notif.get("eventType"));
+        assertEquals(null, notif.get("messageText"));
+        assertEquals(NotifyType.event, notif.get("notifyType"));
+        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(EventState.normal, notif.get("fromState"));
+        assertEquals(EventState.fault, notif.get("toState"));
+        assertEquals(
+                new NotificationParameters(new ChangeOfReliabilityNotif(Reliability.memberFault,
+                        new StatusFlags(true, true, false, false), new SequenceOf<PropertyValue>())),
+                notif.get("eventValues"));
     }
 }
