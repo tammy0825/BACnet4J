@@ -111,8 +111,10 @@ public class TrendLogObjectTest {
 
         //
         // Advance the clock to the polling time.
+        LOG.info("Starting time: {}", clock.instant());
         final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60;
         clock.plus(seconds, SECONDS, 300);
+        LOG.info("First poll time: {}", clock.instant());
 
         assertEquals(1, tl.getBuffer().size());
         final LogRecord record1 = tl.getBuffer().get(0);
@@ -131,7 +133,7 @@ public class TrendLogObjectTest {
         assertEquals(2, tl.getBuffer().size());
         final LogRecord record2 = tl.getBuffer().get(1);
         assertEquals(2, record2.getTimestamp().getTime().getSecond());
-        assertEquals(record1.getTimestamp().getTime().getMinute() + 1 % 60,
+        assertEquals((record1.getTimestamp().getTime().getMinute() + 1) % 60,
                 record2.getTimestamp().getTime().getMinute());
         assertEquals(new Real(2), record2.getChoice());
         assertEquals(new StatusFlags(false, false, false, false), record2.getStatusFlags());
