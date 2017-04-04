@@ -21,7 +21,6 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
-import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
@@ -39,7 +38,7 @@ public class AnalogOutputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
-        writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalReal(Null.instance));
+        writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalReal());
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));

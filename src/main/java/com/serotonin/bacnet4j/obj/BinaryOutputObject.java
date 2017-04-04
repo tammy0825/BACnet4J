@@ -52,7 +52,6 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
-import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class BinaryOutputObject extends BACnetObject {
@@ -84,7 +83,7 @@ public class BinaryOutputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
         writePropertyInternal(PropertyIdentifier.polarity, polarity);
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
-        writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalBinaryPV(Null.instance));
+        writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalBinaryPV());
 
         addMixin(new StateChangeMixin(this));
     }
