@@ -38,7 +38,6 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -157,17 +156,6 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.textMessageReceived(textMessageSourceDevice, messageClass, messagePriority, message);
-            } catch (final Throwable e) {
-                handleException(l, e);
-            }
-        }
-    }
-
-    public void firePrivateTransfer(final Address from, final UnsignedInteger vendorId,
-            final UnsignedInteger serviceNumber, final Sequence serviceParameters) {
-        for (final DeviceEventListener l : listeners) {
-            try {
-                l.privateTransferReceived(from, vendorId, serviceNumber, serviceParameters);
             } catch (final Throwable e) {
                 handleException(l, e);
             }

@@ -1,4 +1,4 @@
-package com.serotonin.bacnet4j.type.type;
+package com.serotonin.bacnet4j.type;
 
 import static org.junit.Assert.assertEquals;
 

@@ -36,7 +36,6 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -102,12 +101,6 @@ public class DeviceEventAdapter implements DeviceEventListener {
     @Override
     public void textMessageReceived(final ObjectIdentifier textMessageSourceDevice, final Choice messageClass,
             final MessagePriority messagePriority, final CharacterString message) {
-        // Override as required
-    }
-
-    @Override
-    public void privateTransferReceived(final Address from, final UnsignedInteger vendorId,
-            final UnsignedInteger serviceNumber, final Sequence serviceParameters) {
         // Override as required
     }
 

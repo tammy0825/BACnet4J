@@ -26,9 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +42,6 @@ import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.enums.MaxSegments;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.AtomicReadFileAck;
 import com.serotonin.bacnet4j.service.acknowledgement.AtomicReadFileAck.RecordAccessAck;
@@ -112,9 +109,7 @@ import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedTextMessageRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoHasRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WriteGroupRequest;
-import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.SequenceDefinition;
-import com.serotonin.bacnet4j.type.SequenceDefinition.ElementSpecification;
+import com.serotonin.bacnet4j.type.EncodedValue;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.ChannelValue;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -129,7 +124,6 @@ import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.RecipientProcess;
 import com.serotonin.bacnet4j.type.constructed.ResultFlags;
-import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
@@ -990,18 +984,7 @@ public class AnnexFEncodingTest {
 
     @Test
     public void e4_2aTest() {
-        final List<ElementSpecification> elements = new ArrayList<>();
-        elements.add(new ElementSpecification("value1", Real.class, false, false));
-        elements.add(new ElementSpecification("value2", OctetString.class, false, false));
-        final SequenceDefinition def = new SequenceDefinition(elements);
-
-        final Map<String, Encodable> values = new HashMap<>();
-        values.put("value1", new Real(72.4f));
-        values.put("value2", new OctetString(new byte[] { 0x16, 0x49 }));
-        final Sequence parameters = new Sequence(def, values);
-
-        LocalDevice.vendorServiceRequestResolutions
-                .put(new VendorServiceKey(new UnsignedInteger(25), new UnsignedInteger(8)), def);
+        final EncodedValue parameters = new EncodedValue(new Real(72.4f), new OctetString(new byte[] { 0x16, 0x49 }));
         final ConfirmedRequestService service = new ConfirmedPrivateTransferRequest(new UnsignedInteger(25),
                 new UnsignedInteger(8), parameters);
         final APDU pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED, MaxApduLength.UP_TO_1024,
@@ -1019,18 +1002,7 @@ public class AnnexFEncodingTest {
 
     @Test
     public void e4_3Test() {
-        final List<ElementSpecification> elements = new ArrayList<>();
-        elements.add(new ElementSpecification("value1", Real.class, false, false));
-        elements.add(new ElementSpecification("value2", OctetString.class, false, false));
-        final SequenceDefinition def = new SequenceDefinition(elements);
-
-        final Map<String, Encodable> values = new HashMap<>();
-        values.put("value1", new Real(72.4f));
-        values.put("value2", new OctetString(new byte[] { 0x16, 0x49 }));
-        final Sequence parameters = new Sequence(def, values);
-
-        LocalDevice.vendorServiceRequestResolutions
-                .put(new VendorServiceKey(new UnsignedInteger(25), new UnsignedInteger(8)), def);
+        final EncodedValue parameters = new EncodedValue(new Real(72.4f), new OctetString(new byte[] { 0x16, 0x49 }));
         final UnconfirmedRequestService service = new UnconfirmedPrivateTransferRequest(new UnsignedInteger(25),
                 new UnsignedInteger(8), parameters);
         final APDU pdu = new UnconfirmedRequest(service);

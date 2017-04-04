@@ -57,6 +57,7 @@ import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.event.DeviceEventHandler;
 import com.serotonin.bacnet4j.event.ExceptionDispatcher;
+import com.serotonin.bacnet4j.event.PrivateTransferHandler;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.Network;
@@ -75,7 +76,6 @@ import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.Encodable;
-import com.serotonin.bacnet4j.type.SequenceDefinition;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
@@ -150,10 +150,10 @@ public class LocalDevice {
     private final DeviceEventHandler eventHandler = new DeviceEventHandler();
     private final ExceptionDispatcher exceptionDispatcher = new ExceptionDispatcher();
 
-    private ScheduledExecutorService timer;
+    // Confirmed private transfer handlers.
+    private final Map<VendorServiceKey, PrivateTransferHandler> privateTransferHandlers = new HashMap<>();
 
-    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceRequestResolutions = new HashMap<>();
-    public static final Map<VendorServiceKey, SequenceDefinition> vendorServiceResultResolutions = new HashMap<>();
+    private ScheduledExecutorService timer;
 
     /**
      * Useful when objects want to make COV subscriptions, in that it will provide a device-unique id.
@@ -247,6 +247,16 @@ public class LocalDevice {
 
     public int getNextProcessId() {
         return nextProcessId.getAndIncrement();
+    }
+
+    public void addPrivateTransferHandler(final int vendorId, final int serviceNumber,
+            final PrivateTransferHandler handler) {
+        privateTransferHandlers.put(new VendorServiceKey(vendorId, serviceNumber), handler);
+    }
+
+    public PrivateTransferHandler getPrivateTransferHandler(final UnsignedInteger vendorId,
+            final UnsignedInteger serviceNumber) {
+        return privateTransferHandlers.get(new VendorServiceKey(vendorId, serviceNumber));
     }
 
     /**

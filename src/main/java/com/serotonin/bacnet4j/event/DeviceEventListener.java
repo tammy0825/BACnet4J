@@ -36,7 +36,6 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -145,18 +144,6 @@ public interface DeviceEventListener {
      */
     void textMessageReceived(ObjectIdentifier textMessageSourceDevice, Choice messageClass,
             MessagePriority messagePriority, CharacterString message);
-
-    /**
-     * Notification of either an UnconfirmedPrivateTransferRequest or a ConfirmedPrivateTransferRequest. The latter will
-     * be automatically confirmed by the service handler.
-     *
-     * @param from
-     * @param vendorId
-     * @param serviceNumber
-     * @param serviceParameters
-     */
-    void privateTransferReceived(Address from, UnsignedInteger vendorId, UnsignedInteger serviceNumber,
-            Sequence serviceParameters);
 
     /**
      * Notification that the device should be reinitialized. The local device's password has already been validated at
