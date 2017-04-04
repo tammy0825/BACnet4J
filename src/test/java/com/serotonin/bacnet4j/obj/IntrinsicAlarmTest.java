@@ -84,7 +84,7 @@ public class IntrinsicAlarmTest {
         rd2 = d1.getRemoteDevice(2).get();
 
         bv = new BinaryValueObject(d1, 0, "bvName1", BinaryPV.inactive, true);
-        bv.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        bv.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
 
         mv = new MultistateValueObject(d1, 0, "mvName1", 7,
                 new BACnetArray<>(
@@ -94,7 +94,7 @@ public class IntrinsicAlarmTest {
                         new CharacterString("alarm1"), new CharacterString("alarm2"), //
                         new CharacterString("fault1"), new CharacterString("fault2")),
                 1, true);
-        mv.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        mv.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
 
         nc = new NotificationClassObject(d1, 7, "nc7", 100, 5, 200, new EventTransitionBits(true, true, true));
     }
@@ -195,7 +195,7 @@ public class IntrinsicAlarmTest {
         assertEquals(new StatusFlags(true, false, false, false), bv.getProperty(PropertyIdentifier.statusFlags));
 
         // Inhibit
-        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(true));
+        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, Boolean.TRUE);
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
 
         // Write the normal value and wait 2 seconds: there should be no change.
@@ -209,7 +209,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
 
         // Remove inhibition. After two seconds the state should become offnormal.
-        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
+        bv.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, Boolean.FALSE);
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
         clock.plus(1000, TimeUnit.MILLISECONDS, 1000, TimeUnit.MILLISECONDS, 0, 40);
         assertEquals(EventState.normal, bv.getProperty(PropertyIdentifier.eventState));
@@ -222,7 +222,7 @@ public class IntrinsicAlarmTest {
     public void notification() throws Exception {
         // Add rd2 as a recipient of event notifications from bv
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -262,7 +262,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(BinaryPV.active),
@@ -273,7 +273,7 @@ public class IntrinsicAlarmTest {
     @Test
     public void multistateValueTest() throws Exception {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -325,7 +325,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(new UnsignedInteger(4)),
@@ -347,7 +347,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(new UnsignedInteger(5)),
@@ -382,7 +382,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(new UnsignedInteger(2)),
@@ -407,7 +407,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
@@ -435,7 +435,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
@@ -463,7 +463,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -490,7 +490,7 @@ public class IntrinsicAlarmTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(new UnsignedInteger(4)),
@@ -501,7 +501,7 @@ public class IntrinsicAlarmTest {
     public void eventAcks() throws Exception {
         // Add rd2 as a recipient of event notifications from bv
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, false)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -637,7 +637,7 @@ public class IntrinsicAlarmTest {
     public void internalAcks() throws Exception {
         // Add rd2 as a recipient of event notifications from bv
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, false)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -687,7 +687,7 @@ public class IntrinsicAlarmTest {
     @Test
     public void enrollment() throws Exception {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, false)));
 
         bv.supportIntrinsicReporting(1, 7, BinaryPV.active, new EventTransitionBits(true, true, true), NotifyType.alarm,

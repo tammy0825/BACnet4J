@@ -357,7 +357,7 @@ public class TrendLogObjectTest {
 
         // Add d2 as an event recipient.
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -391,7 +391,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -422,7 +422,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -455,7 +455,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -498,7 +498,7 @@ public class TrendLogObjectTest {
 
         // Set d2 as an event recipient.
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(d2.getId()), new UnsignedInteger(28), new Boolean(true),
+        recipients.add(new Destination(new Recipient(d2.getId()), new UnsignedInteger(28), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -531,7 +531,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -555,7 +555,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -609,8 +609,8 @@ public class TrendLogObjectTest {
         final DateTime now2 = new DateTime(clock.millis());
 
         // Set StopWhenFull to false and write a couple records.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(false)));
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, new Boolean(true)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.FALSE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, Boolean.TRUE));
         doTriggers(tl, 2);
         assertEquals(4, tl.getBuffer().size());
         assertEquals(LogRecord.createFromMonitoredValue(now, new Real(0), sf), tl.getBuffer().get(0));
@@ -622,7 +622,7 @@ public class TrendLogObjectTest {
         assertEquals(false, tl.isLogDisabled());
 
         // Set StopWhenFull back to true.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(true)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.TRUE));
         assertEquals(4, tl.getBuffer().size());
         assertEquals(new LogRecord(now, new LogStatus(true, false, false), null), tl.getBuffer().get(0));
         assertEquals(LogRecord.createFromMonitoredValue(now2, new Real(0), sf), tl.getBuffer().get(1));
@@ -801,7 +801,7 @@ public class TrendLogObjectTest {
 
         // Add d2 as an event recipient.
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -831,7 +831,7 @@ public class TrendLogObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfReliabilityNotif(Reliability.configurationError,

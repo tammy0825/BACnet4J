@@ -42,7 +42,7 @@ public class AlgoReportingMixin extends EventReportingMixin {
             final AbstractFaultParameter faultParameter, final DeviceObjectPropertyReference objectPropertyReference) {
         super(ee, eventAlgo, faultAlgo);
 
-        ee.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
+        ee.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.FALSE);
 
         this.eventParameter = eventParameter;
         this.faultParameter = faultParameter;

@@ -60,7 +60,7 @@ public class PulseConverterObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.units, units);
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.adjustValue, new Real(0));
         writePropertyInternal(PropertyIdentifier.countChangeTime, DateTime.UNSPECIFIED);
@@ -94,7 +94,7 @@ public class PulseConverterObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         if (timeDelayNormal != null)
             writePropertyInternal(PropertyIdentifier.timeDelayNormal, timeDelayNormal);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new OutOfRangeAlgo(), null, PropertyIdentifier.presentValue, //

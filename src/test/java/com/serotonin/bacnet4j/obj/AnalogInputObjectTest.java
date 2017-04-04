@@ -82,7 +82,7 @@ public class AnalogInputObjectTest {
     @Test
     public void intrinsicReporting() throws Exception {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -131,7 +131,7 @@ public class AnalogInputObjectTest {
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
         assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(10),
@@ -153,7 +153,7 @@ public class AnalogInputObjectTest {
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -218,7 +218,7 @@ public class AnalogInputObjectTest {
     @Test
     public void fault() throws Exception {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -249,7 +249,7 @@ public class AnalogInputObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(
@@ -281,7 +281,7 @@ public class AnalogInputObjectTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        ai.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        ai.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
         ai.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null));
     }
 

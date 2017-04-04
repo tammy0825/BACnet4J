@@ -58,7 +58,7 @@ public class FaultParameterTest {
                         new FaultExtendedParameter(Null.instance), //
                         new FaultExtendedParameter(new Real(3.1415F)), //
                         new FaultExtendedParameter(new UnsignedInteger(314)), //
-                        new FaultExtendedParameter(new Boolean(true)), //
+                        new FaultExtendedParameter(Boolean.TRUE), //
                         new FaultExtendedParameter(new SignedInteger(-314)), //
                         new FaultExtendedParameter(new Double(Math.PI)), //
                         new FaultExtendedParameter(new OctetString(new byte[] { 0, 1, 2, 3, 4, 5 })), //
@@ -117,8 +117,8 @@ public class FaultParameterTest {
     @Test
     public void state() throws BACnetException {
         final FaultParameter faultParameter = new FaultParameter(new FaultState(new SequenceOf<>( //
-                new PropertyStates(new Boolean(true)), //
-                new PropertyStates(new Boolean(false)), //
+                new PropertyStates(Boolean.TRUE), //
+                new PropertyStates(Boolean.FALSE), //
                 new PropertyStates(ProgramError.loadFailed), //
                 new PropertyStates(Action.reverse), //
                 new PropertyStates(NotifyType.ackNotification), //

@@ -156,7 +156,7 @@ public class BinaryValueObjectTest {
     @Test
     public void propertyConformanceEditableWhenOutOfService() throws BACnetServiceException {
         // Should not be writable while in service
-        bv.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(false));
+        bv.writeProperty(null, PropertyIdentifier.outOfService, Boolean.FALSE);
         TestUtils.assertBACnetServiceException(
                 () -> bv.writeProperty(null,
                         new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, null)),
@@ -167,7 +167,7 @@ public class BinaryValueObjectTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        bv.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        bv.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
         bv.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, null));
         bv.writeProperty(null, new PropertyValue(PropertyIdentifier.reliability, null, Reliability.overRange, null));
     }
@@ -232,28 +232,28 @@ public class BinaryValueObjectTest {
 
         // When overridden, the present value is not settable
         bv.setOverridden(true);
-        bv.writePropertyInternal(outOfService, new Boolean(false));
+        bv.writePropertyInternal(outOfService, Boolean.FALSE);
         TestUtils.assertErrorAPDUException(
                 () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... even when it is out of service.
         bv.setOverridden(true);
-        bv.writePropertyInternal(outOfService, new Boolean(true));
+        bv.writePropertyInternal(outOfService, Boolean.TRUE);
         TestUtils.assertErrorAPDUException(
                 () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // When not overridden, the present value is not settable while not out of service.
         bv.setOverridden(false);
-        bv.writePropertyInternal(outOfService, new Boolean(false));
+        bv.writePropertyInternal(outOfService, Boolean.FALSE);
         TestUtils.assertErrorAPDUException(
                 () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... but it is when the object is out of service.
         bv.setOverridden(false);
-        bv.writePropertyInternal(outOfService, new Boolean(true));
+        bv.writePropertyInternal(outOfService, Boolean.TRUE);
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
         pv = RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue);
         assertEquals(BinaryPV.active, pv);
@@ -270,21 +270,21 @@ public class BinaryValueObjectTest {
 
         // When overridden, the present value is not settable
         bv.setOverridden(true);
-        bv.writePropertyInternal(outOfService, new Boolean(false));
+        bv.writePropertyInternal(outOfService, Boolean.FALSE);
         TestUtils.assertErrorAPDUException(
                 () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // ... even when it is out of service.
         bv.setOverridden(true);
-        bv.writePropertyInternal(outOfService, new Boolean(true));
+        bv.writePropertyInternal(outOfService, Boolean.TRUE);
         TestUtils.assertErrorAPDUException(
                 () -> RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // When not overridden, the present value is writable while not out of service.
         bv.setOverridden(false);
-        bv.writePropertyInternal(outOfService, new Boolean(true));
+        bv.writePropertyInternal(outOfService, Boolean.TRUE);
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active);
         pv = RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue);
         assertEquals(BinaryPV.active, pv);
@@ -292,7 +292,7 @@ public class BinaryValueObjectTest {
 
         // When not overridden and in service, the present value is commandable
         bv.setOverridden(false);
-        bv.writePropertyInternal(outOfService, new Boolean(false));
+        bv.writePropertyInternal(outOfService, Boolean.FALSE);
 
         // Set a value at priority 16.
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.inactive);

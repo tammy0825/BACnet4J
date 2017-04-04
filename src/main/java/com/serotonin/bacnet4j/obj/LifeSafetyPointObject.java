@@ -48,7 +48,7 @@ public class LifeSafetyPointObject extends BACnetObject implements LifeSafety {
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
         writePropertyInternal(PropertyIdentifier.trackingValue, presentValue);
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.acceptedModes, acceptedModes);
@@ -84,7 +84,7 @@ public class LifeSafetyPointObject extends BACnetObject implements LifeSafety {
         if (timeDelayNormal != null) {
             writePropertyInternal(PropertyIdentifier.timeDelayNormal, timeDelayNormal);
         }
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
 
         // Now add the mixin.
         FaultLifeSafetyAlgo faultAlgo = null;

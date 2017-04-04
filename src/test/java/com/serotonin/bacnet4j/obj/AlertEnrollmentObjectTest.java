@@ -43,7 +43,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
         final AlertEnrollmentObject ae = new AlertEnrollmentObject(d1, 0, "ae0", 55, NotifyType.alarm);
 
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -76,7 +76,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
         assertEquals(EventType.extended, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ExtendedNotif( //

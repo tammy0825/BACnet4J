@@ -96,7 +96,7 @@ public class PulseConverterObjectTest {
 
         // Set up the notification destination
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -141,7 +141,7 @@ public class PulseConverterObjectTest {
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
         assertEquals(new NotificationParameters(new OutOfRangeNotif(new Real(75),
@@ -178,7 +178,7 @@ public class PulseConverterObjectTest {
         assertEquals(EventType.outOfRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.highLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -217,7 +217,7 @@ public class PulseConverterObjectTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        pc.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        pc.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
         pc.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, new Real(51), null));
     }
 
@@ -304,8 +304,9 @@ public class PulseConverterObjectTest {
 
         //
         // Subscribe for notifications. Doing so should cause an initial notification to be sent.
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(987), pc.getId(), new Boolean(false),
-                new UnsignedInteger(600))).get();
+        d2.send(rd1,
+                new SubscribeCOVRequest(new UnsignedInteger(987), pc.getId(), Boolean.FALSE, new UnsignedInteger(600)))
+                .get();
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         Map<String, Object> notif = listener.notifs.remove(0);
@@ -412,7 +413,7 @@ public class PulseConverterObjectTest {
         //
         // Change to out of service, add some pulses, advance the clock, and check that the present
         // value did not change.
-        pc.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        pc.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         a.pulses(50);
         clock.plusSeconds(5);
         Thread.sleep(20);
@@ -421,7 +422,7 @@ public class PulseConverterObjectTest {
         //
         // Change back to in service, add some pulses, advance the clock, and check that all of the pulses
         // were added in.
-        pc.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        pc.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
         a.pulses(50);
         clock.plusSeconds(5);
         Thread.sleep(20);

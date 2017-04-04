@@ -57,7 +57,7 @@ public class IntrinsicReportingMixin extends EventReportingMixin {
             final PropertyIdentifier[] triggerProperties) {
         super(bo, eventAlgo, faultAlgo);
 
-        bo.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
+        bo.writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.FALSE);
 
         this.monitoredProperty = monitoredProperty;
         this.triggerProperties = triggerProperties;

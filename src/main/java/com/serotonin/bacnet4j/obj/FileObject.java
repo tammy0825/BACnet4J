@@ -77,7 +77,7 @@ public class FileObject extends BACnetObject {
 
         writePropertyInternal(PropertyIdentifier.fileType, new CharacterString(fileType));
         writePropertyInternal(PropertyIdentifier.fileAccessMethod, fileAccess.getAccessMethod());
-        writePropertyInternal(PropertyIdentifier.archive, new Boolean(false));
+        writePropertyInternal(PropertyIdentifier.archive, Boolean.FALSE);
     }
 
     public ReentrantLock getLock() {
@@ -91,7 +91,7 @@ public class FileObject extends BACnetObject {
         } else if (PropertyIdentifier.modificationDate.equals(pid)) {
             set(PropertyIdentifier.modificationDate, new DateTime(fileAccess.lastModified()));
         } else if (PropertyIdentifier.readOnly.equals(pid)) {
-            set(PropertyIdentifier.readOnly, new Boolean(!fileAccess.canWrite()));
+            set(PropertyIdentifier.readOnly, Boolean.valueOf(!fileAccess.canWrite()));
         } else if (PropertyIdentifier.recordCount.equals(pid)) {
             if (fileAccess.hasRecordAccess())
                 set(PropertyIdentifier.recordCount, new UnsignedInteger(fileAccess.recordCount()));

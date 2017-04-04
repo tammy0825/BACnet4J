@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
 import com.serotonin.bacnet4j.type.constructed.DateRange;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -42,8 +41,8 @@ public class EncodableTest {
 
     @Test
     public void _20_2_3() throws BACnetException {
-        decodePrimitive("10", new Boolean(false));
-        decodePrimitive("2901", 2, new Boolean(true));
+        decodePrimitive("10", Boolean.FALSE);
+        decodePrimitive("2901", 2, Boolean.TRUE);
     }
 
     @Test
@@ -106,8 +105,8 @@ public class EncodableTest {
     @Test
     public void _20_2_15() throws BACnetException {
         decodePrimitive("38", 3, Null.instance);
-        decodePrimitive("6900", 6, new Boolean(false));
-        decodePrimitive("F91B00", 27, new Boolean(false));
+        decodePrimitive("6900", 6, Boolean.FALSE);
+        decodePrimitive("F91B00", 27, Boolean.FALSE);
         decodePrimitive("0A0100", 0, new UnsignedInteger(256));
         decodePrimitive("59B8", 5, new SignedInteger(-72));
         decodePrimitive("F921B8", 33, new SignedInteger(-72));
@@ -157,7 +156,7 @@ public class EncodableTest {
 
     @Test
     public void portPermission() throws BACnetException {
-        final PortPermission pp = new PortPermission(new Unsigned8(14), new Boolean(true));
+        final PortPermission pp = new PortPermission(new Unsigned8(14), Boolean.TRUE);
         final ByteQueue queue = new ByteQueue();
         Encodable.write(queue, pp, 9);
 
@@ -205,7 +204,7 @@ public class EncodableTest {
     @Test
     public void timerStateChangeValue() throws BACnetException {
         testTimerStateChangeValue(new TimerStateChangeValue(Null.instance), 10, "ae00af");
-        testTimerStateChangeValue(new TimerStateChangeValue(new Boolean(true)), 11, "be11bf");
+        testTimerStateChangeValue(new TimerStateChangeValue(Boolean.TRUE), 11, "be11bf");
         testTimerStateChangeValue(new TimerStateChangeValue(new UnsignedInteger(12)), 12, "ce210ccf");
         testTimerStateChangeValue(new TimerStateChangeValue(new SignedInteger(-23)), 13, "de31e9df");
         testTimerStateChangeValue(new TimerStateChangeValue(new Real(345.6F)), 14, "ee4443accccdef");

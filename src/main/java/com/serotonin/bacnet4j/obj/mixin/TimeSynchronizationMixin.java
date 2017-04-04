@@ -35,7 +35,7 @@ public class TimeSynchronizationMixin extends AbstractMixin {
         set(PropertyIdentifier.timeSynchronizationRecipients, timeSynchronizationRecipients);
         set(PropertyIdentifier.utcTimeSynchronizationRecipients, utcTimeSynchronizationRecipients);
         set(PropertyIdentifier.timeSynchronizationInterval, new UnsignedInteger(timeSynchronizationInterval));
-        set(PropertyIdentifier.alignIntervals, new Boolean(alignIntervals));
+        set(PropertyIdentifier.alignIntervals, Boolean.valueOf(alignIntervals));
         set(PropertyIdentifier.intervalOffset, new UnsignedInteger(intervalOffset));
     }
 

@@ -66,7 +66,7 @@ public class NetworkPriorityTest {
         final ConfirmedEventNotificationRequest req = new ConfirmedEventNotificationRequest(new UnsignedInteger(2),
                 new ObjectIdentifier(ObjectType.device, 8), new ObjectIdentifier(ObjectType.analogInput, 9),
                 new TimeStamp(new DateTime(123456789)), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
-                EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
+                EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, Boolean.FALSE,
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(
                         new ChangeOfBitStringNotif(new BitString(new boolean[] { false, true, false, true }),
@@ -80,7 +80,7 @@ public class NetworkPriorityTest {
         final UnconfirmedEventNotificationRequest req = new UnconfirmedEventNotificationRequest(new UnsignedInteger(2),
                 new ObjectIdentifier(ObjectType.device, 8), new ObjectIdentifier(ObjectType.analogInput, 9),
                 new TimeStamp(new DateTime(123456789)), new UnsignedInteger(3), new UnsignedInteger(eventPriority),
-                EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, new Boolean(false),
+                EventType.changeOfBitstring, new CharacterString("hi"), NotifyType.event, Boolean.FALSE,
                 EventState.normal, EventState.offnormal,
                 new NotificationParameters(
                         new ChangeOfBitStringNotif(new BitString(new boolean[] { false, true, false, true }),

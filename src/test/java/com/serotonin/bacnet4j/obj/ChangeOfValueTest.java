@@ -96,8 +96,7 @@ public class ChangeOfValueTest {
     public void objectCovErrors() throws Exception {
         try {
             d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4),
-                    new ObjectIdentifier(ObjectType.analogValue, 0), new Boolean(true), new UnsignedInteger(1000)))
-                    .get();
+                    new ObjectIdentifier(ObjectType.analogValue, 0), Boolean.TRUE, new UnsignedInteger(1000))).get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
             assertEquals(ErrorClass.object, e.getError().getErrorClass());
@@ -107,7 +106,7 @@ public class ChangeOfValueTest {
         final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 10, EngineeringUnits.amperes, false);
 
         try {
-            d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), new Boolean(true),
+            d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), Boolean.TRUE,
                     new UnsignedInteger(1000))).get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
@@ -117,8 +116,9 @@ public class ChangeOfValueTest {
 
         av.supportCovReporting(4);
 
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), new Boolean(true),
-                new UnsignedInteger(1000))).get();
+        d2.send(rd1,
+                new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), Boolean.TRUE, new UnsignedInteger(1000)))
+                .get();
     }
 
     @Test
@@ -126,8 +126,8 @@ public class ChangeOfValueTest {
         try {
             d2.send(rd1,
                     new SubscribeCOVPropertyRequest(new UnsignedInteger(4),
-                            new ObjectIdentifier(ObjectType.analogValue, 0), new Boolean(true),
-                            new UnsignedInteger(1000), new PropertyReference(PropertyIdentifier.accessDoors), null))
+                            new ObjectIdentifier(ObjectType.analogValue, 0), Boolean.TRUE, new UnsignedInteger(1000),
+                            new PropertyReference(PropertyIdentifier.accessDoors), null))
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
@@ -140,8 +140,8 @@ public class ChangeOfValueTest {
         try {
             d2.send(rd1,
                     new SubscribeCOVPropertyRequest(new UnsignedInteger(4),
-                            new ObjectIdentifier(ObjectType.analogValue, 0), new Boolean(true),
-                            new UnsignedInteger(1000), new PropertyReference(PropertyIdentifier.accessDoors), null))
+                            new ObjectIdentifier(ObjectType.analogValue, 0), Boolean.TRUE, new UnsignedInteger(1000),
+                            new PropertyReference(PropertyIdentifier.accessDoors), null))
                     .get();
             fail("Should have thrown an exception");
         } catch (final ErrorAPDUException e) {
@@ -153,8 +153,8 @@ public class ChangeOfValueTest {
 
         d2.send(rd1,
                 new SubscribeCOVPropertyRequest(new UnsignedInteger(4), new ObjectIdentifier(ObjectType.analogValue, 0),
-                        new Boolean(true), new UnsignedInteger(1000),
-                        new PropertyReference(PropertyIdentifier.presentValue), null))
+                        Boolean.TRUE, new UnsignedInteger(1000), new PropertyReference(PropertyIdentifier.presentValue),
+                        null))
                 .get();
     }
 
@@ -167,7 +167,7 @@ public class ChangeOfValueTest {
         d2.getEventHandler().addListener(listener);
 
         // Subscribe to changes.
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), new Boolean(true), //
+        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), Boolean.TRUE, //
                 new UnsignedInteger(2))).get();
 
         // Ensure the subscription is in the device's list.
@@ -176,7 +176,7 @@ public class ChangeOfValueTest {
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
-        assertEquals(new Boolean(true), subscription.getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.presentValue),
                 subscription.getMonitoredPropertyReference());
         assertEquals(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(4)),
@@ -220,7 +220,7 @@ public class ChangeOfValueTest {
         assertEquals(0, listener.notifs.size());
 
         // Change a different value that is monitored
-        av.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        av.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         Thread.sleep(100);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -260,8 +260,7 @@ public class ChangeOfValueTest {
         d2.getEventHandler().addListener(listener);
 
         // Subscribe to changes.
-        d2.send(rd1,
-                new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), new Boolean(true), new UnsignedInteger(2)))
+        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), Boolean.TRUE, new UnsignedInteger(2)))
                 .get();
 
         // Ensure the subscription is in the device's list.
@@ -270,7 +269,7 @@ public class ChangeOfValueTest {
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
-        assertEquals(new Boolean(true), subscription.getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.presentValue),
                 subscription.getMonitoredPropertyReference());
         assertEquals(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(4)),
@@ -293,7 +292,7 @@ public class ChangeOfValueTest {
         d2.getEventHandler().addListener(listener);
 
         // Subscribe to changes.
-        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), Boolean.FALSE, //
                 new UnsignedInteger(2), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
 
         // Ensure the subscription is in the device's list.
@@ -302,7 +301,7 @@ public class ChangeOfValueTest {
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
-        assertEquals(new Boolean(false), subscription.getIssueConfirmedNotifications());
+        assertEquals(Boolean.FALSE, subscription.getIssueConfirmedNotifications());
         assertEquals(new ObjectPropertyReference(av.getId(), PropertyIdentifier.statusFlags),
                 subscription.getMonitoredPropertyReference());
         assertEquals(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(4)),
@@ -370,21 +369,21 @@ public class ChangeOfValueTest {
         d3.getEventHandler().addListener(listener3);
 
         // Subscribe to changes.
-        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), Boolean.FALSE, //
                 new UnsignedInteger(360), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), Boolean.FALSE, //
                 null)).get();
-        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), Boolean.FALSE, //
                 new UnsignedInteger(360), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), Boolean.FALSE, //
                 null)).get();
-        d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), new Boolean(false), //
+        d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), Boolean.FALSE, //
                 new UnsignedInteger(360), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), new Boolean(false), //
+        d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), Boolean.FALSE, //
                 null)).get();
-        d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), new Boolean(false), //
+        d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), Boolean.FALSE, //
                 new UnsignedInteger(360), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), new Boolean(false), //
+        d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), Boolean.FALSE, //
                 null)).get();
 
         // Ensure the subscriptions are in the device's list.
@@ -392,28 +391,28 @@ public class ChangeOfValueTest {
                 .getProperty(PropertyIdentifier.activeCovSubscriptions);
         final List<CovSubscription> expectedList = Utils.toList(
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(4)),
-                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), new Boolean(false),
+                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(5)),
-                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), new Boolean(false),
+                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
                         new UnsignedInteger(0), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(6)),
-                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), new Boolean(false),
+                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(7)),
-                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), new Boolean(false),
+                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
                         new UnsignedInteger(0), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(4)),
-                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), new Boolean(false),
+                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(5)),
-                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), new Boolean(false),
+                        new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
                         new UnsignedInteger(0), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(6)),
-                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), new Boolean(false),
+                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(7)),
-                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), new Boolean(false),
+                        new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
                         new UnsignedInteger(0), null));
 
         TestUtils.assertListEqualsIgnoreOrder(expectedList, deviceList.getValues());
@@ -560,7 +559,7 @@ public class ChangeOfValueTest {
         d2.getEventHandler().addListener(listener);
 
         // Subscribe to changes.
-        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), Boolean.FALSE, //
                 new UnsignedInteger(20), new PropertyReference(PropertyIdentifier.units), null)).get();
 
         // Subscribing should have caused a notification to be sent.
@@ -602,7 +601,7 @@ public class ChangeOfValueTest {
         final TimeStamp setTime = new TimeStamp(new DateTime(d1));
 
         // Subscribe to changes.
-        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), new Boolean(false), //
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av.getId(), Boolean.FALSE, //
                 new UnsignedInteger(20), new PropertyReference(PropertyIdentifier.valueSource), null)).get();
 
         // Subscribing should have caused a notification to be sent.

@@ -40,7 +40,7 @@ public class MultistateOutputObject extends BACnetObject {
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalUnsigned());
@@ -59,7 +59,7 @@ public class MultistateOutputObject extends BACnetObject {
         }
         writeProperty(valueSource, PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
         if (!outOfService) {
-            writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+            writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         }
 
         addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue,
@@ -88,7 +88,7 @@ public class MultistateOutputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         writePropertyInternal(PropertyIdentifier.timeDelayNormal, new UnsignedInteger(timeDelayNormal));
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
 
         addMixin(new IntrinsicReportingMixin(this, new CommandFailureAlgo(), null, PropertyIdentifier.presentValue,
                 new PropertyIdentifier[] { PropertyIdentifier.presentValue, PropertyIdentifier.feedbackValue }));

@@ -92,7 +92,7 @@ public class EventEnrollmentObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
         if (timeDelayNormal != null)
             writePropertyInternal(PropertyIdentifier.timeDelayNormal, timeDelayNormal);
         if (faultParameter != null) {

@@ -77,7 +77,7 @@ public class LifeSafetyPointObjectTest {
         nc = new NotificationClassObject(d1, 17, "nc17", 100, 5, 200, new EventTransitionBits(false, false, false));
 
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -127,7 +127,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfLifeSafety, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lifeSafetyAlarm, notif.get("toState"));
         assertEquals(
@@ -156,7 +156,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfLifeSafety, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.lifeSafetyAlarm, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -282,7 +282,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         ChangeOfReliabilityNotif cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -316,7 +316,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -358,7 +358,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -395,7 +395,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -422,7 +422,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfLifeSafety, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -478,7 +478,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfLifeSafety, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(
@@ -505,7 +505,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfLifeSafety, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(
@@ -533,7 +533,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         ChangeOfReliabilityNotif cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -572,7 +572,7 @@ public class LifeSafetyPointObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.fault, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         cor = ((NotificationParameters) notif.get("eventValues")).getParameter();
@@ -602,8 +602,9 @@ public class LifeSafetyPointObjectTest {
 
         //
         // Subscribe for notifications. Doing so should cause an initial notification to be sent.
-        d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(987), lsp.getId(), new Boolean(false),
-                new UnsignedInteger(600))).get();
+        d2.send(rd1,
+                new SubscribeCOVRequest(new UnsignedInteger(987), lsp.getId(), Boolean.FALSE, new UnsignedInteger(600)))
+                .get();
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         Map<String, Object> notif = listener.notifs.remove(0);

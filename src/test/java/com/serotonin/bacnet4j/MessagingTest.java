@@ -361,7 +361,7 @@ public class MessagingTest {
         return new BACnetObject(localDevice, ObjectType.analogValue, id) //
                 .writePropertyInternal(PropertyIdentifier.presentValue, new Real(3.14F)) //
                 .writePropertyInternal(PropertyIdentifier.units, EngineeringUnits.noUnits) //
-                .writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false)) //
+                .writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE) //
                 .writePropertyInternal(PropertyIdentifier.eventState, EventState.normal) //
                 .writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)) //
         ;

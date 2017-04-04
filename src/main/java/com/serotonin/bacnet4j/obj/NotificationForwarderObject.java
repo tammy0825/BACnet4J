@@ -76,11 +76,11 @@ public class NotificationForwarderObject extends BACnetObject {
         // Set up object properties.
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         writePropertyInternal(PropertyIdentifier.processIdentifierFilter, processIdentifierFilter);
         writePropertyInternal(PropertyIdentifier.portFilter, portFilter);
-        writePropertyInternal(PropertyIdentifier.localForwardingOnly, new Boolean(localForwardingOnly));
-        writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, new Boolean(false));
+        writePropertyInternal(PropertyIdentifier.localForwardingOnly, Boolean.valueOf(localForwardingOnly));
+        writePropertyInternal(PropertyIdentifier.reliabilityEvaluationInhibit, Boolean.FALSE);
 
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new SubscriptionManagementMixin(this));

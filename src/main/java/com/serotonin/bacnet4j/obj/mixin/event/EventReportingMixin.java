@@ -92,7 +92,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
         bo.writePropertyInternal(PropertyIdentifier.eventMessageTextsConfig,
                 new BACnetArray<>(CharacterString.EMPTY, CharacterString.EMPTY, CharacterString.EMPTY));
         //ee.writePropertyImpl(PropertyIdentifier.eventAlgorithmInhibitRef, new ObjectPropertyReference()); Not supported
-        bo.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, new Boolean(false));
+        bo.writePropertyInternal(PropertyIdentifier.eventAlgorithmInhibit, Boolean.FALSE);
     }
 
     public void setPostNotificationAction(final Consumer<NotificationParameters> postNotificationAction) {
@@ -298,7 +298,7 @@ abstract public class EventReportingMixin extends AbstractMixin {
             }
 
             sendNotifications(recipientList, now, nc, priority, toState, eventType, null, notifyType, //
-                    new Boolean(isAckRequired), fromState, notifParams);
+                    Boolean.valueOf(isAckRequired), fromState, notifParams);
         }
     }
 

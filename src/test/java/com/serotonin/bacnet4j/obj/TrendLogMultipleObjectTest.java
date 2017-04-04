@@ -253,7 +253,7 @@ public class TrendLogMultipleObjectTest {
 
         // Add d2 as an event recipient.
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(27), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -287,7 +287,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -318,7 +318,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -351,7 +351,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -392,7 +392,7 @@ public class TrendLogMultipleObjectTest {
 
         // Set d2 as an event recipient.
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(d2.getId()), new UnsignedInteger(28), new Boolean(true),
+        recipients.add(new Destination(new Recipient(d2.getId()), new UnsignedInteger(28), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -425,7 +425,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -449,7 +449,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventType.bufferReady, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
@@ -504,8 +504,8 @@ public class TrendLogMultipleObjectTest {
         assertEquals(true, tl.isLogDisabled());
 
         // Set StopWhenFull to false and write a couple records.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(false)));
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, new Boolean(true)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.FALSE));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.enable, Boolean.TRUE));
         doTriggers(tl, 2);
         assertEquals(4, tl.getBuffer().size());
         assertEquals(logData, tl.getBuffer().get(0).getLogData().getData());
@@ -517,7 +517,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(false, tl.isLogDisabled());
 
         // Set StopWhenFull back to true.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, new Boolean(true)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.stopWhenFull, Boolean.TRUE));
         assertEquals(4, tl.getBuffer().size());
         assertEquals(new LogStatus(true, false, false), tl.getBuffer().get(0).getLogData().getLogStatus());
         assertEquals(logData, tl.getBuffer().get(1).getLogData().getData());

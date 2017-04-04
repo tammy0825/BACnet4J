@@ -78,7 +78,7 @@ public class CommandableMixinTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Change the object to out of service. Now, writes should work.
-        av.writeProperty(valueSource, new PropertyValue(PropertyIdentifier.outOfService, new Boolean(true)));
+        av.writeProperty(valueSource, new PropertyValue(PropertyIdentifier.outOfService, Boolean.TRUE));
         av.writeProperty(valueSource, new PropertyValue(PropertyIdentifier.presentValue, new Real(1)));
 
         assertEquals(new Real(1), av.get(PropertyIdentifier.presentValue));
@@ -176,7 +176,7 @@ public class CommandableMixinTest {
     public void bvNotCommandableValueSource() throws Exception {
         final BinaryValueObject bv = new BinaryValueObject(localDevice, 0, "bv0", BinaryPV.inactive, false)
                 .supportValueSource();
-        bv.writeProperty(null, new PropertyValue(PropertyIdentifier.outOfService, new Boolean(true)));
+        bv.writeProperty(null, new PropertyValue(PropertyIdentifier.outOfService, Boolean.TRUE));
 
         // Assert default values.
         assertEquals(BinaryPV.inactive, bv.get(PropertyIdentifier.presentValue));

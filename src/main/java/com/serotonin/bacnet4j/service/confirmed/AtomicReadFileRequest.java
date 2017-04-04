@@ -144,7 +144,7 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
 
                     final OctetString result = fileAccess.readData(start, readLength);
 
-                    response = new AtomicReadFileAck(new Boolean(fileLength <= start + readLength),
+                    response = new AtomicReadFileAck(Boolean.valueOf(fileLength <= start + readLength),
                             new StreamAccessAck(streamAccess.getFileStartPosition(), result));
                 } else if (accessMethod.isa(RecordAccess.class)) {
                     if (!fileAccess.supportsRecordAccess()) {
@@ -166,8 +166,9 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
                     final SequenceOf<OctetString> result = fileAccess.readRecords(start,
                             recordAccess.getRequestedRecordCount().longValue());
 
-                    response = new AtomicReadFileAck(new Boolean(fileCount <= start + readCount), new RecordAccessAck(
-                            recordAccess.getFileStartRecord(), new UnsignedInteger(result.size()), result));
+                    response = new AtomicReadFileAck(Boolean.valueOf(fileCount <= start + readCount),
+                            new RecordAccessAck(recordAccess.getFileStartRecord(), new UnsignedInteger(result.size()),
+                                    result));
                 } else {
                     // Should not happen
                     throw new RuntimeException("Not implemented: " + accessMethod.getDatum());

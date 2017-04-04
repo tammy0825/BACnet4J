@@ -84,9 +84,8 @@ public class ConfirmedPrivateTransferRequestTest {
 
     @Test
     public void withParameters() throws Exception {
-        final EncodedValue parameters = new EncodedValue(new Boolean(true), new Boolean(false),
-                new CharacterString("xyz"));
-        final EncodedValue result = new EncodedValue(new Real(3.14F), new Boolean(true), new Boolean(false),
+        final EncodedValue parameters = new EncodedValue(Boolean.TRUE, Boolean.FALSE, new CharacterString("xyz"));
+        final EncodedValue result = new EncodedValue(new Real(3.14F), Boolean.TRUE, Boolean.FALSE,
                 new CharacterString("zyx"));
 
         final AtomicBoolean handled = new AtomicBoolean();

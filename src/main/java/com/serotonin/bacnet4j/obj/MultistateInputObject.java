@@ -35,7 +35,7 @@ public class MultistateInputObject extends BACnetObject {
         }
 
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, true));
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.interfaceValue, new OptionalUnsigned());
@@ -53,7 +53,7 @@ public class MultistateInputObject extends BACnetObject {
         }
         writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(presentValueBase1));
         if (!outOfService) {
-            writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+            writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         }
 
         addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue,
@@ -84,7 +84,7 @@ public class MultistateInputObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         if (timeDelayNormal != null)
             writePropertyInternal(PropertyIdentifier.timeDelayNormal, timeDelayNormal);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
 
         // Now add the mixin.
         final ChangeOfStateAlgo eventAlgo = new ChangeOfStateAlgo(PropertyIdentifier.presentValue,

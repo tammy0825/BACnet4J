@@ -44,7 +44,7 @@ public class ActiveCovSubscriptionMixin extends AbstractMixin {
                             final ObjectPropertyReference opr = new ObjectPropertyReference(e.getKey(),
                                     ctx.getExposedMonitoredProperty(), null);
                             final CovSubscription cs = new CovSubscription(rp, opr,
-                                    new Boolean(ctx.isIssueConfirmedNotifications()),
+                                    Boolean.valueOf(ctx.isIssueConfirmedNotifications()),
                                     new UnsignedInteger(ctx.getSecondsRemaining(now)), ctx.getCovIncrement());
                             subscriptions.add(cs);
                         }

@@ -31,7 +31,7 @@ public class AlertEnrollmentObject extends BACnetObject {
 
         writePropertyInternal(PropertyIdentifier.presentValue, localDevice.getId());
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(false));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.FALSE);
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
         writePropertyInternal(PropertyIdentifier.eventEnable, new EventTransitionBits(false, false, true));
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);

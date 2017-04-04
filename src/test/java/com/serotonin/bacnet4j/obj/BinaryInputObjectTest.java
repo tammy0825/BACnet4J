@@ -80,7 +80,7 @@ public class BinaryInputObjectTest {
     @Test
     public void intrinsicReporting() throws Exception {
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -118,7 +118,7 @@ public class BinaryInputObjectTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(BinaryPV.active),
@@ -145,7 +145,7 @@ public class BinaryInputObjectTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(BinaryPV.active),
@@ -164,7 +164,7 @@ public class BinaryInputObjectTest {
 
         // Set up the notification destination
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -202,7 +202,7 @@ public class BinaryInputObjectTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.offnormal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(BinaryPV.active),
@@ -234,7 +234,7 @@ public class BinaryInputObjectTest {
         assertEquals(EventType.changeOfState, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(false), notif.get("ackRequired"));
+        assertEquals(Boolean.FALSE, notif.get("ackRequired"));
         assertEquals(EventState.offnormal, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(new ChangeOfStateNotif(new PropertyStates(BinaryPV.inactive),
@@ -332,7 +332,7 @@ public class BinaryInputObjectTest {
     @Test
     public void physicalState() {
         // Ensure the default state.
-        assertEquals(new Boolean(false), bi.get(PropertyIdentifier.outOfService));
+        assertEquals(Boolean.FALSE, bi.get(PropertyIdentifier.outOfService));
         assertEquals(BinaryPV.inactive, bi.get(PropertyIdentifier.presentValue));
         assertEquals(Polarity.normal, bi.get(PropertyIdentifier.polarity));
 
@@ -340,7 +340,7 @@ public class BinaryInputObjectTest {
         assertEquals(BinaryPV.inactive, bi.getPhysicalState());
 
         // true, inactive, normal
-        bi.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        bi.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         assertEquals(BinaryPV.inactive, bi.getPhysicalState());
 
         // true, active, normal
@@ -348,7 +348,7 @@ public class BinaryInputObjectTest {
         assertEquals(BinaryPV.active, bi.getPhysicalState());
 
         // false, active, normal
-        bi.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        bi.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
         assertEquals(BinaryPV.active, bi.getPhysicalState());
 
         // false, active, reverse
@@ -356,7 +356,7 @@ public class BinaryInputObjectTest {
         assertEquals(BinaryPV.inactive, bi.getPhysicalState());
 
         // true, active, reverse
-        bi.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(true));
+        bi.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.TRUE);
         assertEquals(BinaryPV.active, bi.getPhysicalState());
 
         // true, inactive, reverse
@@ -364,7 +364,7 @@ public class BinaryInputObjectTest {
         assertEquals(BinaryPV.inactive, bi.getPhysicalState());
 
         // false, inactive, reverse
-        bi.writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(false));
+        bi.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
         assertEquals(BinaryPV.active, bi.getPhysicalState());
     }
 }

@@ -68,7 +68,7 @@ public class NotificationForwarderObjectTest {
             .withClock(clock);
 
     private final BACnetArray<PortPermission> portFilter = new BACnetArray<>(
-            new PortPermission(new Unsigned8(0), new Boolean(true)));
+            new PortPermission(new Unsigned8(0), Boolean.TRUE));
 
     @Before
     public void before() throws Exception {
@@ -90,7 +90,7 @@ public class NotificationForwarderObjectTest {
     private final ConfirmedEventNotificationRequest n1 = new ConfirmedEventNotificationRequest(new UnsignedInteger(122),
             new ObjectIdentifier(ObjectType.device, 50), new ObjectIdentifier(ObjectType.device, 50), now,
             new UnsignedInteger(456), new UnsignedInteger(1), EventType.accessEvent, new CharacterString("message"),
-            NotifyType.event, new Boolean(false), EventState.fault, EventState.highLimit,
+            NotifyType.event, Boolean.FALSE, EventState.fault, EventState.highLimit,
             new NotificationParameters(
                     new BufferReadyNotif(
                             new DeviceObjectPropertyReference(51, new ObjectIdentifier(ObjectType.trendLog, 0),
@@ -99,7 +99,7 @@ public class NotificationForwarderObjectTest {
     private final ConfirmedEventNotificationRequest n2 = new ConfirmedEventNotificationRequest(new UnsignedInteger(123),
             new ObjectIdentifier(ObjectType.device, 1), new ObjectIdentifier(ObjectType.device, 1), now,
             new UnsignedInteger(456), new UnsignedInteger(1), EventType.accessEvent, new CharacterString("message"),
-            NotifyType.event, new Boolean(false), EventState.fault, EventState.highLimit,
+            NotifyType.event, Boolean.FALSE, EventState.fault, EventState.highLimit,
             new NotificationParameters(
                     new BufferReadyNotif(
                             new DeviceObjectPropertyReference(51, new ObjectIdentifier(ObjectType.trendLog, 0),
@@ -108,9 +108,9 @@ public class NotificationForwarderObjectTest {
     private final ConfirmedEventNotificationRequest n3 = new ConfirmedEventNotificationRequest(new UnsignedInteger(124),
             new ObjectIdentifier(ObjectType.device, 60), new ObjectIdentifier(ObjectType.device, 60), now,
             new UnsignedInteger(789), new UnsignedInteger(109), EventType.commandFailure,
-            new CharacterString("message2"), NotifyType.alarm, new Boolean(true), EventState.offnormal,
-            EventState.normal, new NotificationParameters(new OutOfRangeNotif(new Real(34),
-                    new StatusFlags(true, true, true, true), new Real(35), new Real(36))));
+            new CharacterString("message2"), NotifyType.alarm, Boolean.TRUE, EventState.offnormal, EventState.normal,
+            new NotificationParameters(new OutOfRangeNotif(new Real(34), new StatusFlags(true, true, true, true),
+                    new Real(35), new Real(36))));
 
     @Test
     public void subscriptions() throws Exception {
@@ -120,27 +120,27 @@ public class NotificationForwarderObjectTest {
         // Add a few subscribers.
         new AddListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(
-                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(1),
-                                new Boolean(true), new UnsignedInteger(3600)),
-                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2),
-                                new Boolean(false), new UnsignedInteger(360)),
-                        new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(3),
-                                new Boolean(true), new UnsignedInteger(36)))).handle(d1, null);
+                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(1), Boolean.TRUE,
+                                new UnsignedInteger(3600)),
+                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2), Boolean.FALSE,
+                                new UnsignedInteger(360)),
+                        new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(3), Boolean.TRUE,
+                                new UnsignedInteger(36)))).handle(d1, null);
 
         // Ensure that the subscribers are there, and that the various ways of getting the data produce the same result.
         SequenceOf<EventNotificationSubscription> enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(3, enss.size());
         assertEquals(new Recipient(d2.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(0).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(0).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(3600), enss.get(0).getTimeRemaining());
         assertEquals(new Recipient(d3.getId()), enss.get(1).getRecipient());
         assertEquals(new Unsigned32(2), enss.get(1).getProcessIdentifier());
-        assertEquals(new Boolean(false), enss.get(1).getIssueConfirmedNotifications());
+        assertEquals(Boolean.FALSE, enss.get(1).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(360), enss.get(1).getTimeRemaining());
         assertEquals(new Recipient(d4.getId()), enss.get(2).getRecipient());
         assertEquals(new Unsigned32(3), enss.get(2).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(2).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(2).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(36), enss.get(2).getTimeRemaining());
 
         final ReadPropertyAck ack = (ReadPropertyAck) new ReadPropertyRequest(nf.getId(),
@@ -159,45 +159,45 @@ public class NotificationForwarderObjectTest {
         // Add a few more subscribers, and a refresh.
         new AddListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(
-                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4),
-                                new Boolean(false), new UnsignedInteger(1000)),
-                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2),
-                                new Boolean(true), new UnsignedInteger(360)),
-                        new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(1),
-                                new Boolean(true), new UnsignedInteger(36)))).handle(d1, null);
+                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4), Boolean.FALSE,
+                                new UnsignedInteger(1000)),
+                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
+                                new UnsignedInteger(360)),
+                        new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(1), Boolean.TRUE,
+                                new UnsignedInteger(36)))).handle(d1, null);
         enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(4, enss.size());
         assertEquals(new Recipient(d2.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(0).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(0).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(3420), enss.get(0).getTimeRemaining());
         assertEquals(new Recipient(d3.getId()), enss.get(1).getRecipient());
         assertEquals(new Unsigned32(2), enss.get(1).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(1).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(1).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(360), enss.get(1).getTimeRemaining());
         assertEquals(new Recipient(d2.getId()), enss.get(2).getRecipient());
         assertEquals(new Unsigned32(4), enss.get(2).getProcessIdentifier());
-        assertEquals(new Boolean(false), enss.get(2).getIssueConfirmedNotifications());
+        assertEquals(Boolean.FALSE, enss.get(2).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(1000), enss.get(2).getTimeRemaining());
         assertEquals(new Recipient(d4.getId()), enss.get(3).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(3).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(3).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(3).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(36), enss.get(3).getTimeRemaining());
 
         // Remove some of the subscribers
         new RemoveListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(
-                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(1),
-                                new Boolean(false), new UnsignedInteger(0)),
-                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2),
-                                new Boolean(true), new UnsignedInteger(0)),
-                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4),
-                                new Boolean(true), new UnsignedInteger(36)))).handle(d1, null);
+                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(1), Boolean.FALSE,
+                                new UnsignedInteger(0)),
+                        new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
+                                new UnsignedInteger(0)),
+                        new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4), Boolean.TRUE,
+                                new UnsignedInteger(36)))).handle(d1, null);
         enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(1, enss.size());
         assertEquals(new Recipient(d4.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
-        assertEquals(new Boolean(true), enss.get(0).getIssueConfirmedNotifications());
+        assertEquals(Boolean.TRUE, enss.get(0).getIssueConfirmedNotifications());
         assertEquals(new UnsignedInteger(36), enss.get(0).getTimeRemaining());
     }
 
@@ -217,13 +217,13 @@ public class NotificationForwarderObjectTest {
         // Add el2 and el3 as recipients, and el4 as a subscriber. el3 is set to not receive toNormal.
         new AddListElementRequest(nf.getId(), PropertyIdentifier.recipientList, null,
                 new SequenceOf<>(
-                        new Destination(new Recipient(d2.getId()), new Unsigned32(1), new Boolean(false),
+                        new Destination(new Recipient(d2.getId()), new Unsigned32(1), Boolean.FALSE,
                                 new EventTransitionBits(true, true, true)),
-                        new Destination(new Recipient(d3.getId()), new Unsigned32(2), new Boolean(true),
+                        new Destination(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
                                 new EventTransitionBits(true, true, false)))).handle(d1, null);
         new AddListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(3),
-                        new Boolean(false), new UnsignedInteger(50)))).handle(d1, null);
+                        Boolean.FALSE, new UnsignedInteger(50)))).handle(d1, null);
 
         // Ensure that all logs are empty.
         assertEquals(0, el2.getBuffer().size());
@@ -259,7 +259,7 @@ public class NotificationForwarderObjectTest {
 
         //
         // Set the forwarder to out of service, send an event, and ensure that the logs did not change.
-        nf.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        nf.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
         n1.handle(d1, TestNetworkUtils.toAddress(50));
         Thread.sleep(100);
         assertEquals(1, el2.getBuffer().size());
@@ -268,7 +268,7 @@ public class NotificationForwarderObjectTest {
 
         //
         // Change the process identifier filter. Not logs should get this event.
-        nf.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(false));
+        nf.writeProperty(null, PropertyIdentifier.outOfService, Boolean.FALSE);
         nf.writeProperty(null, PropertyIdentifier.processIdentifierFilter, new ProcessIdSelection(new Unsigned32(123)));
         n1.handle(d1, TestNetworkUtils.toAddress(50));
         Thread.sleep(100);
@@ -287,9 +287,9 @@ public class NotificationForwarderObjectTest {
         // Set the port filter, send an event, and ensure that the logs did not change.
         nf.writeProperty(null, PropertyIdentifier.processIdentifierFilter, new ProcessIdSelection(Null.instance));
         nf.writeProperty(null, PropertyIdentifier.portFilter,
-                new BACnetArray<>(new PortPermission(new Unsigned8(0), new Boolean(false)),
-                        new PortPermission(new Unsigned8(1), new Boolean(true)),
-                        new PortPermission(new Unsigned8(2), new Boolean(false))));
+                new BACnetArray<>(new PortPermission(new Unsigned8(0), Boolean.FALSE),
+                        new PortPermission(new Unsigned8(1), Boolean.TRUE),
+                        new PortPermission(new Unsigned8(2), Boolean.FALSE)));
         n1.handle(d1, TestNetworkUtils.toAddress(50));
         Thread.sleep(100);
         assertEquals(2, el2.getBuffer().size());
@@ -299,8 +299,8 @@ public class NotificationForwarderObjectTest {
         //
         // Set local forwarding only, send an event, and ensure that the logs did not change.
         nf.writeProperty(null, PropertyIdentifier.portFilter,
-                new BACnetArray<>(new PortPermission(new Unsigned8(0), new Boolean(true))));
-        nf.writeProperty(null, PropertyIdentifier.localForwardingOnly, new Boolean(true));
+                new BACnetArray<>(new PortPermission(new Unsigned8(0), Boolean.TRUE)));
+        nf.writeProperty(null, PropertyIdentifier.localForwardingOnly, Boolean.TRUE);
         n1.handle(d1, TestNetworkUtils.toAddress(50));
         Thread.sleep(100);
         assertEquals(2, el2.getBuffer().size());
@@ -316,7 +316,7 @@ public class NotificationForwarderObjectTest {
 
         //
         // Finally, send an event that is to normal. The transition bits for el3 are set to not receive.
-        nf.writeProperty(null, PropertyIdentifier.localForwardingOnly, new Boolean(false));
+        nf.writeProperty(null, PropertyIdentifier.localForwardingOnly, Boolean.FALSE);
         n3.handle(d1, TestNetworkUtils.toAddress(1));
         Thread.sleep(100);
         assertEquals(4, el2.getBuffer().size());
@@ -346,13 +346,13 @@ public class NotificationForwarderObjectTest {
         // Write some of each.
         new AddListElementRequest(nf.getId(), PropertyIdentifier.recipientList, null,
                 new SequenceOf<>(
-                        new Destination(new Recipient(d2.getId()), new Unsigned32(1), new Boolean(false),
+                        new Destination(new Recipient(d2.getId()), new Unsigned32(1), Boolean.FALSE,
                                 new EventTransitionBits(true, true, true)),
-                        new Destination(new Recipient(d3.getId()), new Unsigned32(2), new Boolean(true),
+                        new Destination(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
                                 new EventTransitionBits(true, true, false)))).handle(d1, null);
         new AddListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(3),
-                        new Boolean(false), new UnsignedInteger(50)))).handle(d1, null);
+                        Boolean.FALSE, new UnsignedInteger(50)))).handle(d1, null);
 
         // Make sure they are there.
         recipients = nf.getProperty(PropertyIdentifier.recipientList);

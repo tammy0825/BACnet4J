@@ -32,7 +32,7 @@ public class NotificationClassObjectTest extends AbstractTest {
     public void listValues() throws Exception {
         // Add a few items to the list.
         final Recipient recipient = new Recipient(new Address(new byte[] { 3 }));
-        final Boolean issueConfirmedNotifications = new Boolean(true);
+        final Boolean issueConfirmedNotifications = Boolean.TRUE;
         final EventTransitionBits transitions = new EventTransitionBits(true, true, true);
 
         final Destination dest1 = new Destination(recipient, new UnsignedInteger(1), issueConfirmedNotifications,

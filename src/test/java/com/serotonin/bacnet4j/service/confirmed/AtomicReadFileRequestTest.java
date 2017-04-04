@@ -94,7 +94,7 @@ public class AtomicReadFileRequestTest {
         AtomicReadFileAck ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.StreamAccess(new SignedInteger(600),
                         new UnsignedInteger(20))).handle(d1, null);
-        assertEquals(new Boolean(false), ack.getEndOfFile());
+        assertEquals(Boolean.FALSE, ack.getEndOfFile());
         assertEquals(new SignedInteger(600), ack.getStreamAccess().getFileStartPosition());
         assertEquals(new OctetString("CDEFGHIJKLMNOPQRSTUV".getBytes()), ack.getStreamAccess().getFileData());
 
@@ -102,7 +102,7 @@ public class AtomicReadFileRequestTest {
         ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.StreamAccess(new SignedInteger(900),
                         new UnsignedInteger(21))).handle(d1, null);
-        assertEquals(new Boolean(false), ack.getEndOfFile());
+        assertEquals(Boolean.FALSE, ack.getEndOfFile());
         assertEquals(new SignedInteger(900), ack.getStreamAccess().getFileStartPosition());
         assertEquals(new OctetString("ghijklmnopqrstuvwxyz\r".getBytes()), ack.getStreamAccess().getFileData());
 
@@ -110,7 +110,7 @@ public class AtomicReadFileRequestTest {
         ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.StreamAccess(new SignedInteger(900),
                         new UnsignedInteger(22))).handle(d1, null);
-        assertEquals(new Boolean(true), ack.getEndOfFile());
+        assertEquals(Boolean.TRUE, ack.getEndOfFile());
         assertEquals(new SignedInteger(900), ack.getStreamAccess().getFileStartPosition());
         assertEquals(new OctetString("ghijklmnopqrstuvwxyz\r\n".getBytes()), ack.getStreamAccess().getFileData());
 
@@ -118,7 +118,7 @@ public class AtomicReadFileRequestTest {
         ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.StreamAccess(new SignedInteger(900),
                         new UnsignedInteger(30))).handle(d1, null);
-        assertEquals(new Boolean(true), ack.getEndOfFile());
+        assertEquals(Boolean.TRUE, ack.getEndOfFile());
         assertEquals(new SignedInteger(900), ack.getStreamAccess().getFileStartPosition());
         assertEquals(new OctetString("ghijklmnopqrstuvwxyz\r\n".getBytes()), ack.getStreamAccess().getFileData());
     }
@@ -153,7 +153,7 @@ public class AtomicReadFileRequestTest {
         AtomicReadFileAck ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.RecordAccess(new SignedInteger(10),
                         new UnsignedInteger(3))).handle(d1, null);
-        assertEquals(new Boolean(false), ack.getEndOfFile());
+        assertEquals(Boolean.FALSE, ack.getEndOfFile());
         assertEquals(new SignedInteger(10), ack.getRecordAccess().getFileStartRecord());
         assertEquals(new UnsignedInteger(3), ack.getRecordAccess().getReturnedRecordCount());
         assertEquals(new OctetString("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes()),
@@ -167,7 +167,7 @@ public class AtomicReadFileRequestTest {
         ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.RecordAccess(new SignedInteger(10),
                         new UnsignedInteger(4))).handle(d1, null);
-        assertEquals(new Boolean(true), ack.getEndOfFile());
+        assertEquals(Boolean.TRUE, ack.getEndOfFile());
         assertEquals(new SignedInteger(10), ack.getRecordAccess().getFileStartRecord());
         assertEquals(new UnsignedInteger(4), ack.getRecordAccess().getReturnedRecordCount());
         assertEquals(new OctetString("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes()),
@@ -183,7 +183,7 @@ public class AtomicReadFileRequestTest {
         ack = (AtomicReadFileAck) new AtomicReadFileRequest(f.getId(),
                 new com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.RecordAccess(new SignedInteger(10),
                         new UnsignedInteger(30))).handle(d1, null);
-        assertEquals(new Boolean(true), ack.getEndOfFile());
+        assertEquals(Boolean.TRUE, ack.getEndOfFile());
         assertEquals(new SignedInteger(10), ack.getRecordAccess().getFileStartRecord());
         assertEquals(new UnsignedInteger(4), ack.getRecordAccess().getReturnedRecordCount());
         assertEquals(new OctetString("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes()),

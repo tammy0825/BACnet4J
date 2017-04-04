@@ -67,7 +67,7 @@ public class AccumulatorObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.units, units);
-        writePropertyInternal(PropertyIdentifier.outOfService, new Boolean(outOfService));
+        writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         writePropertyInternal(PropertyIdentifier.scale, scale);
         if (prescale != null)
             writePropertyInternal(PropertyIdentifier.prescale, prescale);
@@ -121,7 +121,7 @@ public class AccumulatorObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
         if (timeDelayNormal != null)
             writePropertyInternal(PropertyIdentifier.timeDelayNormal, timeDelayNormal);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
         writePropertyInternal(PropertyIdentifier.faultHighLimit, new UnsignedInteger(faultHighLimit));
         writePropertyInternal(PropertyIdentifier.faultLowLimit, new UnsignedInteger(faultLowLimit));
 

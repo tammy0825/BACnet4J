@@ -79,8 +79,7 @@ public class UnconfirmedPrivateTransferRequestTest {
 
     @Test
     public void withParameters() throws Exception {
-        final EncodedValue parameters = new EncodedValue(new Boolean(true), new Boolean(false),
-                new CharacterString("xyz"));
+        final EncodedValue parameters = new EncodedValue(Boolean.TRUE, Boolean.FALSE, new CharacterString("xyz"));
 
         final AtomicBoolean handled = new AtomicBoolean();
         d1.addPrivateTransferHandler(236, 13, new PrivateTransferHandler() {

@@ -225,7 +225,7 @@ public class DeviceObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
         writePropertyInternal(PropertyIdentifier.notifyType, notifyType);
-        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, new Boolean(true));
+        writePropertyInternal(PropertyIdentifier.eventDetectionEnable, Boolean.TRUE);
 
         addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, null, new PropertyIdentifier[] {}));
 
@@ -244,7 +244,7 @@ public class DeviceObject extends BACnetObject {
         } else if (pid.equals(PropertyIdentifier.daylightSavingsStatus)) {
             final boolean dst = TimeZone.getDefault()
                     .inDaylightTime(new java.util.Date(getLocalDevice().getClock().millis()));
-            writePropertyInternal(PropertyIdentifier.daylightSavingsStatus, new Boolean(dst));
+            writePropertyInternal(PropertyIdentifier.daylightSavingsStatus, Boolean.valueOf(dst));
         } else if (pid.equals(PropertyIdentifier.deviceAddressBinding)) {
             final SequenceOf<AddressBinding> bindings = new SequenceOf<>();
             for (final RemoteDevice d : getLocalDevice().getRemoteDevices()) {

@@ -101,7 +101,7 @@ public class AccumulatorObjectTest {
 
         // Set up the notification destination
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -163,7 +163,7 @@ public class AccumulatorObjectTest {
         assertEquals(EventType.unsignedRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.lowLimit, notif.get("toState"));
         assertEquals(
@@ -187,7 +187,7 @@ public class AccumulatorObjectTest {
         assertEquals(EventType.unsignedRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.event, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.lowLimit, notif.get("fromState"));
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(
@@ -285,7 +285,7 @@ public class AccumulatorObjectTest {
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Should be writable while out of service.
-        a.writeProperty(null, PropertyIdentifier.outOfService, new Boolean(true));
+        a.writeProperty(null, PropertyIdentifier.outOfService, Boolean.TRUE);
         a.writeProperty(null, new PropertyValue(PropertyIdentifier.presentValue, null, new UnsignedInteger(51), null));
         a.writeProperty(null, new PropertyValue(PropertyIdentifier.pulseRate, null, new UnsignedInteger(51), null));
         a.writeProperty(null, new PropertyValue(PropertyIdentifier.reliability, null, Reliability.overRange, null));
@@ -369,7 +369,7 @@ public class AccumulatorObjectTest {
 
         // Set up the notification destination
         final SequenceOf<Destination> recipients = nc.get(PropertyIdentifier.recipientList);
-        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), new Boolean(true),
+        recipients.add(new Destination(new Recipient(rd2.getAddress()), new UnsignedInteger(10), Boolean.TRUE,
                 new EventTransitionBits(true, true, true)));
 
         // Create an event listener on d2 to catch the event notifications.
@@ -400,7 +400,7 @@ public class AccumulatorObjectTest {
         assertEquals(EventType.unsignedRange, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.normal, notif.get("fromState"));
         assertEquals(EventState.highLimit, notif.get("toState"));
         assertEquals(
@@ -428,7 +428,7 @@ public class AccumulatorObjectTest {
         assertEquals(EventType.changeOfReliability, notif.get("eventType"));
         assertEquals(null, notif.get("messageText"));
         assertEquals(NotifyType.alarm, notif.get("notifyType"));
-        assertEquals(new Boolean(true), notif.get("ackRequired"));
+        assertEquals(Boolean.TRUE, notif.get("ackRequired"));
         assertEquals(EventState.highLimit, notif.get("fromState"));
         assertEquals(EventState.fault, notif.get("toState"));
         assertEquals(

@@ -164,6 +164,6 @@ public class CalendarObject extends BACnetObject {
             }
         }
 
-        writePropertyInternal(PropertyIdentifier.presentValue, new Boolean(match));
+        writePropertyInternal(PropertyIdentifier.presentValue, Boolean.valueOf(match));
     }
 }
