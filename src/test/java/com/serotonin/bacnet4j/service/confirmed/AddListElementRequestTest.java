@@ -94,7 +94,7 @@ public class AddListElementRequestTest {
                 () -> new AddListElementRequest( //
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.forId(5555), //
-                        new UnsignedInteger(0), //
+                        UnsignedInteger.ZERO, //
                         new SequenceOf<>(new ObjectIdentifier(ObjectType.device, 2)) //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidArrayIndex);
 

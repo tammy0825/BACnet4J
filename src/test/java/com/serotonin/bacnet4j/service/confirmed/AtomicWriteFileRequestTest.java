@@ -188,7 +188,7 @@ public class AtomicWriteFileRequestTest {
         TestUtils.assertRequestHandleException(() -> {
             new AtomicWriteFileRequest(f.getId(),
                     new com.serotonin.bacnet4j.service.confirmed.AtomicWriteFileRequest.RecordAccess(
-                            new SignedInteger(-2), new UnsignedInteger(0),
+                            new SignedInteger(-2), UnsignedInteger.ZERO,
                             new SequenceOf<>(new OctetString(new byte[0])))).handle(d1, null);
         }, ErrorClass.object, ErrorCode.invalidFileStartPosition);
 

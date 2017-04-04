@@ -450,19 +450,19 @@ public class AccumulatorObjectTest {
 
     @Test
     public void valueSet() throws Exception {
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.presentValue));
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueBeforeChange));
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueSet));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.presentValue));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.valueBeforeChange));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.valueSet));
         assertEquals(DateTime.UNSPECIFIED, a.get(PropertyIdentifier.valueChangeTime));
 
         //
         // The object defaults to read only. Ensure that the properties cannot be written.
         TestUtils.assertBACnetServiceException(
                 () -> a.writeProperty(null,
-                        new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0))),
+                        new PropertyValue(PropertyIdentifier.valueBeforeChange, UnsignedInteger.ZERO)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
         TestUtils.assertBACnetServiceException(
-                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(0))),
+                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, UnsignedInteger.ZERO)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         //
@@ -470,13 +470,13 @@ public class AccumulatorObjectTest {
         a.supportValueWrite(ValueSetWrite.valueBeforeChange);
 
         TestUtils.assertBACnetServiceException(
-                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(0))),
+                () -> a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, UnsignedInteger.ZERO)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(7)));
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.presentValue));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.presentValue));
         assertEquals(new UnsignedInteger(7), a.get(PropertyIdentifier.valueBeforeChange));
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueSet));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.valueSet));
         assertEquals(new DateTime(d1), a.get(PropertyIdentifier.valueChangeTime));
 
         //
@@ -485,12 +485,12 @@ public class AccumulatorObjectTest {
 
         TestUtils.assertBACnetServiceException(
                 () -> a.writeProperty(null,
-                        new PropertyValue(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0))),
+                        new PropertyValue(PropertyIdentifier.valueBeforeChange, UnsignedInteger.ZERO)),
                 ErrorClass.property, ErrorCode.writeAccessDenied);
 
         a.writeProperty(null, new PropertyValue(PropertyIdentifier.valueSet, new UnsignedInteger(13)));
         assertEquals(new UnsignedInteger(13), a.get(PropertyIdentifier.presentValue));
-        assertEquals(new UnsignedInteger(0), a.get(PropertyIdentifier.valueBeforeChange));
+        assertEquals(UnsignedInteger.ZERO, a.get(PropertyIdentifier.valueBeforeChange));
         assertEquals(new UnsignedInteger(13), a.get(PropertyIdentifier.valueSet));
         assertEquals(new DateTime(d1), a.get(PropertyIdentifier.valueChangeTime));
     }

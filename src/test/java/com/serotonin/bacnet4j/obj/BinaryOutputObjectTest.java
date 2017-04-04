@@ -372,7 +372,7 @@ public class BinaryOutputObjectTest {
         obj.supportActiveTime(true);
 
         clock.plusMillis(3500);
-        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.elapsedActiveTime));
         assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
@@ -405,8 +405,8 @@ public class BinaryOutputObjectTest {
         assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         clock.plusMillis(1234);
-        obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(0));
-        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
+        obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, UnsignedInteger.ZERO);
+        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.elapsedActiveTime));
         assertEquals(new DateTime(d1), obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
     }
 
@@ -414,7 +414,7 @@ public class BinaryOutputObjectTest {
     public void stateChanges() throws Exception {
         final DateTime start = new DateTime(d1);
         assertEquals(DateTime.UNSPECIFIED, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.changeOfStateCount));
         assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(4);
@@ -447,9 +447,9 @@ public class BinaryOutputObjectTest {
 
         clock.plusMinutes(8);
         final DateTime t3 = new DateTime(d1);
-        obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(0));
+        obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, UnsignedInteger.ZERO);
         assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(0), obj.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.changeOfStateCount));
         assertEquals(t3, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
     }
 

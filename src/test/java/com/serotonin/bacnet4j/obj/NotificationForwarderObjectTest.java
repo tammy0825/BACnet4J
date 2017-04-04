@@ -188,9 +188,9 @@ public class NotificationForwarderObjectTest {
         new RemoveListElementRequest(nf.getId(), PropertyIdentifier.subscribedRecipients, null,
                 new SequenceOf<>(
                         new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(1), Boolean.FALSE,
-                                new UnsignedInteger(0)),
+                                UnsignedInteger.ZERO),
                         new EventNotificationSubscription(new Recipient(d3.getId()), new Unsigned32(2), Boolean.TRUE,
-                                new UnsignedInteger(0)),
+                                UnsignedInteger.ZERO),
                         new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4), Boolean.TRUE,
                                 new UnsignedInteger(36)))).handle(d1, null);
         enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);

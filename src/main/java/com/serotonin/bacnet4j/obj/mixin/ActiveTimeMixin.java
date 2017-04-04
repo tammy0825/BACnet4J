@@ -30,7 +30,7 @@ public class ActiveTimeMixin extends AbstractMixin {
         super(bo);
 
         // Default the values.
-        writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.elapsedActiveTime, UnsignedInteger.ZERO);
         writePropertyInternal(PropertyIdentifier.timeOfActiveTimeReset, new DateTime(getLocalDevice()));
 
         if (useFeedback) {

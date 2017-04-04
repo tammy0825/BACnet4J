@@ -64,7 +64,7 @@ public class PulseConverterObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         writePropertyInternal(PropertyIdentifier.adjustValue, new Real(0));
         writePropertyInternal(PropertyIdentifier.countChangeTime, DateTime.UNSPECIFIED);
-        writePropertyInternal(PropertyIdentifier.countBeforeChange, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.countBeforeChange, UnsignedInteger.ZERO);
 
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
@@ -106,7 +106,7 @@ public class PulseConverterObject extends BACnetObject {
 
     public PulseConverterObject supportCovReporting(final float covIncrement) {
         // TODO cov-period
-        writePropertyInternal(PropertyIdentifier.covPeriod, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.covPeriod, UnsignedInteger.ZERO);
         _supportCovReporting(new Real(covIncrement));
         return this;
     }

@@ -227,9 +227,9 @@ public class DeviceTest {
 
         assertEquals(1, listener.notifs.size());
         final Map<String, Object> notif = listener.notifs.remove(0);
-        assertEquals(new UnsignedInteger(0), notif.get("subscriberProcessIdentifier"));
+        assertEquals(UnsignedInteger.ZERO, notif.get("subscriberProcessIdentifier"));
         assertEquals(d1.getId(), notif.get("monitoredObjectIdentifier"));
-        assertEquals(new UnsignedInteger(0), notif.get("timeRemaining"));
+        assertEquals(UnsignedInteger.ZERO, notif.get("timeRemaining"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(
                 new SequenceOf<>(new PropertyValue(PropertyIdentifier.systemStatus, DeviceStatus.operational),

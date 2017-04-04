@@ -95,11 +95,11 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         final BACnetObject obj = localDevice.getObject(objectIdentifier);
         if (obj == null)
-            throw createException(ErrorClass.object, ErrorCode.unknownObject, new UnsignedInteger(0));
+            throw createException(ErrorClass.object, ErrorCode.unknownObject, UnsignedInteger.ZERO);
 
         final PropertyValue pv = new PropertyValue(propertyIdentifier, propertyArrayIndex, listOfElements, null);
         if (!localDevice.getEventHandler().checkAllowPropertyWrite(from, obj, pv))
-            throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, new UnsignedInteger(0));
+            throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, UnsignedInteger.ZERO);
 
         ObjectPropertyTypeDefinition def = ObjectProperties
                 .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
@@ -108,21 +108,21 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
         try {
             e = obj.getPropertyRequired(propertyIdentifier);
         } catch (final BACnetServiceException ex) {
-            throw createException(ex.getErrorClass(), ex.getErrorCode(), new UnsignedInteger(0));
+            throw createException(ex.getErrorClass(), ex.getErrorCode(), UnsignedInteger.ZERO);
         }
 
         BACnetArray<Encodable> array = null;
         if (propertyArrayIndex != null) {
             // The property must be an array.
             if (!(e instanceof BACnetArray))
-                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAnArray, new UnsignedInteger(0));
+                throw createException(ErrorClass.property, ErrorCode.propertyIsNotAnArray, UnsignedInteger.ZERO);
 
             array = (BACnetArray<Encodable>) e;
 
             // Check the requested index.
             final int index = propertyArrayIndex.intValue();
             if (index < 1 || index > array.getCount())
-                throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, new UnsignedInteger(0));
+                throw createException(ErrorClass.property, ErrorCode.invalidArrayIndex, UnsignedInteger.ZERO);
 
             e = array.getBase1(index);
             if (e == null)
@@ -135,9 +135,9 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
 
         // The value we end up with must be a list.
         if (!(e instanceof SequenceOf))
-            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, UnsignedInteger.ZERO);
         if (e instanceof BACnetArray)
-            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, new UnsignedInteger(0));
+            throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, UnsignedInteger.ZERO);
 
         final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
         final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());

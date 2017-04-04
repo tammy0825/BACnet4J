@@ -161,7 +161,7 @@ public class EventLogObjectTest {
         assertEquals(new UnsignedInteger(4), el.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(4), el.get(PropertyIdentifier.totalRecordCount));
         assertEquals(new UnsignedInteger(4), el.get(PropertyIdentifier.recordsSinceNotification));
-        assertEquals(new UnsignedInteger(0), el.get(PropertyIdentifier.lastNotifyRecord));
+        assertEquals(UnsignedInteger.ZERO, el.get(PropertyIdentifier.lastNotifyRecord));
 
         //
         // Write one more and make sure a notification was received.
@@ -185,13 +185,13 @@ public class EventLogObjectTest {
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, el.getId(), PropertyIdentifier.logBuffer),
-                        new UnsignedInteger(0), new UnsignedInteger(5))),
+                        UnsignedInteger.ZERO, new UnsignedInteger(5))),
                 notif.get("eventValues"));
 
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(5), el.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(5), el.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), el.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, el.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(5), el.get(PropertyIdentifier.lastNotifyRecord));
 
         //
@@ -226,7 +226,7 @@ public class EventLogObjectTest {
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(10), el.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(10), el.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), el.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, el.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(10), el.get(PropertyIdentifier.lastNotifyRecord));
 
         //
@@ -263,7 +263,7 @@ public class EventLogObjectTest {
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(15), el.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(3), el.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), el.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, el.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(3), el.get(PropertyIdentifier.lastNotifyRecord));
     }
 
@@ -278,7 +278,7 @@ public class EventLogObjectTest {
         final DeviceObjectPropertyReference ref = new DeviceObjectPropertyReference(el.getId(),
                 PropertyIdentifier.totalRecordCount, null, d1.getId());
         final EventEnrollmentObject ee = new EventEnrollmentObject(d1, 0, "ee", ref, NotifyType.event,
-                new EventParameter(new BufferReady(new UnsignedInteger(3), new UnsignedInteger(0))),
+                new EventParameter(new BufferReady(new UnsignedInteger(3), UnsignedInteger.ZERO)),
                 new EventTransitionBits(true, true, true), 23, 1000, null, null);
 
         // Set d2 as an event recipient.
@@ -322,7 +322,7 @@ public class EventLogObjectTest {
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, el.getId(), PropertyIdentifier.logBuffer),
-                        new UnsignedInteger(0), new UnsignedInteger(3))),
+                        UnsignedInteger.ZERO, new UnsignedInteger(3))),
                 notif.get("eventValues"));
 
         // Trigger another batch of updates. One notification should be sent.
@@ -549,7 +549,7 @@ public class EventLogObjectTest {
         }, ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Set the record count to zero. There should be one log status record.
-        el.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, new UnsignedInteger(0)));
+        el.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, UnsignedInteger.ZERO));
         assertEquals(1, el.getBuffer().size());
         assertEquals(new LogStatus(false, true, false), el.getBuffer().get(0).getLogStatus());
     }

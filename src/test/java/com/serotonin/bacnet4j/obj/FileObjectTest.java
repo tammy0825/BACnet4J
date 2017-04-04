@@ -57,8 +57,8 @@ public class FileObjectTest {
         // Write a zero file size.
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
-            f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(0));
-            assertEquals(new UnsignedInteger(0), f.getProperty(PropertyIdentifier.fileSize, null));
+            f.writeProperty(null, PropertyIdentifier.fileSize, UnsignedInteger.ZERO);
+            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -92,9 +92,9 @@ public class FileObjectTest {
         // Write a zero record count.
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
-            f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(0));
-            assertEquals(new UnsignedInteger(0), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(0), f.getProperty(PropertyIdentifier.fileSize, null));
+            f.writeProperty(null, PropertyIdentifier.fileSize, UnsignedInteger.ZERO);
+            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -167,7 +167,7 @@ public class FileObjectTest {
     public void streamWriteRecordCount() throws Exception {
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(new File(path)));
         TestUtils.assertBACnetServiceException(() -> {
-            f.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, new UnsignedInteger(0)));
+            f.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, UnsignedInteger.ZERO));
         }, ErrorClass.property, ErrorCode.writeAccessDenied);
     }
 
@@ -176,9 +176,9 @@ public class FileObjectTest {
         // Write a zero record count.
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
-            f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(0));
-            assertEquals(new UnsignedInteger(0), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(0), f.getProperty(PropertyIdentifier.fileSize, null));
+            f.writeProperty(null, PropertyIdentifier.recordCount, UnsignedInteger.ZERO);
+            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 

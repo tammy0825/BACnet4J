@@ -95,10 +95,10 @@ public class TrendLogObject extends BACnetObject {
         set(PropertyIdentifier.stopWhenFull, Boolean.valueOf(stopWhenFull));
         set(PropertyIdentifier.bufferSize, new UnsignedInteger(bufferSize));
         set(PropertyIdentifier.logBuffer, buffer);
-        set(PropertyIdentifier.recordCount, new UnsignedInteger(0));
-        set(PropertyIdentifier.totalRecordCount, new UnsignedInteger(0));
+        set(PropertyIdentifier.recordCount, UnsignedInteger.ZERO);
+        set(PropertyIdentifier.totalRecordCount, UnsignedInteger.ZERO);
         set(PropertyIdentifier.alignIntervals, Boolean.TRUE);
-        set(PropertyIdentifier.intervalOffset, new UnsignedInteger(0));
+        set(PropertyIdentifier.intervalOffset, UnsignedInteger.ZERO);
         set(PropertyIdentifier.trigger, Boolean.FALSE);
         set(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false));
         set(PropertyIdentifier.reliability, Reliability.noFaultDetected);
@@ -154,8 +154,8 @@ public class TrendLogObject extends BACnetObject {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
         writePropertyInternal(PropertyIdentifier.notificationThreshold, new UnsignedInteger(notificationThreshold));
-        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
-        writePropertyInternal(PropertyIdentifier.lastNotifyRecord, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, UnsignedInteger.ZERO);
+        writePropertyInternal(PropertyIdentifier.lastNotifyRecord, UnsignedInteger.ZERO);
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
@@ -178,7 +178,7 @@ public class TrendLogObject extends BACnetObject {
                         // After a notification has been sent, a couple values need to be updated.
                         final BufferReadyNotif brn = (BufferReadyNotif) notifParams.getParameter();
                         writePropertyInternal(PropertyIdentifier.lastNotifyRecord, brn.getCurrentNotification());
-                        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
+                        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, UnsignedInteger.ZERO);
                     }
                 }));
 
@@ -352,7 +352,7 @@ public class TrendLogObject extends BACnetObject {
         synchronized (buffer) {
             buffer.clear();
         }
-        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.recordsSinceNotification, UnsignedInteger.ZERO);
         addLogRecordImpl(new LogRecord(getNow(), new LogStatus(logDisabled, true, false), null));
     }
 
@@ -495,7 +495,7 @@ public class TrendLogObject extends BACnetObject {
 
         } else if (loggingType.equals(LoggingType.cov)) {
             final DeviceObjectPropertyReference monitored = get(PropertyIdentifier.logDeviceObjectProperty);
-            set(PropertyIdentifier.logInterval, new UnsignedInteger(0));
+            set(PropertyIdentifier.logInterval, UnsignedInteger.ZERO);
 
             final UnsignedInteger covResubscriptionInterval = get(PropertyIdentifier.covResubscriptionInterval);
             final int resubscribeSeconds = covResubscriptionInterval.intValue();
@@ -585,7 +585,7 @@ public class TrendLogObject extends BACnetObject {
             }
 
         } else if (loggingType.equals(LoggingType.triggered)) {
-            set(PropertyIdentifier.logInterval, new UnsignedInteger(0));
+            set(PropertyIdentifier.logInterval, UnsignedInteger.ZERO);
         }
 
         updateConfigurationError(false);

@@ -23,7 +23,7 @@ public class StateChangeMixin extends AbstractMixin {
 
         // Default the values.
         writePropertyInternal(PropertyIdentifier.changeOfStateTime, DateTime.UNSPECIFIED);
-        writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.changeOfStateCount, UnsignedInteger.ZERO);
         writePropertyInternal(PropertyIdentifier.timeOfStateCountReset, new DateTime(getLocalDevice()));
     }
 

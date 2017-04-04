@@ -248,7 +248,7 @@ public class BinaryInputObjectTest {
         bi.supportActiveTime();
 
         clock.plusMillis(3500);
-        assertEquals(new UnsignedInteger(0), bi.getProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(UnsignedInteger.ZERO, bi.getProperty(PropertyIdentifier.elapsedActiveTime));
         assertEquals(start, bi.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         bi.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
@@ -281,8 +281,8 @@ public class BinaryInputObjectTest {
         assertEquals(start, bi.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         clock.plusMillis(1234);
-        bi.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(0));
-        assertEquals(new UnsignedInteger(0), bi.getProperty(PropertyIdentifier.elapsedActiveTime));
+        bi.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, UnsignedInteger.ZERO);
+        assertEquals(UnsignedInteger.ZERO, bi.getProperty(PropertyIdentifier.elapsedActiveTime));
         assertEquals(new DateTime(d1), bi.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
     }
 
@@ -290,7 +290,7 @@ public class BinaryInputObjectTest {
     public void stateChanges() throws Exception {
         final DateTime start = new DateTime(d1);
         assertEquals(DateTime.UNSPECIFIED, bi.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(0), bi.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(UnsignedInteger.ZERO, bi.getProperty(PropertyIdentifier.changeOfStateCount));
         assertEquals(start, bi.getProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(4);
@@ -323,9 +323,9 @@ public class BinaryInputObjectTest {
 
         clock.plusMinutes(8);
         final DateTime t3 = new DateTime(d1);
-        bi.writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(0));
+        bi.writePropertyInternal(PropertyIdentifier.changeOfStateCount, UnsignedInteger.ZERO);
         assertEquals(t2, bi.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(0), bi.getProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(UnsignedInteger.ZERO, bi.getProperty(PropertyIdentifier.changeOfStateCount));
         assertEquals(t3, bi.getProperty(PropertyIdentifier.timeOfStateCountReset));
     }
 

@@ -194,7 +194,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
             if (ack == null) {
                 // Assume no results to return.
                 ack = new ReadRangeAck(objectIdentifier, propertyIdentifier, propertyArrayIndex,
-                        new ResultFlags(false, false, false), new UnsignedInteger(0), new SequenceOf<>(), null);
+                        new ResultFlags(false, false, false), UnsignedInteger.ZERO, new SequenceOf<>(), null);
             }
             return ack;
         } catch (final BACnetServiceException e) {

@@ -186,7 +186,7 @@ public class RequestUtils {
 
                     // ... then try getting it by sending requests for indices. Find out how many there are.
                     final int len = ((UnsignedInteger) sendReadPropertyAllowNull(localDevice, d, oid, pid,
-                            new UnsignedInteger(0), null)).intValue();
+                            UnsignedInteger.ZERO, null)).intValue();
 
                     // Create a list of individual property references.
                     final PropertyReferences refs = new PropertyReferences();

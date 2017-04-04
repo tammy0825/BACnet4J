@@ -395,25 +395,25 @@ public class ChangeOfValueTest {
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(5)),
                         new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
-                        new UnsignedInteger(0), null),
+                        UnsignedInteger.ZERO, null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(6)),
                         new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(7)),
                         new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
-                        new UnsignedInteger(0), null),
+                        UnsignedInteger.ZERO, null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(4)),
                         new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(5)),
                         new ObjectPropertyReference(av0.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
-                        new UnsignedInteger(0), null),
+                        UnsignedInteger.ZERO, null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(6)),
                         new ObjectPropertyReference(av1.getId(), PropertyIdentifier.statusFlags), Boolean.FALSE,
                         new UnsignedInteger(360), null),
                 new CovSubscription(new RecipientProcess(new Recipient(rd3.getAddress()), new UnsignedInteger(7)),
                         new ObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue), Boolean.FALSE,
-                        new UnsignedInteger(0), null));
+                        UnsignedInteger.ZERO, null));
 
         TestUtils.assertListEqualsIgnoreOrder(expectedList, deviceList.getValues());
 
@@ -500,13 +500,13 @@ public class ChangeOfValueTest {
         clock.plusSeconds(12);
         deviceList = d1.getDeviceObject().getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(new UnsignedInteger(348), deviceList.getBase1(1).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.getBase1(2).getTimeRemaining());
+        assertEquals(UnsignedInteger.ZERO, deviceList.getBase1(2).getTimeRemaining());
         assertEquals(new UnsignedInteger(348), deviceList.getBase1(3).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.getBase1(4).getTimeRemaining());
+        assertEquals(UnsignedInteger.ZERO, deviceList.getBase1(4).getTimeRemaining());
         assertEquals(new UnsignedInteger(348), deviceList.getBase1(5).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.getBase1(6).getTimeRemaining());
+        assertEquals(UnsignedInteger.ZERO, deviceList.getBase1(6).getTimeRemaining());
         assertEquals(new UnsignedInteger(348), deviceList.getBase1(7).getTimeRemaining());
-        assertEquals(new UnsignedInteger(0), deviceList.getBase1(8).getTimeRemaining());
+        assertEquals(UnsignedInteger.ZERO, deviceList.getBase1(8).getTimeRemaining());
 
         // Cancel the subscriptions
         d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), null, //

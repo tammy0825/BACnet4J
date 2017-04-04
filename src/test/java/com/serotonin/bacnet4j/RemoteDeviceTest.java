@@ -57,12 +57,12 @@ public class RemoteDeviceTest {
         final ObjectIdentifier ai5 = new ObjectIdentifier(ObjectType.analogInput, 4);
 
         assertNull(rd.getDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(3)));
-        assertNull(rd.getDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(0)));
+        assertNull(rd.getDeviceProperty(PropertyIdentifier.objectList, UnsignedInteger.ZERO));
 
-        rd.setDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(0), new UnsignedInteger(5));
+        rd.setDeviceProperty(PropertyIdentifier.objectList, UnsignedInteger.ZERO, new UnsignedInteger(5));
         rd.setDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(3), ai3);
 
-        assertNull(rd.getDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(0)));
+        assertNull(rd.getDeviceProperty(PropertyIdentifier.objectList, UnsignedInteger.ZERO));
         assertEquals(ai3, rd.getDeviceProperty(PropertyIdentifier.objectList, new UnsignedInteger(3)));
 
         final SequenceOf<ObjectIdentifier> objectList = rd.getDeviceProperty(PropertyIdentifier.objectList);

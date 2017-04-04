@@ -33,6 +33,7 @@ import java.math.BigInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class UnsignedInteger extends Primitive {
+    public static final UnsignedInteger ZERO = new UnsignedInteger(0);
     public static final byte TYPE_ID = 2;
 
     private int smallValue;

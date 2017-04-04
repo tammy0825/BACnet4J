@@ -63,7 +63,7 @@ public class AccumulatorObject extends BACnetObject {
         Objects.requireNonNull(scale);
 
         writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(presentValue));
-        writePropertyInternal(PropertyIdentifier.pulseRate, new UnsignedInteger(0));
+        writePropertyInternal(PropertyIdentifier.pulseRate, UnsignedInteger.ZERO);
         writePropertyInternal(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, outOfService));
         writePropertyInternal(PropertyIdentifier.eventState, EventState.normal);
         writePropertyInternal(PropertyIdentifier.units, units);
@@ -74,8 +74,8 @@ public class AccumulatorObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.maxPresValue, new UnsignedInteger(maxPresValue));
         writePropertyInternal(PropertyIdentifier.limitMonitoringInterval, new UnsignedInteger(limitMonitoringInterval));
         set(PropertyIdentifier.valueChangeTime, DateTime.UNSPECIFIED);
-        set(PropertyIdentifier.valueBeforeChange, new UnsignedInteger(0));
-        set(PropertyIdentifier.valueSet, new UnsignedInteger(0));
+        set(PropertyIdentifier.valueBeforeChange, UnsignedInteger.ZERO);
+        set(PropertyIdentifier.valueSet, UnsignedInteger.ZERO);
 
         this.accumulation = accumulation;
 

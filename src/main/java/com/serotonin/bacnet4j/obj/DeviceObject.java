@@ -184,7 +184,7 @@ public class DeviceObject extends BACnetObject {
         UnsignedInteger databaseRevision = getLocalDevice().getPersistence()
                 .loadEncodable(getPersistenceKey(PropertyIdentifier.databaseRevision), UnsignedInteger.class);
         if (databaseRevision == null)
-            databaseRevision = new UnsignedInteger(0);
+            databaseRevision = UnsignedInteger.ZERO;
         writePropertyInternal(PropertyIdentifier.databaseRevision, databaseRevision);
 
         writePropertyInternal(PropertyIdentifier.timeOfDeviceRestart, new TimeStamp(new DateTime(getLocalDevice())));

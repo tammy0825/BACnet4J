@@ -351,7 +351,7 @@ public class CommandableMixinTest {
         // Try to write to priority 0, which will fail.
         TestUtils.assertBACnetServiceException(() -> {
             bo.writeProperty(createValueSource(0),
-                    new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, new UnsignedInteger(0)));
+                    new PropertyValue(PropertyIdentifier.presentValue, null, BinaryPV.active, UnsignedInteger.ZERO));
         }, ErrorClass.property, ErrorCode.invalidArrayIndex);
 
         // Try to write to priority 17, which will fail.

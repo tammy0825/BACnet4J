@@ -199,7 +199,7 @@ public class AnnexFEncodingTest {
 
         final ConfirmedCovNotificationRequest confirmedCovNotification = new ConfirmedCovNotificationRequest(
                 new UnsignedInteger(18), new ObjectIdentifier(ObjectType.device, 4),
-                new ObjectIdentifier(ObjectType.analogInput, 10), new UnsignedInteger(0), listOfValues);
+                new ObjectIdentifier(ObjectType.analogInput, 10), UnsignedInteger.ZERO, listOfValues);
 
         final ConfirmedRequest pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED,
                 MaxApduLength.UP_TO_206, (byte) 15, (byte) 0, 0, confirmedCovNotification);
@@ -224,7 +224,7 @@ public class AnnexFEncodingTest {
 
         final UnconfirmedCovNotificationRequest unconfirmedCovNotificationRequest = new UnconfirmedCovNotificationRequest(
                 new UnsignedInteger(18), new ObjectIdentifier(ObjectType.device, 4),
-                new ObjectIdentifier(ObjectType.analogInput, 10), new UnsignedInteger(0), listOfValues);
+                new ObjectIdentifier(ObjectType.analogInput, 10), UnsignedInteger.ZERO, listOfValues);
 
         final UnconfirmedRequest pdu = new UnconfirmedRequest(unconfirmedCovNotificationRequest);
 
@@ -444,7 +444,7 @@ public class AnnexFEncodingTest {
     @Test
     public void e1_10aTest() {
         final SubscribeCOVRequest subscribeCOVRequest = new SubscribeCOVRequest(new UnsignedInteger(18),
-                new ObjectIdentifier(ObjectType.analogInput, 10), Boolean.TRUE, new UnsignedInteger(0));
+                new ObjectIdentifier(ObjectType.analogInput, 10), Boolean.TRUE, UnsignedInteger.ZERO);
 
         final ConfirmedRequest pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED,
                 MaxApduLength.UP_TO_206, (byte) 15, (byte) 0, 0, subscribeCOVRequest);
@@ -1164,7 +1164,7 @@ public class AnnexFEncodingTest {
     public void e5_cTest() {
         final byte[] data = "\r\nEnter User Name:".getBytes();
         final ConfirmedRequestService service = new VtDataRequest(new UnsignedInteger(5), new OctetString(data),
-                new UnsignedInteger(0));
+                UnsignedInteger.ZERO);
         final APDU pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED, MaxApduLength.UP_TO_128,
                 (byte) 81, (byte) 0, 0, service);
         compare(pdu, "00015117210565120D0A456E7465722055736572204E616D653A2100");
@@ -1180,7 +1180,7 @@ public class AnnexFEncodingTest {
     @Test
     public void e5_eTest() {
         final ConfirmedRequestService service = new VtDataRequest(new UnsignedInteger(29),
-                new OctetString("FRED\r".getBytes()), new UnsignedInteger(0));
+                new OctetString("FRED\r".getBytes()), UnsignedInteger.ZERO);
         final APDU pdu = new ConfirmedRequest(false, false, false, MaxSegments.UNSPECIFIED, MaxApduLength.UP_TO_128,
                 (byte) 82, (byte) 0, 0, service);
         compare(pdu, "00015217211D6505465245440D2100");

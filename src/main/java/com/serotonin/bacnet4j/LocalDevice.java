@@ -338,7 +338,7 @@ public class LocalDevice {
                     restartNotificationRecipients);
         }
         final UnconfirmedCovNotificationRequest restartNotif = new UnconfirmedCovNotificationRequest(
-                new UnsignedInteger(0), getId(), getId(), new UnsignedInteger(0),
+                UnsignedInteger.ZERO, getId(), getId(), UnsignedInteger.ZERO,
                 new SequenceOf<>(
                         new PropertyValue(PropertyIdentifier.systemStatus,
                                 deviceObject.get(PropertyIdentifier.systemStatus)),

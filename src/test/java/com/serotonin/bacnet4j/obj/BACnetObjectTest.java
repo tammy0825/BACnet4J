@@ -159,7 +159,7 @@ public class BACnetObjectTest {
     public void undefinedArrayWriteElementLowIndexDirect() {
         TestUtils.assertBACnetServiceException(() -> {
             d2.getObject(d2.getId()).writeProperty(null,
-                    new PropertyValue(PropertyIdentifier.forId(6789), new UnsignedInteger(0), new Real(10), null));
+                    new PropertyValue(PropertyIdentifier.forId(6789), UnsignedInteger.ZERO, new Real(10), null));
         }, ErrorClass.property, ErrorCode.invalidArrayIndex);
     }
 

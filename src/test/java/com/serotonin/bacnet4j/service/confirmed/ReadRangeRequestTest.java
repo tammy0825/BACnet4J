@@ -390,7 +390,7 @@ public class ReadRangeRequestTest {
         }, ErrorClass.services, ErrorCode.parameterOutOfRange);
 
         TestUtils.assertRequestHandleException(() -> {
-            new ReadRangeRequest(d1.getId(), pid, new UnsignedInteger(0)).handle(d1, null);
+            new ReadRangeRequest(d1.getId(), pid, UnsignedInteger.ZERO).handle(d1, null);
         }, ErrorClass.services, ErrorCode.parameterOutOfRange);
 
         TestUtils.assertRequestHandleException(() -> {
@@ -408,7 +408,7 @@ public class ReadRangeRequestTest {
 
     @Test
     public void moreValidations() {
-        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new UnsignedInteger(0));
+        d1.writePropertyInternal(PropertyIdentifier.logBuffer, UnsignedInteger.ZERO);
         TestUtils.assertRequestHandleException(() -> {
             new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null).handle(d1, null);
         }, ErrorClass.services, ErrorCode.propertyIsNotAList);
@@ -418,19 +418,19 @@ public class ReadRangeRequestTest {
             new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, new UnsignedInteger(1)).handle(d1, null);
         }, ErrorClass.property, ErrorCode.propertyIsNotAnArray);
 
-        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(new UnsignedInteger(0)));
+        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(UnsignedInteger.ZERO));
         TestUtils.assertRequestHandleException(() -> {
             new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new BySequenceNumber(1, 1)).handle(d1,
                     null);
         }, ErrorClass.property, ErrorCode.datatypeNotSupported);
 
-        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(new UnsignedInteger(0)));
+        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(UnsignedInteger.ZERO));
         TestUtils.assertRequestHandleException(() -> {
             new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(DateTime.UNSPECIFIED, 1))
                     .handle(d1, null);
         }, ErrorClass.property, ErrorCode.datatypeNotSupported);
 
-        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(new UnsignedInteger(0)));
+        d1.writePropertyInternal(PropertyIdentifier.logBuffer, new SequenceOf<>(UnsignedInteger.ZERO));
         TestUtils.assertRequestHandleException(() -> {
             new ReadRangeRequest(d1.getId(), PropertyIdentifier.logBuffer, null, new ByTime(new DateTime(d1), 1))
                     .handle(d1, null);
@@ -473,7 +473,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
     }
@@ -515,7 +515,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
     }
@@ -534,7 +534,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
     }
@@ -576,7 +576,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
 
@@ -588,7 +588,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
     }
@@ -642,7 +642,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
 
@@ -655,7 +655,7 @@ public class ReadRangeRequestTest {
         assertEquals(pid, ack.getPropertyIdentifier());
         assertEquals(null, ack.getPropertyArrayIndex());
         assertEquals(new ResultFlags(false, false, false), ack.getResultFlags());
-        assertEquals(new UnsignedInteger(0), ack.getItemCount());
+        assertEquals(UnsignedInteger.ZERO, ack.getItemCount());
         assertEquals(new SequenceOf<>(), ack.getItemData());
         assertEquals(null, ack.getFirstSequenceNumber());
     }

@@ -268,7 +268,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.totalRecordCount));
         assertEquals(new UnsignedInteger(4), tl.get(PropertyIdentifier.recordsSinceNotification));
-        assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.lastNotifyRecord));
+        assertEquals(UnsignedInteger.ZERO, tl.get(PropertyIdentifier.lastNotifyRecord));
 
         //
         // Write one more and make sure a notification was received.
@@ -292,13 +292,13 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, tl.getId(), PropertyIdentifier.logBuffer),
-                        new UnsignedInteger(0), new UnsignedInteger(5))),
+                        UnsignedInteger.ZERO, new UnsignedInteger(5))),
                 notif.get("eventValues"));
 
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(5), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(5), tl.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, tl.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(5), tl.get(PropertyIdentifier.lastNotifyRecord));
 
         //
@@ -329,7 +329,7 @@ public class TrendLogMultipleObjectTest {
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(10), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(10), tl.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, tl.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(10), tl.get(PropertyIdentifier.lastNotifyRecord));
 
         //
@@ -362,7 +362,7 @@ public class TrendLogMultipleObjectTest {
         // Validate the internally maintained values.
         assertEquals(new UnsignedInteger(15), tl.get(PropertyIdentifier.recordCount));
         assertEquals(new UnsignedInteger(3), tl.get(PropertyIdentifier.totalRecordCount));
-        assertEquals(new UnsignedInteger(0), tl.get(PropertyIdentifier.recordsSinceNotification));
+        assertEquals(UnsignedInteger.ZERO, tl.get(PropertyIdentifier.recordsSinceNotification));
         assertEquals(new UnsignedInteger(3), tl.get(PropertyIdentifier.lastNotifyRecord));
     }
 
@@ -387,7 +387,7 @@ public class TrendLogMultipleObjectTest {
         final DeviceObjectPropertyReference ref = new DeviceObjectPropertyReference(tl.getId(),
                 PropertyIdentifier.totalRecordCount, null, d1.getId());
         final EventEnrollmentObject ee = new EventEnrollmentObject(d1, 0, "ee", ref, NotifyType.event,
-                new EventParameter(new BufferReady(new UnsignedInteger(3), new UnsignedInteger(0))),
+                new EventParameter(new BufferReady(new UnsignedInteger(3), UnsignedInteger.ZERO)),
                 new EventTransitionBits(true, true, true), 23, 1000, null, null);
 
         // Set d2 as an event recipient.
@@ -430,7 +430,7 @@ public class TrendLogMultipleObjectTest {
         assertEquals(EventState.normal, notif.get("toState"));
         assertEquals(new NotificationParameters(
                 new BufferReadyNotif(new DeviceObjectPropertyReference(1, tl.getId(), PropertyIdentifier.logBuffer),
-                        new UnsignedInteger(0), new UnsignedInteger(3))),
+                        UnsignedInteger.ZERO, new UnsignedInteger(3))),
                 notif.get("eventValues"));
 
         // Trigger another batch of updates. One notification should be sent.
@@ -658,7 +658,7 @@ public class TrendLogMultipleObjectTest {
         }, ErrorClass.property, ErrorCode.writeAccessDenied);
 
         // Set the record count to zero. There should be one log status record.
-        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, new UnsignedInteger(0)));
+        tl.writeProperty(null, new PropertyValue(PropertyIdentifier.recordCount, UnsignedInteger.ZERO));
         assertEquals(1, tl.getBuffer().size());
         assertEquals(new LogStatus(false, true, false), tl.getBuffer().get(0).getLogData().getLogStatus());
     }
