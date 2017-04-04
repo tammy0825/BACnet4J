@@ -6,14 +6,21 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
+import com.serotonin.bacnet4j.npdu.test.TestNetwork;
+import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.CovSubscription;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -40,12 +47,49 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.Utils;
 
-public class ChangeOfValueTest extends AbstractTest {
+import lohbihler.warp.WarpClock;
+
+public class ChangeOfValueTest {
     static final Logger LOG = LoggerFactory.getLogger(ChangeOfValueTest.class);
 
-    @Override
+    private final TestNetworkMap map = new TestNetworkMap();
+    private final WarpClock clock = new WarpClock();
+    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 0)))
+            .withClock(clock);
+    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0)))
+            .withClock(clock);
+    private final LocalDevice d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 0)))
+            .withClock(clock);
+    private RemoteDevice rd1;
+    private RemoteDevice rd2;
+    private RemoteDevice rd3;
+
+    @Before
     public void before() throws Exception {
-        // no op
+        d1.initialize();
+        d2.initialize();
+        d3.initialize();
+
+        // Announce d1 to d2.
+        d1.sendGlobalBroadcast(d1.getIAm());
+        d2.sendGlobalBroadcast(d2.getIAm());
+        //        d3.sendGlobalBroadcast(d3.getIAm());
+
+        // Wait a bit
+        Thread.sleep(300);
+
+        // Get d1 as a remote object.
+        rd1 = d2.getRemoteDevice(1).get();
+        rd2 = d1.getRemoteDevice(2).get();
+        rd3 = d1.getRemoteDevice(3).get();
+    }
+
+    @After
+    public void after() {
+        // Shut down
+        d1.terminate();
+        d2.terminate();
+        d3.terminate();
     }
 
     @Test
@@ -127,7 +171,8 @@ public class ChangeOfValueTest extends AbstractTest {
                 new UnsignedInteger(2))).get();
 
         // Ensure the subscription is in the device's list.
-        final SequenceOf<CovSubscription> deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
+        final SequenceOf<CovSubscription> deviceList = d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
@@ -200,7 +245,7 @@ public class ChangeOfValueTest extends AbstractTest {
                 notif.get("listOfValues"));
 
         // Wait until the subscription expires and write a change that would trigger a notification.
-        Thread.sleep(2000);
+        clock.plusSeconds(3);
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(40));
         Thread.sleep(100);
         assertEquals(0, listener.notifs.size());
@@ -220,7 +265,8 @@ public class ChangeOfValueTest extends AbstractTest {
                 .get();
 
         // Ensure the subscription is in the device's list.
-        SequenceOf<CovSubscription> deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
+        SequenceOf<CovSubscription> deviceList = d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
@@ -234,7 +280,7 @@ public class ChangeOfValueTest extends AbstractTest {
         d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(4), av.getId(), null, null)).get();
 
         // Ensure the subscription is gone from the device's list.
-        deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
+        deviceList = d1.getDeviceObject().getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(0, deviceList.getCount());
     }
 
@@ -251,7 +297,8 @@ public class ChangeOfValueTest extends AbstractTest {
                 new UnsignedInteger(2), new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
 
         // Ensure the subscription is in the device's list.
-        final SequenceOf<CovSubscription> deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
+        final SequenceOf<CovSubscription> deviceList = d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, deviceList.getCount());
         final CovSubscription subscription = deviceList.getBase1(1);
         assertEquals(null, subscription.getCovIncrement());
@@ -341,7 +388,8 @@ public class ChangeOfValueTest extends AbstractTest {
                 null)).get();
 
         // Ensure the subscriptions are in the device's list.
-        SequenceOf<CovSubscription> deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
+        SequenceOf<CovSubscription> deviceList = d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions);
         final List<CovSubscription> expectedList = Utils.toList(
                 new CovSubscription(new RecipientProcess(new Recipient(rd2.getAddress()), new UnsignedInteger(4)),
                         new ObjectPropertyReference(av0.getId(), PropertyIdentifier.statusFlags), new Boolean(false),
@@ -450,49 +498,57 @@ public class ChangeOfValueTest extends AbstractTest {
                 listener3.notifs.get(3).get("listOfValues"));
 
         // Wait a bit and make sure the remaining times were updated.
-        Thread.sleep(1000);
-        deviceList = d1.get(PropertyIdentifier.activeCovSubscriptions);
-        assertEquals(new UnsignedInteger(359), deviceList.getBase1(1).getTimeRemaining());
+        clock.plusSeconds(12);
+        deviceList = d1.getDeviceObject().getProperty(PropertyIdentifier.activeCovSubscriptions);
+        assertEquals(new UnsignedInteger(348), deviceList.getBase1(1).getTimeRemaining());
         assertEquals(new UnsignedInteger(0), deviceList.getBase1(2).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.getBase1(3).getTimeRemaining());
+        assertEquals(new UnsignedInteger(348), deviceList.getBase1(3).getTimeRemaining());
         assertEquals(new UnsignedInteger(0), deviceList.getBase1(4).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.getBase1(5).getTimeRemaining());
+        assertEquals(new UnsignedInteger(348), deviceList.getBase1(5).getTimeRemaining());
         assertEquals(new UnsignedInteger(0), deviceList.getBase1(6).getTimeRemaining());
-        assertEquals(new UnsignedInteger(359), deviceList.getBase1(7).getTimeRemaining());
+        assertEquals(new UnsignedInteger(348), deviceList.getBase1(7).getTimeRemaining());
         assertEquals(new UnsignedInteger(0), deviceList.getBase1(8).getTimeRemaining());
 
         // Cancel the subscriptions
         d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), null, //
                 null, new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        assertEquals(7, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(7, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), null, //
                 null)).get();
-        assertEquals(6, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(6, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), null, //
                 null, new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        assertEquals(5, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(5, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d2.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), null, //
                 null)).get();
-        assertEquals(4, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(4, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(4), av0.getId(), null, //
                 null, new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        assertEquals(3, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(3, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(5), av0.getId(), null, //
                 null)).get();
-        assertEquals(2, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(2, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d3.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(6), av1.getId(), null, //
                 null, new PropertyReference(PropertyIdentifier.statusFlags), null)).get();
-        assertEquals(1, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(1, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
 
         d3.send(rd1, new SubscribeCOVRequest(new UnsignedInteger(7), av1.getId(), null, //
                 null)).get();
-        assertEquals(0, ((SequenceOf<CovSubscription>) d1.get(PropertyIdentifier.activeCovSubscriptions)).getCount());
+        assertEquals(0, ((SequenceOf<CovSubscription>) d1.getDeviceObject()
+                .getProperty(PropertyIdentifier.activeCovSubscriptions)).getCount());
     }
 
     @Test
