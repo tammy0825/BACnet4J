@@ -120,9 +120,10 @@ public class TrendLogMultipleObjectTest {
 
         //
         // Advance the clock to the polling time.
-        LOG.info("start");
+        LOG.debug("start: {}", clock.instant());
         final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60;
         clock.plus(seconds, SECONDS, 300);
+        LOG.debug("poll: {}", clock.instant());
 
         assertEquals(1, tl.getBuffer().size());
         final LogMultipleRecord record0 = tl.getBuffer().get(0);
@@ -142,6 +143,7 @@ public class TrendLogMultipleObjectTest {
 
         // Advance the clock another minute to poll again
         clock.plus(1, MINUTES, 100);
+        LOG.debug("poll: {}", clock.instant());
 
         assertEquals(2, tl.getBuffer().size());
         final LogMultipleRecord record1 = tl.getBuffer().get(1);
@@ -164,6 +166,7 @@ public class TrendLogMultipleObjectTest {
         // Advance the clock to the new polling time.
         final int minutes = (62 - clock.get(ChronoField.MINUTE_OF_HOUR)) % 60;
         clock.plus(minutes, MINUTES, 100);
+        LOG.debug("poll: {}", clock.instant());
 
         assertEquals(3, tl.getBuffer().size());
         final LogMultipleRecord record2 = tl.getBuffer().get(2);
