@@ -181,8 +181,8 @@ public class DeviceObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
         writePropertyInternal(PropertyIdentifier.protocolRevision, new UnsignedInteger(19));
 
-        UnsignedInteger databaseRevision = getLocalDevice().getPersistence().loadEncodable("databaseRevision",
-                UnsignedInteger.class);
+        UnsignedInteger databaseRevision = getLocalDevice().getPersistence()
+                .loadEncodable(getPersistenceKey(PropertyIdentifier.databaseRevision), UnsignedInteger.class);
         if (databaseRevision == null)
             databaseRevision = new UnsignedInteger(0);
         writePropertyInternal(PropertyIdentifier.databaseRevision, databaseRevision);
@@ -259,7 +259,8 @@ public class DeviceObject extends BACnetObject {
             final Encodable newValue) {
         if (pid.equals(PropertyIdentifier.restartNotificationRecipients)) {
             // Persist the new list.
-            getLocalDevice().getPersistence().saveEncodable("restartNotificationRecipients", newValue);
+            getLocalDevice().getPersistence()
+                    .saveEncodable(getPersistenceKey(PropertyIdentifier.restartNotificationRecipients), newValue);
         }
     }
 }

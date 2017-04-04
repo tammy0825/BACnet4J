@@ -320,8 +320,8 @@ public class LocalDevice {
 
         // The defaulting of the list of receipients is done here because sometimes the network has to be initialized
         // before the local broadcast address is known.
-        SequenceOf<Recipient> restartNotificationRecipients = getPersistence()
-                .loadSequenceOf("restartNotificationRecipients", Recipient.class);
+        SequenceOf<Recipient> restartNotificationRecipients = getPersistence().loadSequenceOf(
+                deviceObject.getPersistenceKey(PropertyIdentifier.restartNotificationRecipients), Recipient.class);
         if (restartNotificationRecipients == null) {
             restartNotificationRecipients = new SequenceOf<>(new Recipient(getLocalBroadcastAddress()));
             deviceObject.writePropertyInternal(PropertyIdentifier.restartNotificationRecipients,

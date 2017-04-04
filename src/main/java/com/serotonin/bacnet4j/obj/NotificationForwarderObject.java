@@ -330,10 +330,6 @@ public class NotificationForwarderObject extends BACnetObject {
         }
     }
 
-    private String getPersistenceKey(final PropertyIdentifier pid) {
-        return "NotificationForwarderObject." + getInstanceId() + "." + pid;
-    }
-
     private void updateSubscribedRecipients() {
         // Dynamically construct the list of subscribers.
         final SequenceOf<EventNotificationSubscription> subscribedRecipients = new SequenceOf<>(subscriptions.size());

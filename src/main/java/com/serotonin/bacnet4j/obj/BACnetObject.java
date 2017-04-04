@@ -307,6 +307,12 @@ public class BACnetObject {
     }
 
     //
+    // Persistence
+    public String getPersistenceKey(final PropertyIdentifier pid) {
+        return objectType.toString() + "." + getInstanceId() + "." + pid;
+    }
+
+    //
     //
     // Get property
     //
