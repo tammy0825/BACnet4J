@@ -62,10 +62,8 @@ import com.serotonin.bacnet4j.npdu.NPDU;
 import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
-import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedRequestService;
 import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
-import com.serotonin.bacnet4j.service.confirmed.ReadPropertyMultipleRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -600,22 +598,6 @@ public class DefaultTransport implements Transport, Runnable {
                 segmentedOutgoing(key, ctx, (SegmentACK) ack);
             else if (ctx.getConsumer() != null) {
                 final ResponseConsumer consumer = ctx.getConsumer();
-
-                // TODO specific troubleshooting code.
-                if (ctx.getService() instanceof ReadPropertyMultipleRequest) {
-                    if (ack instanceof SimpleACK) {
-                        LOG.error("Received a simple ack when expecting response to ReadPropertyMultipleRequest: "
-                                + "ctx={}, key={}, ack={}, unackedMessages={}", ctx, key, ack, unackedMessages);
-                    } else if (ack instanceof ComplexACK) {
-                        if (((ComplexACK) ack).getServiceChoice() != ReadPropertyMultipleAck.TYPE_ID) {
-                            LOG.error(
-                                    "Did not receive a ReadPropertyMultipleAck for ReadPropertyMultipleRequest: "
-                                            + "ctx={}, key={}, ack={}, unackedMessages={}",
-                                    ctx, key, ack, unackedMessages);
-                        }
-                    }
-                }
-
                 if (ack instanceof SimpleACK) {
                     consumer.success(null);
                 } else if (ack instanceof ComplexACK) {
