@@ -1,6 +1,7 @@
 package com.serotonin.bacnet4j.service.confirmed;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -315,6 +316,20 @@ public class AtomicWriteFileRequestTest {
         });
     }
 
+    @Test
+    public void modificationDate() throws Exception {
+        doInCopy((file) -> {
+            final long originalTime = file.lastModified();
+            Thread.sleep(1);
+            final FileObject f1 = new FileObject(d1, 1, "test", new StreamAccess(file));
+            new AtomicWriteFileRequest(f1.getId(),
+                    new com.serotonin.bacnet4j.service.confirmed.AtomicWriteFileRequest.StreamAccess(
+                            new SignedInteger(600), new OctetString("!@#$%".getBytes()))).handle(d1, null);
+            final long changedTime = file.lastModified();
+            assertTrue(originalTime < changedTime);
+        });
+    }
+
     @FunctionalInterface
     static interface InCopyCommand {
         void doInCopy(File file) throws Exception;
@@ -329,7 +344,4 @@ public class AtomicWriteFileRequestTest {
         command.doInCopy(target);
         target.delete();
     }
-
-    // TODO
-    // - testing modificationDate using AtomicWriteFile, ConfirmedPrivateTransfer, UnconfirmedPrivateTransfer
 }
