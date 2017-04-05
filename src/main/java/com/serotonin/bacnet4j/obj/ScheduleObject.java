@@ -28,7 +28,6 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Objects;
@@ -90,7 +89,6 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(ScheduleObject.class);
 
     private ScheduledFuture<?> presentValueRefersher;
-    private final Clock clock;
 
     /**
      * A proprietary mechanism to periodically write the present value to all property references in case of power
@@ -102,9 +100,8 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             final DateRange effectivePeriod, final BACnetArray<DailySchedule> weeklySchedule,
             final SequenceOf<SpecialEvent> exceptionSchedule, final T scheduleDefault,
             final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
-            final int priorityForWriting, final boolean outOfService, final Clock clock) throws BACnetServiceException {
+            final int priorityForWriting, final boolean outOfService) throws BACnetServiceException {
         super(localDevice, ObjectType.schedule, instanceNumber, name);
-        this.clock = clock;
 
         if (effectivePeriod == null)
             throw new BACnetRuntimeException("effectivePeriod cannot be null");
@@ -286,7 +283,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
     synchronized void updatePresentValue() {
         final GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(clock.millis());
+        gc.setTimeInMillis(getLocalDevice().getClock().millis());
         updatePresentValue(new DateTime(gc));
     }
 

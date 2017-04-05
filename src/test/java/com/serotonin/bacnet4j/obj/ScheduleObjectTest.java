@@ -2,24 +2,17 @@ package com.serotonin.bacnet4j.obj;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
-import com.serotonin.bacnet4j.npdu.test.TestNetwork;
-import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.service.confirmed.AddListElementRequest;
 import com.serotonin.bacnet4j.service.confirmed.RemoveListElementRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.CalendarEntry;
@@ -57,36 +50,12 @@ import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
 
-public class ScheduleObjectTest {
-    private final TestNetworkMap map = new TestNetworkMap();
-    private final LocalDevice d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 10)));
-    private final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 20)));
-    private RemoteDevice rd1;
-    private RemoteDevice rd2;
-
-    @Before
-    public void before() throws Exception {
-        d1.initialize();
-        d2.initialize();
-
-        // Get d1 as a remote object.
-        rd1 = d2.getRemoteDevice(1).get();
-        rd2 = d1.getRemoteDevice(2).get();
-    }
-
-    @After
-    public void after() {
-        // Shut down
-        d1.terminate();
-        d2.terminate();
-    }
-
+public class ScheduleObjectTest extends AbstractTest {
     @Test
     public void fullTest() throws Exception {
         // Not really a full test. The effective period could be better.
 
-        final TestClock clock = new TestClock();
-        clock.setTime(2115, Calendar.MAY, 1, 12, 0, 0);
+        clock.set(2115, java.time.Month.MAY, 1, 12, 0, 0);
 
         final AnalogValueObject av0 = new AnalogValueObject(d2, 0, "av0", 98, EngineeringUnits.amperes, false)
                 .supportCommandable(-2);
@@ -100,7 +69,7 @@ public class ScheduleObjectTest {
                 new CalendarEntry(new WeekNDay(Month.UNSPECIFIED, WeekOfMonth.days22to28, DayOfWeek.WEDNESDAY)) // The Wednesday during the 4th week of each month.
         );
 
-        final CalendarObject co = new CalendarObject(d1, 0, "cal0", dateList, clock);
+        final CalendarObject co = new CalendarObject(d1, 0, "cal0", dateList);
 
         final DateRange effectivePeriod = new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED);
         final BACnetArray<DailySchedule> weeklySchedule = new BACnetArray<>( //
@@ -137,7 +106,7 @@ public class ScheduleObjectTest {
         );
 
         final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0", effectivePeriod, weeklySchedule,
-                exceptionSchedule, new Real(8), listOfObjectPropertyReferences, 12, false, clock);
+                exceptionSchedule, new Real(8), listOfObjectPropertyReferences, 12, false);
 
         Thread.sleep(100); // Let the requests be received.
         Assert.assertEquals(new Real(14), so.get(PropertyIdentifier.presentValue));
@@ -145,31 +114,31 @@ public class ScheduleObjectTest {
         Assert.assertEquals(new Real(14), av1.get(PropertyIdentifier.presentValue));
 
         // Start actual tests.
-        testTime(clock, so, av0, av1, Calendar.MAY, 1, 17, 0, 15);
-        testTime(clock, so, av0, av1, Calendar.MAY, 2, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 2, 9, 0, 16);
-        testTime(clock, so, av0, av1, Calendar.MAY, 2, 20, 0, 17);
-        testTime(clock, so, av0, av1, Calendar.MAY, 3, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 3, 13, 0, 22);
-        testTime(clock, so, av0, av1, Calendar.MAY, 3, 14, 0, 23);
-        testTime(clock, so, av0, av1, Calendar.MAY, 4, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 5, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 6, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 6, 8, 0, 10);
-        testTime(clock, so, av0, av1, Calendar.MAY, 6, 17, 0, 11);
-        testTime(clock, so, av0, av1, Calendar.MAY, 7, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 7, 8, 0, 12);
-        testTime(clock, so, av0, av1, Calendar.MAY, 7, 17, 0, 13);
-        testTime(clock, so, av0, av1, Calendar.MAY, 8, 0, 0, 8);
-        testTime(clock, so, av0, av1, Calendar.MAY, 8, 10, 30, 24);
-        testTime(clock, so, av0, av1, Calendar.MAY, 8, 17, 0, 25);
-        testTime(clock, so, av0, av1, Calendar.MAY, 9, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 1, 17, 0, 15);
+        testTime(so, av0, av1, java.time.Month.MAY, 2, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 2, 9, 0, 16);
+        testTime(so, av0, av1, java.time.Month.MAY, 2, 20, 0, 17);
+        testTime(so, av0, av1, java.time.Month.MAY, 3, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 3, 13, 0, 22);
+        testTime(so, av0, av1, java.time.Month.MAY, 3, 14, 0, 23);
+        testTime(so, av0, av1, java.time.Month.MAY, 4, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 5, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 6, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 6, 8, 0, 10);
+        testTime(so, av0, av1, java.time.Month.MAY, 6, 17, 0, 11);
+        testTime(so, av0, av1, java.time.Month.MAY, 7, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 7, 8, 0, 12);
+        testTime(so, av0, av1, java.time.Month.MAY, 7, 17, 0, 13);
+        testTime(so, av0, av1, java.time.Month.MAY, 8, 0, 0, 8);
+        testTime(so, av0, av1, java.time.Month.MAY, 8, 10, 30, 24);
+        testTime(so, av0, av1, java.time.Month.MAY, 8, 17, 0, 25);
+        testTime(so, av0, av1, java.time.Month.MAY, 9, 0, 0, 8);
     }
 
-    private static void testTime(final TestClock clock, final ScheduleObject<Real> so, final AnalogValueObject av0,
-            final AnalogValueObject av1, final int month, final int day, final int hour, final int min,
-            final float expectedValue) throws Exception {
-        clock.setTime(2115, month, day, hour, min, 0);
+    private void testTime(final ScheduleObject<Real> so, final AnalogValueObject av0, final AnalogValueObject av1,
+            final java.time.Month month, final int day, final int hour, final int min, final float expectedValue)
+            throws Exception {
+        clock.set(2115, month, day, hour, min, 0);
         so.updatePresentValue();
         Thread.sleep(100); // Let the requests be received.
         Assert.assertEquals(new Real(expectedValue), so.get(PropertyIdentifier.presentValue));
@@ -202,7 +171,7 @@ public class ScheduleObjectTest {
         );
         final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
                 new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED), null, exceptionSchedule, new Real(8),
-                listOfObjectPropertyReferences, 12, false, d1.getClock());
+                listOfObjectPropertyReferences, 12, false);
         so.supportIntrinsicReporting(7, new EventTransitionBits(true, true, true), NotifyType.alarm);
 
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.
@@ -241,7 +210,7 @@ public class ScheduleObjectTest {
     public void listValues() throws Exception {
         final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
                 new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, new SequenceOf<>(), new Real(8),
-                new SequenceOf<>(), 12, false, d1.getClock());
+                new SequenceOf<>(), 12, false);
 
         // Add a few items to the list.
         final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.analogInput, 0);
@@ -289,7 +258,7 @@ public class ScheduleObjectTest {
             new ScheduleObject<>(d1, 0, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null,
                     new SequenceOf<>(), BinaryPV.inactive,
                     new SequenceOf<>(new DeviceObjectPropertyReference(1, av.getId(), PropertyIdentifier.presentValue)),
-                    12, false, d1.getClock());
+                    12, false);
         }, ErrorClass.property, ErrorCode.invalidDataType);
 
         //
@@ -304,7 +273,7 @@ public class ScheduleObjectTest {
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()));
             new ScheduleObject<>(d1, 1, "sch1", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
-                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidDataType);
 
         TestUtils.assertBACnetServiceException(() -> {
@@ -312,7 +281,7 @@ public class ScheduleObjectTest {
                     new SpecialEvent(new CalendarEntry(new Date(d1)),
                             new SequenceOf<>(new TimeValue(new Time(d1), new Real(0))), new UnsignedInteger(10)));
             new ScheduleObject<>(d1, 2, "sch2", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
-                    BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+                    BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidDataType);
 
         //
@@ -327,7 +296,7 @@ public class ScheduleObjectTest {
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()));
             new ScheduleObject<>(d1, 3, "sch3", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
-                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+                    new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidConfigurationData);
 
         TestUtils.assertBACnetServiceException(() -> {
@@ -336,7 +305,7 @@ public class ScheduleObjectTest {
                             new SequenceOf<>(new TimeValue(new Time(20, Time.UNSPECIFIC, 0, 0), BinaryPV.active)),
                             new UnsignedInteger(10)));
             new ScheduleObject<>(d1, 4, "sch4", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
-                    BinaryPV.inactive, new SequenceOf<>(), 12, false, d1.getClock());
+                    BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidConfigurationData);
     }
 }

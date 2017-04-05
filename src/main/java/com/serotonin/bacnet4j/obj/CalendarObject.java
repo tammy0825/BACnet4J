@@ -28,12 +28,14 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -50,17 +52,17 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
 
 public class CalendarObject extends BACnetObject {
+    static final Logger LOG = LoggerFactory.getLogger(CalendarObject.class);
+
     private int timeTolerance = 0;
-    private final Clock clock;
 
     // This timer task keeps the present value up to date in case other objects have registered
     // for COV on it.
     private ScheduledFuture<?> presentValueRefresher;
 
     public CalendarObject(final LocalDevice localDevice, final int instanceNumber, final String name,
-            final SequenceOf<CalendarEntry> dateList, final Clock clock) throws BACnetServiceException {
+            final SequenceOf<CalendarEntry> dateList) throws BACnetServiceException {
         super(localDevice, ObjectType.calendar, instanceNumber, name);
-        this.clock = clock;
 
         writePropertyInternal(PropertyIdentifier.dateList, dateList);
         updatePresentValue();
@@ -71,7 +73,7 @@ public class CalendarObject extends BACnetObject {
         // about daylight savings time changeovers.
         // Calculate the amount of time until the next hour.
         final GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(clock.millis());
+        gc.setTimeInMillis(localDevice.getClock().millis());
         final long elapsed = gc.get(Calendar.MILLISECOND) //
                 + gc.get(Calendar.SECOND) * 1000 //
                 + gc.get(Calendar.MINUTE) * 60 * 1000;
@@ -89,7 +91,7 @@ public class CalendarObject extends BACnetObject {
 
     /**
      * To compensate for clock variances if the time is close to midnight, pretend that it is already the next day.
-     * This protects against schedules on devices that with clocks that are a bit ahead of ours, so that they get
+     * This protects against schedules on devices with clocks that are a bit ahead of ours, so that they get
      * the correct calendar value even if they ask for it a bit too early.
      */
     public void setTimeTolerance(final int timeTolerance) {
@@ -143,11 +145,13 @@ public class CalendarObject extends BACnetObject {
 
     synchronized void updatePresentValue() {
         final GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(clock.millis());
+        gc.setTimeInMillis(getLocalDevice().getClock().millis());
+        LOG.info("Updating present value with date {}", new java.util.Date(gc.getTimeInMillis()));
 
         if (timeTolerance > 0) {
             // And on the compensatory time.
             gc.add(Calendar.MILLISECOND, timeTolerance);
+            LOG.info("Updating present value with date and tolerance {}", new java.util.Date(gc.getTimeInMillis()));
         }
 
         updatePresentValue(new Date(gc));
