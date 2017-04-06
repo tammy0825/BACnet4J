@@ -89,7 +89,7 @@ public class TrendLogObjectTest extends AbstractTest {
         //
         // Advance the clock to the polling time.
         LOG.info("Starting time: {}", clock.instant());
-        final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60;
+        final int seconds = (62 - clock.get(ChronoField.SECOND_OF_MINUTE) - 1) % 60 + 1;
         clock.plus(seconds, SECONDS, 300);
         LOG.info("First poll time: {}", clock.instant());
 
@@ -656,20 +656,20 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(0, tl.getBuffer().size());
 
         // Advance the time a bit and do some triggers.
-        clock.plus(3, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(3, TimeUnit.MINUTES, 40);
         assertEquals(true, tl.isLogDisabled());
         doTriggers(tl, 2);
         assertEquals(0, tl.getBuffer().size());
 
         // Advance the time past the start time and do some triggers.
-        clock.plus(3, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(3, TimeUnit.MINUTES, 40);
         final DateTime now2 = new DateTime(clock.millis());
         assertEquals(false, tl.isLogDisabled());
         doTriggers(tl, 2);
         assertEquals(2, tl.getBuffer().size());
 
         // Advance the time past the stop time and do some triggers.
-        clock.plus(5, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(5, TimeUnit.MINUTES, 40);
         final DateTime now3 = new DateTime(clock.millis());
         assertEquals(true, tl.isLogDisabled());
         assertEquals(3, tl.getBuffer().size());
@@ -692,13 +692,13 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(3, tl.getBuffer().size());
 
         // Advance the time past the start time and do some triggers.
-        clock.plus(6, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(6, TimeUnit.MINUTES, 40);
         assertEquals(false, tl.isLogDisabled());
         doTriggers(tl, 2);
         assertEquals(5, tl.getBuffer().size());
 
         // Advance the time past the stop time and do some triggers.
-        clock.plus(6, TimeUnit.MINUTES, 1, TimeUnit.MINUTES, 0, 40);
+        clock.plus(6, TimeUnit.MINUTES, 40);
         assertEquals(true, tl.isLogDisabled());
         assertEquals(6, tl.getBuffer().size());
         doTriggers(tl, 2);

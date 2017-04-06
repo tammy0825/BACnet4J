@@ -213,7 +213,7 @@ public class EventLogObjectTest extends AbstractTest {
         d2.send(rd1, n1).get();
         d2.send(rd1, n1).get();
         assertEquals(15, el.getBuffer().size());
-        Thread.sleep(30);
+        Thread.sleep(50);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
