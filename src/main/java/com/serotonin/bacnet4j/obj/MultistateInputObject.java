@@ -64,7 +64,7 @@ public class MultistateInputObject extends BACnetObject {
     }
 
     public MultistateInputObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 

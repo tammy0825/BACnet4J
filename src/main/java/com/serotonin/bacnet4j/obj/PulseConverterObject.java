@@ -104,10 +104,8 @@ public class PulseConverterObject extends BACnetObject {
         return this;
     }
 
-    public PulseConverterObject supportCovReporting(final float covIncrement) {
-        // TODO cov-period
-        writePropertyInternal(PropertyIdentifier.covPeriod, UnsignedInteger.ZERO);
-        _supportCovReporting(new Real(covIncrement));
+    public PulseConverterObject supportCovReporting(final float covIncrement, final int covPeriod) {
+        _supportCovReporting(new Real(covIncrement), new UnsignedInteger(covPeriod));
         return this;
     }
 

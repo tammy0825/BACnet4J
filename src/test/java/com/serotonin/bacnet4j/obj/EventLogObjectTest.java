@@ -141,8 +141,7 @@ public class EventLogObjectTest extends AbstractTest {
         // Write one more and make sure a notification was received.
         d2.send(rd1, n1).get();
         assertEquals(5, el.getBuffer().size());
-        Thread.sleep(30);
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(listener.notifs, 1, 500);
         Map<String, Object> notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
@@ -176,8 +175,7 @@ public class EventLogObjectTest extends AbstractTest {
         d2.send(rd1, n1).get();
         d2.send(rd1, n1).get();
         assertEquals(10, el.getBuffer().size());
-        Thread.sleep(30);
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(listener.notifs, 1, 500);
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
@@ -213,8 +211,7 @@ public class EventLogObjectTest extends AbstractTest {
         d2.send(rd1, n1).get();
         d2.send(rd1, n1).get();
         assertEquals(15, el.getBuffer().size());
-        Thread.sleep(50);
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(listener.notifs, 1, 500);
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));

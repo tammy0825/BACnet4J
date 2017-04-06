@@ -72,7 +72,7 @@ public class MultistateOutputObject extends BACnetObject {
     }
 
     public MultistateOutputObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 

@@ -108,7 +108,7 @@ public class AnalogValueObject extends BACnetObject {
     }
 
     public AnalogValueObject supportCovReporting(final float covIncrement) {
-        _supportCovReporting(new Real(covIncrement));
+        _supportCovReporting(new Real(covIncrement), null);
         return this;
     }
 

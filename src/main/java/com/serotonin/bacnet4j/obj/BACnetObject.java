@@ -262,8 +262,8 @@ public class BACnetObject {
 
     //
     // COVs
-    protected void _supportCovReporting(final Real covIncrement) {
-        addMixin(new CovReportingMixin(this, covIncrement));
+    protected void _supportCovReporting(final Real covIncrement, final UnsignedInteger covPeriod) {
+        addMixin(new CovReportingMixin(this, covIncrement, covPeriod));
     }
 
     public AlarmSummary getAlarmSummary() {

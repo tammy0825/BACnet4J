@@ -105,9 +105,9 @@ public class TrendLogObjectTest extends AbstractTest {
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(2));
 
         // Advance the clock another minute to poll again.
-        clock.plus(1, MINUTES, 100);
+        clock.plus(1, MINUTES, 0);
 
-        assertEquals(2, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 2, 500);
         final LogRecord record2 = tl.getBuffer().get(1);
         assertEquals(2, record2.getTimestamp().getTime().getSecond());
         assertEquals((record1.getTimestamp().getTime().getMinute() + 1) % 60,
@@ -120,9 +120,9 @@ public class TrendLogObjectTest extends AbstractTest {
         bo.setOverridden(true);
 
         // Advance the clock another minute to poll again.
-        clock.plus(1, MINUTES, 100);
+        clock.plus(1, MINUTES, 0);
 
-        assertEquals(3, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 3, 500);
         final LogRecord record3 = tl.getBuffer().get(2);
         assertEquals(2, record3.getTimestamp().getTime().getSecond());
         assertEquals((record1.getTimestamp().getTime().getMinute() + 2) % 60,
@@ -137,9 +137,9 @@ public class TrendLogObjectTest extends AbstractTest {
 
         // Advance the clock to the new polling time.
         final int minutes = (62 - clock.get(ChronoField.MINUTE_OF_HOUR)) % 60;
-        clock.plus(minutes, MINUTES, 100);
+        clock.plus(minutes, MINUTES, 0);
 
-        assertEquals(4, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 4, 500);
         final LogRecord record4 = tl.getBuffer().get(3);
         assertEquals(2, record4.getTimestamp().getTime().getMinute());
         assertEquals(new Real(3), record4.getChoice());

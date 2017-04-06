@@ -115,7 +115,7 @@ public class MultistateValueObject extends BACnetObject {
     }
 
     public MultistateValueObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 

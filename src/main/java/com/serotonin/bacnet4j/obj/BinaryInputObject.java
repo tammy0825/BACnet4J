@@ -61,7 +61,7 @@ public class BinaryInputObject extends BACnetObject {
     }
 
     public BinaryInputObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 

@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
@@ -56,14 +58,13 @@ import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 /**
- * Could add support for COV_Period...
- *
  * @author Matthew
  */
 public class CovReportingMixin extends AbstractMixin {
     private final CovReportingCriteria criteria;
+    private ScheduledFuture<?> covPeriodFuture;
 
-    public CovReportingMixin(final BACnetObject bo, final Real covIncrement) {
+    public CovReportingMixin(final BACnetObject bo, final Real covIncrement, final UnsignedInteger covPeriod) {
         super(bo);
         criteria = objectTypeCriteria.get(bo.getId().getObjectType());
         if (criteria == null)
@@ -71,6 +72,10 @@ public class CovReportingMixin extends AbstractMixin {
                     "COV reporting not supported for this object type: " + bo.getId().getObjectType());
         if (covIncrement != null)
             writePropertyInternal(PropertyIdentifier.covIncrement, covIncrement);
+        if (covPeriod != null) {
+            writePropertyInternal(PropertyIdentifier.covPeriod, covIncrement);
+            updateCovPeriodFuture(covPeriod);
+        }
 
         getLocalDevice().getCovContexts().put(getId(), new ArrayList<>());
     }
@@ -95,6 +100,14 @@ public class CovReportingMixin extends AbstractMixin {
             return;
         }
 
+        //
+        // Property management
+        if (pid.equals(PropertyIdentifier.covPeriod)) {
+            updateCovPeriodFuture((UnsignedInteger) newValue);
+        }
+
+        //
+        // COVs
         final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
         final long now = getLocalDevice().getClock().millis();
         synchronized (ctxs) {
@@ -335,6 +348,26 @@ public class CovReportingMixin extends AbstractMixin {
             return true;
 
         return false;
+    }
+
+    private synchronized void updateCovPeriodFuture(final UnsignedInteger covPeriod) {
+        if (covPeriodFuture != null) {
+            covPeriodFuture.cancel(false);
+            covPeriodFuture = null;
+        }
+
+        if (covPeriod.intValue() > 0) {
+            covPeriodFuture = getLocalDevice().scheduleAtFixedRate(() -> {
+                final long now = getLocalDevice().getClock().millis();
+                final List<CovContext> ctxs = getLocalDevice().getCovContexts().get(getId());
+                for (final CovContext ctx : ctxs) {
+                    if (ctx.isObjectSubscription()) {
+                        // This action only applies to object subscriptions, not to property subscriptions.
+                        sendObjectNotification(ctx, now);
+                    }
+                }
+            }, covPeriod.intValue(), covPeriod.intValue(), TimeUnit.SECONDS);
+        }
     }
 
     //

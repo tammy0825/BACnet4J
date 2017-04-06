@@ -101,7 +101,7 @@ public class LifeSafetyZoneObject extends BACnetObject implements LifeSafety {
     }
 
     public LifeSafetyZoneObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 }

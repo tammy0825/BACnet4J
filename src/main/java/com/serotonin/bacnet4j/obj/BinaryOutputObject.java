@@ -113,7 +113,7 @@ public class BinaryOutputObject extends BACnetObject {
     }
 
     public BinaryOutputObject supportCovReporting() {
-        _supportCovReporting(null);
+        _supportCovReporting(null, null);
         return this;
     }
 

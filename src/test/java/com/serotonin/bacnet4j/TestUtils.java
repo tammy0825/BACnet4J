@@ -5,7 +5,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -16,6 +18,7 @@ import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
+import com.serotonin.bacnet4j.obj.logBuffer.LogBuffer;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
@@ -26,6 +29,7 @@ import com.serotonin.bacnet4j.type.error.BaseError;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.Time;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 public class TestUtils {
     public static <T, U> void assertListEqualsIgnoreOrder(final List<T> expectedList, final List<U> actualList,
@@ -240,5 +244,33 @@ public class TestUtils {
                 position++;
             }
         }
+    }
+
+    //
+    // Size assurance. Uses busy wait with timeout to ensure that a collection reaches a certain size.
+    public static void assertSize(final LogBuffer<?> buffer, final int size, final int wait) {
+        assertSize(() -> buffer.size(), size, wait);
+    }
+
+    public static void assertSize(final Collection<?> collection, final int size, final int wait) {
+        assertSize(() -> collection.size(), size, wait);
+    }
+
+    private static void assertSize(final SizeRetriever thingWithSize, final int size, final int wait) {
+        final long deadline = Clock.systemUTC().millis() + wait;
+        while (true) {
+            if (thingWithSize.size() == size) {
+                return;
+            }
+            if (deadline < Clock.systemUTC().millis()) {
+                fail("Expected collection size of " + size + ", but was " + thingWithSize.size());
+            }
+            ThreadUtils.sleep(2);
+        }
+    }
+
+    @FunctionalInterface
+    interface SizeRetriever {
+        int size();
     }
 }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.SubscribeCOVRequest;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -22,6 +23,7 @@ import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.LimitEnable;
 import com.serotonin.bacnet4j.type.constructed.ObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.Prescale;
+import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.Scale;
@@ -223,7 +225,7 @@ public class PulseConverterObjectTest extends AbstractTest {
 
     @Test
     public void propertyConformanceRequiredWhenCov() throws Exception {
-        pc.supportCovReporting(2);
+        pc.supportCovReporting(2, 0);
         assertNotNull(pc.getProperty(PropertyIdentifier.covIncrement));
         assertNotNull(pc.getProperty(PropertyIdentifier.covPeriod));
     }
@@ -267,7 +269,7 @@ public class PulseConverterObjectTest extends AbstractTest {
 
     @Test
     public void covNotifications() throws Exception {
-        pc.supportCovReporting(10);
+        pc.supportCovReporting(10, 0);
 
         // Create a COV listener to catch the notifications.
         final CovNotifListener listener = new CovNotifListener();
@@ -278,7 +280,7 @@ public class PulseConverterObjectTest extends AbstractTest {
         d2.send(rd1,
                 new SubscribeCOVRequest(new UnsignedInteger(987), pc.getId(), Boolean.FALSE, new UnsignedInteger(600)))
                 .get();
-        Thread.sleep(40);
+        Thread.sleep(60);
         assertEquals(1, listener.notifs.size());
         Map<String, Object> notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(987), notif.get("subscriberProcessIdentifier"));
@@ -310,6 +312,95 @@ public class PulseConverterObjectTest extends AbstractTest {
         assertEquals(new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new Real(15)),
                 new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
                 new PropertyValue(PropertyIdentifier.updateTime, new DateTime(d1))), notif.get("listOfValues"));
+    }
+
+    @Test
+    public void covNotificationsWithCovPeriod() throws Exception {
+        // Use an increment of 10, and a period of 60s
+        pc.supportCovReporting(10, 60);
+
+        // Create a COV listener to catch the notifications.
+        final CovNotifListener listener = new CovNotifListener();
+        d2.getEventHandler().addListener(listener);
+
+        //
+        // Subscribe for notifications. Doing so should cause an initial notification to be sent.
+        d2.send(rd1,
+                new SubscribeCOVRequest(new UnsignedInteger(988), pc.getId(), Boolean.FALSE, new UnsignedInteger(6000)))
+                .get();
+        Thread.sleep(60);
+        assertEquals(1, listener.notifs.size());
+        Map<String, Object> notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(988), notif.get("subscriberProcessIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(pc.getId(), notif.get("monitoredObjectIdentifier"));
+        assertEquals(new UnsignedInteger(6000), notif.get("timeRemaining"));
+        assertEquals(new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new Real(0)),
+                new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
+                new PropertyValue(PropertyIdentifier.updateTime, new DateTime(d1))), notif.get("listOfValues"));
+
+        //
+        // Subscribe to a property as well to ensure that periodic notification are not sent.
+        d2.send(rd1, new SubscribeCOVPropertyRequest(new UnsignedInteger(989), pc.getId(), Boolean.TRUE,
+                new UnsignedInteger(6000), new PropertyReference(PropertyIdentifier.reliability), null)).get();
+        TestUtils.assertSize(listener.notifs, 1, 500);
+        notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(989), notif.get("subscriberProcessIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(pc.getId(), notif.get("monitoredObjectIdentifier"));
+        assertEquals(new UnsignedInteger(6000), notif.get("timeRemaining"));
+        assertEquals(
+                new SequenceOf<>(new PropertyValue(PropertyIdentifier.reliability, Reliability.noFaultDetected),
+                        new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false))),
+                notif.get("listOfValues"));
+
+        //
+        // Advance the clock 40s and add a pulse. No notification should be sent.
+        clock.plusSeconds(40);
+        final DateTime ts2 = new DateTime(d1);
+        pc.pulse();
+        Thread.sleep(40);
+        assertEquals(0, listener.notifs.size());
+
+        //
+        // Advance the clock 21s. The periodic notification should be received.
+        clock.plusSeconds(21);
+        TestUtils.assertSize(listener.notifs, 1, 500);
+        notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(988), notif.get("subscriberProcessIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(pc.getId(), notif.get("monitoredObjectIdentifier"));
+        assertEquals(new UnsignedInteger(5939), notif.get("timeRemaining"));
+        assertEquals(new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new Real(7.5F)),
+                new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
+                new PropertyValue(PropertyIdentifier.updateTime, ts2)), notif.get("listOfValues"));
+
+        //
+        // Add another pulse. No notification should be sent because the tolerance was reset by the period notification.
+        clock.plusSeconds(30);
+        final DateTime ts3 = new DateTime(d1);
+        pc.pulse();
+        Thread.sleep(40);
+        assertEquals(0, listener.notifs.size());
+
+        //
+        // Change the COV period to 3m, and ensure that no notifications are sent before that time.
+        pc.writePropertyInternal(PropertyIdentifier.covPeriod, new UnsignedInteger(180));
+        clock.plusSeconds(179);
+        Thread.sleep(40);
+        assertEquals(0, listener.notifs.size());
+
+        // Advance the time to get a periodic notification.
+        clock.plusSeconds(1);
+        TestUtils.assertSize(listener.notifs, 1, 500);
+        notif = listener.notifs.remove(0);
+        assertEquals(new UnsignedInteger(988), notif.get("subscriberProcessIdentifier"));
+        assertEquals(d1.getId(), notif.get("initiatingDevice"));
+        assertEquals(pc.getId(), notif.get("monitoredObjectIdentifier"));
+        assertEquals(new UnsignedInteger(5729), notif.get("timeRemaining"));
+        assertEquals(new SequenceOf<>(new PropertyValue(PropertyIdentifier.presentValue, new Real(15F)),
+                new PropertyValue(PropertyIdentifier.statusFlags, new StatusFlags(false, false, false, false)),
+                new PropertyValue(PropertyIdentifier.updateTime, ts3)), notif.get("listOfValues"));
     }
 
     @Test

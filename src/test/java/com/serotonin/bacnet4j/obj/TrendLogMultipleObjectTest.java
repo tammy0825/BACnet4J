@@ -142,9 +142,10 @@ public class TrendLogMultipleObjectTest extends AbstractTest {
 
         // Advance the clock to the new polling time.
         final int minutes = (62 - clock.get(ChronoField.MINUTE_OF_HOUR)) % 60;
-        clock.plus(minutes, MINUTES, 100);
+        clock.plus(minutes, MINUTES, 0);
         LOG.debug("poll: {}", clock.instant());
 
+        TestUtils.assertSize(tl.getBuffer(), 3, 500);
         assertEquals(3, tl.getBuffer().size());
         final LogMultipleRecord record2 = tl.getBuffer().get(2);
         assertEquals(2, record2.getTimestamp().getTime().getMinute());
@@ -163,7 +164,7 @@ public class TrendLogMultipleObjectTest extends AbstractTest {
 
         // Wait for the polling to finish.
         Thread.sleep(100);
-        assertEquals(4, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 4, 500);
         final LogMultipleRecord record3 = tl.getBuffer().get(3);
         assertEquals(4, record3.getSequenceNumber());
         assertEquals(5, record3.getLogData().getData().size());
