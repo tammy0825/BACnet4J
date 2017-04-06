@@ -7,6 +7,8 @@ import static org.junit.Assert.assertNotNull;
 import java.time.temporal.ChronoField;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -115,6 +117,8 @@ public class DeviceObjectTest extends AbstractTest {
 
     @Test
     public void timeSynchronization() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(2);
+
         // Set up time sync for every 4 hours aligned with a 5 minute offset.
         d1.getDeviceObject().supportTimeSynchronization(new SequenceOf<>(new Recipient(d2.getId())),
                 new SequenceOf<>(new Recipient(d3.getId())), 240, true, 5);
@@ -127,6 +131,7 @@ public class DeviceObjectTest extends AbstractTest {
             public void synchronizeTime(final Address from, final DateTime dateTime, final boolean utc) {
                 d2Time.set(dateTime);
                 d2Utc.set(utc);
+                latch.countDown();
             }
         });
 
@@ -137,6 +142,7 @@ public class DeviceObjectTest extends AbstractTest {
             public void synchronizeTime(final Address from, final DateTime dateTime, final boolean utc) {
                 d3Time.set(dateTime);
                 d3Utc.set(utc);
+                latch.countDown();
             }
         });
 
@@ -145,7 +151,9 @@ public class DeviceObjectTest extends AbstractTest {
         clock.plusMillis((1000 - clock.get(ChronoField.MILLI_OF_SECOND)) % 1000);
         clock.plusSeconds((60 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60);
         final int minutes = (1445 - clock.get(ChronoField.MINUTE_OF_DAY)) % 240;
-        clock.plus(minutes, MINUTES, 30);
+        clock.plus(minutes, MINUTES, 0);
+
+        latch.await(1, TimeUnit.SECONDS);
 
         // Check the results.
         assertNotNull(d2Time.get());
@@ -165,19 +173,19 @@ public class DeviceObjectTest extends AbstractTest {
     public void calculatedProperties() throws Exception {
         final TimeZone tz = TimeZone.getDefault();
 
-        assertEquals(new Date(d1), d1.getDeviceObject().getProperty(PropertyIdentifier.localDate));
-        assertEquals(new Time(d1), d1.getDeviceObject().getProperty(PropertyIdentifier.localTime));
+        assertEquals(new Date(d1), d1.getDeviceObject().readProperty(PropertyIdentifier.localDate));
+        assertEquals(new Time(d1), d1.getDeviceObject().readProperty(PropertyIdentifier.localTime));
         assertEquals(new SignedInteger(tz.getOffset(clock.millis()) / 1000 / 60),
-                d1.getDeviceObject().getProperty(PropertyIdentifier.utcOffset));
+                d1.getDeviceObject().readProperty(PropertyIdentifier.utcOffset));
         assertEquals(Boolean.valueOf(tz.inDaylightTime(new java.util.Date(clock.millis()))),
-                d1.getDeviceObject().getProperty(PropertyIdentifier.daylightSavingsStatus));
+                d1.getDeviceObject().readProperty(PropertyIdentifier.daylightSavingsStatus));
 
         d1.getRemoteDevice(2).get();
         d1.getRemoteDevice(3).get();
         assertEquals(
                 new SequenceOf<>(new AddressBinding(d2.getId(), d2.getAllLocalAddresses()[0]),
                         new AddressBinding(d3.getId(), d3.getAllLocalAddresses()[0])),
-                d1.getDeviceObject().getProperty(PropertyIdentifier.deviceAddressBinding));
+                d1.getDeviceObject().readProperty(PropertyIdentifier.deviceAddressBinding));
     }
 
     @Test
@@ -223,7 +231,7 @@ public class DeviceObjectTest extends AbstractTest {
 
         // Write a fault reliability value.
         dev.writePropertyInternal(PropertyIdentifier.reliability, Reliability.memberFault);
-        assertEquals(EventState.fault, dev.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.fault, dev.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(100);
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -231,7 +239,7 @@ public class DeviceObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(dev.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) dev.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) dev.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(7), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));

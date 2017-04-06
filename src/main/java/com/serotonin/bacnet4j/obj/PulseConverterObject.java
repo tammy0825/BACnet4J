@@ -129,7 +129,7 @@ public class PulseConverterObject extends BACnetObject {
                 pollingError = "Unknown object " + ref.getObjectIdentifier();
             } else {
                 try {
-                    final Encodable value = that.getProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
+                    final Encodable value = that.readProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
                     long newValue = 0;
                     if (value == null) {
                         pollingError = "Unknown property " + ref;

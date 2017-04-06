@@ -97,30 +97,30 @@ public class AccumulatorObjectTest extends AbstractTest {
         // accumulator, which doesn't run until the next second. To get it to run, we add one more pulse than
         // strictly required by the time delay.
         doPulses(40, 41, 42, 41, 40, 40);
-        assertEquals(new UnsignedInteger(32), a.getProperty(PropertyIdentifier.presentValue));
+        assertEquals(new UnsignedInteger(32), a.readProperty(PropertyIdentifier.presentValue));
         assertEquals(8, a.getAccumulation());
-        assertEquals(new UnsignedInteger(40), a.getProperty(PropertyIdentifier.pulseRate));
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(new UnsignedInteger(40), a.readProperty(PropertyIdentifier.pulseRate));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         //
         // Write pulses to go out of range value and then set back to normal before the time delay.
         doPulses(55, 53);
-        assertEquals(new UnsignedInteger(53), a.getProperty(PropertyIdentifier.pulseRate));
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(new UnsignedInteger(53), a.readProperty(PropertyIdentifier.pulseRate));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         doPulses(35, 38, 42, 49, 35);
-        assertEquals(new UnsignedInteger(35), a.getProperty(PropertyIdentifier.pulseRate));
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(new UnsignedInteger(35), a.readProperty(PropertyIdentifier.pulseRate));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         //
         // Do a real state change. Write an out of range value. After 3s the alarm will be raised.
         doPulses(25, 23);
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         doPulses(29, 28);
-        assertEquals(EventState.lowLimit, a.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), a.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.lowLimit, a.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), a.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -128,7 +128,7 @@ public class AccumulatorObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(a.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) a.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) a.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(54), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -145,14 +145,14 @@ public class AccumulatorObjectTest extends AbstractTest {
 
         // Disable low limit checking. Will return to normal immediately.
         a.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(false, true));
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(a.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) a.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) a.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(54), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -169,9 +169,9 @@ public class AccumulatorObjectTest extends AbstractTest {
 
         // Re-enable low limit checking. Will return to low-limit after 3s.
         a.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(true, true));
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState));
         doPulses(27, 27, 27, 27);
-        assertEquals(EventState.lowLimit, a.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.lowLimit, a.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventType.unsignedRange, notif.get("eventType"));
@@ -184,7 +184,7 @@ public class AccumulatorObjectTest extends AbstractTest {
 
         // Go past the fault high limit. Will change to fault immediately.
         doPulses(61);
-        assertEquals(EventState.fault, a.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.fault, a.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -200,7 +200,7 @@ public class AccumulatorObjectTest extends AbstractTest {
 
         // Reduce to normal. Return to normal immediately.
         doPulses(52);
-        assertEquals(EventState.normal, a.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, a.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -227,17 +227,17 @@ public class AccumulatorObjectTest extends AbstractTest {
 
     @Test
     public void propertyConformanceRequired() throws Exception {
-        assertNotNull(a.getProperty(PropertyIdentifier.objectIdentifier));
-        assertNotNull(a.getProperty(PropertyIdentifier.objectName));
-        assertNotNull(a.getProperty(PropertyIdentifier.objectType));
-        assertNotNull(a.getProperty(PropertyIdentifier.presentValue));
-        assertNotNull(a.getProperty(PropertyIdentifier.statusFlags));
-        assertNotNull(a.getProperty(PropertyIdentifier.eventState));
-        assertNotNull(a.getProperty(PropertyIdentifier.outOfService));
-        assertNotNull(a.getProperty(PropertyIdentifier.scale));
-        assertNotNull(a.getProperty(PropertyIdentifier.units));
-        assertNotNull(a.getProperty(PropertyIdentifier.maxPresValue));
-        assertNotNull(a.getProperty(PropertyIdentifier.propertyList));
+        assertNotNull(a.readProperty(PropertyIdentifier.objectIdentifier));
+        assertNotNull(a.readProperty(PropertyIdentifier.objectName));
+        assertNotNull(a.readProperty(PropertyIdentifier.objectType));
+        assertNotNull(a.readProperty(PropertyIdentifier.presentValue));
+        assertNotNull(a.readProperty(PropertyIdentifier.statusFlags));
+        assertNotNull(a.readProperty(PropertyIdentifier.eventState));
+        assertNotNull(a.readProperty(PropertyIdentifier.outOfService));
+        assertNotNull(a.readProperty(PropertyIdentifier.scale));
+        assertNotNull(a.readProperty(PropertyIdentifier.units));
+        assertNotNull(a.readProperty(PropertyIdentifier.maxPresValue));
+        assertNotNull(a.readProperty(PropertyIdentifier.propertyList));
     }
 
     @Test
@@ -291,37 +291,37 @@ public class AccumulatorObjectTest extends AbstractTest {
     public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         a.supportIntrinsicReporting(30, 17, 60, 40, 10, new UnsignedInteger(15), 54, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm);
-        assertNotNull(a.getProperty(PropertyIdentifier.pulseRate));
-        assertNotNull(a.getProperty(PropertyIdentifier.limitMonitoringInterval));
-        assertNotNull(a.getProperty(PropertyIdentifier.timeDelay));
-        assertNotNull(a.getProperty(PropertyIdentifier.notificationClass));
-        assertNotNull(a.getProperty(PropertyIdentifier.highLimit));
-        assertNotNull(a.getProperty(PropertyIdentifier.lowLimit));
-        assertNotNull(a.getProperty(PropertyIdentifier.limitEnable));
-        assertNotNull(a.getProperty(PropertyIdentifier.eventEnable));
-        assertNotNull(a.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNotNull(a.getProperty(PropertyIdentifier.notifyType));
-        assertNotNull(a.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNotNull(a.getProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNotNull(a.readProperty(PropertyIdentifier.pulseRate));
+        assertNotNull(a.readProperty(PropertyIdentifier.limitMonitoringInterval));
+        assertNotNull(a.readProperty(PropertyIdentifier.timeDelay));
+        assertNotNull(a.readProperty(PropertyIdentifier.notificationClass));
+        assertNotNull(a.readProperty(PropertyIdentifier.highLimit));
+        assertNotNull(a.readProperty(PropertyIdentifier.lowLimit));
+        assertNotNull(a.readProperty(PropertyIdentifier.limitEnable));
+        assertNotNull(a.readProperty(PropertyIdentifier.eventEnable));
+        assertNotNull(a.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNotNull(a.readProperty(PropertyIdentifier.notifyType));
+        assertNotNull(a.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNotNull(a.readProperty(PropertyIdentifier.eventDetectionEnable));
     }
 
     @Test
     public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
-        assertNull(a.getProperty(PropertyIdentifier.timeDelay));
-        assertNull(a.getProperty(PropertyIdentifier.notificationClass));
-        assertNull(a.getProperty(PropertyIdentifier.highLimit));
-        assertNull(a.getProperty(PropertyIdentifier.lowLimit));
-        assertNull(a.getProperty(PropertyIdentifier.limitEnable));
-        assertNull(a.getProperty(PropertyIdentifier.eventEnable));
-        assertNull(a.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNull(a.getProperty(PropertyIdentifier.notifyType));
-        assertNull(a.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNull(a.getProperty(PropertyIdentifier.eventMessageTexts));
-        assertNull(a.getProperty(PropertyIdentifier.eventMessageTextsConfig));
-        assertNull(a.getProperty(PropertyIdentifier.eventDetectionEnable));
-        assertNull(a.getProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
-        assertNull(a.getProperty(PropertyIdentifier.eventAlgorithmInhibit));
-        assertNull(a.getProperty(PropertyIdentifier.timeDelayNormal));
+        assertNull(a.readProperty(PropertyIdentifier.timeDelay));
+        assertNull(a.readProperty(PropertyIdentifier.notificationClass));
+        assertNull(a.readProperty(PropertyIdentifier.highLimit));
+        assertNull(a.readProperty(PropertyIdentifier.lowLimit));
+        assertNull(a.readProperty(PropertyIdentifier.limitEnable));
+        assertNull(a.readProperty(PropertyIdentifier.eventEnable));
+        assertNull(a.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNull(a.readProperty(PropertyIdentifier.notifyType));
+        assertNull(a.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNull(a.readProperty(PropertyIdentifier.eventMessageTexts));
+        assertNull(a.readProperty(PropertyIdentifier.eventMessageTextsConfig));
+        assertNull(a.readProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNull(a.readProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
+        assertNull(a.readProperty(PropertyIdentifier.eventAlgorithmInhibit));
+        assertNull(a.readProperty(PropertyIdentifier.timeDelayNormal));
     }
 
     @SuppressWarnings("unchecked")
@@ -350,22 +350,22 @@ public class AccumulatorObjectTest extends AbstractTest {
 
         // Ensure that initializing the event enrollment object didn't fire any notifications.
         Thread.sleep(40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         // Go to high limit.
         doPulses(53, 53, 53, 53, 53);
         Thread.sleep(40);
-        assertEquals(EventState.highLimit, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(Reliability.noFaultDetected, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(true, false, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.highLimit, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(Reliability.noFaultDetected, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(true, false, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
         Map<String, Object> notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.highLimit.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(54), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -381,11 +381,11 @@ public class AccumulatorObjectTest extends AbstractTest {
                 notif.get("eventValues"));
 
         // Go to a fault value.
-        doPulses(10, 9);
+        doPulses(10, 10);
         Thread.sleep(60);
-        assertEquals(EventState.fault, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(Reliability.underRange, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(true, true, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.fault, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(Reliability.underRange, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(true, true, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -393,7 +393,7 @@ public class AccumulatorObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(54), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));

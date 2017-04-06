@@ -183,7 +183,7 @@ public class ReadRangeRequest extends ConfirmedRequestService {
                     throw new BACnetServiceException(ErrorClass.property, ErrorCode.propertyIsNotAnArray);
             } else {
                 // Generic handling.
-                prop = obj.getPropertyRequired(propertyIdentifier, propertyArrayIndex);
+                prop = obj.readPropertyRequired(propertyIdentifier, propertyArrayIndex);
 
                 // Ensure this is a list.
                 if (!(prop instanceof SequenceOf))

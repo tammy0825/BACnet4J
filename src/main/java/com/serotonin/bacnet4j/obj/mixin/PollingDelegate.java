@@ -61,7 +61,7 @@ public class PollingDelegate {
                 for (final PropertyReference ref : oidRefs.getValue()) {
                     Encodable value;
                     try {
-                        value = localObject.getProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
+                        value = localObject.readProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
                     } catch (final BACnetServiceException e) {
                         value = new ErrorClassAndCode(e);
                     }

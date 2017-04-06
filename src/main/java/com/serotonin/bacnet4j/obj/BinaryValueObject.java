@@ -67,8 +67,7 @@ public class BinaryValueObject extends BACnetObject {
         // Mixins
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new CommandableMixin(this, PropertyIdentifier.presentValue));
-        addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue,
-                PropertyIdentifier.reliability));
+        addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.reliability));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.ackedTransitions,
                 PropertyIdentifier.eventTimeStamps, PropertyIdentifier.eventMessageTexts));
 

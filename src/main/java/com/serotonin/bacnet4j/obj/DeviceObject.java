@@ -233,7 +233,7 @@ public class DeviceObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid) {
+    protected void beforeReadProperty(final PropertyIdentifier pid) {
         if (pid.equals(PropertyIdentifier.localTime)) {
             set(PropertyIdentifier.localTime, new Time(getLocalDevice()));
         } else if (pid.equals(PropertyIdentifier.localDate)) {

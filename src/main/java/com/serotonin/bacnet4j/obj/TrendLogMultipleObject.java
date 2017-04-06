@@ -198,7 +198,7 @@ public class TrendLogMultipleObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid) throws BACnetServiceException {
+    protected void beforeReadProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         if (PropertyIdentifier.logBuffer.equals(pid)) {
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.readAccessDenied);
         }

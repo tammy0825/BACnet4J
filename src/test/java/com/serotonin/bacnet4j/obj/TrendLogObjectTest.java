@@ -185,7 +185,7 @@ public class TrendLogObjectTest extends AbstractTest {
 
         // Make sure the subscription is there.
         SequenceOf<CovSubscription> subscriptions = d.getObject(d.getId())
-                .getProperty(PropertyIdentifier.activeCovSubscriptions);
+                .readProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, subscriptions.getCount());
 
         // Remember the process id.
@@ -255,7 +255,7 @@ public class TrendLogObjectTest extends AbstractTest {
         Thread.sleep(50);
 
         // Check that there is still only one subscription, and that it has a different process id.
-        subscriptions = d.getObject(d.getId()).getProperty(PropertyIdentifier.activeCovSubscriptions);
+        subscriptions = d.getObject(d.getId()).readProperty(PropertyIdentifier.activeCovSubscriptions);
         assertEquals(1, subscriptions.getValues().size());
         final int processId2 = subscriptions.getBase1(1).getRecipient().getProcessIdentifier().intValue();
         assertEquals(processId + 1, processId2);
@@ -354,7 +354,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) tl.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
@@ -386,7 +386,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) tl.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
@@ -419,7 +419,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) tl.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
@@ -494,7 +494,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(28), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
@@ -517,7 +517,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(28), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(3), notif.get("priority"));
@@ -706,7 +706,7 @@ public class TrendLogObjectTest extends AbstractTest {
 
         // Try to do a network read of the buffer. It should not be readable.
         TestUtils.assertBACnetServiceException(() -> {
-            tl.getProperty(PropertyIdentifier.logBuffer, null);
+            tl.readProperty(PropertyIdentifier.logBuffer, null);
         }, ErrorClass.property, ErrorCode.readAccessDenied);
     }
 
@@ -793,7 +793,7 @@ public class TrendLogObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(tl.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) tl.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) tl.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(23), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(2), notif.get("priority"));

@@ -136,10 +136,10 @@ public class MultistateOutputObjectTest extends AbstractTest {
         // Do a state change. Write a value to indicate a command failure. After 5s the alarm will be raised.
         mo.writePropertyInternal(PropertyIdentifier.feedbackValue, new UnsignedInteger(1));
         clock.plus(4500, TimeUnit.MILLISECONDS, 4500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, mo.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, mo.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 80);
-        assertEquals(EventState.offnormal, mo.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), mo.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.offnormal, mo.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), mo.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -147,7 +147,7 @@ public class MultistateOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(mo.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) mo.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) mo.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -167,10 +167,10 @@ public class MultistateOutputObjectTest extends AbstractTest {
         // Return to normal. After 12s the notification will be sent.
         mo.writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(1));
         clock.plus(11500, TimeUnit.MILLISECONDS, 11500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, mo.getProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
+        assertEquals(EventState.offnormal, mo.readProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, mo.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(false, false, false, false), mo.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.normal, mo.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(false, false, false, false), mo.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -178,7 +178,7 @@ public class MultistateOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(mo.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) mo.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) mo.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -224,7 +224,7 @@ public class MultistateOutputObjectTest extends AbstractTest {
 
         // Ensure that initializing the event enrollment object didn't fire any notifications.
         Thread.sleep(40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         //
@@ -232,13 +232,13 @@ public class MultistateOutputObjectTest extends AbstractTest {
         mo.writePropertyInternal(PropertyIdentifier.feedbackValue, new UnsignedInteger(1));
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -246,7 +246,7 @@ public class MultistateOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -268,13 +268,13 @@ public class MultistateOutputObjectTest extends AbstractTest {
         mo.writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(1));
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -282,7 +282,7 @@ public class MultistateOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));

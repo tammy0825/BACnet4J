@@ -87,7 +87,7 @@ public class GroupObjectTest extends AbstractTest {
                                 PropertyIdentifier.presentValue)));
 
         SequenceOf<ReadAccessResult> presentValue = (SequenceOf<ReadAccessResult>) g
-                .getProperty(PropertyIdentifier.presentValue, null);
+                .readProperty(PropertyIdentifier.presentValue, null);
         assertEquals(4, presentValue.size());
 
         assertEquals(ai.getId(), presentValue.get(0).getObjectIdentifier());
@@ -154,7 +154,7 @@ public class GroupObjectTest extends AbstractTest {
         bv.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
         mv.writePropertyInternal(PropertyIdentifier.presentValue, new UnsignedInteger(4));
 
-        presentValue = (SequenceOf<ReadAccessResult>) g.getProperty(PropertyIdentifier.presentValue, null);
+        presentValue = (SequenceOf<ReadAccessResult>) g.readProperty(PropertyIdentifier.presentValue, null);
         assertEquals(4, presentValue.size());
 
         assertEquals(ai.getId(), presentValue.get(0).getObjectIdentifier());

@@ -25,13 +25,13 @@ public class FileObjectTest extends AbstractTest {
     @Test
     public void streamReadFileSize() throws Exception {
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(new File(path)));
-        assertEquals(new UnsignedInteger(922), f.getProperty(PropertyIdentifier.fileSize, null));
+        assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
     }
 
     @Test
     public void recordReadFileSize() throws Exception {
         final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(new File(path)));
-        assertEquals(new UnsignedInteger(922), f.getProperty(PropertyIdentifier.fileSize, null));
+        assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, UnsignedInteger.ZERO);
-            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(UnsignedInteger.ZERO, f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -48,7 +48,7 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(100));
-            assertEquals(new UnsignedInteger(100), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(100), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -56,7 +56,7 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(922));
-            assertEquals(new UnsignedInteger(922), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -64,7 +64,7 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(1001));
-            assertEquals(new UnsignedInteger(1001), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(1001), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
     }
@@ -75,8 +75,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, UnsignedInteger.ZERO);
-            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(UnsignedInteger.ZERO, f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(UnsignedInteger.ZERO, f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -84,8 +84,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(100));
-            assertEquals(new UnsignedInteger(2), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(100), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(2), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(100), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -93,8 +93,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(921));
-            assertEquals(new UnsignedInteger(14), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(921), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(921), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -102,8 +102,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(922));
-            assertEquals(new UnsignedInteger(14), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(922), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -111,8 +111,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(1001));
-            assertEquals(new UnsignedInteger(54), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(1002), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(54), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(1002), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
     }
@@ -123,11 +123,11 @@ public class FileObjectTest extends AbstractTest {
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
 
         if (file.setWritable(true)) {
-            assertEquals(Boolean.FALSE, f.getProperty(PropertyIdentifier.readOnly, null));
+            assertEquals(Boolean.FALSE, f.readProperty(PropertyIdentifier.readOnly, null));
         }
 
         if (file.setReadable(false)) {
-            assertEquals(Boolean.TRUE, f.getProperty(PropertyIdentifier.readOnly, null));
+            assertEquals(Boolean.TRUE, f.readProperty(PropertyIdentifier.readOnly, null));
         }
     }
 
@@ -135,14 +135,14 @@ public class FileObjectTest extends AbstractTest {
     public void streamReadRecordCount() throws Exception {
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(new File(path)));
         TestUtils.assertBACnetServiceException(() -> {
-            f.getProperty(PropertyIdentifier.recordCount, null);
+            f.readProperty(PropertyIdentifier.recordCount, null);
         }, ErrorClass.property, ErrorCode.readAccessDenied);
     }
 
     @Test
     public void recordReadRecordCount() throws Exception {
         final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(new File(path)));
-        assertEquals(new UnsignedInteger(14), f.getProperty(PropertyIdentifier.recordCount, null));
+        assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
     }
 
     @Test
@@ -159,8 +159,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, UnsignedInteger.ZERO);
-            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(UnsignedInteger.ZERO, f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(UnsignedInteger.ZERO, f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(UnsignedInteger.ZERO, f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -168,8 +168,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(10));
-            assertEquals(new UnsignedInteger(10), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(665), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(10), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(665), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -177,8 +177,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(14));
-            assertEquals(new UnsignedInteger(14), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(922), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -186,8 +186,8 @@ public class FileObjectTest extends AbstractTest {
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(25));
-            assertEquals(new UnsignedInteger(25), f.getProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(944), f.getProperty(PropertyIdentifier.fileSize, null));
+            assertEquals(new UnsignedInteger(25), f.readProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(944), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
     }

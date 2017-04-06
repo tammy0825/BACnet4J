@@ -99,8 +99,10 @@ public class AbstractMixin {
      * Allow the mixin a chance to perform actions before the property is read.
      *
      * @param pid
+     * @throws BACnetServiceException
+     *             if for some reason the read should be prevented.
      */
-    protected void beforeReadProperty(final PropertyIdentifier pid) {
+    protected void beforeReadProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         // no op
     }
 

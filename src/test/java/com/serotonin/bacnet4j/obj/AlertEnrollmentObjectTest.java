@@ -62,7 +62,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
 
         // Wait for the alarm to be sent
         Thread.sleep(100);
-        assertEquals(EventState.normal, ae.getProperty(PropertyIdentifier.eventState)); // Still normal. Always normal.
+        assertEquals(EventState.normal, ae.readProperty(PropertyIdentifier.eventState)); // Still normal. Always normal.
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -70,7 +70,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ae.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ae.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ae.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(55), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(201), notif.get("priority"));
@@ -91,7 +91,7 @@ public class AlertEnrollmentObjectTest extends AbstractTest {
                 notif.get("eventValues"));
 
         // Make sure the list of properties looks right.
-        final SequenceOf<PropertyIdentifier> propertyList = ae.getProperty(PropertyIdentifier.propertyList);
+        final SequenceOf<PropertyIdentifier> propertyList = ae.readProperty(PropertyIdentifier.propertyList);
         TestUtils.assertListEqualsIgnoreOrder(TestUtils.toList( //
                 PropertyIdentifier.presentValue, //
                 PropertyIdentifier.eventState, //

@@ -69,27 +69,27 @@ public class AnalogInputObjectTest extends AbstractTest {
 
         // Write a different normal value.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(60));
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         // Set an out of range value and then set back to normal before the time delay.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(90));
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         // Do a real state change. Write an out of range value. After 1 second the alarm will be raised.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(10));
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.lowLimit, ai.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), ai.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.lowLimit, ai.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), ai.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -97,7 +97,7 @@ public class AnalogInputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ai.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ai.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ai.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -112,14 +112,14 @@ public class AnalogInputObjectTest extends AbstractTest {
 
         // Disable low limit checking. Will return to normal immediately.
         ai.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(false, true));
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(100);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ai.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ai.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ai.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -136,9 +136,9 @@ public class AnalogInputObjectTest extends AbstractTest {
 
         // Re-enable low limit checking. Will return to low-limit after 1 second.
         ai.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(true, true));
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.lowLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.lowLimit, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventType.outOfRange, notif.get("eventType"));
@@ -149,9 +149,9 @@ public class AnalogInputObjectTest extends AbstractTest {
 
         // Go to a high limit. Will change to high-limit after 1 second.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
-        assertEquals(EventState.lowLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.lowLimit, ai.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.lowLimit, notif.get("fromState"));
@@ -163,20 +163,20 @@ public class AnalogInputObjectTest extends AbstractTest {
 
         // Reduce to within the deadband. No notification.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(95));
-        assertEquals(EventState.highLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ai.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         // Reduce to below the deadband. Return to normal after 2 seconds.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(94));
-        assertEquals(EventState.highLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(1500, TimeUnit.MILLISECONDS, 1500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ai.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ai.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.highLimit, notif.get("fromState"));
@@ -206,8 +206,8 @@ public class AnalogInputObjectTest extends AbstractTest {
         // Write a fault value.
         ai.writePropertyInternal(PropertyIdentifier.presentValue, new Real(-5));
         Thread.sleep(40);
-        assertEquals(EventState.fault, ai.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, true, false, false), ai.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.fault, ai.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, true, false, false), ai.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -215,7 +215,7 @@ public class AnalogInputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ai.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ai.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ai.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
@@ -234,15 +234,15 @@ public class AnalogInputObjectTest extends AbstractTest {
 
     @Test
     public void propertyConformanceRequired() throws Exception {
-        assertNotNull(ai.getProperty(PropertyIdentifier.objectIdentifier));
-        assertNotNull(ai.getProperty(PropertyIdentifier.objectName));
-        assertNotNull(ai.getProperty(PropertyIdentifier.objectType));
-        assertNotNull(ai.getProperty(PropertyIdentifier.presentValue));
-        assertNotNull(ai.getProperty(PropertyIdentifier.statusFlags));
-        assertNotNull(ai.getProperty(PropertyIdentifier.eventState));
-        assertNotNull(ai.getProperty(PropertyIdentifier.outOfService));
-        assertNotNull(ai.getProperty(PropertyIdentifier.units));
-        assertNotNull(ai.getProperty(PropertyIdentifier.propertyList));
+        assertNotNull(ai.readProperty(PropertyIdentifier.objectIdentifier));
+        assertNotNull(ai.readProperty(PropertyIdentifier.objectName));
+        assertNotNull(ai.readProperty(PropertyIdentifier.objectType));
+        assertNotNull(ai.readProperty(PropertyIdentifier.presentValue));
+        assertNotNull(ai.readProperty(PropertyIdentifier.statusFlags));
+        assertNotNull(ai.readProperty(PropertyIdentifier.eventState));
+        assertNotNull(ai.readProperty(PropertyIdentifier.outOfService));
+        assertNotNull(ai.readProperty(PropertyIdentifier.units));
+        assertNotNull(ai.readProperty(PropertyIdentifier.propertyList));
     }
 
     @Test
@@ -270,47 +270,47 @@ public class AnalogInputObjectTest extends AbstractTest {
     @Test
     public void propertyConformanceRequiredWhenCOVReporting() throws Exception {
         ai.supportCovReporting(1);
-        assertNotNull(ai.getProperty(PropertyIdentifier.covIncrement));
+        assertNotNull(ai.readProperty(PropertyIdentifier.covIncrement));
     }
 
     @Test
     public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         ai.supportIntrinsicReporting(30, 17, 60, 40, 1, 70, 30, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 10);
-        assertNotNull(ai.getProperty(PropertyIdentifier.timeDelay));
-        assertNotNull(ai.getProperty(PropertyIdentifier.notificationClass));
-        assertNotNull(ai.getProperty(PropertyIdentifier.highLimit));
-        assertNotNull(ai.getProperty(PropertyIdentifier.lowLimit));
-        assertNotNull(ai.getProperty(PropertyIdentifier.deadband));
-        assertNotNull(ai.getProperty(PropertyIdentifier.faultHighLimit));
-        assertNotNull(ai.getProperty(PropertyIdentifier.faultLowLimit));
-        assertNotNull(ai.getProperty(PropertyIdentifier.limitEnable));
-        assertNotNull(ai.getProperty(PropertyIdentifier.eventEnable));
-        assertNotNull(ai.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNotNull(ai.getProperty(PropertyIdentifier.notifyType));
-        assertNotNull(ai.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNotNull(ai.getProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNotNull(ai.readProperty(PropertyIdentifier.timeDelay));
+        assertNotNull(ai.readProperty(PropertyIdentifier.notificationClass));
+        assertNotNull(ai.readProperty(PropertyIdentifier.highLimit));
+        assertNotNull(ai.readProperty(PropertyIdentifier.lowLimit));
+        assertNotNull(ai.readProperty(PropertyIdentifier.deadband));
+        assertNotNull(ai.readProperty(PropertyIdentifier.faultHighLimit));
+        assertNotNull(ai.readProperty(PropertyIdentifier.faultLowLimit));
+        assertNotNull(ai.readProperty(PropertyIdentifier.limitEnable));
+        assertNotNull(ai.readProperty(PropertyIdentifier.eventEnable));
+        assertNotNull(ai.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNotNull(ai.readProperty(PropertyIdentifier.notifyType));
+        assertNotNull(ai.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNotNull(ai.readProperty(PropertyIdentifier.eventDetectionEnable));
     }
 
     @Test
     public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
-        assertNull(ai.getProperty(PropertyIdentifier.timeDelay));
-        assertNull(ai.getProperty(PropertyIdentifier.notificationClass));
-        assertNull(ai.getProperty(PropertyIdentifier.highLimit));
-        assertNull(ai.getProperty(PropertyIdentifier.lowLimit));
-        assertNull(ai.getProperty(PropertyIdentifier.deadband));
-        assertNull(ai.getProperty(PropertyIdentifier.faultHighLimit));
-        assertNull(ai.getProperty(PropertyIdentifier.faultLowLimit));
-        assertNull(ai.getProperty(PropertyIdentifier.limitEnable));
-        assertNull(ai.getProperty(PropertyIdentifier.eventEnable));
-        assertNull(ai.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNull(ai.getProperty(PropertyIdentifier.notifyType));
-        assertNull(ai.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNull(ai.getProperty(PropertyIdentifier.eventMessageTexts));
-        assertNull(ai.getProperty(PropertyIdentifier.eventMessageTextsConfig));
-        assertNull(ai.getProperty(PropertyIdentifier.eventDetectionEnable));
-        assertNull(ai.getProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
-        assertNull(ai.getProperty(PropertyIdentifier.eventAlgorithmInhibit));
-        assertNull(ai.getProperty(PropertyIdentifier.timeDelayNormal));
+        assertNull(ai.readProperty(PropertyIdentifier.timeDelay));
+        assertNull(ai.readProperty(PropertyIdentifier.notificationClass));
+        assertNull(ai.readProperty(PropertyIdentifier.highLimit));
+        assertNull(ai.readProperty(PropertyIdentifier.lowLimit));
+        assertNull(ai.readProperty(PropertyIdentifier.deadband));
+        assertNull(ai.readProperty(PropertyIdentifier.faultHighLimit));
+        assertNull(ai.readProperty(PropertyIdentifier.faultLowLimit));
+        assertNull(ai.readProperty(PropertyIdentifier.limitEnable));
+        assertNull(ai.readProperty(PropertyIdentifier.eventEnable));
+        assertNull(ai.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNull(ai.readProperty(PropertyIdentifier.notifyType));
+        assertNull(ai.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNull(ai.readProperty(PropertyIdentifier.eventMessageTexts));
+        assertNull(ai.readProperty(PropertyIdentifier.eventMessageTextsConfig));
+        assertNull(ai.readProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNull(ai.readProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
+        assertNull(ai.readProperty(PropertyIdentifier.eventAlgorithmInhibit));
+        assertNull(ai.readProperty(PropertyIdentifier.timeDelayNormal));
     }
 }

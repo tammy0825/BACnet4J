@@ -82,31 +82,31 @@ public class EventEnrollmentObjectTest extends AbstractTest {
 
         // Write a different normal value.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.lampFailure);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         // Set an offnormal value and then set back to normal before the time delay.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.activationFailure);
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.noFaultDetected);
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         // Do a real state change. Write an offnormal value. After 1s the alarm will be raised.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.communicationFailure);
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -114,7 +114,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -144,7 +144,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -164,24 +164,24 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.activationFailure);
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
 
         // Do a real state change. Write a normal value. After 1s the notification will be sent.
         av0.writePropertyInternal(PropertyIdentifier.reliability, Reliability.tripped);
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Allow the EE to poll
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
         clock.plus(700, TimeUnit.MILLISECONDS, 700, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(false, false, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(false, false, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -189,7 +189,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -227,20 +227,20 @@ public class EventEnrollmentObjectTest extends AbstractTest {
 
         // Write a different normal value.
         av1.writePropertyInternal(PropertyIdentifier.minPresValue, new Real(45));
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
-        assertEquals(Reliability.noFaultDetected, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(false, false, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(Reliability.noFaultDetected, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(false, false, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         // Write a fault value. Alarm will be sent.
         av1.writePropertyInternal(PropertyIdentifier.minPresValue, new Real(5));
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.fault, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(Reliability.underRange, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(true, true, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.fault, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(Reliability.underRange, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(true, true, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -248,7 +248,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
@@ -271,9 +271,9 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         // Write a different value. Another notification will be sent.
         av1.writePropertyInternal(PropertyIdentifier.minPresValue, new Real(95));
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.fault, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(Reliability.overRange, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(true, true, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.fault, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(Reliability.overRange, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(true, true, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -281,7 +281,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.fault.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(5), notif.get("priority"));
@@ -304,9 +304,9 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         // Write a normal value. Another notification will be sent.
         av1.writePropertyInternal(PropertyIdentifier.minPresValue, new Real(55));
         clock.plus(100, TimeUnit.MILLISECONDS, 100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
-        assertEquals(Reliability.noFaultDetected, ee.getProperty(PropertyIdentifier.reliability));
-        assertEquals(new StatusFlags(false, false, false, false), ee.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
+        assertEquals(Reliability.noFaultDetected, ee.readProperty(PropertyIdentifier.reliability));
+        assertEquals(new StatusFlags(false, false, false, false), ee.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -314,7 +314,7 @@ public class EventEnrollmentObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(5), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));

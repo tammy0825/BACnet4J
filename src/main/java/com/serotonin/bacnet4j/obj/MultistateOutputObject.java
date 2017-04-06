@@ -62,8 +62,7 @@ public class MultistateOutputObject extends BACnetObject {
             writePropertyInternal(PropertyIdentifier.outOfService, Boolean.valueOf(outOfService));
         }
 
-        addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.presentValue,
-                PropertyIdentifier.reliability));
+        addMixin(new WritablePropertyOutOfServiceMixin(this, PropertyIdentifier.reliability));
         addMixin(new ReadOnlyPropertyMixin(this, PropertyIdentifier.ackedTransitions,
                 PropertyIdentifier.eventTimeStamps, PropertyIdentifier.eventMessageTexts));
 

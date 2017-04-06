@@ -73,7 +73,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
         obj.writePropertyInternal(PropertyIdentifier.minimumOffTime, new UnsignedInteger(2)); // 4 seconds
         obj.writePropertyInternal(PropertyIdentifier.outOfService, Boolean.FALSE);
 
-        final PriorityArray pa = obj.getProperty(priorityArray);
+        final PriorityArray pa = obj.readProperty(priorityArray);
 
         // See Annex I for a description of this process.
         // a)
@@ -181,10 +181,10 @@ public class BinaryOutputObjectTest extends AbstractTest {
         // Do a state change. Write a value to indicate a command failure. After 5s the alarm will be raised.
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         clock.plus(4500, TimeUnit.MILLISECONDS, 4500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, obj.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, obj.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 80);
-        assertEquals(EventState.offnormal, obj.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), obj.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.offnormal, obj.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), obj.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -192,7 +192,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(obj.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) obj.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) obj.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -210,10 +210,10 @@ public class BinaryOutputObjectTest extends AbstractTest {
         // Return to normal. After 12s the notification will be sent.
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
         clock.plus(11500, TimeUnit.MILLISECONDS, 11500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, obj.getProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
+        assertEquals(EventState.offnormal, obj.readProperty(PropertyIdentifier.eventState)); // Still offnormal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, obj.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(false, false, false, false), obj.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.normal, obj.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(false, false, false, false), obj.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -221,7 +221,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(obj.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) obj.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) obj.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -258,7 +258,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
 
         // Ensure that initializing the event enrollment object didn't fire any notifications.
         Thread.sleep(40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         //
@@ -266,13 +266,13 @@ public class BinaryOutputObjectTest extends AbstractTest {
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -280,7 +280,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -300,13 +300,13 @@ public class BinaryOutputObjectTest extends AbstractTest {
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.offnormal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.offnormal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -314,7 +314,7 @@ public class BinaryOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -346,85 +346,85 @@ public class BinaryOutputObjectTest extends AbstractTest {
         obj.supportActiveTime(true);
 
         clock.plusMillis(3500);
-        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(UnsignedInteger.ZERO, obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         clock.plusMillis(1600); // Total active time 1600ms
-        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(1), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         clock.plusMillis(1600); // Total active time 3200ms
-        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(3), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.inactive);
         clock.plusMillis(7000);
-        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(3), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.inactive);
         clock.plusMillis(500);
-        assertEquals(new UnsignedInteger(3), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(3), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.feedbackValue, BinaryPV.active);
         clock.plusMillis(4700); // Total active time 7900ms
-        assertEquals(new UnsignedInteger(7), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(7), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, new UnsignedInteger(5));
-        assertEquals(new UnsignedInteger(5), obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(new UnsignedInteger(5), obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
 
         clock.plusMillis(1234);
         obj.writePropertyInternal(PropertyIdentifier.elapsedActiveTime, UnsignedInteger.ZERO);
-        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.elapsedActiveTime));
-        assertEquals(new DateTime(d1), obj.getProperty(PropertyIdentifier.timeOfActiveTimeReset));
+        assertEquals(UnsignedInteger.ZERO, obj.readProperty(PropertyIdentifier.elapsedActiveTime));
+        assertEquals(new DateTime(d1), obj.readProperty(PropertyIdentifier.timeOfActiveTimeReset));
     }
 
     @Test
     public void stateChanges() throws Exception {
         final DateTime start = new DateTime(d1);
-        assertEquals(DateTime.UNSPECIFIED, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(DateTime.UNSPECIFIED, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(UnsignedInteger.ZERO, obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(4);
         final DateTime t1 = new DateTime(d1);
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
-        assertEquals(t1, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(t1, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(1), obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(5);
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
-        assertEquals(t1, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(1), obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(t1, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(1), obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(6);
         final DateTime t2 = new DateTime(d1);
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.active);
         obj.writePropertyInternal(PropertyIdentifier.presentValue, BinaryPV.inactive);
-        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(4), obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(t2, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(4), obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(7);
         obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, new UnsignedInteger(123));
-        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(new UnsignedInteger(123), obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(start, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(t2, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(new UnsignedInteger(123), obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(start, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
 
         clock.plusMinutes(8);
         final DateTime t3 = new DateTime(d1);
         obj.writePropertyInternal(PropertyIdentifier.changeOfStateCount, UnsignedInteger.ZERO);
-        assertEquals(t2, obj.getProperty(PropertyIdentifier.changeOfStateTime));
-        assertEquals(UnsignedInteger.ZERO, obj.getProperty(PropertyIdentifier.changeOfStateCount));
-        assertEquals(t3, obj.getProperty(PropertyIdentifier.timeOfStateCountReset));
+        assertEquals(t2, obj.readProperty(PropertyIdentifier.changeOfStateTime));
+        assertEquals(UnsignedInteger.ZERO, obj.readProperty(PropertyIdentifier.changeOfStateCount));
+        assertEquals(t3, obj.readProperty(PropertyIdentifier.timeOfStateCountReset));
     }
 
     @Test

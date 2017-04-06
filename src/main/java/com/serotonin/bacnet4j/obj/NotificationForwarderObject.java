@@ -234,7 +234,7 @@ public class NotificationForwarderObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid) {
+    protected void beforeReadProperty(final PropertyIdentifier pid) {
         if (PropertyIdentifier.subscribedRecipients.equals(pid)) {
             updateSubscribedRecipients();
         }
@@ -253,8 +253,7 @@ public class NotificationForwarderObject extends BACnetObject {
         }
 
         @Override
-        protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
-                throws BACnetServiceException {
+        protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value) {
             if (PropertyIdentifier.subscribedRecipients.equals(value.getPropertyIdentifier())) {
                 final SequenceOf<EventNotificationSubscription> subscribedRecipients = value.getValue();
                 final long now = getLocalDevice().getClock().millis();

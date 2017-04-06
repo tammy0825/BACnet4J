@@ -225,7 +225,7 @@ public class AtomicWriteFileRequestTest {
                             new OctetString(
                                     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzX".getBytes())),
                     rack.getRecordAccess().getFileRecordData());
-            assertEquals(new UnsignedInteger(14), f1.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(14), f1.readProperty(PropertyIdentifier.recordCount, null));
 
             d1.removeObject(f1.getId());
         });
@@ -252,7 +252,7 @@ public class AtomicWriteFileRequestTest {
                     new OctetString("Write 1".getBytes()), //
                     new OctetString("Write 2".getBytes()), //
                     new OctetString("Write 3".getBytes())), rack.getRecordAccess().getFileRecordData());
-            assertEquals(new UnsignedInteger(15), f1.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(15), f1.readProperty(PropertyIdentifier.recordCount, null));
 
             d1.removeObject(f1.getId());
         });
@@ -282,7 +282,7 @@ public class AtomicWriteFileRequestTest {
                     new OctetString("Write 1".getBytes()), //
                     new OctetString("Write 2".getBytes()), //
                     new OctetString("Write 3".getBytes())), rack.getRecordAccess().getFileRecordData());
-            assertEquals(new UnsignedInteger(19), f1.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(19), f1.readProperty(PropertyIdentifier.recordCount, null));
 
             d1.removeObject(f1.getId());
         });
@@ -310,7 +310,7 @@ public class AtomicWriteFileRequestTest {
                     new OctetString("Write 1".getBytes()), //
                     new OctetString("Write 2".getBytes()), //
                     new OctetString("Write 3".getBytes())), rack.getRecordAccess().getFileRecordData());
-            assertEquals(new UnsignedInteger(17), f1.getProperty(PropertyIdentifier.recordCount, null));
+            assertEquals(new UnsignedInteger(17), f1.readProperty(PropertyIdentifier.recordCount, null));
 
             d1.removeObject(f1.getId());
         });

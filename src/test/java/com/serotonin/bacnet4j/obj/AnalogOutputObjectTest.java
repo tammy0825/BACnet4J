@@ -74,10 +74,10 @@ public class AnalogOutputObjectTest extends AbstractTest {
         // Do a real state change. Write an out of range value. After 60s the alarm will be raised.
         ao.writePropertyInternal(PropertyIdentifier.presentValue, new Real(101));
         clock.plus(59500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ao.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, ao.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ao.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), ao.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.highLimit, ao.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), ao.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -85,7 +85,7 @@ public class AnalogOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(ao.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ao.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ao.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -102,13 +102,13 @@ public class AnalogOutputObjectTest extends AbstractTest {
 
         // Return to normal. After 180s the notification will be sent.
         ao.writePropertyInternal(PropertyIdentifier.presentValue, new Real(94));
-        assertEquals(EventState.highLimit, ao.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ao.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(179999, TimeUnit.MILLISECONDS, 179999, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ao.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ao.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(2, TimeUnit.MILLISECONDS, 2, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ao.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ao.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.highLimit, notif.get("fromState"));
@@ -121,18 +121,18 @@ public class AnalogOutputObjectTest extends AbstractTest {
 
     @Test
     public void propertyConformanceRequired() throws Exception {
-        assertNotNull(ao.getProperty(PropertyIdentifier.objectIdentifier));
-        assertNotNull(ao.getProperty(PropertyIdentifier.objectName));
-        assertNotNull(ao.getProperty(PropertyIdentifier.objectType));
-        assertNotNull(ao.getProperty(PropertyIdentifier.presentValue));
-        assertNotNull(ao.getProperty(PropertyIdentifier.statusFlags));
-        assertNotNull(ao.getProperty(PropertyIdentifier.eventState));
-        assertNotNull(ao.getProperty(PropertyIdentifier.outOfService));
-        assertNotNull(ao.getProperty(PropertyIdentifier.units));
-        assertNotNull(ao.getProperty(PropertyIdentifier.priorityArray));
-        assertNotNull(ao.getProperty(PropertyIdentifier.relinquishDefault));
-        assertNotNull(ao.getProperty(PropertyIdentifier.propertyList));
-        assertNotNull(ao.getProperty(PropertyIdentifier.currentCommandPriority));
+        assertNotNull(ao.readProperty(PropertyIdentifier.objectIdentifier));
+        assertNotNull(ao.readProperty(PropertyIdentifier.objectName));
+        assertNotNull(ao.readProperty(PropertyIdentifier.objectType));
+        assertNotNull(ao.readProperty(PropertyIdentifier.presentValue));
+        assertNotNull(ao.readProperty(PropertyIdentifier.statusFlags));
+        assertNotNull(ao.readProperty(PropertyIdentifier.eventState));
+        assertNotNull(ao.readProperty(PropertyIdentifier.outOfService));
+        assertNotNull(ao.readProperty(PropertyIdentifier.units));
+        assertNotNull(ao.readProperty(PropertyIdentifier.priorityArray));
+        assertNotNull(ao.readProperty(PropertyIdentifier.relinquishDefault));
+        assertNotNull(ao.readProperty(PropertyIdentifier.propertyList));
+        assertNotNull(ao.readProperty(PropertyIdentifier.currentCommandPriority));
     }
 
     @Test
@@ -154,44 +154,44 @@ public class AnalogOutputObjectTest extends AbstractTest {
     @Test
     public void propertyConformanceRequiredWhenCOVReporting() throws Exception {
         ao.supportCovReporting(1);
-        assertNotNull(ao.getProperty(PropertyIdentifier.covIncrement));
+        assertNotNull(ao.readProperty(PropertyIdentifier.covIncrement));
     }
 
     @Test
     public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         ao.supportIntrinsicReporting(30, 17, 60, 40, 1, new LimitEnable(true, true),
                 new EventTransitionBits(true, true, true), NotifyType.alarm, 10);
-        assertNotNull(ao.getProperty(PropertyIdentifier.timeDelay));
-        assertNotNull(ao.getProperty(PropertyIdentifier.notificationClass));
-        assertNotNull(ao.getProperty(PropertyIdentifier.highLimit));
-        assertNotNull(ao.getProperty(PropertyIdentifier.lowLimit));
-        assertNotNull(ao.getProperty(PropertyIdentifier.deadband));
-        assertNotNull(ao.getProperty(PropertyIdentifier.limitEnable));
-        assertNotNull(ao.getProperty(PropertyIdentifier.eventEnable));
-        assertNotNull(ao.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNotNull(ao.getProperty(PropertyIdentifier.notifyType));
-        assertNotNull(ao.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNotNull(ao.getProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNotNull(ao.readProperty(PropertyIdentifier.timeDelay));
+        assertNotNull(ao.readProperty(PropertyIdentifier.notificationClass));
+        assertNotNull(ao.readProperty(PropertyIdentifier.highLimit));
+        assertNotNull(ao.readProperty(PropertyIdentifier.lowLimit));
+        assertNotNull(ao.readProperty(PropertyIdentifier.deadband));
+        assertNotNull(ao.readProperty(PropertyIdentifier.limitEnable));
+        assertNotNull(ao.readProperty(PropertyIdentifier.eventEnable));
+        assertNotNull(ao.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNotNull(ao.readProperty(PropertyIdentifier.notifyType));
+        assertNotNull(ao.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNotNull(ao.readProperty(PropertyIdentifier.eventDetectionEnable));
     }
 
     @Test
     public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
-        assertNull(ao.getProperty(PropertyIdentifier.timeDelay));
-        assertNull(ao.getProperty(PropertyIdentifier.notificationClass));
-        assertNull(ao.getProperty(PropertyIdentifier.highLimit));
-        assertNull(ao.getProperty(PropertyIdentifier.lowLimit));
-        assertNull(ao.getProperty(PropertyIdentifier.deadband));
-        assertNull(ao.getProperty(PropertyIdentifier.limitEnable));
-        assertNull(ao.getProperty(PropertyIdentifier.eventEnable));
-        assertNull(ao.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNull(ao.getProperty(PropertyIdentifier.notifyType));
-        assertNull(ao.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNull(ao.getProperty(PropertyIdentifier.eventMessageTexts));
-        assertNull(ao.getProperty(PropertyIdentifier.eventMessageTextsConfig));
-        assertNull(ao.getProperty(PropertyIdentifier.eventDetectionEnable));
-        assertNull(ao.getProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
-        assertNull(ao.getProperty(PropertyIdentifier.eventAlgorithmInhibit));
-        assertNull(ao.getProperty(PropertyIdentifier.timeDelayNormal));
+        assertNull(ao.readProperty(PropertyIdentifier.timeDelay));
+        assertNull(ao.readProperty(PropertyIdentifier.notificationClass));
+        assertNull(ao.readProperty(PropertyIdentifier.highLimit));
+        assertNull(ao.readProperty(PropertyIdentifier.lowLimit));
+        assertNull(ao.readProperty(PropertyIdentifier.deadband));
+        assertNull(ao.readProperty(PropertyIdentifier.limitEnable));
+        assertNull(ao.readProperty(PropertyIdentifier.eventEnable));
+        assertNull(ao.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNull(ao.readProperty(PropertyIdentifier.notifyType));
+        assertNull(ao.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNull(ao.readProperty(PropertyIdentifier.eventMessageTexts));
+        assertNull(ao.readProperty(PropertyIdentifier.eventMessageTextsConfig));
+        assertNull(ao.readProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNull(ao.readProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
+        assertNull(ao.readProperty(PropertyIdentifier.eventAlgorithmInhibit));
+        assertNull(ao.readProperty(PropertyIdentifier.timeDelayNormal));
     }
 
     @SuppressWarnings("unchecked")
@@ -214,7 +214,7 @@ public class AnalogOutputObjectTest extends AbstractTest {
 
         // Ensure that initializing the event enrollment object didn't fire any notifications.
         Thread.sleep(40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         //
@@ -222,13 +222,13 @@ public class AnalogOutputObjectTest extends AbstractTest {
         ao.writePropertyInternal(PropertyIdentifier.presentValue, new Real(70));
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -236,7 +236,7 @@ public class AnalogOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.highLimit.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -256,13 +256,13 @@ public class AnalogOutputObjectTest extends AbstractTest {
         ao.writePropertyInternal(PropertyIdentifier.presentValue, new Real(40));
         // Allow the EE to poll
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until just before the time delay.
         clock.plus(29500, TimeUnit.MILLISECONDS, 29500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, ee.readProperty(PropertyIdentifier.eventState));
         // Wait until after the time delay.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, ee.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, ee.readProperty(PropertyIdentifier.eventState));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -270,7 +270,7 @@ public class AnalogOutputObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(ee.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) ee.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) ee.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(17), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));

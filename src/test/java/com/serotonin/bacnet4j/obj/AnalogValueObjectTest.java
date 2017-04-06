@@ -64,27 +64,27 @@ public class AnalogValueObjectTest extends AbstractTest {
 
         // Write a different normal value.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(60));
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         // Ensure that no notifications are sent.
         assertEquals(0, listener.notifs.size());
 
         // Set an out of range value and then set back to normal before the time delay.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(90));
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
 
         // Do a real state change. Write an out of range value. After 1 seconds the alarm will be raised.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(10));
         clock.plus(500, TimeUnit.MILLISECONDS, 500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState)); // Still normal at this point.
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState)); // Still normal at this point.
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
-        assertEquals(new StatusFlags(true, false, false, false), av.getProperty(PropertyIdentifier.statusFlags));
+        assertEquals(EventState.lowLimit, av.readProperty(PropertyIdentifier.eventState));
+        assertEquals(new StatusFlags(true, false, false, false), av.readProperty(PropertyIdentifier.statusFlags));
 
         // Ensure that a proper looking event notification was received.
         assertEquals(1, listener.notifs.size());
@@ -92,7 +92,7 @@ public class AnalogValueObjectTest extends AbstractTest {
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(av.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) av.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) av.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.offnormal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(7), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(100), notif.get("priority"));
@@ -107,14 +107,14 @@ public class AnalogValueObjectTest extends AbstractTest {
 
         // Disable low limit checking. Will return to normal immediately.
         av.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(false, true));
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState));
         Thread.sleep(40);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(10), notif.get("processIdentifier"));
         assertEquals(rd1.getObjectIdentifier(), notif.get("initiatingDevice"));
         assertEquals(av.getId(), notif.get("eventObjectIdentifier"));
-        assertEquals(((BACnetArray<TimeStamp>) av.getProperty(PropertyIdentifier.eventTimeStamps))
+        assertEquals(((BACnetArray<TimeStamp>) av.readProperty(PropertyIdentifier.eventTimeStamps))
                 .getBase1(EventState.normal.getTransitionIndex()), notif.get("timeStamp"));
         assertEquals(new UnsignedInteger(7), notif.get("notificationClass"));
         assertEquals(new UnsignedInteger(200), notif.get("priority"));
@@ -131,9 +131,9 @@ public class AnalogValueObjectTest extends AbstractTest {
 
         // Re-enable low limit checking. Will return to low-limit after 1 second.
         av.writePropertyInternal(PropertyIdentifier.limitEnable, new LimitEnable(true, true));
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.lowLimit, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventType.outOfRange, notif.get("eventType"));
@@ -144,9 +144,9 @@ public class AnalogValueObjectTest extends AbstractTest {
 
         // Go to a high limit. Will change to high-limit after 1 second.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(110));
-        assertEquals(EventState.lowLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.lowLimit, av.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.lowLimit, notif.get("fromState"));
@@ -158,20 +158,20 @@ public class AnalogValueObjectTest extends AbstractTest {
 
         // Reduce to within the deadband. No notification.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(95));
-        assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, av.readProperty(PropertyIdentifier.eventState));
         clock.plus(1100, TimeUnit.MILLISECONDS, 1100, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
 
         // Reduce to below the deadband. Return to normal after 2 seconds.
         av.writePropertyInternal(PropertyIdentifier.presentValue, new Real(94));
-        assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(1500, TimeUnit.MILLISECONDS, 1500, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.highLimit, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.highLimit, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(0, listener.notifs.size());
         clock.plus(600, TimeUnit.MILLISECONDS, 600, TimeUnit.MILLISECONDS, 0, 40);
-        assertEquals(EventState.normal, av.getProperty(PropertyIdentifier.eventState));
+        assertEquals(EventState.normal, av.readProperty(PropertyIdentifier.eventState));
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(EventState.highLimit, notif.get("fromState"));

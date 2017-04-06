@@ -94,7 +94,7 @@ public class NotificationForwarderObjectTest extends AbstractTest {
                                 new UnsignedInteger(36)))).handle(d1, null);
 
         // Ensure that the subscribers are there, and that the various ways of getting the data produce the same result.
-        SequenceOf<EventNotificationSubscription> enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        SequenceOf<EventNotificationSubscription> enss = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(3, enss.size());
         assertEquals(new Recipient(d2.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
@@ -115,7 +115,7 @@ public class NotificationForwarderObjectTest extends AbstractTest {
 
         // Advance the clock and ensure that subscriptions have expired and the times remaining has been updated.
         clock.plusSeconds(180);
-        enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        enss = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(2, enss.size());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
         assertEquals(new UnsignedInteger(3420), enss.get(0).getTimeRemaining());
@@ -131,7 +131,7 @@ public class NotificationForwarderObjectTest extends AbstractTest {
                                 new UnsignedInteger(360)),
                         new EventNotificationSubscription(new Recipient(d4.getId()), new Unsigned32(1), Boolean.TRUE,
                                 new UnsignedInteger(36)))).handle(d1, null);
-        enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        enss = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(4, enss.size());
         assertEquals(new Recipient(d2.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
@@ -159,7 +159,7 @@ public class NotificationForwarderObjectTest extends AbstractTest {
                                 UnsignedInteger.ZERO),
                         new EventNotificationSubscription(new Recipient(d2.getId()), new Unsigned32(4), Boolean.TRUE,
                                 new UnsignedInteger(36)))).handle(d1, null);
-        enss = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        enss = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(1, enss.size());
         assertEquals(new Recipient(d4.getId()), enss.get(0).getRecipient());
         assertEquals(new Unsigned32(1), enss.get(0).getProcessIdentifier());
@@ -301,11 +301,11 @@ public class NotificationForwarderObjectTest extends AbstractTest {
                 new ProcessIdSelection(Null.instance), portFilter, false);
 
         // Ensure that there are no recipients or subscriptions.
-        SequenceOf<Destination> recipients = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        SequenceOf<Destination> recipients = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(0, recipients.size());
 
         SequenceOf<EventNotificationSubscription> subscriptions = nf
-                .getProperty(PropertyIdentifier.subscribedRecipients);
+                .readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(0, subscriptions.size());
 
         //
@@ -321,10 +321,10 @@ public class NotificationForwarderObjectTest extends AbstractTest {
                         Boolean.FALSE, new UnsignedInteger(50)))).handle(d1, null);
 
         // Make sure they are there.
-        recipients = nf.getProperty(PropertyIdentifier.recipientList);
+        recipients = nf.readProperty(PropertyIdentifier.recipientList);
         assertEquals(2, recipients.size());
 
-        subscriptions = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        subscriptions = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(1, subscriptions.size());
 
         //
@@ -335,9 +335,9 @@ public class NotificationForwarderObjectTest extends AbstractTest {
         // Create the object new again and ensure that the lists were loaded from the file.
         nf = new NotificationForwarderObject(d1, 0, "nf", false, new ProcessIdSelection(Null.instance), portFilter,
                 false);
-        recipients = nf.getProperty(PropertyIdentifier.recipientList);
+        recipients = nf.readProperty(PropertyIdentifier.recipientList);
         assertEquals(2, recipients.size());
-        subscriptions = nf.getProperty(PropertyIdentifier.subscribedRecipients);
+        subscriptions = nf.readProperty(PropertyIdentifier.subscribedRecipients);
         assertEquals(1, subscriptions.size());
 
         // Clean up

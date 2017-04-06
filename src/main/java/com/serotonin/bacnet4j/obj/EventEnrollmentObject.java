@@ -233,9 +233,9 @@ public class EventEnrollmentObject extends BACnetObject {
             }
 
             try {
-                value = bo.getProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
+                value = bo.readProperty(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex());
                 for (final PropertyIdentifier pid : monitoredProperties) {
-                    additionalValues.put(new ObjectPropertyReference(bo.getId(), pid), bo.getProperty(pid));
+                    additionalValues.put(new ObjectPropertyReference(bo.getId(), pid), bo.readProperty(pid));
                 }
             } catch (final BACnetServiceException e) {
                 throw new PollException("Error getting property from local object at " + ref, e);
@@ -319,7 +319,7 @@ public class EventEnrollmentObject extends BACnetObject {
             additionalValues.put(
                     new ObjectPropertyReference(bo.getId(), paramRef.getPropertyIdentifier(),
                             paramRef.getPropertyArrayIndex()),
-                    bo.getProperty(paramRef.getPropertyIdentifier(), paramRef.getPropertyArrayIndex()));
+                    bo.readProperty(paramRef.getPropertyIdentifier(), paramRef.getPropertyArrayIndex()));
         } catch (final BACnetServiceException e) {
             throw new PollException("Error getting property from local object at " + paramRef, e);
         }

@@ -122,14 +122,14 @@ public class BinaryValueObjectTest extends AbstractTest {
 
     @Test
     public void propertyConformanceRequired() throws Exception {
-        assertNotNull(bv.getProperty(PropertyIdentifier.objectIdentifier));
-        assertNotNull(bv.getProperty(PropertyIdentifier.objectName));
-        assertNotNull(bv.getProperty(PropertyIdentifier.objectType));
-        assertNotNull(bv.getProperty(PropertyIdentifier.presentValue));
-        assertNotNull(bv.getProperty(PropertyIdentifier.statusFlags));
-        assertNotNull(bv.getProperty(PropertyIdentifier.eventState));
-        assertNotNull(bv.getProperty(PropertyIdentifier.outOfService));
-        assertNotNull(bv.getProperty(PropertyIdentifier.propertyList));
+        assertNotNull(bv.readProperty(PropertyIdentifier.objectIdentifier));
+        assertNotNull(bv.readProperty(PropertyIdentifier.objectName));
+        assertNotNull(bv.readProperty(PropertyIdentifier.objectType));
+        assertNotNull(bv.readProperty(PropertyIdentifier.presentValue));
+        assertNotNull(bv.readProperty(PropertyIdentifier.statusFlags));
+        assertNotNull(bv.readProperty(PropertyIdentifier.eventState));
+        assertNotNull(bv.readProperty(PropertyIdentifier.outOfService));
+        assertNotNull(bv.readProperty(PropertyIdentifier.propertyList));
     }
 
     @Test
@@ -174,31 +174,31 @@ public class BinaryValueObjectTest extends AbstractTest {
     public void propertyConformanceRequiredWhenIntrinsicReporting() throws Exception {
         bv.supportIntrinsicReporting(30, 17, BinaryPV.active, new EventTransitionBits(true, true, true),
                 NotifyType.alarm, 60);
-        assertNotNull(bv.getProperty(PropertyIdentifier.timeDelay));
-        assertNotNull(bv.getProperty(PropertyIdentifier.notificationClass));
-        assertNotNull(bv.getProperty(PropertyIdentifier.alarmValue));
-        assertNotNull(bv.getProperty(PropertyIdentifier.eventEnable));
-        assertNotNull(bv.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNotNull(bv.getProperty(PropertyIdentifier.notifyType));
-        assertNotNull(bv.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNotNull(bv.getProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNotNull(bv.readProperty(PropertyIdentifier.timeDelay));
+        assertNotNull(bv.readProperty(PropertyIdentifier.notificationClass));
+        assertNotNull(bv.readProperty(PropertyIdentifier.alarmValue));
+        assertNotNull(bv.readProperty(PropertyIdentifier.eventEnable));
+        assertNotNull(bv.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNotNull(bv.readProperty(PropertyIdentifier.notifyType));
+        assertNotNull(bv.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNotNull(bv.readProperty(PropertyIdentifier.eventDetectionEnable));
     }
 
     @Test
     public void propertyConformanceForbiddenWhenNotIntrinsicReporting() throws Exception {
-        assertNull(bv.getProperty(PropertyIdentifier.timeDelay));
-        assertNull(bv.getProperty(PropertyIdentifier.notificationClass));
-        assertNull(bv.getProperty(PropertyIdentifier.alarmValue));
-        assertNull(bv.getProperty(PropertyIdentifier.eventEnable));
-        assertNull(bv.getProperty(PropertyIdentifier.ackedTransitions));
-        assertNull(bv.getProperty(PropertyIdentifier.notifyType));
-        assertNull(bv.getProperty(PropertyIdentifier.eventTimeStamps));
-        assertNull(bv.getProperty(PropertyIdentifier.eventMessageTexts));
-        assertNull(bv.getProperty(PropertyIdentifier.eventMessageTextsConfig));
-        assertNull(bv.getProperty(PropertyIdentifier.eventDetectionEnable));
-        assertNull(bv.getProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
-        assertNull(bv.getProperty(PropertyIdentifier.eventAlgorithmInhibit));
-        assertNull(bv.getProperty(PropertyIdentifier.timeDelayNormal));
+        assertNull(bv.readProperty(PropertyIdentifier.timeDelay));
+        assertNull(bv.readProperty(PropertyIdentifier.notificationClass));
+        assertNull(bv.readProperty(PropertyIdentifier.alarmValue));
+        assertNull(bv.readProperty(PropertyIdentifier.eventEnable));
+        assertNull(bv.readProperty(PropertyIdentifier.ackedTransitions));
+        assertNull(bv.readProperty(PropertyIdentifier.notifyType));
+        assertNull(bv.readProperty(PropertyIdentifier.eventTimeStamps));
+        assertNull(bv.readProperty(PropertyIdentifier.eventMessageTexts));
+        assertNull(bv.readProperty(PropertyIdentifier.eventMessageTextsConfig));
+        assertNull(bv.readProperty(PropertyIdentifier.eventDetectionEnable));
+        assertNull(bv.readProperty(PropertyIdentifier.eventAlgorithmInhibitRef));
+        assertNull(bv.readProperty(PropertyIdentifier.eventAlgorithmInhibit));
+        assertNull(bv.readProperty(PropertyIdentifier.timeDelayNormal));
     }
 
     @Test
@@ -276,9 +276,9 @@ public class BinaryValueObjectTest extends AbstractTest {
         // Set a value at priority 16.
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.inactive);
         // Ensure the priority array looks right.
-        assertEquals(new PriorityArray().put(16, BinaryPV.inactive), bv.getProperty(priorityArray));
+        assertEquals(new PriorityArray().put(16, BinaryPV.inactive), bv.readProperty(priorityArray));
         // Ensure the present value looks right.
-        assertEquals(BinaryPV.inactive, bv.getProperty(presentValue));
+        assertEquals(BinaryPV.inactive, bv.readProperty(presentValue));
         // Ensure the present value looks right when read via service.
         assertEquals(BinaryPV.inactive, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
@@ -286,36 +286,36 @@ public class BinaryValueObjectTest extends AbstractTest {
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, BinaryPV.active, 15);
         // Ensure the priority array looks right.
         assertEquals(new PriorityArray().put(15, BinaryPV.active).put(16, BinaryPV.inactive),
-                bv.getProperty(priorityArray));
+                bv.readProperty(priorityArray));
         // Ensure the present value looks right.
-        assertEquals(BinaryPV.active, bv.getProperty(presentValue));
+        assertEquals(BinaryPV.active, bv.readProperty(presentValue));
         // Ensure the present value looks right when read via service.
         assertEquals(BinaryPV.active, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
         // Relinquish at 16
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, Null.instance);
         // Ensure the priority array looks right.
-        assertEquals(new PriorityArray().put(15, BinaryPV.active), bv.getProperty(priorityArray));
+        assertEquals(new PriorityArray().put(15, BinaryPV.active), bv.readProperty(priorityArray));
         // Ensure the present value looks right.
-        assertEquals(BinaryPV.active, bv.getProperty(presentValue));
+        assertEquals(BinaryPV.active, bv.readProperty(presentValue));
         // Ensure the present value looks right when read via service.
         assertEquals(BinaryPV.active, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
         // Relinquish at priority 15.
         RequestUtils.writeProperty(d2, rd1, bv.getId(), presentValue, Null.instance, 15);
         // Ensure the priority array looks right.
-        assertEquals(new PriorityArray(), bv.getProperty(priorityArray));
+        assertEquals(new PriorityArray(), bv.readProperty(priorityArray));
         // Ensure the present value looks right.
-        assertEquals(BinaryPV.inactive, bv.getProperty(presentValue));
+        assertEquals(BinaryPV.inactive, bv.readProperty(presentValue));
         // Ensure the present value looks right when read via service.
         assertEquals(BinaryPV.inactive, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
 
         // Change the relinquish default
         RequestUtils.writeProperty(d2, rd1, bv.getId(), relinquishDefault, BinaryPV.active);
         // Ensure the relinquish default looks right.
-        assertEquals(BinaryPV.active, bv.getProperty(relinquishDefault));
+        assertEquals(BinaryPV.active, bv.readProperty(relinquishDefault));
         // Ensure the present value looks right.
-        assertEquals(BinaryPV.active, bv.getProperty(presentValue));
+        assertEquals(BinaryPV.active, bv.readProperty(presentValue));
         // Ensure the present value looks right when read via service.
         assertEquals(BinaryPV.active, RequestUtils.getProperty(d2, rd1, bv.getId(), presentValue));
     }

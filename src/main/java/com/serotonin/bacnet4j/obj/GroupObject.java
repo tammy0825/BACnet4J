@@ -46,7 +46,7 @@ public class GroupObject extends BACnetObject {
     }
 
     @Override
-    protected void beforeGetProperty(final PropertyIdentifier pid) {
+    protected void beforeReadProperty(final PropertyIdentifier pid) {
         if (PropertyIdentifier.presentValue.equals(pid)) {
             // Construct the present value.
             final SequenceOf<ReadAccessResult> presentValue = new SequenceOf<>();
@@ -64,7 +64,7 @@ public class GroupObject extends BACnetObject {
                     } else {
                         Encodable value;
                         try {
-                            value = targetObject.getPropertyRequired(ref.getPropertyIdentifier(),
+                            value = targetObject.readPropertyRequired(ref.getPropertyIdentifier(),
                                     ref.getPropertyArrayIndex());
                         } catch (final BACnetServiceException e) {
                             // Property read error.

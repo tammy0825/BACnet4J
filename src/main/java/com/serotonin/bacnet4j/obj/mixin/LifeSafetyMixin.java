@@ -52,8 +52,7 @@ public class LifeSafetyMixin extends AbstractMixin {
     }
 
     @Override
-    protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value)
-            throws BACnetServiceException {
+    protected boolean writeProperty(final ValueSource valueSource, final PropertyValue value) {
         if (value.getPropertyIdentifier().equals(PropertyIdentifier.mode)) {
             writePropertyInternal(PropertyIdentifier.valueSource, valueSource);
         }

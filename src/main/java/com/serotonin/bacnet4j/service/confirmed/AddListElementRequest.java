@@ -88,7 +88,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
 
         Encodable e;
         try {
-            e = obj.getPropertyRequired(propertyIdentifier);
+            e = obj.readPropertyRequired(propertyIdentifier);
         } catch (final BACnetServiceException ex) {
             throw createException(ex.getErrorClass(), ex.getErrorCode(), UnsignedInteger.ZERO);
         }
@@ -155,7 +155,11 @@ public class AddListElementRequest extends ConfirmedRequestService {
             e = origList;
         }
 
-        obj.writeProperty(new ValueSource(from), propertyIdentifier, e);
+        try {
+            obj.writeProperty(new ValueSource(from), propertyIdentifier, e);
+        } catch (final BACnetServiceException ex) {
+            throw createException(ex.getErrorClass(), ex.getErrorCode(), UnsignedInteger.ZERO);
+        }
 
         localDevice.getEventHandler().propertyWritten(from, obj, pv);
 
