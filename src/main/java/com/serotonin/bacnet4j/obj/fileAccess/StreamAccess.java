@@ -26,6 +26,10 @@ public class StreamAccess implements FileAccess {
         this.file = file;
     }
 
+    public File getFile() {
+        return file;
+    }
+
     @Override
     public FileAccessMethod getAccessMethod() {
         return FileAccessMethod.streamAccess;
@@ -69,6 +73,11 @@ public class StreamAccess implements FileAccess {
     @Override
     public boolean canWrite() {
         return file.canWrite();
+    }
+
+    @Override
+    public boolean delete() {
+        return file.delete();
     }
 
     @Override

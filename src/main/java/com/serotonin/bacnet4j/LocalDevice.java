@@ -54,10 +54,12 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.cache.CachePolicies;
 import com.serotonin.bacnet4j.cache.RemoteEntityCache;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
+import com.serotonin.bacnet4j.event.DefaultReinitializeDeviceHandler;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.event.DeviceEventHandler;
 import com.serotonin.bacnet4j.event.ExceptionDispatcher;
 import com.serotonin.bacnet4j.event.PrivateTransferHandler;
+import com.serotonin.bacnet4j.event.ReinitializeDeviceHandler;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.Network;
@@ -152,6 +154,9 @@ public class LocalDevice {
 
     // Confirmed private transfer handlers.
     private final Map<VendorServiceKey, PrivateTransferHandler> privateTransferHandlers = new HashMap<>();
+
+    // Reinitialize device handler
+    private ReinitializeDeviceHandler reinitializeDeviceHandler = new DefaultReinitializeDeviceHandler();
 
     private ScheduledExecutorService timer;
 
@@ -257,6 +262,14 @@ public class LocalDevice {
     public PrivateTransferHandler getPrivateTransferHandler(final UnsignedInteger vendorId,
             final UnsignedInteger serviceNumber) {
         return privateTransferHandlers.get(new VendorServiceKey(vendorId, serviceNumber));
+    }
+
+    public ReinitializeDeviceHandler getReinitializeDeviceHandler() {
+        return reinitializeDeviceHandler;
+    }
+
+    public void setReinitializeDeviceHandler(final ReinitializeDeviceHandler reinitializeDeviceHandler) {
+        this.reinitializeDeviceHandler = reinitializeDeviceHandler;
     }
 
     /**
@@ -530,7 +543,7 @@ public class LocalDevice {
         return i;
     }
 
-    public void removeObject(final ObjectIdentifier id) throws BACnetServiceException {
+    public BACnetObject removeObject(final ObjectIdentifier id) throws BACnetServiceException {
         final BACnetObject obj = getObject(id);
         if (obj != null) {
             localObjects.remove(obj);
@@ -539,6 +552,8 @@ public class LocalDevice {
             obj.terminate();
         } else
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.unknownObject);
+
+        return obj;
     }
 
     public ServicesSupported getServicesSupported() {

@@ -79,6 +79,11 @@ public class CrlfDelimitedFileAccess implements RecordAccess {
     }
 
     @Override
+    public boolean delete() {
+        return file.delete();
+    }
+
+    @Override
     public void validateFileSizeWrite(final long fileSize) throws BACnetServiceException {
         // Overridden to allow the writing of the file size.
     }

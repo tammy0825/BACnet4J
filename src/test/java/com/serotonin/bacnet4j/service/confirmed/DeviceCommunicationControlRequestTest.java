@@ -9,9 +9,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.AbstractTest;
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
+import com.serotonin.bacnet4j.event.DefaultReinitializeDeviceHandler;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.CommunicationDisabledException;
@@ -19,6 +22,7 @@ import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.service.confirmed.DeviceCommunicationControlRequest.EnableDisable;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
+import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -128,7 +132,19 @@ public class DeviceCommunicationControlRequestTest extends AbstractTest {
             // Expected
         }
 
-        // Reinitialize "works", or at least doesn't return an error.
+        // Start backup "works" by returning a communication disabled error.
+        TestUtils.assertErrorAPDUException(() -> {
+            d2.send(rd1, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.startBackup, null)).get();
+        }, ErrorClass.services, ErrorCode.communicationDisabled);
+
+        // Reinitialize "works", or at least doesn't return an error after the proper method is overridden.
+        d1.setReinitializeDeviceHandler(new DefaultReinitializeDeviceHandler() {
+            @Override
+            protected void activateChanges(final LocalDevice localDevice, final Address from)
+                    throws BACnetErrorException {
+                // no op
+            }
+        });
         d2.send(rd1, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.activateChanges, null)).get();
 
         // Re-enable

@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.RemoteObject;
 import com.serotonin.bacnet4j.obj.BACnetObject;
-import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
+import com.serotonin.bacnet4j.service.Service;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -84,7 +84,7 @@ public class DeviceEventHandler {
             try {
                 if (!l.allowPropertyWrite(from, obj, pv))
                     return false;
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -95,7 +95,7 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.iAmReceived(d);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -105,7 +105,7 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.propertyWritten(from, obj, pv);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -115,7 +115,7 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.iHaveReceived(d, o);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -128,7 +128,7 @@ public class DeviceEventHandler {
             try {
                 l.covNotificationReceived(subscriberProcessIdentifier, initiatingDeviceIdentifier,
                         monitoredObjectIdentifier, timeRemaining, listOfValues);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -145,7 +145,7 @@ public class DeviceEventHandler {
                 l.eventNotificationReceived(processIdentifier, initiatingDeviceIdentifier, eventObjectIdentifier,
                         timeStamp, notificationClass, priority, eventType, messageText, notifyType, ackRequired,
                         fromState, toState, eventValues);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -156,17 +156,7 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.textMessageReceived(textMessageSourceDevice, messageClass, messagePriority, message);
-            } catch (final Throwable e) {
-                handleException(l, e);
-            }
-        }
-    }
-
-    public void reinitializeDevice(final Address from, final ReinitializedStateOfDevice reinitializedStateOfDevice) {
-        for (final DeviceEventListener l : listeners) {
-            try {
-                l.reinitializeDevice(from, reinitializedStateOfDevice);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
@@ -176,21 +166,31 @@ public class DeviceEventHandler {
         for (final DeviceEventListener l : listeners) {
             try {
                 l.synchronizeTime(from, dateTime, utc);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 handleException(l, e);
             }
         }
     }
 
-    public void handleException(final Throwable e) {
+    public void requestReceived(final Address from, final Service service) {
+        for (final DeviceEventListener l : listeners) {
+            try {
+                l.requestReceived(from, service);
+            } catch (final Exception e) {
+                handleException(l, e);
+            }
+        }
+    }
+
+    public void handleException(final Exception e) {
         for (final DeviceEventListener l : listeners)
             handleException(l, e);
     }
 
-    private static void handleException(final DeviceEventListener l, final Throwable e) {
+    private static void handleException(final DeviceEventListener l, final Exception e) {
         try {
             l.listenerException(e);
-        } catch (@SuppressWarnings("unused") final Throwable e1) {
+        } catch (@SuppressWarnings("unused") final Exception e1) {
             // no op
         }
     }

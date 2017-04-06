@@ -21,6 +21,8 @@ public interface FileAccess {
 
     boolean exists();
 
+    boolean delete();
+
     boolean isDirectory();
 
     FileAccessMethod getAccessMethod();

@@ -84,6 +84,10 @@ public class FileObject extends BACnetObject {
         return lock;
     }
 
+    public FileAccess getFileAccess() {
+        return fileAccess;
+    }
+
     @Override
     protected void beforeGetProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         if (PropertyIdentifier.fileSize.equals(pid)) {
@@ -122,9 +126,5 @@ public class FileObject extends BACnetObject {
         } else if (PropertyIdentifier.recordCount.equals(pid)) {
             fileAccess.writeRecordCount(((UnsignedInteger) newValue).longValue());
         }
-    }
-
-    public FileAccess getFileAccess() {
-        return fileAccess;
     }
 }

@@ -50,4 +50,9 @@ public class FilePersistence implements IPersistence {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public File[] getFiles() {
+        return new File[] { file };
+    }
 }

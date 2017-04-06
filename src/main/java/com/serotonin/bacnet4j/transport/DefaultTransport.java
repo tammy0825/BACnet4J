@@ -577,6 +577,7 @@ public class DefaultTransport implements Transport, Runnable {
 
             try {
                 ur.parseServiceData();
+                localDevice.getEventHandler().requestReceived(from, ur.getService());
                 ur.getService().handle(localDevice, from);
             } catch (@SuppressWarnings("unused") final BACnetRejectException e) {
                 // Ignore
@@ -592,9 +593,11 @@ public class DefaultTransport implements Transport, Runnable {
                     ack.isServer());
             final UnackedMessageContext ctx = unackedMessages.remove(key);
 
-            if (ctx == null)
-                LOG.warn("Received an acknowledgement from {} for an unknown request: {}", from, ack);
-            else if (ack instanceof SegmentACK)
+            if (ctx == null) {
+                // This can legitimately happen when requests are sent for which the sender did not need the response,
+                // such as COV unsubscribes.
+                LOG.debug("Received an acknowledgement from {} for an unknown request: {}", from, ack);
+            } else if (ack instanceof SegmentACK)
                 segmentedOutgoing(key, ctx, (SegmentACK) ack);
             else if (ctx.getConsumer() != null) {
                 final ResponseConsumer consumer = ctx.getConsumer();
@@ -774,6 +777,7 @@ public class DefaultTransport implements Transport, Runnable {
     private AcknowledgementService handleConfirmedRequest(final Address from, final byte invokeId,
             final ConfirmedRequestService service) throws BACnetException {
         try {
+            localDevice.getEventHandler().requestReceived(from, service);
             return service.handle(localDevice, from);
         } catch (@SuppressWarnings("unused") final NotImplementedException e) {
             LOG.warn("Unsupported confirmed request: invokeId=" + invokeId + ", from=" + from + ", request="

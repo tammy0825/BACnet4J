@@ -8,8 +8,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.AbstractTest;
+import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.TestUtils;
-import com.serotonin.bacnet4j.event.DeviceEventAdapter;
+import com.serotonin.bacnet4j.event.DefaultReinitializeDeviceHandler;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
 import com.serotonin.bacnet4j.type.constructed.Address;
@@ -22,20 +24,17 @@ public class ReinitializeDeviceRequestTest extends AbstractTest {
     public void noPassword() throws Exception {
         // Create the listener in device 2
         final AtomicReference<Address> receivedAddress = new AtomicReference<>(null);
-        final AtomicReference<ReinitializedStateOfDevice> receivedState = new AtomicReference<>(null);
-        d2.getEventHandler().addListener(new DeviceEventAdapter() {
+        d2.setReinitializeDeviceHandler(new DefaultReinitializeDeviceHandler() {
             @Override
-            public void reinitializeDevice(final Address from,
-                    final ReinitializedStateOfDevice reinitializedStateOfDevice) {
+            protected void activateChanges(final LocalDevice localDevice, final Address from)
+                    throws BACnetErrorException {
                 receivedAddress.set(from);
-                receivedState.set(reinitializedStateOfDevice);
             }
         });
 
-        d1.send(rd2, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.abortRestore, null)).get();
+        d1.send(rd2, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.activateChanges, null)).get();
 
         assertEquals(d1.getAllLocalAddresses()[0], receivedAddress.get());
-        assertEquals(ReinitializedStateOfDevice.abortRestore, receivedState.get());
     }
 
     @Test
@@ -57,20 +56,17 @@ public class ReinitializeDeviceRequestTest extends AbstractTest {
 
         // Create the listener in device 2
         final AtomicReference<Address> receivedAddress = new AtomicReference<>(null);
-        final AtomicReference<ReinitializedStateOfDevice> receivedState = new AtomicReference<>(null);
-        d2.getEventHandler().addListener(new DeviceEventAdapter() {
+        d2.setReinitializeDeviceHandler(new DefaultReinitializeDeviceHandler() {
             @Override
-            public void reinitializeDevice(final Address from,
-                    final ReinitializedStateOfDevice reinitializedStateOfDevice) {
+            protected void activateChanges(final LocalDevice localDevice, final Address from)
+                    throws BACnetErrorException {
                 receivedAddress.set(from);
-                receivedState.set(reinitializedStateOfDevice);
             }
         });
 
-        d1.send(rd2, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.abortRestore,
+        d1.send(rd2, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.activateChanges,
                 new CharacterString("testPassword"))).get();
 
         assertEquals(d1.getAllLocalAddresses()[0], receivedAddress.get());
-        assertEquals(ReinitializedStateOfDevice.abortRestore, receivedState.get());
     }
 }

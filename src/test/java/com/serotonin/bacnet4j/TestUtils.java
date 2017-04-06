@@ -2,6 +2,9 @@ package com.serotonin.bacnet4j;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -221,5 +224,21 @@ public class TestUtils {
 
         Assert.assertEquals(0, queue.size());
         Assert.assertEquals(encodable, parsed);
+    }
+
+    public static void assertFileContentEquals(final File expected, final File actual) throws IOException {
+        Assert.assertEquals(expected.exists(), actual.exists());
+        Assert.assertEquals(expected.length(), actual.length());
+
+        // Slow, but easy
+        final long length = expected.length();
+        long position = 0;
+        try (FileInputStream expectedFis = new FileInputStream(expected);
+                FileInputStream actualFis = new FileInputStream(actual)) {
+            while (position < length) {
+                Assert.assertEquals("At file position " + position, expectedFis.read(), actualFis.read());
+                position++;
+            }
+        }
     }
 }

@@ -31,7 +31,7 @@ package com.serotonin.bacnet4j.event;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.RemoteObject;
 import com.serotonin.bacnet4j.obj.BACnetObject;
-import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest.ReinitializedStateOfDevice;
+import com.serotonin.bacnet4j.service.Service;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -146,15 +146,6 @@ public interface DeviceEventListener {
             MessagePriority messagePriority, CharacterString message);
 
     /**
-     * Notification that the device should be reinitialized. The local device's password has already been validated at
-     * this point, the the indicated action should be carried out.
-     *
-     * @param from
-     * @param reinitializedStateOfDevice
-     */
-    void reinitializeDevice(Address from, ReinitializedStateOfDevice reinitializedStateOfDevice);
-
-    /**
      * Notification that the device should synchronize its time to the given date/time value. The local device has
      * already been checked at this point to ensure that it supports time synchronization.
      *
@@ -164,4 +155,13 @@ public interface DeviceEventListener {
      *            true if a UTCTimeSynchronizationRequest was sent, false if TimeSynchronizationRequest.
      */
     void synchronizeTime(Address from, DateTime dateTime, boolean utc);
+
+    /**
+     * Notification that a service was received and from where.
+     *
+     * @param from
+     * @param confirmed
+     * @param serviceId
+     */
+    void requestReceived(Address from, Service service);
 }

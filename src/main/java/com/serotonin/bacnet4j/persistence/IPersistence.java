@@ -1,5 +1,7 @@
 package com.serotonin.bacnet4j.persistence;
 
+import java.io.File;
+
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -42,4 +44,13 @@ public interface IPersistence {
     }
 
     void remove(String key);
+
+    /**
+     * Provide the list of persistence files, if any, for backups.
+     *
+     * @return list of file, or null.
+     */
+    default File[] getFiles() {
+        return null;
+    }
 }
