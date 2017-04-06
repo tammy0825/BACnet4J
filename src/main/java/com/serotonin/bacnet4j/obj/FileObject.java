@@ -54,7 +54,7 @@ public class FileObject extends BACnetObject {
     /**
      * The actual file that this object represents.
      */
-    private final FileAccess fileAccess;
+    private FileAccess fileAccess;
 
     /**
      * The lock is used by AtomicReadFileRequest and AtomicWriteFileRequest services to lock the file object during
@@ -88,6 +88,10 @@ public class FileObject extends BACnetObject {
         return fileAccess;
     }
 
+    public void setFileAccess(final FileAccess fileAccess) {
+        this.fileAccess = fileAccess;
+    }
+
     @Override
     protected void beforeGetProperty(final PropertyIdentifier pid) throws BACnetServiceException {
         if (PropertyIdentifier.fileSize.equals(pid)) {
@@ -97,7 +101,7 @@ public class FileObject extends BACnetObject {
         } else if (PropertyIdentifier.readOnly.equals(pid)) {
             set(PropertyIdentifier.readOnly, Boolean.valueOf(!fileAccess.canWrite()));
         } else if (PropertyIdentifier.recordCount.equals(pid)) {
-            if (fileAccess.hasRecordAccess())
+            if (fileAccess.supportsRecordAccess())
                 set(PropertyIdentifier.recordCount, new UnsignedInteger(fileAccess.recordCount()));
             else {
                 throw new BACnetServiceException(ErrorClass.property, ErrorCode.readAccessDenied);
@@ -121,9 +125,9 @@ public class FileObject extends BACnetObject {
     @Override
     protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
             final Encodable newValue) {
-        if (PropertyIdentifier.fileSize.equals(pid)) {
+        if (pid.equals(PropertyIdentifier.fileSize)) {
             fileAccess.writeFileSize(((UnsignedInteger) newValue).longValue());
-        } else if (PropertyIdentifier.recordCount.equals(pid)) {
+        } else if (pid.equals(PropertyIdentifier.recordCount)) {
             fileAccess.writeRecordCount(((UnsignedInteger) newValue).longValue());
         }
     }

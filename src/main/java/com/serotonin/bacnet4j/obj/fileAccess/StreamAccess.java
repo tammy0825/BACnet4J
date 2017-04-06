@@ -36,11 +36,6 @@ public class StreamAccess implements FileAccess {
     }
 
     @Override
-    public boolean hasRecordAccess() {
-        return false;
-    }
-
-    @Override
     public long recordCount() {
         return 0;
     }

@@ -54,6 +54,13 @@ import com.serotonin.bacnet4j.type.primitive.Date;
 public class CalendarObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(CalendarObject.class);
 
+    // CreateObject constructor
+    public static CalendarObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new CalendarObject(localDevice, instanceNumber, ObjectType.calendar.toString() + " " + instanceNumber,
+                new SequenceOf<>());
+    }
+
     private int timeTolerance = 0;
 
     // This timer task keeps the present value up to date in case other objects have registered

@@ -33,8 +33,6 @@ public interface FileAccess {
 
     boolean canWrite();
 
-    boolean hasRecordAccess();
-
     long recordCount();
 
     /**

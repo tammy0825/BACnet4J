@@ -60,6 +60,15 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class NotificationClassObject extends BACnetObject {
+    // CreateObject constructor
+    public static NotificationClassObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new NotificationClassObject(localDevice, instanceNumber,
+                ObjectType.notificationClass.toString() + " " + instanceNumber, 20, 10, 30,
+                new EventTransitionBits(false, false, false))
+                        .supportIntrinsicReporting(new EventTransitionBits(false, false, false), NotifyType.event);
+    }
+
     private final List<NotificationClassListener> eventListeners = new CopyOnWriteArrayList<>();
 
     public NotificationClassObject(final LocalDevice localDevice, final int instanceNumber, final String name,
@@ -85,7 +94,8 @@ public class NotificationClassObject extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
     }
 
-    public void supportIntrinsicReporting(final EventTransitionBits eventEnable, final NotifyType notifyType) {
+    public NotificationClassObject supportIntrinsicReporting(final EventTransitionBits eventEnable,
+            final NotifyType notifyType) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
         writePropertyInternal(PropertyIdentifier.eventEnable, eventEnable);
@@ -94,6 +104,8 @@ public class NotificationClassObject extends BACnetObject {
 
         // Now add the mixin.
         addMixin(new IntrinsicReportingMixin(this, new NoneAlgo(), null, null, new PropertyIdentifier[0]));
+
+        return this;
     }
 
     @Override

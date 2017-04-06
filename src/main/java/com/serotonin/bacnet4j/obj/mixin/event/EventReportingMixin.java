@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.AbstractMixin;
 import com.serotonin.bacnet4j.obj.BACnetObject;
@@ -78,10 +77,10 @@ abstract public class EventReportingMixin extends AbstractMixin {
         changeOfReliabilityProperties = getCORProperties(bo.getId().getObjectType());
 
         // Check that the notification object with the given instance number exists.
-        final UnsignedInteger ncId = bo.get(PropertyIdentifier.notificationClass);
-        final ObjectIdentifier ncOid = new ObjectIdentifier(ObjectType.notificationClass, ncId.intValue());
-        if (getLocalDevice().getObject(ncOid) == null)
-            throw new BACnetRuntimeException("Notification class with id " + ncId + " does not exist");
+        //        final UnsignedInteger ncId = bo.get(PropertyIdentifier.notificationClass);
+        //        final ObjectIdentifier ncOid = new ObjectIdentifier(ObjectType.notificationClass, ncId.intValue());
+        //        if (getLocalDevice().getObject(ncOid) == null)
+        //            throw new BACnetRuntimeException("Notification class with id " + ncId + " does not exist");
 
         // Defaulted properties
         bo.writePropertyInternal(PropertyIdentifier.ackedTransitions, new EventTransitionBits(true, true, true));
@@ -240,6 +239,10 @@ abstract public class EventReportingMixin extends AbstractMixin {
         final UnsignedInteger ncId = get(PropertyIdentifier.notificationClass);
         final BACnetObject nc = getLocalDevice()
                 .getObject(new ObjectIdentifier(ObjectType.notificationClass, ncId.intValue()));
+        if (nc == null) {
+            LOG.info("Notification class with id {} does not exist. Aborting state transition processing.", ncId);
+            return;
+        }
 
         final boolean isAckRequired;
         if (updateAckedTransitions()) {

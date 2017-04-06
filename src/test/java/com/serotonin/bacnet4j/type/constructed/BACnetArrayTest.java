@@ -11,14 +11,14 @@ import com.serotonin.bacnet4j.type.primitive.CharacterString;
 public class BACnetArrayTest {
     @Test
     public void arrayTest() {
-        final BACnetArray<CharacterString> arr = new BACnetArray<>(3, new CharacterString(""));
+        final BACnetArray<CharacterString> arr = new BACnetArray<>(3, CharacterString.EMPTY);
         assertEquals(3, arr.getCount());
 
         arr.setBase1(1, new CharacterString("A"));
         arr.setBase1(3, new CharacterString("C"));
         assertEquals(3, arr.getCount());
         assertEquals(arr.getBase1(1), new CharacterString("A"));
-        assertEquals(arr.getBase1(2), new CharacterString(""));
+        assertEquals(arr.getBase1(2), CharacterString.EMPTY);
         assertEquals(arr.getBase1(3), new CharacterString("C"));
 
         try {

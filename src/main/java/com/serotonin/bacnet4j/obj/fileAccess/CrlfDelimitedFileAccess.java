@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 
 /**
@@ -149,26 +147,6 @@ public class CrlfDelimitedFileAccess implements RecordAccess {
         }
 
         writeFileLogException();
-    }
-
-    @Override
-    public boolean supportsStreamAccess() {
-        return false;
-    }
-
-    @Override
-    public OctetString readData(final long start, final long length) throws IOException, BACnetServiceException {
-        throw new BACnetServiceException(ErrorClass.services, ErrorCode.invalidFileAccessMethod);
-    }
-
-    @Override
-    public long writeData(final long start, final OctetString data) throws IOException, BACnetServiceException {
-        throw new BACnetServiceException(ErrorClass.services, ErrorCode.invalidFileAccessMethod);
-    }
-
-    @Override
-    public boolean supportsRecordAccess() {
-        return true;
     }
 
     @Override

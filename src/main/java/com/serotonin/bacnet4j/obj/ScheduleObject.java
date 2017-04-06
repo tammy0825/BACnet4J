@@ -64,6 +64,7 @@ import com.serotonin.bacnet4j.type.constructed.SpecialEvent;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeValue;
 import com.serotonin.bacnet4j.type.constructed.ValueSource;
+import com.serotonin.bacnet4j.type.enumerated.BinaryPV;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -82,11 +83,18 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  * - use reliability to convey schedule problems.
  *
  * @author Matthew
- *
- * @param <T>
  */
-public class ScheduleObject<T extends Primitive> extends BACnetObject {
+public class ScheduleObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(ScheduleObject.class);
+
+    // CreateObject constructor
+    public static ScheduleObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new ScheduleObject(localDevice, instanceNumber, ObjectType.schedule.toString() + " " + instanceNumber,
+                new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED),
+                new BACnetArray<>(7, new DailySchedule(new SequenceOf<>())), new SequenceOf<>(), BinaryPV.inactive,
+                new SequenceOf<>(), 12, false);
+    }
 
     private ScheduledFuture<?> presentValueRefersher;
 
@@ -98,7 +106,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
 
     public ScheduleObject(final LocalDevice localDevice, final int instanceNumber, final String name,
             final DateRange effectivePeriod, final BACnetArray<DailySchedule> weeklySchedule,
-            final SequenceOf<SpecialEvent> exceptionSchedule, final T scheduleDefault,
+            final SequenceOf<SpecialEvent> exceptionSchedule, final Primitive scheduleDefault,
             final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
             final int priorityForWriting, final boolean outOfService) throws BACnetServiceException {
         super(localDevice, ObjectType.schedule, instanceNumber, name);
@@ -132,9 +140,9 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         addMixin(new HasStatusFlagsMixin(this));
         addMixin(new ScheduleMixin(this));
 
-        final T oldValue = get(PropertyIdentifier.presentValue);
+        final Primitive oldValue = get(PropertyIdentifier.presentValue);
         updatePresentValue();
-        final T newValue = get(PropertyIdentifier.presentValue);
+        final Primitive newValue = get(PropertyIdentifier.presentValue);
         // If the present value didn't change after the update, then no write would have been done. So, to ensure
         // initialization of the objects in the list, force a write.
         if (Objects.equals(oldValue, newValue))
@@ -160,7 +168,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             throws BACnetServiceException {
         if (PropertyIdentifier.listOfObjectPropertyReferences.equals(value.getPropertyIdentifier())) {
             // Entries must reference properties of this type
-            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final Primitive scheduleDefault = get(PropertyIdentifier.scheduleDefault);
             final SequenceOf<DeviceObjectPropertyReference> refs = value.getValue();
             for (final DeviceObjectPropertyReference ref : refs) {
                 final ObjectPropertyTypeDefinition def = ObjectProperties.getObjectPropertyTypeDefinition(
@@ -173,7 +181,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             }
         } else if (PropertyIdentifier.weeklySchedule.equals(value.getPropertyIdentifier())) {
             // Time value entries must be of this type
-            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final Primitive scheduleDefault = get(PropertyIdentifier.scheduleDefault);
             final BACnetArray<DailySchedule> weeklySchedule = value.getValue();
             for (final DailySchedule daily : weeklySchedule) {
                 for (final TimeValue timeValue : daily.getDaySchedule()) {
@@ -187,7 +195,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
             }
         } else if (PropertyIdentifier.exceptionSchedule.equals(value.getPropertyIdentifier())) {
             // Time value entries must be of this type
-            final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+            final Primitive scheduleDefault = get(PropertyIdentifier.scheduleDefault);
             final SequenceOf<SpecialEvent> exceptionSchedule = value.getValue();
             for (final SpecialEvent specialEvent : exceptionSchedule) {
                 for (final TimeValue timeValue : specialEvent.getListOfTimeValues()) {
@@ -287,14 +295,13 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
         updatePresentValue(new DateTime(gc));
     }
 
-    @SuppressWarnings("unchecked")
     private void updatePresentValue(final DateTime now) {
         cancelRefresher();
 
-        T newValue;
+        Primitive newValue;
         long nextCheck;
 
-        final T scheduleDefault = get(PropertyIdentifier.scheduleDefault);
+        final Primitive scheduleDefault = get(PropertyIdentifier.scheduleDefault);
         final DateRange effectivePeriod = get(PropertyIdentifier.effectivePeriod);
         if (!effectivePeriod.matches(now.getDate())) {
             // Not in the current effective date.
@@ -334,7 +341,7 @@ public class ScheduleObject<T extends Primitive> extends BACnetObject {
                 if (currentTv == null)
                     newValue = scheduleDefault;
                 else
-                    newValue = (T) currentTv.getValue();
+                    newValue = currentTv.getValue();
 
                 // Determine the next time this method should run.
                 if (tvIndex < schedule.getCount()) {

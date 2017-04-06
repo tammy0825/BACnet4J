@@ -148,7 +148,7 @@ public class AddListElementRequestTest {
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.forId(5555), //
                         new UnsignedInteger(4), //
-                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                        new SequenceOf<>(new Real(0), CharacterString.EMPTY) //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
     }
 

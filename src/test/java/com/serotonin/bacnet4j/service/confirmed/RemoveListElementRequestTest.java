@@ -151,7 +151,7 @@ public class RemoveListElementRequestTest {
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.forId(5555), //
                         new UnsignedInteger(4), //
-                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                        new SequenceOf<>(new Real(0), CharacterString.EMPTY) //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
 
         TestUtils.assertRequestHandleException( //
@@ -159,7 +159,7 @@ public class RemoveListElementRequestTest {
                         new ObjectIdentifier(ObjectType.device, 1), //
                         PropertyIdentifier.forId(5555), //
                         new UnsignedInteger(1), //
-                        new SequenceOf<>(new Real(0), new CharacterString("")) //
+                        new SequenceOf<>(new Real(0), CharacterString.EMPTY) //
                 ).handle(localDevice, addr), ErrorClass.property, ErrorCode.invalidDataType);
 
         // Try to remove an element that doesn't exist.

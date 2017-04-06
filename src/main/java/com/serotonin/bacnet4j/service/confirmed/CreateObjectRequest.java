@@ -39,17 +39,24 @@ import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
+import com.serotonin.bacnet4j.obj.CalendarObject;
+import com.serotonin.bacnet4j.obj.EventLogObject;
 import com.serotonin.bacnet4j.obj.GroupObject;
+import com.serotonin.bacnet4j.obj.NotificationClassObject;
+import com.serotonin.bacnet4j.obj.ScheduleObject;
+import com.serotonin.bacnet4j.obj.TrendLogMultipleObject;
+import com.serotonin.bacnet4j.obj.TrendLogObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.CreateObjectAck;
 import com.serotonin.bacnet4j.type.ThreadLocalObjectTypeStack;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
 import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
-import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -74,7 +81,13 @@ public class CreateObjectRequest extends ConfirmedRequestService {
 
     private static Map<ObjectType, ObjectCreator> creators = new HashMap<>();
     static {
-        creators.put(ObjectType.group, new GroupCreator());
+        creators.put(ObjectType.calendar, (d, number) -> CalendarObject.create(d, number));
+        creators.put(ObjectType.eventLog, (d, number) -> EventLogObject.create(d, number));
+        creators.put(ObjectType.group, (d, number) -> GroupObject.create(d, number));
+        creators.put(ObjectType.notificationClass, (d, number) -> NotificationClassObject.create(d, number));
+        creators.put(ObjectType.schedule, (d, number) -> ScheduleObject.create(d, number));
+        creators.put(ObjectType.trendLog, (d, number) -> TrendLogObject.create(d, number));
+        creators.put(ObjectType.trendLogMultiple, (d, number) -> TrendLogMultipleObject.create(d, number));
     }
 
     private final Choice objectSpecifier;
@@ -152,12 +165,43 @@ public class CreateObjectRequest extends ConfirmedRequestService {
             instanceNumber = localDevice.getNextInstanceObjectNumber(objectType);
         }
 
-        final BACnetObject bo = creator.create(localDevice, instanceNumber, listOfInitialValues);
+        try {
+            final BACnetObject bo;
+            try {
+                bo = creator.create(localDevice, instanceNumber);
+            } catch (final BACnetServiceException e) {
+                throw createException(e.getErrorClass(), e.getErrorCode(), 0);
+            }
 
-        // Dynamically created objects can also be deleted.
-        bo.setDeletable(true);
+            // Set other default properties.
+            bo.writePropertyInternal(PropertyIdentifier.description, CharacterString.EMPTY);
+            bo.writePropertyInternal(PropertyIdentifier.tags, new BACnetArray<>());
+            bo.writePropertyInternal(PropertyIdentifier.profileLocation, CharacterString.EMPTY);
+            bo.writePropertyInternal(PropertyIdentifier.profileName, CharacterString.EMPTY);
 
-        return new CreateObjectAck(bo.getId());
+            // Try to write in the given property values.
+            final ValueSource valueSource = new ValueSource(from);
+            for (int i = 0; i < listOfInitialValues.getCount(); i++) {
+                try {
+                    bo.writeProperty(valueSource, listOfInitialValues.get(i));
+                } catch (final BACnetServiceException e) {
+                    throw createException(e.getErrorClass(), e.getErrorCode(), i + 1);
+                }
+            }
+
+            // Dynamically created objects can also be deleted.
+            bo.setDeletable(true);
+
+            return new CreateObjectAck(bo.getId());
+        } catch (final Exception e) {
+            // Upon any exception, remove the object if it was created.
+            try {
+                localDevice.removeObject(new ObjectIdentifier(ObjectType.group, instanceNumber));
+            } catch (final BACnetServiceException e1) {
+                LOG.warn("Error removing object that failed to initialize", e1);
+            }
+            throw e;
+        }
     }
 
     private static BACnetErrorException createException(final ErrorClass errorClass, final ErrorCode errorCode,
@@ -197,40 +241,8 @@ public class CreateObjectRequest extends ConfirmedRequestService {
         return true;
     }
 
+    @FunctionalInterface
     public static interface ObjectCreator {
-        BACnetObject create(LocalDevice d, int instanceNumber, final SequenceOf<PropertyValue> listOfInitialValues)
-                throws BACnetErrorException;
-    }
-
-    static class GroupCreator implements ObjectCreator {
-        @Override
-        public BACnetObject create(final LocalDevice d, final int instanceNumber,
-                final SequenceOf<PropertyValue> listOfInitialValues) throws BACnetErrorException {
-            CharacterString name = new CharacterString(ObjectType.group.toString() + " " + instanceNumber);
-            SequenceOf<ReadAccessSpecification> listOfGroupMembers = new SequenceOf<>();
-
-            // Pull the initialization values out of the given list.
-            for (int i = 0; i < listOfInitialValues.getCount(); i++) {
-                final PropertyValue pv = listOfInitialValues.get(i);
-                if (pv.getPropertyIdentifier().equals(PropertyIdentifier.objectName)) {
-                    name = pv.getValue();
-                } else if (pv.getPropertyIdentifier().equals(PropertyIdentifier.listOfGroupMembers)) {
-                    listOfGroupMembers = pv.getValue();
-                } else {
-                    throw createException(ErrorClass.property, ErrorCode.writeAccessDenied, i + 1);
-                }
-            }
-
-            try {
-                return new GroupObject(d, instanceNumber, name.getValue(), listOfGroupMembers);
-            } catch (final BACnetServiceException e) {
-                try {
-                    d.removeObject(new ObjectIdentifier(ObjectType.group, instanceNumber));
-                } catch (final BACnetServiceException e1) {
-                    LOG.warn("Error removing object that failed to initialize", e1);
-                }
-                throw createException(e.getErrorClass(), e.getErrorCode(), 0);
-            }
-        }
+        BACnetObject create(LocalDevice d, int instanceNumber) throws BACnetServiceException;
     }
 }

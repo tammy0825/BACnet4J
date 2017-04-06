@@ -192,7 +192,7 @@ public class TrendLogObjectTest extends AbstractTest {
         final int processId = subscriptions.getBase1(1).getRecipient().getProcessIdentifier().intValue();
 
         // The initial notification should be there.
-        assertEquals(1, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 1, 500);
         final LogRecord record1 = tl.getBuffer().get(0);
         assertEquals(now, record1.getTimestamp());
         assertEquals(new Real(0), record1.getChoice());
@@ -202,8 +202,7 @@ public class TrendLogObjectTest extends AbstractTest {
         // Update the value to cause a COV notification.
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(1));
         LOG.info("Update");
-        Thread.sleep(200);
-        assertEquals(2, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 2, 500);
         final LogRecord record2 = tl.getBuffer().get(1);
         assertEquals(now, record2.getTimestamp());
         assertEquals(new Real(1), record2.getChoice());
@@ -223,8 +222,7 @@ public class TrendLogObjectTest extends AbstractTest {
         clock.plusSeconds(25);
         now = new DateTime(clock.millis());
         bo.writePropertyInternal(PropertyIdentifier.presentValue, new Real(1.6F));
-        Thread.sleep(20);
-        assertEquals(3, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 3, 500);
         final LogRecord record3 = tl.getBuffer().get(2);
         assertEquals(now, record3.getTimestamp());
         assertEquals(new Real(1.6F), record3.getChoice());
@@ -235,8 +233,7 @@ public class TrendLogObjectTest extends AbstractTest {
         clock.plusSeconds(12);
         now = new DateTime(clock.millis());
         bo.setOverridden(true);
-        Thread.sleep(40);
-        assertEquals(4, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 4, 500);
         final LogRecord record4 = tl.getBuffer().get(3);
         assertEquals(now, record4.getTimestamp());
         assertEquals(new Real(1.6F), record4.getChoice());
@@ -246,8 +243,7 @@ public class TrendLogObjectTest extends AbstractTest {
         // Advance the clock past the resubscription period. Another notification should be received.
         clock.plusSeconds(20);
         now = new DateTime(clock.millis());
-        Thread.sleep(20);
-        assertEquals(5, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 5, 500);
         final LogRecord record5 = tl.getBuffer().get(4);
         assertEquals(now, record5.getTimestamp());
         assertEquals(new Real(1.6F), record5.getChoice());
@@ -256,11 +252,11 @@ public class TrendLogObjectTest extends AbstractTest {
         //
         // Change the resubscription interval
         tl.writeProperty(null, PropertyIdentifier.covResubscriptionInterval, new UnsignedInteger(300));
-        Thread.sleep(300);
+        Thread.sleep(50);
 
         // Check that there is still only one subscription, and that it has a different process id.
         subscriptions = d.getObject(d.getId()).getProperty(PropertyIdentifier.activeCovSubscriptions);
-        assertEquals(1, subscriptions.getCount());
+        assertEquals(1, subscriptions.getValues().size());
         final int processId2 = subscriptions.getBase1(1).getRecipient().getProcessIdentifier().intValue();
         assertEquals(processId + 1, processId2);
 
@@ -271,16 +267,14 @@ public class TrendLogObjectTest extends AbstractTest {
         // Advance the clock past the new resubscription period. Only one more notification should be received.
         clock.plusSeconds(310);
         now = new DateTime(clock.millis());
-        Thread.sleep(20);
-        assertEquals(7, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 7, 500);
 
         //
         // Try a trigger for fun.
         tl.trigger();
 
         // Wait for the polling to finish.
-        Thread.sleep(200);
-        assertEquals(8, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 8, 500);
     }
 
     @Test
@@ -354,9 +348,8 @@ public class TrendLogObjectTest extends AbstractTest {
         //
         // Write one more and make sure a notification was received.
         doTriggers(tl, 1);
-        Thread.sleep(50);
-        assertEquals(5, tl.getBuffer().size());
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(tl.getBuffer(), 5, 500);
+        TestUtils.assertSize(listener.notifs, 1, 500);
         Map<String, Object> notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
@@ -385,7 +378,8 @@ public class TrendLogObjectTest extends AbstractTest {
         //
         // Write another 5 triggers and ensure that the notification looks ok.
         doTriggers(tl, 5);
-        Thread.sleep(30);
+        TestUtils.assertSize(tl.getBuffer(), 10, 500);
+        TestUtils.assertSize(listener.notifs, 1, 500);
         assertEquals(10, tl.getBuffer().size());
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
@@ -418,8 +412,8 @@ public class TrendLogObjectTest extends AbstractTest {
         tl.set(PropertyIdentifier.lastNotifyRecord, new UnsignedInteger(0xFFFFFFFDL));
         tl.set(PropertyIdentifier.totalRecordCount, new UnsignedInteger(0xFFFFFFFDL));
         doTriggers(tl, 5);
-        Thread.sleep(30);
-        assertEquals(15, tl.getBuffer().size());
+        TestUtils.assertSize(tl.getBuffer(), 15, 500);
+        TestUtils.assertSize(listener.notifs, 1, 500);
         assertEquals(1, listener.notifs.size());
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(27), notif.get("processIdentifier"));
@@ -495,8 +489,7 @@ public class TrendLogObjectTest extends AbstractTest {
         // Trigger another notification so that a notification is sent.
         doTriggers(tl, 1);
         clock.plusSeconds(1);
-        Thread.sleep(300);
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(listener.notifs, 1, 500);
         Map<String, Object> notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(28), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
@@ -519,8 +512,7 @@ public class TrendLogObjectTest extends AbstractTest {
         // Trigger another batch of updates. One notification should be sent.
         doTriggers(tl, 7);
         clock.plusSeconds(1);
-        Thread.sleep(300);
-        assertEquals(1, listener.notifs.size());
+        TestUtils.assertSize(listener.notifs, 1, 500);
         notif = listener.notifs.remove(0);
         assertEquals(new UnsignedInteger(28), notif.get("processIdentifier"));
         assertEquals(d1.getId(), notif.get("initiatingDevice"));

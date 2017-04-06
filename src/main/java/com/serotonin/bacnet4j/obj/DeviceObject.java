@@ -47,7 +47,7 @@ public class DeviceObject extends BACnetObject {
     private static final int VENDOR_ID = 236; // Serotonin Software
 
     public DeviceObject(final LocalDevice localDevice, final int instanceNumber) throws BACnetServiceException {
-        super(localDevice, ObjectType.device, instanceNumber, "BACnet4J device");
+        super(localDevice, ObjectType.device, instanceNumber, "BACnet4J device " + instanceNumber);
 
         writePropertyInternal(PropertyIdentifier.maxApduLengthAccepted,
                 new UnsignedInteger(MaxApduLength.UP_TO_1476.getMaxLengthInt()));

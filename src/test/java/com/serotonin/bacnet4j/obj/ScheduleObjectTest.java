@@ -105,8 +105,8 @@ public class ScheduleObjectTest extends AbstractTest {
                 new DeviceObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue, null, null) //
         );
 
-        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0", effectivePeriod, weeklySchedule,
-                exceptionSchedule, new Real(8), listOfObjectPropertyReferences, 12, false);
+        final ScheduleObject so = new ScheduleObject(d1, 0, "sch0", effectivePeriod, weeklySchedule, exceptionSchedule,
+                new Real(8), listOfObjectPropertyReferences, 12, false);
 
         Thread.sleep(100); // Let the requests be received.
         Assert.assertEquals(new Real(14), so.get(PropertyIdentifier.presentValue));
@@ -135,7 +135,7 @@ public class ScheduleObjectTest extends AbstractTest {
         testTime(so, av0, av1, java.time.Month.MAY, 9, 0, 0, 8);
     }
 
-    private void testTime(final ScheduleObject<Real> so, final AnalogValueObject av0, final AnalogValueObject av1,
+    private void testTime(final ScheduleObject so, final AnalogValueObject av0, final AnalogValueObject av1,
             final java.time.Month month, final int day, final int hour, final int min, final float expectedValue)
             throws Exception {
         clock.set(2115, month, day, hour, min, 0);
@@ -169,9 +169,8 @@ public class ScheduleObjectTest extends AbstractTest {
         final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences = new SequenceOf<>( //
                 new DeviceObjectPropertyReference(av1.getId(), PropertyIdentifier.presentValue, null, null) //
         );
-        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
-                new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED), null, exceptionSchedule, new Real(8),
-                listOfObjectPropertyReferences, 12, false);
+        final ScheduleObject so = new ScheduleObject(d1, 0, "sch0", new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED),
+                null, exceptionSchedule, new Real(8), listOfObjectPropertyReferences, 12, false);
         so.supportIntrinsicReporting(7, new EventTransitionBits(true, true, true), NotifyType.alarm);
 
         // Ensure that initializing the intrinsic reporting didn't fire any notifications.
@@ -208,9 +207,8 @@ public class ScheduleObjectTest extends AbstractTest {
      */
     @Test
     public void listValues() throws Exception {
-        final ScheduleObject<Real> so = new ScheduleObject<>(d1, 0, "sch0",
-                new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, new SequenceOf<>(), new Real(8),
-                new SequenceOf<>(), 12, false);
+        final ScheduleObject so = new ScheduleObject(d1, 0, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE),
+                null, new SequenceOf<>(), new Real(8), new SequenceOf<>(), 12, false);
 
         // Add a few items to the list.
         final ObjectIdentifier oid = new ObjectIdentifier(ObjectType.analogInput, 0);
@@ -255,7 +253,7 @@ public class ScheduleObjectTest extends AbstractTest {
         //
         // Entries in the list of property references must reference properties of this type
         TestUtils.assertBACnetServiceException(() -> {
-            new ScheduleObject<>(d1, 0, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null,
+            new ScheduleObject(d1, 0, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null,
                     new SequenceOf<>(), BinaryPV.inactive,
                     new SequenceOf<>(new DeviceObjectPropertyReference(1, av.getId(), PropertyIdentifier.presentValue)),
                     12, false);
@@ -272,7 +270,7 @@ public class ScheduleObjectTest extends AbstractTest {
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()));
-            new ScheduleObject<>(d1, 1, "sch1", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
+            new ScheduleObject(d1, 1, "sch1", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
                     new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidDataType);
 
@@ -280,7 +278,7 @@ public class ScheduleObjectTest extends AbstractTest {
             final SequenceOf<SpecialEvent> exceptions = new SequenceOf<>( //
                     new SpecialEvent(new CalendarEntry(new Date(d1)),
                             new SequenceOf<>(new TimeValue(new Time(d1), new Real(0))), new UnsignedInteger(10)));
-            new ScheduleObject<>(d1, 2, "sch2", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
+            new ScheduleObject(d1, 2, "sch2", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
                     BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidDataType);
 
@@ -295,7 +293,7 @@ public class ScheduleObjectTest extends AbstractTest {
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()), //
                     new DailySchedule(new SequenceOf<>()));
-            new ScheduleObject<>(d1, 3, "sch3", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
+            new ScheduleObject(d1, 3, "sch3", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), weekly,
                     new SequenceOf<>(), BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidConfigurationData);
 
@@ -304,7 +302,7 @@ public class ScheduleObjectTest extends AbstractTest {
                     new SpecialEvent(new CalendarEntry(new Date(d1)),
                             new SequenceOf<>(new TimeValue(new Time(20, Time.UNSPECIFIC, 0, 0), BinaryPV.active)),
                             new UnsignedInteger(10)));
-            new ScheduleObject<>(d1, 4, "sch4", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
+            new ScheduleObject(d1, 4, "sch4", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null, exceptions,
                     BinaryPV.inactive, new SequenceOf<>(), 12, false);
         }, ErrorClass.property, ErrorCode.invalidConfigurationData);
     }

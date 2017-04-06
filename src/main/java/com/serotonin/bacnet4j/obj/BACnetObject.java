@@ -405,8 +405,6 @@ public class BACnetObject {
         final UnsignedInteger pin = value.getPropertyArrayIndex();
         Encodable valueToWrite = value.getValue();
 
-        if (PropertyIdentifier.objectIdentifier.equals(pid))
-            throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         if (PropertyIdentifier.objectType.equals(pid))
             throw new BACnetServiceException(ErrorClass.property, ErrorCode.writeAccessDenied);
         if (PropertyIdentifier.priorityArray.equals(pid))
@@ -429,8 +427,12 @@ public class BACnetObject {
             if (pin == null) {
                 // Not writing to an array index.
                 if (def == null) {
+                    if (pid.intValue() < 512) {
+                        // There should be a definition for any property with an id in the ASHRAE range.
+                        throw new BACnetServiceException(ErrorClass.property, ErrorCode.unknownProperty);
+                    }
                     if (value.getValue().getClass() == SequenceOf.class) {
-                        // if the value to write is a collection, then disallow the write because we can't tell if it
+                        // If the value to write is a collection, then disallow the write because we can't tell if it
                         // is supposed to be a list or an array.
                         throw new BACnetServiceException(ErrorClass.property, ErrorCode.datatypeNotSupported);
                     }

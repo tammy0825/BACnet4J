@@ -26,6 +26,13 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 public class GroupObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(GroupObject.class);
 
+    // CreateObject constructor
+    public static GroupObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new GroupObject(localDevice, instanceNumber, ObjectType.group.toString() + " " + instanceNumber,
+                new SequenceOf<>());
+    }
+
     public GroupObject(final LocalDevice localDevice, final int instanceNumber, final String name,
             final SequenceOf<ReadAccessSpecification> listOfGroupMembers) throws BACnetServiceException {
         super(localDevice, ObjectType.group, instanceNumber, name);

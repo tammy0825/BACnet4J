@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
 import com.serotonin.bacnet4j.obj.logBuffer.LogBuffer;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.PollingDelegate;
@@ -49,6 +50,16 @@ import com.serotonin.bacnet4j.util.PropertyValues;
 
 public class TrendLogMultipleObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(TrendLogMultipleObject.class);
+
+    // CreateObject constructor
+    public static TrendLogMultipleObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new TrendLogMultipleObject(localDevice, instanceNumber,
+                ObjectType.trendLogMultiple.toString() + " " + instanceNumber, new LinkedListLogBuffer<>(), false,
+                DateTime.UNSPECIFIED, DateTime.UNSPECIFIED, new BACnetArray<>(), 60, false, 100) //
+                        .supportIntrinsicReporting(20, 0, new EventTransitionBits(false, false, false),
+                                NotifyType.event);
+    }
 
     private final LogBuffer<LogMultipleRecord> buffer;
 

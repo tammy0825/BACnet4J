@@ -73,7 +73,7 @@ public class MultistateValueObjectTest extends AbstractTest {
 
         mv.writeProperty(null, new PropertyValue(PropertyIdentifier.numberOfStates, new UnsignedInteger(8)));
         assertEquals(new BACnetArray<>(new CharacterString("a"), new CharacterString("b"), new CharacterString("c"),
-                new CharacterString("d"), new CharacterString("e"), new CharacterString("f"), new CharacterString(""),
-                new CharacterString("")), mv.get(PropertyIdentifier.stateText));
+                new CharacterString("d"), new CharacterString("e"), new CharacterString("f"), CharacterString.EMPTY,
+                CharacterString.EMPTY), mv.get(PropertyIdentifier.stateText));
     }
 }

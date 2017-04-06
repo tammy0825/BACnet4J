@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.obj.logBuffer.LinkedListLogBuffer;
 import com.serotonin.bacnet4j.obj.logBuffer.LogBuffer;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.ReadOnlyPropertyMixin;
@@ -47,6 +48,15 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
  */
 public class EventLogObject extends BACnetObject {
     static final Logger LOG = LoggerFactory.getLogger(EventLogObject.class);
+
+    // CreateObject constructor
+    public static EventLogObject create(final LocalDevice localDevice, final int instanceNumber)
+            throws BACnetServiceException {
+        return new EventLogObject(localDevice, instanceNumber, ObjectType.eventLog.toString() + " " + instanceNumber,
+                new LinkedListLogBuffer<>(), false, DateTime.UNSPECIFIED, DateTime.UNSPECIFIED, false, 100) //
+                        .supportIntrinsicReporting(20, 0, new EventTransitionBits(false, false, false),
+                                NotifyType.event);
+    }
 
     private final LogBuffer<EventLogRecord> buffer;
 
