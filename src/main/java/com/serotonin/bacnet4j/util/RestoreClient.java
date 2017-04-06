@@ -200,12 +200,11 @@ public class RestoreClient {
                 try (BufferedReader in = new BufferedReader(new FileReader(file))) {
                     boolean done = false;
                     while (!done) {
-                        reqCount++;
-
                         final SequenceOf<OctetString> records = new SequenceOf<>();
-                        while (true) {
+                        while (records.size() < 5) {
                             final String line = in.readLine();
                             if (line == null) {
+                                // EOF
                                 done = true;
                                 break;
                             }
@@ -213,6 +212,7 @@ public class RestoreClient {
                         }
 
                         if (records.size() > 0) {
+                            reqCount++;
                             final AtomicWriteFileRequest req = new AtomicWriteFileRequest(fileOid, new RecordAccess(
                                     new SignedInteger(currentRecord), new UnsignedInteger(records.size()), records));
                             localDevice.send(rd, req).get();
@@ -229,7 +229,6 @@ public class RestoreClient {
                 int currentPosition = 0;
                 try (FileInputStream in = new FileInputStream(file)) {
                     while (true) {
-                        reqCount++;
                         final int readCount = in.read(buffer);
                         if (readCount == -1)
                             break;
@@ -243,6 +242,7 @@ public class RestoreClient {
                             data = new OctetString(buffer);
                         }
 
+                        reqCount++;
                         final AtomicWriteFileRequest req = new AtomicWriteFileRequest(fileOid,
                                 new StreamAccess(new SignedInteger(currentPosition), data));
                         localDevice.send(rd, req).get();

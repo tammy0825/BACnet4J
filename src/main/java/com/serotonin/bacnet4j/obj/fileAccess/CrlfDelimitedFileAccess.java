@@ -43,6 +43,10 @@ public class CrlfDelimitedFileAccess implements RecordAccess {
         }
     }
 
+    public File getFile() {
+        return file;
+    }
+
     @Override
     public String getName() {
         return file.getName();
@@ -211,6 +215,9 @@ public class CrlfDelimitedFileAccess implements RecordAccess {
                 pos++;
             }
         }
+
+        writeFileLogException();
+
         return result;
     }
 
