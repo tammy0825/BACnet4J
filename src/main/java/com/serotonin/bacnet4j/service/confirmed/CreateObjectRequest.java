@@ -31,6 +31,9 @@ package com.serotonin.bacnet4j.service.confirmed;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
@@ -59,6 +62,8 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class CreateObjectRequest extends ConfirmedRequestService {
+    static final Logger LOG = LoggerFactory.getLogger(CreateObjectRequest.class);
+
     public static final byte TYPE_ID = 10;
 
     private static ChoiceOptions choiceOptions = new ChoiceOptions();
@@ -219,6 +224,11 @@ public class CreateObjectRequest extends ConfirmedRequestService {
             try {
                 return new GroupObject(d, instanceNumber, name.getValue(), listOfGroupMembers);
             } catch (final BACnetServiceException e) {
+                try {
+                    d.removeObject(new ObjectIdentifier(ObjectType.group, instanceNumber));
+                } catch (final BACnetServiceException e1) {
+                    LOG.warn("Error removing object that failed to initialize", e1);
+                }
                 throw createException(e.getErrorClass(), e.getErrorCode(), 0);
             }
         }
