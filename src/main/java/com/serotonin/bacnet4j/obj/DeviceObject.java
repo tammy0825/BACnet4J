@@ -7,6 +7,10 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.npdu.Network;
+import com.serotonin.bacnet4j.npdu.mstp.MasterNode;
+import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
+import com.serotonin.bacnet4j.npdu.mstp.MstpNode;
 import com.serotonin.bacnet4j.obj.mixin.ActiveCovSubscriptionMixin;
 import com.serotonin.bacnet4j.obj.mixin.HasStatusFlagsMixin;
 import com.serotonin.bacnet4j.obj.mixin.ObjectListMixin;
@@ -21,13 +25,17 @@ import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.EventTransitionBits;
 import com.serotonin.bacnet4j.type.constructed.ObjectTypesSupported;
+import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.constructed.ValueSource;
 import com.serotonin.bacnet4j.type.enumerated.BackupState;
 import com.serotonin.bacnet4j.type.enumerated.DeviceStatus;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.NotifyType;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -255,12 +263,50 @@ public class DeviceObject extends BACnetObject {
     }
 
     @Override
+    protected boolean validateProperty(final ValueSource valueSource, final PropertyValue value)
+            throws BACnetServiceException {
+        if (value.getPropertyIdentifier().equals(PropertyIdentifier.maxMaster)) {
+            final MasterNode masterNode = getMasterNode();
+            if (masterNode != null) {
+                final UnsignedInteger maxMaster = value.getValue();
+                if (masterNode.getThisStation() > maxMaster.intValue()) {
+                    throw new BACnetServiceException(ErrorClass.property, ErrorCode.valueOutOfRange);
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
             final Encodable newValue) {
         if (pid.equals(PropertyIdentifier.restartNotificationRecipients)) {
             // Persist the new list.
             getLocalDevice().getPersistence()
                     .saveEncodable(getPersistenceKey(PropertyIdentifier.restartNotificationRecipients), newValue);
+        } else if (pid.equals(PropertyIdentifier.maxMaster)) {
+            final MasterNode masterNode = getMasterNode();
+            if (masterNode != null) {
+                final UnsignedInteger maxMaster = (UnsignedInteger) newValue;
+                masterNode.setMaxMaster(maxMaster.intValue());
+            }
+        } else if (pid.equals(PropertyIdentifier.maxInfoFrames)) {
+            final MasterNode masterNode = getMasterNode();
+            if (masterNode != null) {
+                final UnsignedInteger maxInfoFrames = (UnsignedInteger) newValue;
+                masterNode.setMaxInfoFrames(maxInfoFrames.intValue());
+            }
         }
+    }
+
+    private MasterNode getMasterNode() {
+        final Network network = getLocalDevice().getNetwork();
+        if (network instanceof MstpNetwork) {
+            final MstpNode node = ((MstpNetwork) network).getNode();
+            if (node instanceof MasterNode) {
+                return (MasterNode) node;
+            }
+        }
+        return null;
     }
 }

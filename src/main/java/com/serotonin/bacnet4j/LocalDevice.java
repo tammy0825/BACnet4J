@@ -173,10 +173,10 @@ public class LocalDevice {
         transport.setLocalDevice(this);
         remoteDeviceCache = new RemoteEntityCache<>(this);
 
-        afterInit(deviceNumber);
+        afterInstatiation(deviceNumber);
     }
 
-    private void afterInit(final int deviceNumber) {
+    private void afterInstatiation(final int deviceNumber) {
         try {
             // Initialize the device object.
             deviceObject = new DeviceObject(this, deviceNumber);
