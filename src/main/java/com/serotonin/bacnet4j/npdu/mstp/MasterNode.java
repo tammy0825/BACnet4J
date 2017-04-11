@@ -416,9 +416,7 @@ public class MasterNode extends MstpNode {
             eventCount = 0;
             tokenCount = 1;
             state = MasterNodeState.passToken;
-        }
-        // NOTE: variation from spec here ----vvv (i.e. added the "- 1")
-        else if (tokenCount >= Constants.POLL - 1 && adjacentStation(pollStation) == nextStation && soleMaster) {
+        } else if (tokenCount >= Constants.POLL - 1 && adjacentStation(pollStation) == nextStation && soleMaster) {
             // SoleMasterRestartMaintenancePFM
             //debug("doneWithToken:SoleMasterRestartMaintenancePFM: poll=" + pollStation);
             if (LOG.isDebugEnabled())
