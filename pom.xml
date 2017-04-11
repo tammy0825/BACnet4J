@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.serotonin</groupId>
     <artifactId>bacnet4j</artifactId>
-    <version>3.2.4</version>
+    <version>4.0.0</version>
     <name>BACnet4j Library</name>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -22,15 +22,21 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.12</version>
+            <groupId>lohbihler</groupId>
+            <artifactId>sero-scheduler</artifactId>
+            <version>1.+</version>
+        </dependency>
+
+        <dependency>
+            <groupId>lohbihler</groupId>
+            <artifactId>sero-warp</artifactId>
+            <version>1.+</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.+</version>
         </dependency>
 
         <dependency>
@@ -40,12 +46,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.+</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-
+        
     </dependencies>
 
 </project>
