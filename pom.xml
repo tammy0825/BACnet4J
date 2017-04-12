@@ -24,19 +24,19 @@
         <dependency>
             <groupId>lohbihler</groupId>
             <artifactId>sero-scheduler</artifactId>
-            <version>1.+</version>
+            <version>[1.0.0,2)</version>
         </dependency>
 
         <dependency>
             <groupId>lohbihler</groupId>
             <artifactId>sero-warp</artifactId>
-            <version>1.+</version>
+            <version>[1.0.0,2)</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.+</version>
+            <version>3.5</version>
         </dependency>
 
         <dependency>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.+</version>
+            <version>[1.7.0,1.8)</version>
         </dependency>
 
         <dependency>
