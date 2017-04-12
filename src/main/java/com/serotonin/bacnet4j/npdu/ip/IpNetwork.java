@@ -117,8 +117,9 @@ public class IpNetwork extends Network implements Runnable {
             //|| localBindAddress.equals(DEFAULT_BIND_IP)) { removed because iAm responses are broadcasts and thus without this set some systems cannot recieve them
             // It's problematic to not know what the local IP address is, so use utilities to try to determine it.
             final List<InterfaceAddress> inetAddrs = IpNetworkUtils.getLocalInterfaceAddresses();
-            if (inetAddrs.isEmpty())
+            if (inetAddrs.isEmpty()) {
                 throw new RuntimeException("Unable to determine local inet address");
+            }
             final InterfaceAddress iface = inetAddrs.get(0);
 
             final long ipaddr = IpNetworkUtils.bytesToLong(iface.getAddress().getAddress());
@@ -129,12 +130,14 @@ public class IpNetwork extends Network implements Runnable {
             broadcastIp = toIpAddrString(IpNetworkUtils.toBroadcast(ipaddr, subnet));
         } else {
             this.localBindAddressStr = localBindAddress;
-            if (subnetMask != null)
-                subnetMaskStr = subnetMask;
-            else if (networkPrefixLength != null)
+
+            if (networkPrefixLength != null) {
                 subnetMaskStr = toIpAddrString(IpNetworkUtils.createSubmask(networkPrefixLength));
-            else
+            } else if (subnetMask != null) {
+                subnetMaskStr = subnetMask;
+            } else {
                 subnetMaskStr = DEFAULT_SUBNET_MASK;
+            }
 
             final long ipaddr = IpNetworkUtils.bytesToLong(BACnetUtils.dottedStringToBytes(localBindAddress));
             final long subnet = IpNetworkUtils.bytesToLong(BACnetUtils.dottedStringToBytes(subnetMaskStr));
