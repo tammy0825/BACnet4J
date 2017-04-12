@@ -46,7 +46,7 @@ import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.DeviceObjectPropertyReferences;
-import com.serotonin.bacnet4j.util.DevicesObjectPropertyValues;
+import com.serotonin.bacnet4j.util.DeviceObjectPropertyValues;
 import com.serotonin.bacnet4j.util.PropertyValues;
 
 /**
@@ -628,7 +628,7 @@ public class TrendLogObject extends BACnetObject {
         final DateTime now = getNow();
 
         // Call the delegate to perform the poll.
-        final DevicesObjectPropertyValues result = pollingDelegate.doPoll();
+        final DeviceObjectPropertyValues result = pollingDelegate.doPoll();
 
         // Check the result.
         final DeviceObjectPropertyReference monitored = get(PropertyIdentifier.logDeviceObjectProperty);
