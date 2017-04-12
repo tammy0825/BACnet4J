@@ -62,6 +62,7 @@ import com.serotonin.bacnet4j.event.PrivateTransferHandler;
 import com.serotonin.bacnet4j.event.ReinitializeDeviceHandler;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
+import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.obj.BACnetObject;
@@ -124,7 +125,20 @@ public class LocalDevice {
     /**
      * A collection of known peer devices on the network.
      */
-    private final RemoteEntityCache<Integer, RemoteDevice> remoteDeviceCache;
+    private final RemoteEntityCache<Integer, RemoteDevice> remoteDeviceCache = new RemoteEntityCache<>(this);
+
+    /**
+     * The amount of time to remember that a device lookup timed out in milliseconds. Default to 30 seconds.
+     */
+    private long timeoutDeviceRetention = 30000;
+
+    /**
+     * A map of devices for which lookups resulted in a timeout. Keeping this information around means that processes
+     * that loop though lists of objects and so potentially ask for the same remote device multiple times don't need
+     * to wait for the full timeout period each time. The key of the map is the device id, and the value is the time
+     * at which it is ok to look for the device again. See timeoutDeviceRetention.
+     */
+    private final Map<Integer, Long> timeoutDevices = new HashMap<>();
 
     /**
      * The BACnet object that represents this as the local device.
@@ -171,8 +185,6 @@ public class LocalDevice {
     public LocalDevice(final int deviceNumber, final Transport transport) {
         this.transport = transport;
         transport.setLocalDevice(this);
-        remoteDeviceCache = new RemoteEntityCache<>(this);
-
         afterInstatiation(deviceNumber);
     }
 
@@ -270,6 +282,14 @@ public class LocalDevice {
 
     public void setReinitializeDeviceHandler(final ReinitializeDeviceHandler reinitializeDeviceHandler) {
         this.reinitializeDeviceHandler = reinitializeDeviceHandler;
+    }
+
+    public long getTimeoutDeviceRetention() {
+        return timeoutDeviceRetention;
+    }
+
+    public void setTimeoutDeviceRetention(final long timeoutDeviceRetention) {
+        this.timeoutDeviceRetention = timeoutDeviceRetention;
     }
 
     /**
@@ -611,14 +631,23 @@ public class LocalDevice {
             // Provide it to the callback in this thread.
             callback.accept(rd);
         } else {
-            LOG.debug("Requesting the remote device from the remote device finder: {}", instanceNumber);
-            RemoteDeviceFinder.findDevice(this, instanceNumber, (cbrd) -> {
-                // Cache the device.
-                remoteDeviceCache.putEntity(instanceNumber, cbrd, cachePolicies.getDevicePolicy(instanceNumber));
+            if (deviceFindTimedOut(instanceNumber)) {
+                timeoutCallback.run();
+            } else {
+                LOG.debug("Requesting the remote device from the remote device finder: {}", instanceNumber);
+                RemoteDeviceFinder.findDevice(this, instanceNumber, (cbrd) -> {
+                    forgetDeviceTimeout(instanceNumber);
 
-                // Notify the client callback
-                callback.accept(cbrd);
-            }, timeoutCallback, finallyCallback, timeout, unit);
+                    // Cache the device.
+                    remoteDeviceCache.putEntity(instanceNumber, cbrd, cachePolicies.getDevicePolicy(instanceNumber));
+
+                    // Notify the client callback
+                    callback.accept(cbrd);
+                }, () -> {
+                    rememberDeviceTimeout(instanceNumber);
+                    timeoutCallback.run();
+                }, finallyCallback, timeout, unit);
+            }
         }
     }
 
@@ -650,8 +679,10 @@ public class LocalDevice {
                     LOG.debug("Found a cached device: {}", instanceNumber);
                     remoteDevice = rd;
                 } else {
-                    LOG.debug("Creating a new future to get device: {}", instanceNumber);
-                    future = RemoteDeviceFinder.findDevice(LocalDevice.this, instanceNumber);
+                    if (!deviceFindTimedOut(instanceNumber)) {
+                        LOG.debug("Creating a new future to get device: {}", instanceNumber);
+                        future = RemoteDeviceFinder.findDevice(LocalDevice.this, instanceNumber);
+                    }
                 }
             }
 
@@ -659,8 +690,18 @@ public class LocalDevice {
             public RemoteDevice get(final long timeoutMillis) throws BACnetException, CancellationException {
                 if (remoteDevice != null)
                     return remoteDevice;
+                if (future == null)
+                    throw new BACnetTimeoutException("No response from instanceId " + instanceNumber);
 
-                final RemoteDevice rd = future.get(timeoutMillis);
+                RemoteDevice rd;
+                try {
+                    rd = future.get(timeoutMillis);
+                } catch (final BACnetTimeoutException e) {
+                    rememberDeviceTimeout(instanceNumber);
+                    throw e;
+                }
+
+                forgetDeviceTimeout(instanceNumber);
 
                 // Cache the device.
                 remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
@@ -723,6 +764,10 @@ public class LocalDevice {
                 // Check if there is an existing future for the device.
                 future = futures.get(instanceNumber);
                 if (future == null) {
+                    if (deviceFindTimedOut(instanceNumber)) {
+                        throw new BACnetTimeoutException("No response from instanceId " + instanceNumber);
+                    }
+
                     LOG.debug("Creating a new future to get device: {}", instanceNumber);
                     // Create a request to get a fresh copy.
                     future = RemoteDeviceFinder.findDevice(this, instanceNumber);
@@ -733,24 +778,30 @@ public class LocalDevice {
             }
 
             // Wait for the device.
-            LOG.debug("Waiting on future: {}", instanceNumber);
-            if (timeoutMillis == 0)
-                rd = future.get();
-            else
-                rd = future.get(timeoutMillis);
+            try {
+                LOG.debug("Waiting on future: {}", instanceNumber);
+                if (timeoutMillis == 0)
+                    rd = future.get();
+                else
+                    rd = future.get(timeoutMillis);
+                forgetDeviceTimeout(instanceNumber);
+            } catch (final BACnetTimeoutException e) {
+                rememberDeviceTimeout(instanceNumber);
+                throw e;
+            } finally {
+                LOG.debug("Future completed: {}", instanceNumber);
 
-            LOG.debug("Future completed: {}", instanceNumber);
+                // Multiple threads can wait on a single future, and only one thread need run the following code.
+                synchronized (future) {
+                    if (futures.containsKey(instanceNumber)) {
+                        LOG.debug("Doing futures cleanup: {}", instanceNumber);
 
-            // Multiple threads can wait on a single future, and only one thread need run the following code.
-            synchronized (future) {
-                if (futures.containsKey(instanceNumber)) {
-                    LOG.debug("Doing futures cleanup: {}", instanceNumber);
+                        // Remove the future.
+                        futures.remove(instanceNumber);
 
-                    // Remove the future.
-                    futures.remove(instanceNumber);
-
-                    // Cache the device.
-                    remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                        // Cache the device.
+                        remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                    }
                 }
             }
         }
@@ -812,6 +863,31 @@ public class LocalDevice {
 
     public List<RemoteDevice> getRemoteDevices() {
         return remoteDeviceCache.getEntities();
+    }
+
+    private void rememberDeviceTimeout(final int instanceNumber) {
+        synchronized (timeoutDevices) {
+            timeoutDevices.put(instanceNumber, clock.millis() + timeoutDeviceRetention);
+        }
+    }
+
+    private void forgetDeviceTimeout(final int instanceNumber) {
+        synchronized (timeoutDevices) {
+            timeoutDevices.remove(instanceNumber);
+        }
+    }
+
+    private boolean deviceFindTimedOut(final int instanceNumber) {
+        synchronized (timeoutDevices) {
+            final Long expiry = timeoutDevices.get(instanceNumber);
+            if (expiry == null)
+                return false;
+            if (expiry <= clock.millis()) {
+                timeoutDevices.remove(instanceNumber);
+                return false;
+            }
+            return true;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
