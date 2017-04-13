@@ -74,6 +74,8 @@ public class BinaryValueObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.presentValue, presentValue);
 
         addMixin(new StateChangeMixin(this));
+
+        localDevice.addObject(this);
     }
 
     public BinaryValueObject supportStateText(final String inactive, final String active) {

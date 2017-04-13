@@ -110,6 +110,8 @@ public class TrendLogMultipleObject extends BACnetObject {
 
         this.buffer = buffer;
         logDisabled = !allowLogging(getNow());
+
+        localDevice.addObject(this);
     }
 
     public TrendLogMultipleObject withPolled(final int logInterval, final TimeUnit logIntervalUnit,

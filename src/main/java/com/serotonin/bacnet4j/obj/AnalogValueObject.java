@@ -74,6 +74,8 @@ public class AnalogValueObject extends BACnetObject {
         addMixin(
                 new ReadOnlyPropertyMixin(this, PropertyIdentifier.ackedTransitions, PropertyIdentifier.eventTimeStamps,
                         PropertyIdentifier.eventMessageTexts, PropertyIdentifier.resolution));
+
+        localDevice.addObject(this);
     }
 
     public AnalogValueObject supportIntrinsicReporting(final int timeDelay, final int notificationClass,

@@ -191,11 +191,7 @@ public class LocalDevice {
     private void afterInstatiation(final int deviceNumber) {
         try {
             // Initialize the device object.
-            deviceObject = new DeviceObject(this, deviceNumber);
-
-            // The device object is added to the list of object here rather than the letting the base class do it,
-            // because it has to initialize a few things beforehand.
-            addObjectInternal(deviceObject);
+            new DeviceObject(this, deviceNumber);
         } catch (final BACnetServiceException e) {
             // Should not happen
             throw new RuntimeException(e);
@@ -356,6 +352,11 @@ public class LocalDevice {
 
             if (remaining == 0)
                 throw new Exception("Could not find an available device id after " + attempts + " attempts");
+        }
+
+        // Notify objects.
+        for (final BACnetObject bo : localObjects) {
+            bo.initialize();
         }
 
         //
@@ -520,19 +521,25 @@ public class LocalDevice {
     }
 
     public void addObject(final BACnetObject obj) throws BACnetServiceException {
-        // Don't allow the addition of devices.
-        if (obj.getId().getObjectType().equals(ObjectType.device))
-            throw new BACnetServiceException(ErrorClass.object, ErrorCode.dynamicCreationNotSupported);
-        addObjectInternal(obj);
-    }
-
-    private void addObjectInternal(final BACnetObject obj) throws BACnetServiceException {
+        if (obj.getId().getObjectType().equals(ObjectType.device)) {
+            if (deviceObject == null) {
+                deviceObject = (DeviceObject) obj;
+            } else {
+                // Don't allow the addition of devices.
+                throw new BACnetServiceException(ErrorClass.object, ErrorCode.dynamicCreationNotSupported);
+            }
+        }
         if (getObject(obj.getId()) != null)
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.objectIdentifierAlreadyExists);
         if (getObject(obj.getObjectName()) != null)
             throw new BACnetServiceException(ErrorClass.object, ErrorCode.duplicateName);
 
         localObjects.add(obj);
+
+        if (initialized) {
+            // If the local device is already initialized, initialize the object.
+            obj.initialize();
+        }
     }
 
     public ObjectIdentifier getNextInstanceObjectIdentifier(final ObjectType objectType) {

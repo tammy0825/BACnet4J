@@ -94,22 +94,20 @@ public class BACnetObject {
     // Configuration
     private boolean deletable;
 
-    public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber)
-            throws BACnetServiceException {
+    public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber) {
         this(localDevice, type, instanceNumber, null);
     }
 
     public BACnetObject(final LocalDevice localDevice, final ObjectType type, final int instanceNumber,
-            final String name) throws BACnetServiceException {
+            final String name) {
         this(localDevice, new ObjectIdentifier(type, instanceNumber), name);
     }
 
-    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id) throws BACnetServiceException {
+    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id) {
         this(localDevice, id, null);
     }
 
-    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id, final String name)
-            throws BACnetServiceException {
+    public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id, final String name) {
         if (id == null)
             throw new IllegalArgumentException("object id cannot be null");
 
@@ -123,10 +121,6 @@ public class BACnetObject {
         // All objects have a property list.
         addMixin(new PropertyListMixin(this));
         addMixin(new ObjectIdAndNameMixin(this));
-
-        if (!id.getObjectType().equals(ObjectType.device))
-            // The device object will add itself to the local device after it initializes.
-            localDevice.addObject(this);
     }
 
     //
@@ -164,6 +158,18 @@ public class BACnetObject {
     //
     // Object notifications
     //
+    final public void initialize() {
+        // Notify the mixins
+        for (final AbstractMixin mixin : mixins) {
+            mixin.initialize();
+        }
+        initializeImpl();
+    }
+
+    protected void initializeImpl() {
+        // no op, override as required
+    }
+
     /**
      * Called when the object is removed from the device.
      */
