@@ -126,4 +126,9 @@ public class BinaryValueObject extends BACnetObject {
         super._supportValueSource();
         return this;
     }
+
+    public BinaryValueObject supportWritable() {
+        _supportWritable();
+        return this;
+    }
 }

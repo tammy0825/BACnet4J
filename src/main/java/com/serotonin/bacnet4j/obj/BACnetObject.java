@@ -247,6 +247,17 @@ public class BACnetObject {
         return false;
     }
 
+    protected void _supportWritable() {
+        if (commandableMixin != null)
+            commandableMixin.supportWritable();
+    }
+
+    public boolean supportsWritable() {
+        if (commandableMixin != null)
+            return commandableMixin.supportsWritable();
+        return false;
+    }
+
     //
     // Intrinsic reporting
     public void acknowledgeAlarm(final UnsignedInteger acknowledgingProcessIdentifier,

@@ -130,4 +130,9 @@ public class MultistateValueObject extends BACnetObject {
         _supportValueSource();
         return this;
     }
+
+    public MultistateValueObject supportWritable() {
+        _supportWritable();
+        return this;
+    }
 }
