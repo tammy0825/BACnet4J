@@ -333,11 +333,11 @@ public class BBMDTest {
 
         // Confirm that the broadcast was received across the B/N network
         assertEquals(1, ld11.iamCount());
-        //        assertEquals(1, ld12.iamCount());
-        //        assertEquals(1, ld13.iamCount());
-        //        assertEquals(1, ld21.iamCount());
+        assertEquals(1, ld12.iamCount());
+        assertEquals(1, ld13.iamCount());
+        assertEquals(1, ld21.iamCount());
         assertEquals(1, ld22.iamCount());
-        //        assertEquals(1, ld23.iamCount());
+        assertEquals(1, ld23.iamCount());
         assertEquals(0, ld31.iamCount());
         assertEquals(1, ld32.iamCount());
         assertEquals(1, ld33.iamCount());

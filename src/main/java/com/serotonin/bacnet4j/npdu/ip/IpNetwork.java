@@ -109,8 +109,6 @@ public class IpNetwork extends Network implements Runnable {
         this.broadcastAddressStr = broadcastAddress;
         this.subnetMaskStr = subnetMask;
         this.reuseAddress = reuseAddress;
-
-        System.out.println("addr=" + localBindAddress + ", bc=" + broadcastAddress + ", sn=" + subnetMask);
     }
 
     @Override
