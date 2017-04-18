@@ -36,11 +36,13 @@ task jacoco(group: 'verification', dependsOn: jacocoTestReport) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+        	artifactId 'bacnet4j'
             from components.java
             
             artifact sourceJar {
                 classifier "sources"
             }
+            
         }
     }
 }
