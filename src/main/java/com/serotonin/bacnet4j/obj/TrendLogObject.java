@@ -94,8 +94,6 @@ public class TrendLogObject extends BACnetObject {
             final boolean stopWhenFull, final int bufferSize) throws BACnetServiceException {
         super(localDevice, ObjectType.trendLog, instanceNumber, name);
 
-        Objects.requireNonNull(localDevice);
-        Objects.requireNonNull(name);
         Objects.requireNonNull(startTime);
         Objects.requireNonNull(stopTime);
         Objects.requireNonNull(logDeviceObjectProperty);

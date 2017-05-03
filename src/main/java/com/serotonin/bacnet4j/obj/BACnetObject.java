@@ -108,8 +108,8 @@ public class BACnetObject {
     }
 
     public BACnetObject(final LocalDevice localDevice, final ObjectIdentifier id, final String name) {
-        if (id == null)
-            throw new IllegalArgumentException("object id cannot be null");
+        Objects.requireNonNull(localDevice);
+        Objects.requireNonNull(id);
 
         this.localDevice = localDevice;
         objectType = id.getObjectType();
