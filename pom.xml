@@ -40,7 +40,7 @@
 			   </executions>
 			   <configuration>
 			      <serverId>ias-releases</serverId>
-			      <nexusUrl>http://52.40.14.1:8081/</nexusUrl>
+			      <nexusUrl>https://maven.mangoautomation.net/</nexusUrl>
 			      <skipStaging>true</skipStaging>
 			   </configuration>
 			</plugin>
