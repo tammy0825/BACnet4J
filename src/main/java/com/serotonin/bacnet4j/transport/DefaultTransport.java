@@ -680,9 +680,13 @@ public class DefaultTransport implements Transport, Runnable {
     private static void completeComplexAckResponse(final ComplexACK cack, final ResponseConsumer consumer) {
         try {
             cack.parseServiceData();
-            consumer.success(cack.getService());
+            if (consumer != null) {
+                consumer.success(cack.getService());
+            }
         } catch (final BACnetException e) {
-            consumer.ex(e);
+            if (consumer != null) {
+                consumer.ex(e);
+            }
         }
     }
 
@@ -720,7 +724,7 @@ public class DefaultTransport implements Transport, Runnable {
             try {
                 network.sendAPDU(key.getAddress(), key.getLinkService(), segment, false);
             } catch (final BACnetException e) {
-                ctx.getConsumer().ex(e);
+                ctx.useConsumer((consumer) -> consumer.ex(e));
                 return;
             }
 
@@ -858,15 +862,14 @@ public class DefaultTransport implements Transport, Runnable {
                     umIter.remove();
                     if (ctx.getSegmentWindow() == null) {
                         // Not a segmented message, at least as far as we know.
-                        ctx.getConsumer().ex(new BACnetTimeoutException());
+                        ctx.useConsumer((consumer) -> consumer.ex(new BACnetTimeoutException()));
                     } else {
                         // A segmented message.
-                        if (ctx.getSegmentWindow().isEmpty() && ctx.getConsumer() != null) {
+                        if (ctx.getSegmentWindow().isEmpty()) {
                             // No segments received. Return a timeout.
-                            ctx.getConsumer()
-                                    .ex(new BACnetTimeoutException(
-                                            "Timeout while waiting for segment part: invokeId=" + key.getInvokeId()
-                                                    + ", sequenceId=" + ctx.getSegmentWindow().getFirstSequenceId()));
+                            ctx.useConsumer((consumer) -> consumer.ex(new BACnetTimeoutException(
+                                    "Timeout while waiting for segment part: invokeId=" + key.getInvokeId()
+                                            + ", sequenceId=" + ctx.getSegmentWindow().getFirstSequenceId())));
                         } else if (ctx.getSegmentWindow().isEmpty())
                             LOG.warn("No segments received for message " + ctx.getOriginalApdu());
                         else {
@@ -878,7 +881,7 @@ public class DefaultTransport implements Transport, Runnable {
                                                 ctx.getSegmentWindow().getWindowSize(), true),
                                         false);
                             } catch (final BACnetException ex) {
-                                ctx.getConsumer().ex(ex);
+                                ctx.useConsumer((consumer) -> consumer.ex(ex));
                             }
                         }
                     }
@@ -896,10 +899,7 @@ public class DefaultTransport implements Transport, Runnable {
             network.sendAPDU(key.getAddress(), key.getLinkService(), ctx.getOriginalApdu(), false);
         } catch (final BACnetException e) {
             unackedMessages.remove(key);
-            if (ctx.getConsumer() != null)
-                ctx.getConsumer().ex(e);
-            else
-                LOG.error("", e);
+            ctx.useConsumer((consumer) -> consumer.ex(e));
         }
     }
 

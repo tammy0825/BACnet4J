@@ -157,6 +157,12 @@ public class UnackedMessageContext {
         this.lastIdSent = lastIdSent;
     }
 
+    public void useConsumer(final ConsumerClient client) {
+        if (consumer != null) {
+            client.use(consumer);
+        }
+    }
+
     @Override
     public String toString() {
         return "UnackedMessageContext [deadline=" + deadline + ", attemptsLeft=" + attemptsLeft + ", clock=" + clock
@@ -164,5 +170,10 @@ public class UnackedMessageContext {
                 + ", segmentWindow=" + segmentWindow + ", segmentedMessage=" + segmentedMessage + ", segmentTemplate="
                 + segmentTemplate + ", serviceData=" + serviceData + ", segBuf=" + Arrays.toString(segBuf)
                 + ", lastIdSent=" + lastIdSent + "]";
+    }
+
+    @FunctionalInterface
+    public static interface ConsumerClient {
+        void use(ResponseConsumer consumer);
     }
 }
