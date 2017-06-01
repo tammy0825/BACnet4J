@@ -38,7 +38,6 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.util.DiscoveryUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class IHaveRequest extends UnconfirmedRequestService {
@@ -65,6 +64,11 @@ public class IHaveRequest extends UnconfirmedRequestService {
 
     @Override
     public void handle(final LocalDevice localDevice, final Address from) {
+        // Ignore requests from our own device id.
+        if (localDevice.getInstanceNumber() == deviceIdentifier.getInstanceNumber()) {
+            return;
+        }
+
         localDevice.updateRemoteDevice(deviceIdentifier.getInstanceNumber(), from);
 
         final RemoteDevice d = localDevice.getCachedRemoteDevice(deviceIdentifier.getInstanceNumber());
@@ -72,9 +76,7 @@ public class IHaveRequest extends UnconfirmedRequestService {
             // Populate the object with discovered values, but do so in a different thread.
             localDevice.execute(() -> {
                 try {
-                    final RemoteDevice rd = new RemoteDevice(localDevice, deviceIdentifier.getInstanceNumber(), from);
-                    rd.setObjectProperty(objectIdentifier, PropertyIdentifier.objectName, objectName);
-                    DiscoveryUtils.getExtendedDeviceInformation(localDevice, rd);
+                    final RemoteDevice rd = localDevice.getRemoteDeviceBlocking(deviceIdentifier.getInstanceNumber());
                     localDevice.getEventHandler().fireIHaveReceived(rd, rd.getObject(objectIdentifier));
                 } catch (final BACnetException e) {
                     LOG.warn("Error while discovering extended device information", e);
