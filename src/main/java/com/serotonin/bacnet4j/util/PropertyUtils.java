@@ -84,6 +84,13 @@ public class PropertyUtils {
      */
     public static DeviceObjectPropertyValues readProperties(final LocalDevice localDevice,
             final DeviceObjectPropertyReferences refs, final ReadListener callback, final long deviceTimeout) {
+        final long timeoutToUse;
+        if (deviceTimeout <= 0) {
+            timeoutToUse = localDevice.getTransportTimeout();
+        } else {
+            timeoutToUse = deviceTimeout;
+        }
+
         final DeviceObjectPropertyValues result = new DeviceObjectPropertyValues();
 
         final Map<Integer, PropertyReferences> properties = refs.getProperties();
@@ -156,7 +163,7 @@ public class PropertyUtils {
             if (rd == null) {
                 // Initiate a device lookup
                 runnable = () -> {
-                    requestPropertiesFromDevice(localDevice, deviceId, deviceTimeout, propRefs, callback, result,
+                    requestPropertiesFromDevice(localDevice, deviceId, timeoutToUse, propRefs, callback, result,
                             completedProperties, totalProperties);
                 };
             } else {
@@ -169,7 +176,7 @@ public class PropertyUtils {
                         // The cached device appears to be offline. Remove it from the cache, and try discovering it
                         // again in case its address changed.
                         localDevice.removeCachedRemoteDevice(deviceId);
-                        requestPropertiesFromDevice(localDevice, deviceId, deviceTimeout, propRefs, callback, result,
+                        requestPropertiesFromDevice(localDevice, deviceId, timeoutToUse, propRefs, callback, result,
                                 completedProperties, totalProperties);
                     }
                 };
