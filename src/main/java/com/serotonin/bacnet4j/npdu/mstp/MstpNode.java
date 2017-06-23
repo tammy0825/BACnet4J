@@ -49,8 +49,6 @@ abstract public class MstpNode implements Runnable {
     private static final byte PREAMBLE2 = (byte) 0xFF;
     private static final int MAX_FRAME_LENGTH = 501;
 
-    private boolean trace = false;
-
     private enum ReadFrameState {
         idle, preamble, header, headerCrc, data, dataCrc;
     }
@@ -112,14 +110,6 @@ abstract public class MstpNode implements Runnable {
     public void initialize(final Transport transport) throws Exception {
         this.clock = transport.getLocalDevice().getClock();
         initialize(true);
-    }
-
-    public boolean isTrace() {
-        return trace;
-    }
-
-    public void setTrace(final boolean trace) {
-        this.trace = trace;
     }
 
     public long getBytesOut() {
@@ -302,8 +292,8 @@ abstract public class MstpNode implements Runnable {
             if (in.available() > 0) {
                 readCount = in.read(readArray);
                 bytesIn += readCount;
-                if (trace)
-                    trace("in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
+                if (LOG.isTraceEnabled())
+                    LOG.trace(tracePrefix() + "in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
                 inputBuffer.push(readArray, 0, readCount);
                 eventCount += readCount;
                 //noise();
@@ -386,8 +376,8 @@ abstract public class MstpNode implements Runnable {
                     // FrameType
                     headerCRC.accumulate(b);
                     frame.setFrameType(FrameType.forId(b));
-                    if (trace && frame.getFrameType() == null)
-                        trace("Unknown frame type for value: " + b);
+                    if (LOG.isTraceEnabled() && frame.getFrameType() == null)
+                        LOG.trace(tracePrefix() + "Unknown frame type for value: " + b);
                     index = 1;
                 } else if (index == 1) {
                     // Destination
@@ -529,8 +519,8 @@ abstract public class MstpNode implements Runnable {
         //        }
 
         try {
-            if (trace)
-                trace("out: " + frame);
+            if (LOG.isTraceEnabled())
+                LOG.trace(tracePrefix() + "out: " + frame);
             //LOG.fine("writing frame: " + frame);
 
             // Preamble
@@ -579,8 +569,8 @@ abstract public class MstpNode implements Runnable {
         lastNonSilence = clock.millis();
     }
 
-    protected void trace(final String msg) {
-        System.out.println(thisStation + "/" + clock.millis() % 10000000 + ": " + msg);
+    protected String tracePrefix() {
+        return thisStation + "/" + clock.millis() % 10000000 + ": ";
     }
 
     //
