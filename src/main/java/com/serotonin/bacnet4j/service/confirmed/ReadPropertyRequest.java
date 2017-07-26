@@ -92,6 +92,12 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     }
 
     @Override
+    public String toString() {
+        return "ReadPropertyRequest [objectIdentifier=" + objectIdentifier + ", propertyIdentifier="
+                + propertyIdentifier + ", propertyArrayIndex=" + propertyArrayIndex + "]";
+    }
+
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
