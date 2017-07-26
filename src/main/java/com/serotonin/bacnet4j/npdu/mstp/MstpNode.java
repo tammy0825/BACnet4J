@@ -449,6 +449,7 @@ abstract public class MstpNode implements Runnable {
         } else {
             while (inputBuffer.size() > 0) {
                 activity = true;
+                noise();
                 final byte b = inputBuffer.pop();
 
                 if (index < frame.getLength()) {
