@@ -34,8 +34,6 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
-
 public class SlaveNode extends MstpNode {
     private static final Logger LOG = LoggerFactory.getLogger(SlaveNode.class);
 
@@ -48,14 +46,9 @@ public class SlaveNode extends MstpNode {
     private long replyDeadline;
     private Frame replyFrame;
 
-    public SlaveNode(final SerialPortWrapper wrapper, final byte thisStation) throws IllegalArgumentException {
-        super(wrapper, thisStation);
-        validate();
-    }
-
-    public SlaveNode(final InputStream in, final OutputStream out, final byte thisStation)
+    public SlaveNode(final String portId, final InputStream in, final OutputStream out, final byte thisStation)
             throws IllegalArgumentException {
-        super(in, out, thisStation);
+        super(portId, in, out, thisStation);
         validate();
     }
 

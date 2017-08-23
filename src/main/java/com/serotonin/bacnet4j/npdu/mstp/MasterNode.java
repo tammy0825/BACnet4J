@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
-import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 
 public class MasterNode extends MstpNode {
     static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
@@ -83,6 +82,8 @@ public class MasterNode extends MstpNode {
 
     private int maxInfoFrames = Constants.MAX_INFO_FRAMES;
 
+    private int usageTimeout = Constants.USAGE_TIMEOUT;
+
     private MasterNodeState state;
 
     private long replyDeadline;
@@ -90,15 +91,9 @@ public class MasterNode extends MstpNode {
 
     //    private long lastTokenPossession;
 
-    public MasterNode(final SerialPortWrapper wrapper, final byte thisStation, final int retryCount)
-            throws IllegalArgumentException {
-        super(wrapper, thisStation);
-        validate(retryCount);
-    }
-
-    public MasterNode(final InputStream in, final OutputStream out, final byte thisStation, final int retryCount)
-            throws IllegalArgumentException {
-        super(in, out, thisStation);
+    public MasterNode(final String portId, final InputStream in, final OutputStream out, final byte thisStation,
+            final int retryCount) throws IllegalArgumentException {
+        super(portId, in, out, thisStation);
         validate(retryCount);
     }
 
@@ -130,6 +125,16 @@ public class MasterNode extends MstpNode {
         if (maxInfoFrames < 1)
             throw new IllegalArgumentException("Cannot be less than 1");
         this.maxInfoFrames = maxInfoFrames;
+    }
+
+    public void setUsageTimeout(final int usageTimeout) {
+        if (usageTimeout < 20) {
+            throw new IllegalArgumentException("Cannot be less than 20");
+        }
+        if (usageTimeout > 100) {
+            throw new IllegalArgumentException("Cannot be greater than 100");
+        }
+        this.usageTimeout = usageTimeout;
     }
 
     @Override
@@ -212,9 +217,9 @@ public class MasterNode extends MstpNode {
             frame();
             receivedValidFrame = false;
             activity = true;
-        } else {
-            if (LOG.isDebugEnabled())
-                LOG.debug(thisStation + " idle:other, silence=" + silence());
+            //        } else {
+            //            if (LOG.isDebugEnabled())
+            //                LOG.debug(thisStation + " idle:other, silence=" + silence());
         }
     }
 
@@ -436,13 +441,13 @@ public class MasterNode extends MstpNode {
      */
     private void passToken() {
         activity = true;
-        if (silence() < Constants.USAGE_TIMEOUT && eventCount > Constants.MIN_OCTETS) {
+        if (silence() < usageTimeout && eventCount > Constants.MIN_OCTETS) {
             // SawTokenUser
             //            debug("passToken:SawTokenUser");
             if (LOG.isDebugEnabled())
                 LOG.debug(thisStation + " passToken:SawTokenUser");
             state = MasterNodeState.idle;
-        } else if (silence() >= Constants.USAGE_TIMEOUT && retryCount < Constants.RETRY_TOKEN) {
+        } else if (silence() >= usageTimeout && retryCount < Constants.RETRY_TOKEN) {
             // RetrySendToken
             //            debug("passToken:RetrySendToken to " + nextStation);
             if (LOG.isDebugEnabled())
@@ -450,7 +455,7 @@ public class MasterNode extends MstpNode {
             retryCount++;
             sendFrame(FrameType.token, nextStation);
             eventCount = 0;
-        } else if (silence() >= Constants.USAGE_TIMEOUT && retryCount >= Constants.RETRY_TOKEN) {
+        } else if (silence() >= usageTimeout && retryCount >= Constants.RETRY_TOKEN) {
             // FindNewSuccessor
             //            debug("passToken:FindNewSuccessor: trying " + adjacentStation(nextStation));
             if (LOG.isDebugEnabled())
@@ -527,7 +532,7 @@ public class MasterNode extends MstpNode {
                 state = MasterNodeState.idle;
             }
             activity = true;
-        } else if (soleMaster && (silence() >= Constants.USAGE_TIMEOUT || receivedInvalidFrame != null)) {
+        } else if (soleMaster && (silence() >= usageTimeout || receivedInvalidFrame != null)) {
             // SoleMaster
             //            debug("pollForMaster:SoleMaster");
             if (LOG.isDebugEnabled())
@@ -537,7 +542,7 @@ public class MasterNode extends MstpNode {
             state = MasterNodeState.useToken;
             activity = true;
         } else if (!soleMaster) {
-            final boolean longCondition = silence() >= Constants.USAGE_TIMEOUT || receivedInvalidFrame != null;
+            final boolean longCondition = silence() >= usageTimeout || receivedInvalidFrame != null;
             if (nextStation != thisStation && longCondition) {
                 // DoneWithPFM
                 //                debug("pollForMaster:DoneWithPFM passing token to " + nextStation);

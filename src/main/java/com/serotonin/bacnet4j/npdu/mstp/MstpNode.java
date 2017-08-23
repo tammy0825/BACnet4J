@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
-import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 import com.serotonin.bacnet4j.util.sero.StreamUtils;
 
 abstract public class MstpNode implements Runnable {
@@ -52,6 +51,8 @@ abstract public class MstpNode implements Runnable {
     private enum ReadFrameState {
         idle, preamble, header, headerCrc, data, dataCrc;
     }
+
+    private final String portId;
 
     //
     // Configuration
@@ -68,12 +69,10 @@ abstract public class MstpNode implements Runnable {
     // Fields
     private MstpNetwork network;
 
-    private SerialPortWrapper wrapper;
-    //private SerialPortProxy serialPort;
     protected Clock clock;
 
-    private OutputStream out;
-    private InputStream in;
+    private final OutputStream out;
+    private final InputStream in;
     private final byte[] readArray = new byte[512];
     private int readCount;
     private final Frame sendFrame = new Frame();
@@ -90,21 +89,15 @@ abstract public class MstpNode implements Runnable {
     private long bytesOut;
     private long bytesIn;
 
-    public MstpNode(final SerialPortWrapper wrapper, final byte thisStation) {
-        this.wrapper = wrapper;
-        this.thisStation = thisStation;
-    }
-
-    public MstpNode(final InputStream in, final OutputStream out, final byte thisStation) {
+    public MstpNode(final String portId, final InputStream in, final OutputStream out, final byte thisStation) {
+        this.portId = portId;
         this.in = in;
         this.out = out;
         this.thisStation = thisStation;
     }
 
     String getCommPortId() {
-        if (wrapper == null)
-            return null;
-        return wrapper.getCommPortId();
+        return portId;
     }
 
     public void initialize(final Transport transport) throws Exception {
@@ -122,12 +115,6 @@ abstract public class MstpNode implements Runnable {
 
     public void initialize(final boolean runInThread) throws Exception {
         if (!running) {
-            if (wrapper != null) {
-                wrapper.open();
-                in = wrapper.getInputStream();
-                out = wrapper.getOutputStream();
-            }
-
             running = true;
             lastNonSilence = clock.millis();
             state = ReadFrameState.idle;
@@ -140,6 +127,13 @@ abstract public class MstpNode implements Runnable {
 
     public void terminate() {
         running = false;
+        if (thread != null) {
+            try {
+                thread.join();
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void setNetwork(final MstpNetwork network) {
@@ -239,12 +233,12 @@ abstract public class MstpNode implements Runnable {
                 }
             }
         }
-
-        try {
-            wrapper.close();
-        } catch (final Exception e) {
-            LOG.warn("", e);
-        }
+        //
+        //        try {
+        //            wrapper.close();
+        //        } catch (final Exception e) {
+        //            LOG.warn("", e);
+        //        }
     }
 
     abstract protected void doCycle();
@@ -601,7 +595,7 @@ abstract public class MstpNode implements Runnable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (wrapper == null ? 0 : wrapper.hashCode());
+        result = prime * result + (portId == null ? 0 : portId.hashCode());
         return result;
     }
 
@@ -614,10 +608,10 @@ abstract public class MstpNode implements Runnable {
         if (getClass() != obj.getClass())
             return false;
         final MstpNode other = (MstpNode) obj;
-        if (wrapper == null) {
-            if (other.wrapper != null)
+        if (portId == null) {
+            if (other.portId != null)
                 return false;
-        } else if (!wrapper.equals(other.wrapper))
+        } else if (!portId.equals(other.portId))
             return false;
         return true;
     }
