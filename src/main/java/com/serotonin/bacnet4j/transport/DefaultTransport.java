@@ -187,10 +187,29 @@ public class DefaultTransport implements Transport, Runnable {
 
     @Override
     public void terminate() {
+        // Stop the processing thread.
         running = false;
         ThreadUtils.notifySync(pauseLock);
         if (thread != null)
             ThreadUtils.join(thread);
+
+        // Cancel any queued outgoing messages.
+        for (final Outgoing og : outgoing) {
+            if (og instanceof OutgoingConfirmed) {
+                final OutgoingConfirmed ogc = (OutgoingConfirmed) og;
+                if (ogc.consumer != null) {
+                    ogc.consumer.ex(new BACnetException("Cancelled due to transport shutdown"));
+                }
+            }
+        }
+
+        // Cancel any unacked messages
+        for (final UnackedMessageContext ctx : unackedMessages.getRequests().values()) {
+            if (ctx.getConsumer() != null) {
+                ctx.getConsumer().ex(new BACnetException("Cancelled due to transport shutdown"));
+            }
+        }
+
         network.terminate();
     }
 
