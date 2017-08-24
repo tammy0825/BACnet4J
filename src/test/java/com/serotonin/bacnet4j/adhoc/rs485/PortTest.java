@@ -24,7 +24,7 @@ public class PortTest {
         final SerialPort serialPort = new SerialPort("COM4");
         boolean b = serialPort.openPort();
         System.out.println(b);
-        b = serialPort.setParams(SerialPort.BAUDRATE_9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+        b = serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                 SerialPort.PARITY_NONE);
         System.out.println(b);
 
@@ -40,23 +40,30 @@ public class PortTest {
         try (JsscSerialPortInputStream in = new JsscSerialPortInputStream(serialPort);
                 JsscSerialPortOutputStream out = new JsscSerialPortOutputStream(serialPort)) {
             final MasterNode node = new MasterNode("test", in, out, (byte) 3, 2);
+            node.setMaxInfoFrames(5);
+            node.setUsageTimeout(100);
             final MstpNetwork network = new MstpNetwork(node, 0);
             final Transport transport = new DefaultTransport(network);
             final LocalDevice ld = new LocalDevice(1970, transport);
             ld.initialize();
+            System.out.println(prefix() + "Initialized");
 
-            final RemoteDeviceDiscoverer rdd = ld.startRemoteDeviceDiscovery((r) -> {
-                System.out.println(prefix() + "Device: " + r + ", " + r.getName());
-            });
+            for (int i = 0; i < 10; i++) {
+                System.out.println(prefix() + "Discovering");
+                final RemoteDeviceDiscoverer rdd = ld.startRemoteDeviceDiscovery((r) -> {
+                    System.out.println(prefix() + "Device: " + r + ", " + r.getName());
+                });
 
-            ThreadUtils.sleep(60000);
+                ThreadUtils.sleep(6000);
 
-            System.out.println(rdd.getRemoteDevices());
-            rdd.stop();
+                System.out.println(rdd.getRemoteDevices());
+                rdd.stop();
+            }
 
             //            System.out.println(node.getBytesIn());
             //            System.out.println(node.getBytesOut());
 
+            System.out.println(prefix() + "Terminating");
             ld.terminate();
         }
     }

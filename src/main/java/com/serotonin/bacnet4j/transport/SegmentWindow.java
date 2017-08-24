@@ -80,7 +80,7 @@ public class SegmentWindow {
     }
 
     /**
-     * The message is complete if the last full slot is marked as not more follows, all slots before it are filled.
+     * The message is complete if the last full slot is marked as not more follows, and all slots before it are filled.
      * (Full slots following it are ignored.)
      *
      * @return

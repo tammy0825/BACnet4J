@@ -632,6 +632,8 @@ public class DefaultTransport implements Transport, Runnable {
         boolean complete = false;
 
         if (ctx.getSegmentWindow() == null) {
+            LOG.debug("Received first segment {} for {}", currentSeq, key);
+
             // This is the first segment.
             ctx.setSegmentWindow(new SegmentWindow(windowSize, currentSeq + 1));
             ctx.setSegmentedMessage(msg);
@@ -642,25 +644,34 @@ public class DefaultTransport implements Transport, Runnable {
         } else {
             final SegmentWindow segmentWindow = ctx.getSegmentWindow();
 
-            if (!segmentWindow.fitsInWindow(msg))
-                throw new BACnetException("Segment did not fit in segment window");
-            segmentWindow.setSegment(msg);
+            LOG.debug("Received segment {}, first={}, window size={}, for {}", currentSeq,
+                    segmentWindow.getFirstSequenceId(), segmentWindow.getWindowSize(), key);
 
-            // Do we need to send an ack?
-            complete = segmentWindow.isMessageComplete();
-            if (complete || segmentWindow.isFull()) {
-                final int lastSeq = segmentWindow.getLatestSequenceId();
-                // Send an acknowledgement
-                network.sendAPDU(key.getAddress(), key.getLinkService(), new SegmentACK(false, !key.isFromServer(),
-                        msg.getInvokeId(), lastSeq, windowSize, !segmentWindow.isMessageComplete()), false);
+            if (segmentWindow.fitsInWindow(msg)) {
+                segmentWindow.setSegment(msg);
 
-                // Append the window onto the original response.
-                for (final Segmentable segment : segmentWindow.getSegments()) {
-                    ctx.getSegmentedMessage().appendServiceData(segment.getServiceData());
-                    if (!segment.isMoreFollows())
-                        break;
+                // Do we need to send an ack?
+                complete = segmentWindow.isMessageComplete();
+                if (complete || segmentWindow.isFull()) {
+                    final int lastSeq = segmentWindow.getLatestSequenceId();
+
+                    LOG.debug("Sending ack for segment {}, key={}", lastSeq, key);
+
+                    // Send an acknowledgement
+                    network.sendAPDU(key.getAddress(), key.getLinkService(), new SegmentACK(false, !key.isFromServer(),
+                            msg.getInvokeId(), lastSeq, windowSize, !segmentWindow.isMessageComplete()), false);
+
+                    // Append the window onto the original response.
+                    for (final Segmentable segment : segmentWindow.getSegments()) {
+                        ctx.getSegmentedMessage().appendServiceData(segment.getServiceData());
+                        if (!segment.isMoreFollows())
+                            break;
+                    }
+                    segmentWindow.clear(lastSeq + 1);
                 }
-                segmentWindow.clear(lastSeq + 1);
+            } else {
+                LOG.warn("Segment did not fit in segment window: segment={}, first={}, windowSize={}, key={}",
+                        currentSeq, segmentWindow.getFirstSequenceId(), segmentWindow.getWindowSize(), key);
             }
         }
 
@@ -699,11 +710,14 @@ public class DefaultTransport implements Transport, Runnable {
     private void segmentedOutgoing(final UnackedMessageKey key, final UnackedMessageContext ctx, final SegmentACK ack) {
         // TODO handle NAK
 
+        LOG.debug("Received segment ack {} for {}", ack.getSequenceNumber(), key);
+
         if (ctx.getServiceData().size() == 0) {
             // There any no more segments to send. If this is a request, expect the response.
             if (ctx.getOriginalApdu() instanceof ConfirmedRequest)
                 unackedMessages.add(key, ctx);
             // However, if this is a response, there is nothing left to do.
+            LOG.debug("Done sending segmented response");
             return;
         }
 
@@ -721,6 +735,7 @@ public class DefaultTransport implements Transport, Runnable {
             final APDU segment = ctx.getSegmentTemplate().clone(ctx.getServiceData().size() > 0, ++sequenceNumber,
                     ack.getActualWindowSize(), segData);
 
+            LOG.debug("Sending segment {} for {}", sequenceNumber, key);
             try {
                 network.sendAPDU(key.getAddress(), key.getLinkService(), segment, false);
             } catch (final BACnetException e) {
@@ -731,6 +746,7 @@ public class DefaultTransport implements Transport, Runnable {
             remaining--;
         }
         ctx.setLastIdSent(sequenceNumber);
+        ctx.reset(segTimeout, retries);
 
         // Expect the segment ack.
         unackedMessages.add(key, ctx);
@@ -817,6 +833,7 @@ public class DefaultTransport implements Transport, Runnable {
                 if (segmentsRequired > request.getMaxSegmentsAccepted().getMaxSegments() || segmentsRequired > 128)
                     throw new ServiceTooBigException("Response too big to send to device; too many segments required");
 
+                LOG.debug("Sending confirmed response as segmented with {} segments", segmentsRequired);
                 // Prepare the segmenting session.
                 final UnackedMessageContext ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries,
                         null, null);
@@ -833,10 +850,11 @@ public class DefaultTransport implements Transport, Runnable {
 
                 ctx.setOriginalApdu(apdu);
                 sendForResponse(key, ctx);
-            } else
+            } else {
                 // We can send the whole APDU in one shot.
                 network.sendAPDU(address, linkService,
                         new ComplexACK(false, false, request.getInvokeId(), 0, 0, response), false);
+            }
         }
     }
 
@@ -858,6 +876,8 @@ public class DefaultTransport implements Transport, Runnable {
                     ctx.retry(timeout);
                     sendForResponse(key, ctx);
                 } else {
+                    LOG.debug("Timeout on key {}", key);
+
                     // Timeout
                     umIter.remove();
                     if (ctx.getSegmentWindow() == null) {

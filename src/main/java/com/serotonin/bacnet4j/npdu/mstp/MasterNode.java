@@ -89,6 +89,11 @@ public class MasterNode extends MstpNode {
     private long replyDeadline;
     private Frame replyFrame;
 
+    /**
+     * Set to true the first time this node has received a token, indicating that it has joined the network.
+     */
+    private boolean receivedToken;
+
     //    private long lastTokenPossession;
 
     public MasterNode(final String portId, final InputStream in, final OutputStream out, final byte thisStation,
@@ -135,6 +140,10 @@ public class MasterNode extends MstpNode {
             throw new IllegalArgumentException("Cannot be greater than 100");
         }
         this.usageTimeout = usageTimeout;
+    }
+
+    public boolean hasReceivedToken() {
+        return receivedToken;
     }
 
     @Override
@@ -236,6 +245,8 @@ public class MasterNode extends MstpNode {
             if (LOG.isDebugEnabled())
                 LOG.debug(thisStation + " Frame type should not be broadcast: " + type);
         } else if (frame.forStation(thisStation) && type == FrameType.token) {
+            receivedToken = true;
+
             // ReceivedToken
             // debug("idle:ReceivedToken from " + frame.getSourceAddress());
             if (LOG.isDebugEnabled())
@@ -566,6 +577,8 @@ public class MasterNode extends MstpNode {
                     receivedInvalidFrame = null;
                     activity = true;
                 } else if (adjacentStation(pollStation) == thisStation && longCondition) {
+                    receivedToken = true;
+
                     // DeclareSoleMaster
                     //                    debug("pollForMaster:DeclareSoleMaster");
                     if (LOG.isDebugEnabled())
