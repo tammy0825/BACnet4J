@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.exception;
@@ -35,7 +35,15 @@ public class BACnetTimeoutException extends BACnetException {
         super();
     }
 
-    public BACnetTimeoutException(String message) {
+    public BACnetTimeoutException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public BACnetTimeoutException(final String message) {
         super(message);
+    }
+
+    public BACnetTimeoutException(final Throwable cause) {
+        super(cause);
     }
 }

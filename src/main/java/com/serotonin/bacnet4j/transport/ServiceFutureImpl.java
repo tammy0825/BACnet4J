@@ -28,6 +28,9 @@
  */
 package com.serotonin.bacnet4j.transport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.serotonin.bacnet4j.ResponseConsumer;
 import com.serotonin.bacnet4j.ServiceFuture;
 import com.serotonin.bacnet4j.apdu.Abort;
@@ -42,20 +45,12 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
+    static final Logger LOG = LoggerFactory.getLogger(ServiceFutureImpl.class);
+
     private AcknowledgementService ack;
     private AckAPDU fail;
     private BACnetException ex;
     private volatile boolean done;
-
-    private final long timeout; //Timeout to wait before giving up
-
-    public ServiceFutureImpl() {
-        this(0);
-    }
-
-    public ServiceFutureImpl(final long timeout) {
-        this.timeout = timeout;
-    }
 
     @Override
     public synchronized <T extends AcknowledgementService> T get() throws BACnetException {
@@ -63,18 +58,23 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
             return result();
         }
 
-        ThreadUtils.wait(this, timeout);
-
-        if (!done)
-            throw new BACnetTimeoutException("Timeout waiting for response.");
+        ThreadUtils.wait(this);
 
         return result();
     }
 
     @SuppressWarnings("unchecked")
     private <T extends AcknowledgementService> T result() throws BACnetException {
-        if (ex != null)
-            throw ex;
+        if (ex != null) {
+            // We want to preserve the original type of the exception, but not have
+            // to have a big if/then/else chain to handle all of the exception types.
+            // Timeout is probably the only one most clients really care to handle,
+            // so only that one is currently handled.
+            if (ex instanceof BACnetTimeoutException) {
+                throw new BACnetTimeoutException(ex.getMessage(), ex);
+            }
+            throw new BACnetException(ex.getMessage(), ex);
+        }
         if (fail != null) {
             if (fail instanceof com.serotonin.bacnet4j.apdu.Error)
                 throw new ErrorAPDUException((com.serotonin.bacnet4j.apdu.Error) fail);
@@ -88,18 +88,27 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
 
     @Override
     public synchronized void success(final AcknowledgementService ack) {
+        if (ack == null) {
+            LOG.warn("ServiceFuture success called with null argument", new Exception());
+        }
         this.ack = ack;
         complete();
     }
 
     @Override
     public synchronized void fail(final AckAPDU ack) {
+        if (ack == null) {
+            LOG.warn("ServiceFuture fail called with null argument", new Exception());
+        }
         fail = ack;
         complete();
     }
 
     @Override
     public synchronized void ex(final BACnetException e) {
+        if (e == null) {
+            LOG.warn("ServiceFuture ex called with null argument", new Exception());
+        }
         ex = e;
         complete();
     }
