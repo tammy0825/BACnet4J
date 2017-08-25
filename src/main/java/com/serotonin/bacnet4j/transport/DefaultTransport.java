@@ -30,6 +30,7 @@ package com.serotonin.bacnet4j.transport;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -53,6 +54,7 @@ import com.serotonin.bacnet4j.apdu.UnconfirmedRequest;
 import com.serotonin.bacnet4j.enums.MaxSegments;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRecoverableException;
 import com.serotonin.bacnet4j.exception.BACnetRejectException;
 import com.serotonin.bacnet4j.exception.BACnetTimeoutException;
 import com.serotonin.bacnet4j.exception.CommunicationDisabledException;
@@ -97,6 +99,7 @@ public class DefaultTransport implements Transport, Runnable {
     // Message queues
     private final Queue<Outgoing> outgoing = new ConcurrentLinkedQueue<>();
     private final Queue<NPDU> incoming = new ConcurrentLinkedQueue<>();
+    private final Queue<DelayedOutgoing> delayedOutgoing = new LinkedList<>();
 
     // Processing
     final UnackedMessages unackedMessages = new UnackedMessages();
@@ -327,6 +330,9 @@ public class DefaultTransport implements Transport, Runnable {
 
             try {
                 sendImpl();
+            } catch (final BACnetRecoverableException e) {
+                LOG.info("Send delayed due to recoverable error: {}", e.getMessage());
+                delayedOutgoing.add(new DelayedOutgoing(this));
             } catch (final BACnetException e) {
                 handleException(e);
             }
@@ -438,6 +444,22 @@ public class DefaultTransport implements Transport, Runnable {
         }
     }
 
+    class DelayedOutgoing {
+        final Outgoing outgoing;
+        final long retryTime;
+
+        public DelayedOutgoing(final Outgoing outgoing) {
+            super();
+            this.outgoing = outgoing;
+            // Retry in 1 second.
+            retryTime = localDevice.getClock().millis() + 1000;
+        }
+
+        boolean isReady() {
+            return retryTime <= localDevice.getClock().millis();
+        }
+    }
+
     //
     //
     // Processing
@@ -472,6 +494,24 @@ public class DefaultTransport implements Transport, Runnable {
                     LOG.error("Error during receive: {}", in, e);
                 }
                 pause = false;
+            }
+
+            // Find delayed outgoings to retry.
+            if (!delayedOutgoing.isEmpty()) {
+                final Iterator<DelayedOutgoing> iter = delayedOutgoing.iterator();
+                while (iter.hasNext()) {
+                    final DelayedOutgoing delayedOutgoing = iter.next();
+                    if (delayedOutgoing.isReady()) {
+                        iter.remove();
+                        outgoing.add(delayedOutgoing.outgoing);
+                        LOG.info("Retrying delayed outgoing {}", delayedOutgoing.outgoing);
+                        pause = false;
+                    } else {
+                        // No other entries in the list should be ready either
+                        // since they were added chronologically.
+                        break;
+                    }
+                }
             }
 
             if (pause && running) {

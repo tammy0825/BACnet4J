@@ -34,7 +34,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
+import com.serotonin.bacnet4j.exception.BACnetRecoverableException;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 
@@ -54,7 +54,7 @@ public class UnackedMessages {
      * Add a new client-based request to the list of pending requests.
      */
     public UnackedMessageKey addClient(final Address address, final OctetString linkService,
-            final UnackedMessageContext ctx) {
+            final UnackedMessageContext ctx) throws BACnetRecoverableException {
         UnackedMessageKey key;
 
         // Loop until we find a key that is available.
@@ -67,7 +67,8 @@ public class UnackedMessages {
                 // Key collision. Try again unless we've tried too many times.
                 if (--attempts > 0)
                     continue;
-                throw new BACnetRuntimeException("Cannot enter a client into the un-acked messages list. key=" + key);
+                throw new BACnetRecoverableException(
+                        "Cannot enter a client into the un-acked messages list. key=" + key);
             }
 
             // Found a good id. Use it and exit.
@@ -82,12 +83,12 @@ public class UnackedMessages {
      * Add a new server-based request to the list of pending requests. This is used for segmented responses.
      */
     public UnackedMessageKey addServer(final Address address, final OctetString linkService, final byte id,
-            final UnackedMessageContext ctx) {
+            final UnackedMessageContext ctx) throws BACnetRecoverableException {
         // We set the server value in the key to false so that it matches with the message from the client.
         final UnackedMessageKey key = new UnackedMessageKey(address, linkService, id, false);
 
         if (requests.containsKey(key))
-            throw new BACnetRuntimeException("Cannot enter a server into the un-acked messages list. key=" + key);
+            throw new BACnetRecoverableException("Cannot enter a server into the un-acked messages list. key=" + key);
         requests.put(key, ctx);
 
         return key;
