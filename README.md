@@ -7,38 +7,43 @@ A discussion forum for this package can be found at http://infiniteautomation.co
 
 A public Maven Repository is now available with the latest builds add this to your pom.xml
 
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>ias-snapshots</id>
-            <name>Infinite Automation Snapshot Repository</name>
-            <url>https://maven.mangoautomation.net/repository/ias-snapshot/</url>
-        </repository>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>ias-releases</id>
-            <name>Infinite Automation Release Repository</name>
-            <url>https://maven.mangoautomation.net/repository/ias-release/</url>
-        </repository>
-    </repositories>
+
+```xml
+<repositories>
+    <repository>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+        <id>ias-snapshots</id>
+        <name>Infinite Automation Snapshot Repository</name>
+        <url>https://maven.mangoautomation.net/repository/ias-snapshot/</url>
+    </repository>
+    <repository>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <id>ias-releases</id>
+        <name>Infinite Automation Release Repository</name>
+        <url>https://maven.mangoautomation.net/repository/ias-release/</url>
+    </repository>
+</repositories>
+```
 
 The dependency information is:
 
-    <dependency>
-        <groupId>com.serotonin</groupId>
-        <artifactId>bacnet4j</artifactId>
-        <version>4.0.1</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>com.serotonin</groupId>
+    <artifactId>bacnet4j</artifactId>
+    <version>4.0.1</version>
+</dependency>
+```
 
 Releases
 ========
