@@ -389,12 +389,14 @@ public class LocalDevice {
     }
 
     public synchronized void terminate() {
-        timer.shutdown();
-        try {
-            if (!timer.awaitTermination(10, TimeUnit.SECONDS))
-                LOG.warn("BACnet4J timer did not shutdown within 10 seconds");
-        } catch (final InterruptedException e) {
-            LOG.warn("Interrupted while waiting for shutdown of executors", e);
+        if (timer != null) {
+            timer.shutdown();
+            try {
+                if (!timer.awaitTermination(10, TimeUnit.SECONDS))
+                    LOG.warn("BACnet4J timer did not shutdown within 10 seconds");
+            } catch (final InterruptedException e) {
+                LOG.warn("Interrupted while waiting for shutdown of executors", e);
+            }
         }
         transport.terminate();
         initialized = false;
@@ -979,6 +981,7 @@ public class LocalDevice {
     }
 
     public ServiceFuture send(final Address address, final ConfirmedRequestService serviceRequest) {
+        ensureInitialized();
         final RemoteDevice d = getCachedRemoteDevice(address);
         if (d == null) {
             // Just use some hopeful defaults.
@@ -990,6 +993,7 @@ public class LocalDevice {
 
     public void send(final RemoteDevice d, final ConfirmedRequestService serviceRequest,
             final ResponseConsumer consumer) {
+        ensureInitialized();
         //        validateSupportedService(d, serviceRequest);
         transport.send(d.getAddress(), d.getMaxAPDULengthAccepted(), d.getSegmentationSupported(), serviceRequest,
                 consumer);
@@ -997,6 +1001,7 @@ public class LocalDevice {
 
     public void send(final Address address, final ConfirmedRequestService serviceRequest,
             final ResponseConsumer consumer) {
+        ensureInitialized();
         final RemoteDevice d = getCachedRemoteDevice(address);
         if (d == null) {
             // Just use some hopeful defaults.
@@ -1007,19 +1012,29 @@ public class LocalDevice {
     }
 
     public void send(final RemoteDevice d, final UnconfirmedRequestService serviceRequest) {
+        ensureInitialized();
         transport.send(d.getAddress(), serviceRequest);
     }
 
     public void send(final Address address, final UnconfirmedRequestService serviceRequest) {
+        ensureInitialized();
         transport.send(address, serviceRequest);
     }
 
     public void sendLocalBroadcast(final UnconfirmedRequestService serviceRequest) {
+        ensureInitialized();
         transport.send(getLocalBroadcastAddress(), serviceRequest);
     }
 
     public void sendGlobalBroadcast(final UnconfirmedRequestService serviceRequest) {
+        ensureInitialized();
         transport.send(Address.GLOBAL, serviceRequest);
+    }
+
+    private void ensureInitialized() {
+        if (!initialized) {
+            throw new RuntimeException("LocalDevice is not initialized");
+        }
     }
 
     // Doesn't work because the service choice id is not the same as the index in services supported.
