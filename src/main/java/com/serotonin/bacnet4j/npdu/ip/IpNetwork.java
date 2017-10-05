@@ -340,6 +340,8 @@ public class IpNetwork extends Network implements Runnable {
 
     @Override
     protected NPDU handleIncomingDataImpl(final ByteQueue queue, final OctetString linkService) throws Exception {
+        LOG.trace("Received request from {}", linkService);
+
         // Initial parsing of IP message.
         // BACnet/IP
         if (queue.pop() != BVLC_TYPE)
@@ -704,6 +706,7 @@ public class IpNetwork extends Network implements Runnable {
 
     private void registerForeignDevice(final ByteQueue queue, final OctetString originStr) throws BACnetException {
         final InetSocketAddress origin = IpNetworkUtils.getInetSocketAddress(originStr);
+        LOG.debug("Recieved registerForeignDevice request from {}", origin);
 
         final ByteQueue response = new ByteQueue();
         response.push(BVLC_TYPE);
