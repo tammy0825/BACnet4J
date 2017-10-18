@@ -88,9 +88,6 @@ public class ServiceFutureImpl implements ServiceFuture, ResponseConsumer {
 
     @Override
     public synchronized void success(final AcknowledgementService ack) {
-        if (ack == null) {
-            LOG.warn("ServiceFuture success called with null argument", new Exception());
-        }
         this.ack = ack;
         complete();
     }
