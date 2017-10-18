@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,12 @@ import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 public class MessagingTest {
     static final Logger LOG = LoggerFactory.getLogger(MessagingTest.class);
 
-    private final TestNetworkMap map = new TestNetworkMap();
+    private TestNetworkMap map;
+
+    @Before
+    public void before() {
+        map = new TestNetworkMap();
+    }
 
     @Test
     public void networkTest() throws Exception {
