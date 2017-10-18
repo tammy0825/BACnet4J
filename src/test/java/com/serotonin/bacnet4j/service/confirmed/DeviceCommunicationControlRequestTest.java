@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.ServiceFuture;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.event.DefaultReinitializeDeviceHandler;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
@@ -30,6 +31,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 /**
  * All tests modify the communication control in device d1.
@@ -66,9 +68,12 @@ public class DeviceCommunicationControlRequestTest extends AbstractTest {
         try {
             d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 2),
                     PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-            fail("CommunicationDisabledException should have been thrown");
-        } catch (@SuppressWarnings("unused") final CommunicationDisabledException e) {
-            // Expected
+            fail("BACnetException should have been thrown");
+        } catch (final BACnetException e) {
+            // Inner exception must be a BACCommunicationDisabledException
+            if (!(e.getCause() instanceof CommunicationDisabledException)) {
+                fail("CommunicationDisabledException should have been thrown");
+            }
         }
 
         // Receive a request
@@ -118,15 +123,27 @@ public class DeviceCommunicationControlRequestTest extends AbstractTest {
         try {
             d1.send(rd2, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 2),
                     PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
-            fail("CommunicationDisabledException should have been thrown");
-        } catch (@SuppressWarnings("unused") final CommunicationDisabledException e) {
-            // Expected
+            fail("BACnetException should have been thrown");
+        } catch (final BACnetException e) {
+            // Inner exception must be a BACCommunicationDisabledException
+            if (!(e.getCause() instanceof CommunicationDisabledException)) {
+                fail("CommunicationDisabledException should have been thrown");
+            }
         }
 
         // Fail to receive a request
         try {
-            d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
-                    PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
+            final ServiceFuture future = d2.send(rd1,
+                    new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1), PropertyIdentifier.description,
+                            null, new CharacterString("a"), null));
+
+            // We need to advance the clock because otherwise the request will never time out.
+            // First give the transport a chance to send the request.
+            ThreadUtils.sleep(5);
+            // Then advance past the timeout.
+            clock.plusMillis(TIMEOUT + 1);
+
+            future.get();
             fail("BACnetTimeoutException should have been thrown");
         } catch (@SuppressWarnings("unused") final BACnetTimeoutException e) {
             // Expected
@@ -174,8 +191,17 @@ public class DeviceCommunicationControlRequestTest extends AbstractTest {
 
         // Fail to receive a request
         try {
-            d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
-                    PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
+            final ServiceFuture future = d2.send(rd1,
+                    new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1), PropertyIdentifier.description,
+                            null, new CharacterString("a"), null));
+
+            // We need to advance the clock because otherwise the request will never time out.
+            // First give the transport a chance to send the request.
+            ThreadUtils.sleep(5);
+            // Then advance past the timeout.
+            clock.plusMillis(TIMEOUT + 1);
+
+            future.get();
             fail("BACnetTimeoutException should have been thrown");
         } catch (@SuppressWarnings("unused") final BACnetTimeoutException e) {
             // Expected
@@ -202,8 +228,17 @@ public class DeviceCommunicationControlRequestTest extends AbstractTest {
 
         // Fail to receive a request
         try {
-            d2.send(rd1, new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1),
-                    PropertyIdentifier.description, null, new CharacterString("a"), null)).get();
+            final ServiceFuture future = d2.send(rd1,
+                    new WritePropertyRequest(new ObjectIdentifier(ObjectType.device, 1), PropertyIdentifier.description,
+                            null, new CharacterString("a"), null));
+
+            // We need to advance the clock because otherwise the request will never time out.
+            // First give the transport a chance to send the request.
+            ThreadUtils.sleep(5);
+            // Then advance past the timeout.
+            clock.plusMillis(TIMEOUT + 1);
+
+            future.get();
             fail("BACnetTimeoutException should have been thrown");
         } catch (@SuppressWarnings("unused") final BACnetTimeoutException e) {
             // Expected
