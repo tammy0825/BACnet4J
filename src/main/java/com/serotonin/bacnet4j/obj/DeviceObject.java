@@ -136,7 +136,7 @@ public class DeviceObject extends BACnetObject {
         objectTypesSupported.set(ObjectType.notificationClass, true);
         //        objectTypesSupported.set(ObjectType.program, true);
         objectTypesSupported.set(ObjectType.schedule, true);
-        //        objectTypesSupported.set(ObjectType.averaging, true);
+        objectTypesSupported.set(ObjectType.averaging, true);
         objectTypesSupported.set(ObjectType.multiStateValue, true);
         objectTypesSupported.set(ObjectType.trendLog, true);
         objectTypesSupported.set(ObjectType.lifeSafetyPoint, true);
