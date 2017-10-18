@@ -37,6 +37,8 @@ import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -83,6 +85,12 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         Encodable prop;
         try {
+            // Handling for special properties
+            if (propertyIdentifier.isOneOf(PropertyIdentifier.all, PropertyIdentifier.required,
+                    PropertyIdentifier.optional)) {
+                throw new BACnetServiceException(ErrorClass.services, ErrorCode.inconsistentParameters);
+            }
+
             final BACnetObject obj = localDevice.getObjectRequired(objectIdentifier);
             prop = obj.readPropertyRequired(propertyIdentifier, propertyArrayIndex);
         } catch (final BACnetServiceException e) {

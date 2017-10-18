@@ -46,6 +46,8 @@ import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -142,25 +144,46 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
         return "ReadPropertyMultipleRequest [listOfReadAccessSpecs=" + listOfReadAccessSpecs + "]";
     }
 
-    private void addProperty(final BACnetObject obj, final List<Result> results, final PropertyIdentifier pid,
+    private static void addProperty(final BACnetObject obj, final List<Result> results, final PropertyIdentifier pid,
             final UnsignedInteger pin) {
         if (pid.intValue() == PropertyIdentifier.all.intValue()) {
             for (final ObjectPropertyTypeDefinition def : ObjectProperties
-                    .getObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
+                    .getObjectPropertyTypeDefinitions(obj.getId().getObjectType())) {
+                // Do not add the property list
+                if (def.getPropertyTypeDefinition().getPropertyIdentifier() != PropertyIdentifier.propertyList) {
+                    addNonSpecialProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin,
+                            true);
+                }
+            }
         } else if (pid.intValue() == PropertyIdentifier.required.intValue()) {
             for (final ObjectPropertyTypeDefinition def : ObjectProperties
-                    .getRequiredObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
+                    .getRequiredObjectPropertyTypeDefinitions(obj.getId().getObjectType())) {
+                // Do not add the property list
+                if (def.getPropertyTypeDefinition().getPropertyIdentifier() != PropertyIdentifier.propertyList) {
+                    addNonSpecialProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin,
+                            true);
+                }
+            }
         } else if (pid.intValue() == PropertyIdentifier.optional.intValue()) {
             for (final ObjectPropertyTypeDefinition def : ObjectProperties
-                    .getOptionalObjectPropertyTypeDefinitions(obj.getId().getObjectType()))
-                addProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin);
+                    .getOptionalObjectPropertyTypeDefinitions(obj.getId().getObjectType())) {
+                addNonSpecialProperty(obj, results, def.getPropertyTypeDefinition().getPropertyIdentifier(), pin, true);
+            }
         } else {
             // Get the specified property.
-            try {
-                results.add(new Result(pid, pin, obj.readPropertyRequired(pid, pin)));
-            } catch (final BACnetServiceException e) {
+            addNonSpecialProperty(obj, results, pid, pin, false);
+        }
+    }
+
+    private static void addNonSpecialProperty(final BACnetObject obj, final List<Result> results,
+            final PropertyIdentifier pid, final UnsignedInteger pin, final boolean ignoreNotFound) {
+        try {
+            results.add(new Result(pid, pin, obj.readPropertyRequired(pid, pin)));
+        } catch (final BACnetServiceException e) {
+            if (ignoreNotFound && e.getErrorClass() == ErrorClass.property
+                    && e.getErrorCode() == ErrorCode.unknownProperty) {
+                // ignore
+            } else {
                 results.add(new Result(pid, pin, new ErrorClassAndCode(e.getErrorClass(), e.getErrorCode())));
             }
         }

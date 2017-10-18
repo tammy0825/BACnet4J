@@ -64,4 +64,21 @@ public class ReadPropertyRequestTest {
         new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, 4194303), PropertyIdentifier.systemStatus)
                 .handle(localDevice, addr);
     }
+
+    @Test
+    public void specialProperties() {
+        TestUtils
+                .assertRequestHandleException(
+                        () -> new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, 4194303),
+                                PropertyIdentifier.all).handle(localDevice, addr),
+                        ErrorClass.services, ErrorCode.inconsistentParameters);
+        TestUtils.assertRequestHandleException(
+                () -> new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, 4194303),
+                        PropertyIdentifier.required).handle(localDevice, addr),
+                ErrorClass.services, ErrorCode.inconsistentParameters);
+        TestUtils.assertRequestHandleException(
+                () -> new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, 4194303),
+                        PropertyIdentifier.optional).handle(localDevice, addr),
+                ErrorClass.services, ErrorCode.inconsistentParameters);
+    }
 }
