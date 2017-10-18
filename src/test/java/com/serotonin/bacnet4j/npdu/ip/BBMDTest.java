@@ -310,7 +310,7 @@ public class BBMDTest {
 
         // ********** TEST 4 **********
         ld22.ld.sendLocalBroadcast(ld22.ld.getIAm());
-        clock.plus(100, TimeUnit.MILLISECONDS, 100);
+        clock.plus(100, TimeUnit.MILLISECONDS, 300);
 
         // Confirm that the broadcast was received across the B/N network
         assertEquals(1, ld11.iamCount());
@@ -329,7 +329,7 @@ public class BBMDTest {
 
         // ********** TEST 5 **********
         ld31.ld.sendLocalBroadcast(ld31.ld.getIAm());
-        clock.plus(100, TimeUnit.MILLISECONDS, 100);
+        clock.plus(100, TimeUnit.MILLISECONDS, 300);
 
         // Confirm that the broadcast was received across the B/N network
         assertEquals(1, ld11.iamCount());
