@@ -195,8 +195,12 @@ abstract public class Network {
             from = new Address(linkService);
 
         OctetString ls = linkService;
-        if (isThisNetwork(from))
+        if (isThisNetwork(from)) {
+            LOG.debug("Received NPDU from local network. From={}, local={}", from, localNetworkNumber);
             ls = null;
+        } else {
+            LOG.debug("Received NPDU from remote network. From={}, local={}", from, localNetworkNumber);
+        }
 
         if (npci.isNetworkMessage())
             // Network message
