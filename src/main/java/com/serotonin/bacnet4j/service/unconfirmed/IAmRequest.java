@@ -107,7 +107,7 @@ public class IAmRequest extends UnconfirmedRequestService {
         if (d == null) {
             // Populate the object with discovered values, but do so in a different thread.
             localDevice.execute(() -> {
-                LOG.debug("{} received and IAm from {}. Asynchronously creating remote device",
+                LOG.debug("{} received an IAm from {}. Asynchronously creating remote device",
                         localDevice.getInstanceNumber(), remoteDoi);
                 try {
                     final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
