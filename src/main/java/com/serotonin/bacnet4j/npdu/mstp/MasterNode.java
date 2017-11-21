@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 
 public class MasterNode extends MstpNode {
     static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
@@ -95,6 +96,12 @@ public class MasterNode extends MstpNode {
     private boolean receivedToken;
 
     //    private long lastTokenPossession;
+
+    public MasterNode(final SerialPortWrapper wrapper, final byte thisStation, final int retryCount)
+            throws IllegalArgumentException {
+        super(wrapper, thisStation);
+        validate(retryCount);
+    }
 
     public MasterNode(final String portId, final InputStream in, final OutputStream out, final byte thisStation,
             final int retryCount) throws IllegalArgumentException {
