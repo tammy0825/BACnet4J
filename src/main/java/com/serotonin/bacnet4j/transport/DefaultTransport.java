@@ -28,11 +28,11 @@
  */
 package com.serotonin.bacnet4j.transport;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class DefaultTransport implements Transport, Runnable {
     static final Logger LOG = LoggerFactory.getLogger(DefaultTransport.class);
     static final MaxSegments MAX_SEGMENTS = MaxSegments.MORE_THAN_64;
 
-    final Map<Integer, OctetString> networkRouters = new HashMap<>();
+    final Map<Integer, OctetString> networkRouters = new ConcurrentHashMap<>();
 
     // Configuration
     private LocalDevice localDevice;
@@ -185,6 +185,7 @@ public class DefaultTransport implements Transport, Runnable {
         thread.start();
 
         // Send a WhoIsRouter message.
+        LOG.debug("Broadcasting WhoIsRouter to local network");
         network.sendNetworkMessage(getLocalBroadcastAddress(), null, 0, null, true, false);
     }
 
@@ -533,8 +534,11 @@ public class DefaultTransport implements Transport, Runnable {
             case 0x1: // I-Am-Router-To-Network
             case 0x2: // I-Could-Be-Router-To-Network
                 final ByteQueue data = in.getNetworkMessageData();
-                while (data.size() > 1)
-                    networkRouters.put(data.popU2B(), in.getFrom().getMacAddress());
+                while (data.size() > 1) {
+                    final int nn = data.popU2B();
+                    LOG.debug("Adding network router {} for network {}", in.getFrom().getMacAddress(), nn);
+                    networkRouters.put(nn, in.getFrom().getMacAddress());
+                }
                 break;
             case 0x3: // Reject-Message-To-Network
                 String reason;
@@ -565,8 +569,9 @@ public class DefaultTransport implements Transport, Runnable {
                 break;
             default:
             }
-        } else
+        } else {
             receiveAPDU(in);
+        }
     }
 
     private void receiveAPDU(final NPDU npdu) {

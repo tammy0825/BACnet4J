@@ -199,6 +199,14 @@ abstract public class Network {
             LOG.debug("Received NPDU from local network. From={}, local={}", from, localNetworkNumber);
             ls = null;
         } else {
+            // Remember the network router in case we haven't heard from it before. This may happen if the router did
+            // not respond to a WhoIsRouterToNetwork request.
+            final int nn = from.getNetworkNumber().intValue();
+            if (!transport.getNetworkRouters().containsKey(nn)) {
+                LOG.debug("Network router {} to {} is not currently known. Adding to transport's list", linkService,
+                        nn);
+                transport.addNetworkRouter(nn, linkService);
+            }
             LOG.debug("Received NPDU from remote network. From={}, local={}", from, localNetworkNumber);
         }
 
