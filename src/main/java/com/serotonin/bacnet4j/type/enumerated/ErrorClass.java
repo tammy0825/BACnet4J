@@ -34,6 +34,7 @@ import java.util.Map;
 
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.Collections;
 
 public class ErrorClass extends Enumerated {
     public static final ErrorClass device = new ErrorClass(0);
@@ -80,6 +81,15 @@ public class ErrorClass extends Enumerated {
         super(queue);
     }
 
+    /**
+     * Returns a unmodifiable map.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<Integer, String> getPrettyMap() {
+        return Collections.unmodifiableMap(prettyMap);
+    }
+    
     @Override
     public String toString() {
         return super.toString(prettyMap);

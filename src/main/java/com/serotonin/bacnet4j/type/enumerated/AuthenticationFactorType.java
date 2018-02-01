@@ -34,6 +34,7 @@ import java.util.Map;
 
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.Collections;
 
 public class AuthenticationFactorType extends Enumerated {
     public static final AuthenticationFactorType undefined = new AuthenticationFactorType(0);
@@ -97,6 +98,15 @@ public class AuthenticationFactorType extends Enumerated {
         super(queue);
     }
 
+    /**
+     * Returns a unmodifiable map.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<Integer, String> getPrettyMap() {
+        return Collections.unmodifiableMap(prettyMap);
+    }
+    
     @Override
     public String toString() {
         return super.toString(prettyMap);

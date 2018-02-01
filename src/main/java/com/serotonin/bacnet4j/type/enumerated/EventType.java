@@ -53,6 +53,7 @@ import com.serotonin.bacnet4j.type.notificationParameters.UnsignedOutOfRangeNoti
 import com.serotonin.bacnet4j.type.notificationParameters.UnsignedRangeNotif;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.Collections;
 
 public class EventType extends Enumerated {
     public static final EventType changeOfBitstring = new EventType(ChangeOfBitStringNotif.TYPE_ID);
@@ -111,6 +112,15 @@ public class EventType extends Enumerated {
         super(queue);
     }
 
+    /**
+     * Returns a unmodifiable map.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<Integer, String> getPrettyMap() {
+        return Collections.unmodifiableMap(prettyMap);
+    }
+    
     @Override
     public String toString() {
         return super.toString(prettyMap);
