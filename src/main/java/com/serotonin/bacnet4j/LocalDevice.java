@@ -481,7 +481,7 @@ public class LocalDevice {
 
     public LocalDevice withNumberOfApduRetries(final UnsignedInteger numberOfApduRetries) {
         deviceObject.writePropertyInternal(PropertyIdentifier.numberOfApduRetries, numberOfApduRetries);
-        transport.setTimeout(numberOfApduRetries.intValue());
+        transport.setRetries(numberOfApduRetries.intValue());
         return this;
     }
 
