@@ -81,7 +81,7 @@ public class Error extends AckAPDU {
 
     @Override
     public String toString() {
-        return "ErrorAPDU(" + error + ")";
+        return "ErrorAPDU(" + error + "," + error.getErrorClassAndCode() + ")";
     }
 
     public BaseError getError() {
