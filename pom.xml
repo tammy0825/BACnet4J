@@ -71,7 +71,7 @@
                   </dependency>
                 </dependencies>
                 <configuration>
-                    <arguments>-DskipTests</arguments>
+                    <arguments>-DskipTests -Dmaven.javadoc.skip=true</arguments>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                  </configuration>
               </plugin>
