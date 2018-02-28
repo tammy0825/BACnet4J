@@ -320,7 +320,7 @@ public class LocalDevice {
 
             final Random random = new Random();
             int remaining = attempts;
-            while (attempts > 0) {
+            while (remaining > 0) {
                 final int from = random.nextInt(ObjectIdentifier.UNINITIALIZED - rangeSize);
                 final List<Integer> idList = IntStream.range(from, from + rangeSize).boxed()
                         .collect(Collectors.toList());
