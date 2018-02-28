@@ -23,6 +23,7 @@
             <plugin>
 			  <groupId>org.apache.maven.plugins</groupId>
 			  <artifactId>maven-source-plugin</artifactId>
+			  <version>3.0.1</version>
 			  <executions>
 			    <execution>
 			      <id>attach-sources</id>
@@ -59,8 +60,44 @@
 			      <skipStaging>true</skipStaging>
 			   </configuration>
 			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>1.9.5</version>
+                  </dependency>
+                </dependencies>
+                <configuration>
+                    <arguments>-DskipTests</arguments>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                 </configuration>
+              </plugin>
         </plugins>
     </build>
+    <repositories>
+	   <repository>
+	      <id>jcenter</id>
+	      <url>http://jcenter.bintray.com </url>
+	      <snapshots>
+	        <enabled>false</enabled>
+	      </snapshots>
+	       <releases>
+	         <enabled>true</enabled>
+	         <checksumPolicy>warn</checksumPolicy>
+	      </releases>
+	   </repository>    
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>jcenter</name>
+            <url>http://jcenter.bintray.com </url>
+        </pluginRepository>
+    </pluginRepositories>
     <dependencies>
 
         <dependency>
