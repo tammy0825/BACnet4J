@@ -144,6 +144,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <issueManagement>
+        <url>https://github.com/infiniteautomation/BACnet4J/issues</url>
+        <system>github</system>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/infiniteautomation/BACnet4J</url>
+        <connection>scm:git:https://github.com/infiniteautomation/BACnet4J.git</connection>
+        <developerConnection>scm:git:[push=]https://github.com/infiniteautomation/BACnet4J.git[fetch=]https://github.com/infiniteautomation/BACnet4J.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 	<distributionManagement>
 	   <snapshotRepository>
 	      <id>ias-snapshots</id>
