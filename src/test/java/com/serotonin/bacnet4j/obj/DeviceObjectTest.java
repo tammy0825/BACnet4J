@@ -197,6 +197,7 @@ public class DeviceObjectTest extends AbstractTest {
         d1.terminate();
         // Restart the device.
         d1.initialize(RestartReason.warmstart);
+        TimeStamp ts = new TimeStamp(new DateTime(d1));
         Thread.sleep(40);
 
         assertEquals(1, listener.notifs.size());
@@ -207,7 +208,7 @@ public class DeviceObjectTest extends AbstractTest {
         assertEquals(d1.getId(), notif.get("initiatingDevice"));
         assertEquals(
                 new SequenceOf<>(new PropertyValue(PropertyIdentifier.systemStatus, DeviceStatus.operational),
-                        new PropertyValue(PropertyIdentifier.timeOfDeviceRestart, new TimeStamp(new DateTime(d1))),
+                        new PropertyValue(PropertyIdentifier.timeOfDeviceRestart, ts),
                         new PropertyValue(PropertyIdentifier.lastRestartReason, RestartReason.warmstart)),
                 notif.get("listOfValues"));
     }

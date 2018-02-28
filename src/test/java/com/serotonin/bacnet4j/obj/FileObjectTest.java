@@ -122,12 +122,14 @@ public class FileObjectTest extends AbstractTest {
         final File file = new File(path);
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
 
+        
         if (file.setWritable(true)) {
             assertEquals(Boolean.FALSE, f.readProperty(PropertyIdentifier.readOnly, null));
         }
 
-        if (file.setReadable(false)) {
+        if (file.setWritable(false)) {
             assertEquals(Boolean.TRUE, f.readProperty(PropertyIdentifier.readOnly, null));
+            file.setWritable(true);
         }
     }
 

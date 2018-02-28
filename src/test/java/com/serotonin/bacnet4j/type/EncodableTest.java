@@ -119,7 +119,7 @@ public class EncodableTest {
         decodePrimitive("FD7F1900546869732069732061204241436E657420737472696E6721", 127,
                 new CharacterString("This is a BACnet string!"));
         // TODO The spec say this starts with '75'. Should probably point this out.
-        decodePrimitive("7D0A004672616EC3A7616973", 7, new CharacterString("Français"));
+        decodePrimitive("7D0A004672616EC3A7616973", 7, new CharacterString("FranÃ§ais"));
         decodePrimitive("0A03A8", 0, new BitString(new boolean[] { true, false, true, false, true, }));
         decodePrimitive("9900", 9, new Enumerated(0));
         decodePrimitive("9C5B011804", 9, new Date(1991, Month.JANUARY, 24, DayOfWeek.THURSDAY));
@@ -224,7 +224,7 @@ public class EncodableTest {
                 "fe50c407c0000bff50");
         testTimerStateChangeValue(new TimerStateChangeValue(), 81, "fe5108ff51");
         //        testTimerStateChangeValue(new TimerStateChangeValue(), 125, ""); ANY value
-        testTimerStateChangeValue(new TimerStateChangeValue(new DateTime(1487786660683L)), 200,
+        testTimerStateChangeValue(new TimerStateChangeValue(new DateTime(new Date(2017, Month.FEBRUARY, 22, DayOfWeek.WEDNESDAY), new Time(13, 4, 20, 68))), 200,
                 "fec82ea475021603b40d0414442fffc8");
         testTimerStateChangeValue(
                 new TimerStateChangeValue(new LightingCommand(LightingOperation.stepUp, new Real(110), new Real(5),
