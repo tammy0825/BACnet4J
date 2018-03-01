@@ -208,7 +208,7 @@ public class PropertyUtils {
             requestRemoteDeviceProperties(localDevice, r, propRefs, callback, completedProperties, totalProperties,
                     result);
         } catch (final BACnetTimeoutException e) {
-            LOG.error("Timeout while finding device {}", deviceId, e);
+            LOG.info("Timeout while finding device {}", deviceId, e);
 
             // Set all of the properties for the request to an error.
             final ErrorClassAndCode error = new ErrorClassAndCode(ErrorClass.device, ErrorCode.timeout);

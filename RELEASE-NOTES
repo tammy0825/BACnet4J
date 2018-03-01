@@ -1,3 +1,6 @@
+*Version 4.1.5*
+* Reduce PropertyUtils.requestPropertiesFromDevice timeout log message to info as this message can be generated quite often
+
 *Version 4.1.4*
 * Fix for wrong loop condition on getting id for local device 
 * Fixes for reading elements of priority array
