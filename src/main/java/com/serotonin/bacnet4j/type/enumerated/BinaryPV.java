@@ -84,6 +84,15 @@ public class BinaryPV extends Enumerated {
         return Collections.unmodifiableMap(prettyMap);
     }
     
+     /**
+     * Returns a unmodifiable nameMap.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<String, Enumerated> getNameMap() {
+        return Collections.unmodifiableMap(nameMap);
+    }
+    
     @Override
     public String toString() {
         return super.toString(prettyMap);

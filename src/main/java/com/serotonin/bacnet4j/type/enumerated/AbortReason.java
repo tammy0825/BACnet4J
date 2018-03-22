@@ -86,12 +86,21 @@ public class AbortReason extends Enumerated {
     }
 
     /**
-     * Returns a unmodifiable prettyMap.
+     * Returns a unmodifiable map.
      *
      * @return unmodifiable map
      */
     public static Map<Integer, String> getPrettyMap() {
         return Collections.unmodifiableMap(prettyMap);
+    }
+    
+     /**
+     * Returns a unmodifiable nameMap.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<String, Enumerated> getNameMap() {
+        return Collections.unmodifiableMap(nameMap);
     }
     
     @Override
