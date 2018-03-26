@@ -76,7 +76,7 @@ public class AuthenticationPolicy extends BaseType {
         timeout = read(queue, UnsignedInteger.class, 2);
     }
 
-    static class Policy extends BaseType {
+    public static class Policy extends BaseType {
         private final DeviceObjectReference credentialDataInput;
         private final UnsignedInteger index;
 
