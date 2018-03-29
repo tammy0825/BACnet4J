@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.nio.file.Files;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.AbstractTest;
@@ -92,27 +93,47 @@ public class FileObjectTest extends AbstractTest {
         // Write > 0 and < size record count.
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
-            f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(921));
+            //Since Newlines are CRLF on windows and CR on OSX and LF on Unix
+            if(SystemUtils.IS_OS_WINDOWS)
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(921));
+            else
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(907));
             assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(921), f.readProperty(PropertyIdentifier.fileSize, null));
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(921), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(907), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
         // Write a record count == size
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
-            f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(922));
+            if(SystemUtils.IS_OS_WINDOWS)
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(922));
+            else
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(908));
             assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(908), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
         // Write a record count > size
         doInCopy((file) -> {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
-            f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(1001));
+            if(SystemUtils.IS_OS_WINDOWS)
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(1001));
+            else
+                f.writeProperty(null, PropertyIdentifier.fileSize, new UnsignedInteger(948));
+            
             assertEquals(new UnsignedInteger(54), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(1002), f.readProperty(PropertyIdentifier.fileSize, null));
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(1002), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(948), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
     }
@@ -122,12 +143,14 @@ public class FileObjectTest extends AbstractTest {
         final File file = new File(path);
         final FileObject f = new FileObject(d1, 0, "test", new StreamAccess(file));
 
+        
         if (file.setWritable(true)) {
             assertEquals(Boolean.FALSE, f.readProperty(PropertyIdentifier.readOnly, null));
         }
 
-        if (file.setReadable(false)) {
+        if (file.setWritable(false)) {
             assertEquals(Boolean.TRUE, f.readProperty(PropertyIdentifier.readOnly, null));
+            file.setWritable(true);
         }
     }
 
@@ -169,7 +192,11 @@ public class FileObjectTest extends AbstractTest {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(10));
             assertEquals(new UnsignedInteger(10), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(665), f.readProperty(PropertyIdentifier.fileSize, null));
+            //Since Newlines are CRLF on windows and CR on OSX and LF on Unix
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(665), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(655), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -178,7 +205,11 @@ public class FileObjectTest extends AbstractTest {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(14));
             assertEquals(new UnsignedInteger(14), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
+            //Since Newlines are CRLF on windows and CR on OSX and LF on Unix
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(922), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(908), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
 
@@ -187,7 +218,11 @@ public class FileObjectTest extends AbstractTest {
             final FileObject f = new FileObject(d1, 0, "test", new CrlfDelimitedFileAccess(file));
             f.writeProperty(null, PropertyIdentifier.recordCount, new UnsignedInteger(25));
             assertEquals(new UnsignedInteger(25), f.readProperty(PropertyIdentifier.recordCount, null));
-            assertEquals(new UnsignedInteger(944), f.readProperty(PropertyIdentifier.fileSize, null));
+            //Since Newlines are CRLF on windows and CR on OSX and LF on Unix
+            if(SystemUtils.IS_OS_WINDOWS)
+                assertEquals(new UnsignedInteger(944), f.readProperty(PropertyIdentifier.fileSize, null));
+            else
+                assertEquals(new UnsignedInteger(919), f.readProperty(PropertyIdentifier.fileSize, null));
             d1.removeObject(f.getId());
         });
     }
