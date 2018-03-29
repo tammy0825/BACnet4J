@@ -90,4 +90,9 @@ public class AssignedAccessRights extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "AssignedAccessRights [assignedAccessRights=" + assignedAccessRights + ", enabled=" + enabled + ']';
+    }   
 }

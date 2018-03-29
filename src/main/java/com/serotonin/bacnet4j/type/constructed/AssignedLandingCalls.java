@@ -137,4 +137,9 @@ public class AssignedLandingCalls extends BaseType {
             return true;
         }
     }
+
+    @Override
+    public String toString() {
+        return "AssignedLandingCalls [landingCalls=" + landingCalls + ']';
+    }   
 }

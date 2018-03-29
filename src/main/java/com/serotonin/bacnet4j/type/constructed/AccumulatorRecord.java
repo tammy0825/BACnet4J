@@ -172,4 +172,9 @@ public class AccumulatorRecord extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "AccumulatorRecord [timestamp=" + timestamp + ", presentValue=" + presentValue + ", accumulatedValue=" + accumulatedValue + ", accumulatorStatus=" + accumulatorStatus + ']';
+    }
 }

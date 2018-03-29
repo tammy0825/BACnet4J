@@ -90,4 +90,9 @@ public class VmacEntry extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "VmacEntry [virtualMacAddress=" + virtualMacAddress + ", nativeMacAddress=" + nativeMacAddress + ']';
+    }
 }

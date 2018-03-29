@@ -105,4 +105,9 @@ public class VtSession extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "VtSession [localVtSessionId=" + localVtSessionId + ", remoteVtSessionId=" + remoteVtSessionId + ", remoteVtAddress=" + remoteVtAddress + ']';
+    }
 }

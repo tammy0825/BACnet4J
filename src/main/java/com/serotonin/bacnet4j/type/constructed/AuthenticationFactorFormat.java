@@ -107,4 +107,9 @@ public class AuthenticationFactorFormat extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "AuthenticationFactorFormat [formatType=" + formatType + ", vendorId=" + vendorId + ", vendorFormat=" + vendorFormat + ']';
+    }   
 }

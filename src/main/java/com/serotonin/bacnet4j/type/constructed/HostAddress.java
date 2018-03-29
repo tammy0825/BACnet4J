@@ -73,7 +73,7 @@ public class HostAddress extends BaseType {
 
     @Override
     public String toString() {
-        return "PropertyStates [state=" + state + "]";
+        return "HostAddress [state=" + state + "]";
     }
 
     @Override

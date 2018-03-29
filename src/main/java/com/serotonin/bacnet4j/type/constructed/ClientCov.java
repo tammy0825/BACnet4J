@@ -99,4 +99,9 @@ public class ClientCov extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ClientCov [entry=" + entry + ']';
+    }
 }

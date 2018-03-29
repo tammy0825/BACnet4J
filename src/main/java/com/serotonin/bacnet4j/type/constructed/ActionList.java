@@ -75,4 +75,9 @@ public class ActionList extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ActionList [action=" + action + ']';
+    } 
 }

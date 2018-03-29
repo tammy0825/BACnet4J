@@ -136,4 +136,9 @@ public class DeviceObjectPropertyValue extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "DeviceObjectPropertyValue [deviceIdentifier=" + deviceIdentifier + ", objectIdentifier=" + objectIdentifier + ", propertyIdentifier=" + propertyIdentifier + ", arrayIndex=" + arrayIndex + ", value=" + value + ']';
+    }  
 }

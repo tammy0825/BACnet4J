@@ -90,4 +90,9 @@ public class Prescale extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Prescale [multiplier=" + multiplier + ", moduloDivide=" + moduloDivide + ']';
+    }
 }

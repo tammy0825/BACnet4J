@@ -91,4 +91,8 @@ public class BDTEntry extends BaseType {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "BDTEntry [bbmdAddress=" + bbmdAddress + ", broadcastMask=" + broadcastMask + ']';
+    }
 }

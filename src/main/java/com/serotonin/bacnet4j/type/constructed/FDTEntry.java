@@ -106,4 +106,9 @@ public class FDTEntry extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "FDTEntry [bacnetipAddress=" + bacnetipAddress + ", timeToLive=" + timeToLive + ", remainingTimeToLive=" + remainingTimeToLive + ']';
+    }
 }

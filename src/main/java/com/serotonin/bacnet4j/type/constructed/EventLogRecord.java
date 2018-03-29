@@ -148,4 +148,9 @@ public class EventLogRecord extends BaseType implements ILogRecord {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "EventLogRecord [timestamp=" + timestamp + ", choice=" + choice + ", sequenceNumber=" + sequenceNumber + ']';
+    }    
 }
