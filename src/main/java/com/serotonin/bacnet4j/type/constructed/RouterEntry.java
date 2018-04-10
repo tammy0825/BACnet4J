@@ -172,4 +172,9 @@ public class RouterEntry extends BaseType {
             return super.toString(prettyMap);
         }
     }
+
+    @Override
+    public String toString() {
+        return "RouterEntry [networkNumber=" + networkNumber + ", macAddress=" + macAddress + ", status=" + status + ", performanceIndex=" + performanceIndex + ']';
+    } 
 }

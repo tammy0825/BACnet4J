@@ -195,4 +195,9 @@ public class ActionCommand extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ActionCommand [deviceIdentifier=" + deviceIdentifier + ", objectIdentifier=" + objectIdentifier + ", propertyIdentifier=" + propertyIdentifier + ", propertyArrayIndex=" + propertyArrayIndex + ", propertyValue=" + propertyValue + ", priority=" + priority + ", postDelay=" + postDelay + ", quitOnFailure=" + quitOnFailure + ", writeSuccessful=" + writeSuccessful + ']';
+    }
 }

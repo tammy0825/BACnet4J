@@ -163,4 +163,9 @@ public class ChannelValue extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChannelValue [choice=" + choice + ']';
+    }   
 }

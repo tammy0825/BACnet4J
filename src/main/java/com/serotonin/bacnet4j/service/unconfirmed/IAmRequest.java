@@ -98,7 +98,7 @@ public class IAmRequest extends UnconfirmedRequestService {
                     return;
             }
             LOG.warn("Another instance with my device instance ID found at {}", from);
-
+            localDevice.notifySameDeviceIdCallback(from);
         }
 
         localDevice.updateRemoteDevice(remoteDoi, from);

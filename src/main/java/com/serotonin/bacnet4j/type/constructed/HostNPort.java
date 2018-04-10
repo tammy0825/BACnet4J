@@ -90,4 +90,9 @@ public class HostNPort extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "HostNPort [host=" + host + ", port=" + port + ']';
+    }  
 }

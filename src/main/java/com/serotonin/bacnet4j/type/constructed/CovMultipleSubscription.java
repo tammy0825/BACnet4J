@@ -274,6 +274,19 @@ public class CovMultipleSubscription extends BaseType {
                 return true;
             }
 
+            @Override
+            public String toString() {
+                return "CovReference [monitoredProperty=" + monitoredProperty + ", covIncrement=" + covIncrement + ", timestamped=" + timestamped + ']';
+            }
         }
+        @Override
+        public String toString() {
+            return "CovSubscriptionSpecification [monitoredObjectIdentifier=" + monitoredObjectIdentifier + ", listOfCovReferences=" + listOfCovReferences + ']';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "CovMultipleSubscription [recipient=" + recipient + ", issueConfirmedNotifications=" + issueConfirmedNotifications + ", timeRemaining=" + timeRemaining + ", maxNotificationDelay=" + maxNotificationDelay + ", listOfCovSubscriptionSpecifications=" + listOfCovSubscriptionSpecifications + ']';
     }
 }

@@ -136,5 +136,15 @@ public class LandingDoorStatus extends BaseType {
                 return false;
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "LandingDoor [floorNumber=" + floorNumber + ", doorStatus=" + doorStatus + ']';
+        }     
     }
+
+    @Override
+    public String toString() {
+        return "LandingDoorStatus [landingDoors=" + landingDoors + ']';
+    }   
 }

@@ -90,4 +90,9 @@ public class DeviceObjectReference extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "DeviceObjectReference [deviceIdentifier=" + deviceIdentifier + ", objectIdentifier=" + objectIdentifier + ']';
+    }
 }

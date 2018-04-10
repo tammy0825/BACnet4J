@@ -174,6 +174,9 @@ public class LocalDevice {
 
     private ScheduledExecutorService timer;
 
+    //Callback if other devices have the same id like us
+    private Consumer<Address> sameDeviceIdCallback;
+    
     /**
      * Useful when objects want to make COV subscriptions, in that it will provide a device-unique id.
      */
@@ -478,7 +481,7 @@ public class LocalDevice {
 
     public LocalDevice withNumberOfApduRetries(final UnsignedInteger numberOfApduRetries) {
         deviceObject.writePropertyInternal(PropertyIdentifier.numberOfApduRetries, numberOfApduRetries);
-        transport.setTimeout(numberOfApduRetries.intValue());
+        transport.setRetries(numberOfApduRetries.intValue());
         return this;
     }
 
@@ -1138,4 +1141,28 @@ public class LocalDevice {
     public Address getLocalBroadcastAddress() {
         return transport.getLocalBroadcastAddress();
     }
+    
+    /**
+     * Register a callback if other devices have the same id like us.
+     * @param callback 
+     */
+    public void setSameDeviceIdCallback(Consumer<Address> callback) {
+        sameDeviceIdCallback = callback;
+    }
+    
+    /**
+     * Notify the callback that we have the same Device id like an other device.
+     *
+     * @param from
+     */
+    public void notifySameDeviceIdCallback(Address from) {
+        if (sameDeviceIdCallback != null) {
+            //Do this async
+            execute(() -> {
+                sameDeviceIdCallback.accept(from);
+            });
+        }
+    }
+    
+    
 }

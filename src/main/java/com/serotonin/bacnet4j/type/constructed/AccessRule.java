@@ -245,4 +245,11 @@ public class AccessRule extends BaseType {
             return super.toString(prettyMap);
         }
     }
+
+    @Override
+    public String toString() {
+        return "AccessRule [timeRangeSpecifier=" + timeRangeSpecifier + ", timeRange=" + timeRange + ", locationSpecifier=" + locationSpecifier + ", location=" + location + ", enable=" + enable + ']';
+    }
+    
+    
 }

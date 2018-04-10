@@ -101,4 +101,9 @@ public class WriteAccessSpecification extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "WriteAccessSpecification [objectIdentifier=" + objectIdentifier + ", listOfProperties=" + listOfProperties + ']';
+    }
 }

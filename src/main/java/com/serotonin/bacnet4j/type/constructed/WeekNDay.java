@@ -42,6 +42,7 @@ import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.Collections;
 
 public class WeekNDay extends OctetString implements DateMatchable {
     public static class WeekOfMonth extends Enumerated {
@@ -94,6 +95,29 @@ public class WeekNDay extends OctetString implements DateMatchable {
 
         public WeekOfMonth(final ByteQueue queue) {
             super(queue);
+        }
+
+        /**
+         * Returns a unmodifiable map.
+         *
+         * @return unmodifiable map
+         */
+        public static Map<Integer, String> getPrettyMap() {
+            return Collections.unmodifiableMap(prettyMap);
+        }
+
+        /**
+         * Returns a unmodifiable nameMap.
+         *
+         * @return unmodifiable map
+         */
+        public static Map<String, Enumerated> getNameMap() {
+            return Collections.unmodifiableMap(nameMap);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString(prettyMap);
         }
     }
 

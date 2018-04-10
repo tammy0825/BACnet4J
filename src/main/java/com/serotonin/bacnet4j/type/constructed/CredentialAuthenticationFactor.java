@@ -91,4 +91,9 @@ public class CredentialAuthenticationFactor extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "CredentialAuthenticationFactor [disable=" + disable + ", authenticationFactor=" + authenticationFactor + ']';
+    }    
 }

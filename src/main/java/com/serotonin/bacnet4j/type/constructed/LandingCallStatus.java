@@ -124,4 +124,9 @@ public class LandingCallStatus extends BaseType {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "LandingCallStatus [floorNumber=" + floorNumber + ", command=" + command + ", floorText=" + floorText + ']';
+    }
 }

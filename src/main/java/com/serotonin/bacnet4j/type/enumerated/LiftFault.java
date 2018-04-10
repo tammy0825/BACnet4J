@@ -34,6 +34,7 @@ import java.util.Map;
 
 import com.serotonin.bacnet4j.type.primitive.Enumerated;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.Collections;
 
 public class LiftFault extends Enumerated {
     public static final LiftFault controllerFault = new LiftFault(0);
@@ -89,6 +90,24 @@ public class LiftFault extends Enumerated {
         super(queue);
     }
 
+    /**
+     * Returns a unmodifiable map.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<Integer, String> getPrettyMap() {
+        return Collections.unmodifiableMap(prettyMap);
+    }
+    
+     /**
+     * Returns a unmodifiable nameMap.
+     *
+     * @return unmodifiable map
+     */
+    public static Map<String, Enumerated> getNameMap() {
+        return Collections.unmodifiableMap(nameMap);
+    }
+    
     @Override
     public String toString() {
         return super.toString(prettyMap);
