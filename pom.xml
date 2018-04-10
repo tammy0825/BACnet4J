@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.serotonin</groupId>
     <artifactId>bacnet4j</artifactId>
-    <version>4.1.5</version>
+    <version>4.1.6-SNAPSHOT</version>
     <name>BACnet4j Library</name>
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -173,7 +173,7 @@
         <url>https://github.com/infiniteautomation/BACnet4J</url>
         <connection>scm:git:https://github.com/infiniteautomation/BACnet4J.git</connection>
         <developerConnection>scm:git:[push=]https://github.com/infiniteautomation/BACnet4J.git[fetch=]https://github.com/infiniteautomation/BACnet4J.git</developerConnection>
-        <tag>v4.1.5</tag>
+        <tag>HEAD</tag>
     </scm>
 	<distributionManagement>
 	   <snapshotRepository>
