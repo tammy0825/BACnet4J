@@ -77,6 +77,7 @@ public class IHaveRequest extends UnconfirmedRequestService {
             localDevice.execute(() -> {
                 try {
                     final RemoteDevice rd = localDevice.getRemoteDeviceBlocking(deviceIdentifier.getInstanceNumber());
+                    rd.setObjectProperty(objectIdentifier, PropertyIdentifier.objectName, objectName);
                     localDevice.getEventHandler().fireIHaveReceived(rd, rd.getObject(objectIdentifier));
                 } catch (final BACnetException e) {
                     LOG.warn("Error while discovering extended device information", e);
