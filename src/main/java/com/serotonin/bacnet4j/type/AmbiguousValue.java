@@ -95,7 +95,17 @@ public class AmbiguousValue extends Encodable {
     private void readAmbiguousData(final ByteQueue queue, final TagData tagData) {
         final ByteQueue data = new ByteQueue();
         readAmbiguousData(queue, tagData, data);
-        this.data = data.popAll();
+        byte[] element = data.popAll();       
+        //concatenate data
+        byte[] newData;
+        if (this.data != null){
+            newData = new byte[this.data.length + element.length];
+            System.arraycopy(this.data, 0, newData, 0, this.data.length);   
+            System.arraycopy(element, 0, newData, this.data.length, element.length);
+        } else {
+            newData = element;
+        }              
+        this.data = newData;
     }
 
     private void readAmbiguousData(final ByteQueue queue, final TagData tagData, final ByteQueue data) {
@@ -158,6 +168,10 @@ public class AmbiguousValue extends Encodable {
         return read(new ByteQueue(data), clazz);
     }
 
+    public byte[] getData() {
+        return data;
+    }
+        
     @Override
     public int hashCode() {
         final int PRIME = 31;
