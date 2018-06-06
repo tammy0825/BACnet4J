@@ -350,6 +350,63 @@ abstract public class Encodable {
         return result;
     }
 
+     /**
+     * Create encodable if the property type definition is unknown
+     *
+     * @param queue
+     * @param contextId
+     * @return
+     * @throws BACnetException
+     */
+    private static Encodable readUnknown(final ByteQueue queue, final int contextId)
+            throws BACnetException {
+
+        final TagData tagData = new TagData();
+        peekTagData(queue, tagData);
+
+        // Check if the tag number matches the context id. If they match, then create the context-specific parameter,
+        // otherwise an AmbiguousValue.
+        if (!tagData.isStartTag(contextId)) {
+            return new AmbiguousValue(queue, contextId);
+        }
+        // Keep the original queue
+        ByteQueue originalQueue = new ByteQueue(queue.peekAll());
+
+        // Get the first tagData
+        popStart(queue, contextId);
+        peekTagData(queue, tagData);
+        if (tagData.contextSpecific || !Primitive.isPrimitive(tagData.tagNumber)) {
+            // Constructed type or unknown primitive type. Give up and create an ambiguous.
+            return new AmbiguousValue(originalQueue, contextId);
+        } else {
+            // Primtive type
+            Primitive primitive = Primitive.createPrimitive(queue);
+
+            // Peek again to see what the next tagData is.
+            peekTagData(queue, tagData);
+            if (tagData.isEndTag()) {
+                // Just one primitive. Check contextId in the End-Tag.
+                popEnd(queue, contextId);
+                return primitive;
+            } else {
+                // Try to create a sequence of primitives.
+                SequenceOf<Encodable> seq = new SequenceOf<>();
+                seq.add(primitive);
+                while (queue.size() > 0 && !tagData.isEndTag()) {
+                    //If the data is something special, give up and create an ambiguous.
+                    if (tagData.contextSpecific || !Primitive.isPrimitive(tagData.tagNumber)) {
+                        return new AmbiguousValue(originalQueue, contextId);
+                    }
+                    seq.add(Primitive.createPrimitive(queue));
+                    peekTagData(queue, tagData);
+                }
+                // Check contextId in the End-Tag.
+                popEnd(queue, contextId);
+                return seq;
+            }
+        }
+    }
+    
     protected static Encodable readANY(final ByteQueue queue, final ObjectType objectType,
             final PropertyIdentifier propertyIdentifier, final UnsignedInteger propertyArrayIndex, final int contextId)
             throws BACnetException {
@@ -364,13 +421,8 @@ abstract public class Encodable {
         final PropertyTypeDefinition def = getPropertyTypeDefinition(objectType, propertyIdentifier);
 
         if (def == null) {
-            // We don't know what this is. Check if it's a primitive.
-            final Primitive p = Primitive.createPrimitive(queue, contextId);
-            if (p != null)
-                return p;
-
-            // If it's not a primitive, return an ambiguous value.
-            return new AmbiguousValue(queue, contextId);
+            // We don't know what this is.
+            return readUnknown(queue, contextId);
         }
 
         if (ObjectProperties.isCommandable(objectType, propertyIdentifier)) {
