@@ -47,4 +47,9 @@ public class LimitEnable extends BitString {
     public boolean isHighLimitEnable() {
         return getValue()[1];
     }
+    
+    @Override
+    public String toString() {
+        return "LimitEnable [low-limit-enable=" + isLowLimitEnable() + ", high-limit-enable=" + isHighLimitEnable() + "]";
+    }
 }

@@ -72,4 +72,9 @@ public class StatusFlags extends BitString {
     public void setOutOfService(final boolean b) {
         getValue()[3] = b;
     }
+
+    @Override
+    public String toString() {
+        return "StatusFlags [in-alarm=" + isInAlarm() + ", fault=" + isFault() + ", overridden=" + isOverridden() + ", out-of-service=" + isOutOfService() + "]";
+    }
 }

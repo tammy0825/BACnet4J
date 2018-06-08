@@ -51,4 +51,9 @@ public class ResultFlags extends BitString {
     public boolean isMoreItems() {
         return getValue()[2];
     }
+    
+    @Override
+    public String toString() {
+        return "ResultFlags [first-item=" + isFirstItem() + ", last-item=" + isLastItem() + ", more-items=" + isMoreItems() + "]";
+    }   
 }

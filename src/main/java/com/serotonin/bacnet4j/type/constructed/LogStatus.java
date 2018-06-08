@@ -51,4 +51,9 @@ public class LogStatus extends BitString {
     public boolean isLogInterrupted() {
         return getValue()[2];
     }
+
+    @Override
+    public String toString() {
+        return "LogStatus [log-disabled=" + isLogDisabled() + ", buffer-purged=" + isBufferPurged() + ", log-interrupted=" + isLogInterrupted() + "]";
+    }   
 }
