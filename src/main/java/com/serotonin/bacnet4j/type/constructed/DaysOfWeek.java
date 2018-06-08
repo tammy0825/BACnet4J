@@ -108,4 +108,9 @@ public class DaysOfWeek extends BitString {
     public void setSunday(final boolean sunday) {
         getValue()[6] = sunday;
     }
+    
+    @Override
+    public String toString() {
+        return "DaysOfWeek [monday=" + isMonday() + ", tuesday=" + isTuesday()+ ", wednesday=" + isWednesday()+ ", thursday=" + isThursday()+ ", friday=" + isFriday() + ", saturday=" + isSaturday()+ ", sunday=" + isSunday()+ "]";
+    }    
 }

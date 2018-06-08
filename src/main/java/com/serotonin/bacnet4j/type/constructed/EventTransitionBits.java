@@ -60,4 +60,9 @@ public class EventTransitionBits extends BitString {
     public boolean contains(final EventState toState) {
         return getValue(toState.getTransitionIndex());
     }
+
+    @Override
+    public String toString() {
+        return "EventTransitionBits [to-offnormal=" + isToOffnormal() + ", to-fault=" + isToFault() + ", to-normal=" + isToNormal() + "]";
+    }
 }
