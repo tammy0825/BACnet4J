@@ -258,7 +258,9 @@ public class DeviceObject extends BACnetObject {
         } else if (pid.equals(PropertyIdentifier.deviceAddressBinding)) {
             final SequenceOf<AddressBinding> bindings = new SequenceOf<>();
             for (final RemoteDevice d : getLocalDevice().getRemoteDevices()) {
-                bindings.add(new AddressBinding(d.getObjectIdentifier(), d.getAddress()));
+                if (d != null) {
+                    bindings.add(new AddressBinding(d.getObjectIdentifier(), d.getAddress()));
+                }
             }
             writePropertyInternal(PropertyIdentifier.deviceAddressBinding, bindings);
         }

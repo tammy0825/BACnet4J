@@ -820,7 +820,9 @@ public class LocalDevice {
                         futures.remove(instanceNumber);
 
                         // Cache the device.
-                        remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                        if (rd != null) {
+                            remoteDeviceCache.putEntity(instanceNumber, rd, cachePolicies.getDevicePolicy(instanceNumber));
+                        }
                     }
                 }
             }
