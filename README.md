@@ -47,10 +47,29 @@ The dependency information is:
 
 Releases
 ========
+*Version 4.1.6*
+- change http to https in JCenter Bintray repo in pom.xml
+
+*Version 4.1.5*
+- Reduce PropertyUtils.requestPropertiesFromDevice timeout log message to info as this message can be generated quite often
+
+*Version 4.1.4*
+- Fix for wrong loop condition on getting id for local device 
+- Fixes for reading elements of priority array
+
+*Version 3.2.4*
+- Fixing bug in SerialPortWrapper where stop bits and data bits were reversed.
+
+*Version 3.2.3
+- Removed restriction on binding LocalDevice to 0.0.0.0
+- Added code to ensure DefaultTransport thread can't die from a bad expire() call
+- Added code to ServiceFutureImpl to allow using timeouts
+- Using timeouts in DefaultTransport for ServiceFutures
 
 *Version 3.2 release notes*
 - Added BBMD support
 - Much enhanced support for acting as a foreign device
+- Improved test framework
 
 *Version 3.0 release notes*
 - The ANT build system has been replaced with Gradle
