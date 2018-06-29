@@ -179,4 +179,10 @@ public class WeekNDay extends OctetString implements DateMatchable {
         final int lastDay = gc.getActualMaximum(Calendar.DATE);
         return day >= lastDay - 6 && day <= lastDay;
     }
+
+    @Override
+    public String toString() {
+        return "WeekNDay [Month=" + getMonth() + ", WeekOfMonth=" + getWeekOfMonth() + ", DayOfWeek=" + getDayOfWeek() + "]";
+    }
+
 }

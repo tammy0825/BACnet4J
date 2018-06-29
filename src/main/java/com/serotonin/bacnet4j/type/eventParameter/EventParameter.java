@@ -82,4 +82,9 @@ public class EventParameter extends BaseType {
     public EventType getEventType() {
         return EventType.forId(choice.getContextId());
     }
+
+    @Override
+    public String toString() {
+        return "EventParameter[ choice=" + choice + ']';
+    }
 }

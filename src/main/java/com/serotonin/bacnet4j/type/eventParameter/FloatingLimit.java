@@ -148,4 +148,9 @@ public class FloatingLimit extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "FloatingLimit[ timeDelay=" + timeDelay + ", setpointReference=" + setpointReference + ", lowDiffLimit=" + lowDiffLimit + ", highDiffLimit=" + highDiffLimit + ", deadband=" + deadband + ']';
+    }
 }

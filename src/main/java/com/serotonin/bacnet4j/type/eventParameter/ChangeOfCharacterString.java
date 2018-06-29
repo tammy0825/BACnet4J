@@ -101,4 +101,9 @@ public class ChangeOfCharacterString extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfCharacterString[ timeDelay=" + timeDelay + ", listOfAlarmValues=" + listOfAlarmValues + ']';
+    }    
 }

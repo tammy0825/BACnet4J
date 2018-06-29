@@ -204,6 +204,11 @@ public class Extended extends AbstractEventParameter {
                 return false;
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "Parameter[ choice=" + choice + ']';
+        }
     }
 
     @Override
@@ -241,5 +246,10 @@ public class Extended extends AbstractEventParameter {
         } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Extended[ vendorId=" + vendorId + ", extendedEventType=" + extendedEventType + ", parameters=" + parameters + ']';
     }
 }

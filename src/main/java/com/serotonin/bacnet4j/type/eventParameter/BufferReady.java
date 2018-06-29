@@ -116,4 +116,9 @@ public class BufferReady extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "BufferReady[ notificationThreshold=" + notificationThreshold + ", previousNotificationCount=" + previousNotificationCount + ", mutablePreviousNotificationCount=" + mutablePreviousNotificationCount + ']';
+    }    
 }

@@ -113,4 +113,9 @@ public class ChangeOfValue extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfValue[ timeDelay=" + timeDelay + ", newValue=" + newValue + ']';
+    }
 }

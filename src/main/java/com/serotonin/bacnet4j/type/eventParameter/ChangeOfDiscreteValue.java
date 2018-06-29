@@ -85,4 +85,8 @@ public class ChangeOfDiscreteValue extends AbstractEventParameter {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "ChangeOfDiscreteValue[ timeDelay=" + timeDelay + ']';
+    }
 }
