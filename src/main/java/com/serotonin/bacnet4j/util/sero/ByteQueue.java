@@ -568,7 +568,7 @@ public class ByteQueue implements Cloneable {
         if (size == 0)
             return "[]";
 
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append('[');
         sb.append(Integer.toHexString(peek(0) & 0xff));
         for (int i = 1; i < size; i++)
@@ -579,14 +579,14 @@ public class ByteQueue implements Cloneable {
     }
 
     public String toHexString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size; i++)
             sb.append(StringUtils.leftPad(Integer.toHexString(peek(i) & 0xff), 2, '0'));
         return sb.toString();
     }
 
     public String dumpQueue() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
 
         if (queue.length == 0)
             sb.append("[]");
