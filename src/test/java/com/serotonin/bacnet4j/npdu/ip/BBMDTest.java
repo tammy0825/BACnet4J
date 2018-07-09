@@ -97,7 +97,7 @@ public class BBMDTest {
         ld11.ld.sendLocalBroadcast(ld11.ld.getIAm());
         ld12.ld.sendLocalBroadcast(ld12.ld.getIAm());
         ld33.ld.sendLocalBroadcast(new WhoIsRequest());
-        clock.plus(400, TimeUnit.MILLISECONDS, 600);
+        clock.plus(400, TimeUnit.MILLISECONDS, 800);
 
         // Confirm that the above broadcasts were only received on their subnets.
         assertEquals(1, ld11.iamCount()); // IAm from 12
@@ -448,7 +448,8 @@ public class BBMDTest {
         info.network = new IpNetworkBuilder().withLocalBindAddress("127.0." + subnet + "." + addr) //
                 .withSubnet("127.0." + subnet + ".0", 24) //
                 .withLocalNetworkNumber(1) //
-                .build();
+                .build();       
+        info.network.enableBBMD();
 
         info.ld = new LocalDevice(subnet * 10 + addr, new DefaultTransport(info.network)) //
                 .withClock(clock) //
