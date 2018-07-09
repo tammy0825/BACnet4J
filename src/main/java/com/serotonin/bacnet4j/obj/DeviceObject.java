@@ -207,6 +207,12 @@ public class DeviceObject extends BACnetObject {
         writePropertyInternal(PropertyIdentifier.restoreCompletionTime, new Unsigned16(0));
         writePropertyInternal(PropertyIdentifier.backupAndRestoreState, BackupState.idle);
 
+        //These properties are automatically overwritten when reading. They are defined here to be present when reading the PropertyList.     
+        set(PropertyIdentifier.utcOffset, new SignedInteger(0));
+        set(PropertyIdentifier.localTime, new Time(getLocalDevice()));
+        set(PropertyIdentifier.localDate, new Date(getLocalDevice()));
+        set(PropertyIdentifier.daylightSavingsStatus, Boolean.FALSE);
+        
         // Mixins
         addMixin(new ActiveCovSubscriptionMixin(this));
         addMixin(new HasStatusFlagsMixin(this));
