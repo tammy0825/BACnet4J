@@ -589,27 +589,31 @@ public class IpNetwork extends Network implements Runnable {
     private void readBDT(final OctetString origin) throws BACnetException {
         final ByteQueue response = new ByteQueue();
         response.push(BVLC_TYPE);
+        if (bbmdEnabled.get()) {
+            try {
+                final ByteQueue list = new ByteQueue();
 
-        try {
-            final ByteQueue list = new ByteQueue();
+                for (final BDTEntry e : broadcastDistributionTable) {
+                    list.push(e.address);
+                    list.pushU2B(e.port);
+                    list.push(e.distributionMask);
+                }
 
-            for (final BDTEntry e : broadcastDistributionTable) {
-                list.push(e.address);
-                list.pushU2B(e.port);
-                list.push(e.distributionMask);
+                // Successfully written.
+                response.push(3); // Read-Broadcast-Distribution-Table-Ack
+                response.pushU2B(4 + list.size()); // Length
+                response.push(list); // List
+            } catch (final Exception e) {
+                LOG.error("BDT read failed", e);
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x20); // NAK
             }
-
-            // Successfully written.
-            response.push(3); // Read-Broadcast-Distribution-Table-Ack
-            response.pushU2B(4 + list.size()); // Length
-            response.push(list); // List
-        } catch (final Exception e) {
-            LOG.error("BDT read failed", e);
-            response.push(0); // Result
-            response.pushU2B(6); // Length
-            response.pushU2B(0x20); // NAK
+        } else {
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x20); // NAK
         }
-
         sendPacket(IpNetworkUtils.getInetSocketAddress(origin), response.popAll());
     }
 
