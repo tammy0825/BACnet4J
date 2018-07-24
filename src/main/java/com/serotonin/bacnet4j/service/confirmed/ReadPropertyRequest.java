@@ -39,6 +39,7 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -84,19 +85,25 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     @Override
     public AcknowledgementService handle(final LocalDevice localDevice, final Address from) throws BACnetException {
         Encodable prop;
-        try {
+        ObjectIdentifier oid = objectIdentifier;
+        try {           
+            //Handling for unitialized device request. See 15.5.2 and standard test 135.1-2013 9.18.1.3
+            if (oid.getObjectType().equals(ObjectType.device) && oid.getInstanceNumber() == ObjectIdentifier.UNINITIALIZED) {
+                oid = new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber());
+            }           
+            
             // Handling for special properties
             if (propertyIdentifier.isOneOf(PropertyIdentifier.all, PropertyIdentifier.required,
                     PropertyIdentifier.optional)) {
                 throw new BACnetServiceException(ErrorClass.services, ErrorCode.inconsistentParameters);
             }
 
-            final BACnetObject obj = localDevice.getObjectRequired(objectIdentifier);
+            final BACnetObject obj = localDevice.getObjectRequired(oid);
             prop = obj.readPropertyRequired(propertyIdentifier, propertyArrayIndex);
         } catch (final BACnetServiceException e) {
             throw new BACnetErrorException(getChoiceId(), e);
         }
-        return new ReadPropertyAck(objectIdentifier, propertyIdentifier, propertyArrayIndex, prop);
+        return new ReadPropertyAck(oid, propertyIdentifier, propertyArrayIndex, prop);
     }
 
     @Override

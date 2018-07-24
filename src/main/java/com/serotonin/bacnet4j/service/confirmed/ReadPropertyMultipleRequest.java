@@ -48,6 +48,7 @@ import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
@@ -87,7 +88,12 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
         try {
             for (final ReadAccessSpecification req : listOfReadAccessSpecs) {
                 results = new ArrayList<>();
-                oid = req.getObjectIdentifier();
+                oid = req.getObjectIdentifier();               
+                //Handling for unitialized device request. See 15.7.2 and standard test 135.1-2013 9.18.1.3
+                if (oid.getObjectType().equals(ObjectType.device) && oid.getInstanceNumber() == ObjectIdentifier.UNINITIALIZED) {
+                    oid = new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber());
+                }                
+                
                 obj = localDevice.getObjectRequired(oid);
 
                 for (final PropertyReference propRef : req.getListOfPropertyReferences())

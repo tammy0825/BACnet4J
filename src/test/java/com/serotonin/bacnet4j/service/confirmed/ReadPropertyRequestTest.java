@@ -10,6 +10,8 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkUtils;
+import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
+import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
@@ -18,6 +20,8 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 
 public class ReadPropertyRequestTest {
     private final TestNetworkMap map = new TestNetworkMap();
@@ -58,11 +62,14 @@ public class ReadPropertyRequestTest {
                 ErrorClass.property, ErrorCode.invalidArrayIndex);
     }
 
-    @Test // 15.5.2
+    @Test // 15.5.2 and standard test 135.1-2013 9.18.1.3
     public void uninitializedDeviceId() throws BACnetException {
         // If this does not throw an error, then it's good.
-        new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, 4194303), PropertyIdentifier.systemStatus)
+        ReadPropertyAck ack = (ReadPropertyAck) new ReadPropertyRequest(new ObjectIdentifier(ObjectType.device, ObjectIdentifier.UNINITIALIZED), PropertyIdentifier.systemStatus)
                 .handle(localDevice, addr);
+        
+        //The instance number of the localdevice must be sent if a request is made to the instance 0x3FFFFF (unitialized).
+        assertEquals(new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber()), ack.getEventObjectIdentifier());
     }
 
     @Test

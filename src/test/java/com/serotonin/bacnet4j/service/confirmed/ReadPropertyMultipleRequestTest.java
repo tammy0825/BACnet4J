@@ -24,6 +24,7 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 
 public class ReadPropertyMultipleRequestTest {
     private final TestNetworkMap map = new TestNetworkMap();
@@ -99,5 +100,19 @@ public class ReadPropertyMultipleRequestTest {
         assertEquals(1, results.size());
         assertEquals(new Result(PropertyIdentifier.description, null, new CharacterString("my description")),
                 results.get(0));
+    }
+
+    @Test // 15.7.2 and standard test 135.1-2013 9.18.1.3
+    public void uninitializedDeviceId() throws BACnetException {
+        SequenceOf<ReadAccessSpecification> listOfReadAccessSpecs = new SequenceOf<>(
+                new ReadAccessSpecification(new ObjectIdentifier(ObjectType.device, ObjectIdentifier.UNINITIALIZED), PropertyIdentifier.vendorIdentifier));
+
+        ReadPropertyMultipleAck ack = (ReadPropertyMultipleAck) new ReadPropertyMultipleRequest(listOfReadAccessSpecs)
+                .handle(localDevice, addr);
+
+        //The instance number of the localdevice must be sent if a request is made to the instance 0x3FFFFF (unitialized).
+        for (ReadAccessResult listOfReadAccessResult : ack.getListOfReadAccessResults()) {
+            assertEquals(new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber()), listOfReadAccessResult.getObjectIdentifier());
+        }
     }
 }
