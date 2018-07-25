@@ -99,9 +99,6 @@ public class RealtimeMasterNode extends MasterNode {
         // the frame type from the driver so we have to do this every time
         //if (state == MasterNodeState.answerDataRequest)
         answerDataRequest();
-
-        //TODO Remove when done debugging
-        //try {Thread.sleep(500);}catch(InterruptedException e) {}
     }
 
     /* (non-Javadoc)
@@ -123,17 +120,15 @@ public class RealtimeMasterNode extends MasterNode {
         try {
             //Read 1 message from the driver
             LOG.info("About to read.");
-            while((readCount = in.read(readArray)) > 0) {
-                
-            //readCount = in.read(readArray);
-            LOG.info("Read: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
-            //if(readCount > 0) {
+            if (in.available() > 0) {
+                readCount = in.read(readArray);
                 bytesIn += readCount;
                 if (LOG.isTraceEnabled())
                     LOG.trace(tracePrefix() + "in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
-                
+                inputBuffer.push(readArray, 0, readCount);
+                eventCount += readCount;
                 int pos = 0;
-                //frame.setFrameType(FrameType.bacnetDataNotExpectingReply);
+                //TODO How can we validate that this is an entire message?
                 frame.setSourceAddress(readArray[pos++]);
                 byte[] data = new byte[readCount - 1];
                 for(int i=0; i<readCount - 1; i++) {
@@ -142,7 +137,6 @@ public class RealtimeMasterNode extends MasterNode {
                 frame.setData(data);
                 if (LOG.isTraceEnabled())
                     LOG.trace("in: " + frame);
-                eventCount += readCount;
                 receivedValidFrame = true;
             }
         } catch (final IOException e) {
@@ -225,33 +219,23 @@ public class RealtimeMasterNode extends MasterNode {
             // Header
             byte[] writeArray = new byte[5 + frame.getLength()];
             int pos = 0;
+            //Skip preamble, the driver will add it
             writeArray[pos++] = frame.getFrameType().id;
             writeArray[pos++] = frame.getDestinationAddress();
             writeArray[pos++] = frame.getSourceAddress();
             writeArray[pos++] = (byte)(frame.getLength() >> 8 & 0xff);
             writeArray[pos++] = (byte)(frame.getLength() & 0xff);
-            
-           // out.write(frame.getFrameType().id & 0xff);
-           // out.write(frame.getDestinationAddress() & 0xff);
-           // out.write(frame.getSourceAddress() & 0xff);
-           // out.write(frame.getLength() >> 8 & 0xff);
-           // out.write(frame.getLength() & 0xff);
-            //Driver doesn't want CRC out.write(sendHeaderCRC.getCrc(frame));
-            bytesOut += 8;
+            //Skip 2 byte header CRC, the driver will add it
 
             if (frame.getLength() > 0) {
                 // Data
-                //out.write(frame.getData());
                 for(int i=0; i<frame.getLength(); i++)
                     writeArray[pos++] = frame.getData()[i];
-                //No CRC with Driver
-                //final int crc = sendDataCRC.getCrc(frame);
-                //out.write(crc & 0xff);
-                //out.write(crc >> 8 & 0xff);
-                bytesOut += frame.getLength(); // + 2;
+                //Driver will add CRC
             }
             out.write(writeArray);
             out.flush();
+            bytesOut += frame.getLength() + 10; //Imply the missing bytes that the driver will add
             lastFrameSendTime = clock.millis();
             LOG.info("Sent frame " + frame);
         } catch (final IOException e) {
@@ -269,8 +253,10 @@ public class RealtimeMasterNode extends MasterNode {
     public void terminate() {
         super.terminate();
         try {
-            in.close();
-            out.close();
+            if(in != null)
+                in.close();
+            if(out != null)
+                out.close();
         } catch (IOException e) {
             LOG.error("Error closing streams.", e);
         }
