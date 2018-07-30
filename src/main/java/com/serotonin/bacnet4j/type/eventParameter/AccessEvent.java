@@ -37,10 +37,10 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class AccessEvent extends AbstractEventParameter {
     public static final byte TYPE_ID = 13;
 
-    private final SequenceOf<AccessEvent> listOfAccessEvents;
+    private final SequenceOf<com.serotonin.bacnet4j.type.enumerated.AccessEvent> listOfAccessEvents;
     private final DeviceObjectPropertyReference accessEventTimeReference;
 
-    public AccessEvent(final SequenceOf<AccessEvent> listOfAccessEvents,
+    public AccessEvent(final SequenceOf<com.serotonin.bacnet4j.type.enumerated.AccessEvent> listOfAccessEvents,
             final DeviceObjectPropertyReference accessEventTimeReference) {
         this.listOfAccessEvents = listOfAccessEvents;
         this.accessEventTimeReference = accessEventTimeReference;
@@ -53,11 +53,11 @@ public class AccessEvent extends AbstractEventParameter {
     }
 
     public AccessEvent(final ByteQueue queue) throws BACnetException {
-        listOfAccessEvents = readSequenceOf(queue, AccessEvent.class, 0);
+        listOfAccessEvents = readSequenceOf(queue, com.serotonin.bacnet4j.type.enumerated.AccessEvent.class, 0);
         accessEventTimeReference = read(queue, DeviceObjectPropertyReference.class, 1);
     }
 
-    public SequenceOf<AccessEvent> getListOfAccessEvents() {
+    public SequenceOf<com.serotonin.bacnet4j.type.enumerated.AccessEvent> getListOfAccessEvents() {
         return listOfAccessEvents;
     }
 
@@ -104,5 +104,10 @@ public class AccessEvent extends AbstractEventParameter {
         } else if (!listOfAccessEvents.equals(other.listOfAccessEvents))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AccessEvent[ listOfAccessEvents=" + listOfAccessEvents + ", accessEventTimeReference=" + accessEventTimeReference + ']';
     }
 }
