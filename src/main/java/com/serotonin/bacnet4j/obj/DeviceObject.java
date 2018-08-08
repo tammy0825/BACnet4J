@@ -52,7 +52,7 @@ import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 
 public class DeviceObject extends BACnetObject {
-    private static final int VENDOR_ID = 236; // Serotonin Software
+    private static final int VENDOR_ID = 865; //Infinite Automation Systems, Inc.
 
     public DeviceObject(final LocalDevice localDevice, final int instanceNumber) throws BACnetServiceException {
         super(localDevice, ObjectType.device, instanceNumber, "BACnet4J device " + instanceNumber);
@@ -61,7 +61,7 @@ public class DeviceObject extends BACnetObject {
                 new UnsignedInteger(MaxApduLength.UP_TO_1476.getMaxLengthInt()));
         writePropertyInternal(PropertyIdentifier.vendorIdentifier, new UnsignedInteger(VENDOR_ID));
         writePropertyInternal(PropertyIdentifier.vendorName,
-                new CharacterString("Serotonin Software Technologies, Inc."));
+                new CharacterString("Infinite Automation Systems, Inc."));
         writePropertyInternal(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
         writePropertyInternal(PropertyIdentifier.maxSegmentsAccepted, new UnsignedInteger(Integer.MAX_VALUE));
         writePropertyInternal(PropertyIdentifier.apduSegmentTimeout,

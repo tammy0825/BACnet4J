@@ -49,6 +49,8 @@ Releases
 ========
 *Version 4.1.7*
 - Add support for Relatime MS/TP linux realtime driver to handle token passing timing
+- Change Vendor ID to 865 Infinite Automation Systems, Inc.
+
 *Version 4.1.6*
 - change http to https in JCenter Bintray repo in pom.xml
 
