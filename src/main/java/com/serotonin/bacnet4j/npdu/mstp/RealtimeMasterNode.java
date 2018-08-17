@@ -170,6 +170,8 @@ public class RealtimeMasterNode extends MasterNode {
         receivedDataNoReply(frame);
         
         //TODO How to decide?  via NPDU or do we modify the driver
+        //The idea here is that we assume the driver will always 
+        // reply for us...?
         //state = MasterNodeState.answerDataRequest;
         //replyDeadline = lastNonSilence + Constants.REPLY_DELAY;
     }
