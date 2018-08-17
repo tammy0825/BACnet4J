@@ -120,8 +120,8 @@ public class RealtimeMasterNode extends MasterNode {
         try {
             //Read 1 message from the driver
             LOG.info("About to read.");
-            if (in.available() > 0) {
-                readCount = in.read(readArray);
+            readCount = in.read(readArray);
+            if (readCount > 0) {
                 bytesIn += readCount;
                 if (LOG.isTraceEnabled())
                     LOG.trace(tracePrefix() + "in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
