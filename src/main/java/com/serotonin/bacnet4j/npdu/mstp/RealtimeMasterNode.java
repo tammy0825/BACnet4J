@@ -119,7 +119,6 @@ public class RealtimeMasterNode extends MasterNode {
     protected void readInputStream() {
         try {
             //Read 1 message from the driver
-            LOG.info("About to read.");
             readCount = in.read(readArray);
             if (readCount > 0) {
                 bytesIn += readCount;
@@ -147,7 +146,7 @@ public class RealtimeMasterNode extends MasterNode {
             receiveError = true;
         }
     }
-    
+
     @Override
     protected void idle() {
         //Don't worry about invalid frames, assume we can use token if we didn't get a frame
@@ -177,7 +176,7 @@ public class RealtimeMasterNode extends MasterNode {
     
     @Override
     protected void waitForReply() {
-        if(lastFrameSendTime + responseTimeoutMs > clock.millis()) {
+        if(clock.millis() > lastFrameSendTime + responseTimeoutMs) {
             if (LOG.isDebugEnabled())
                 LOG.debug(thisStation + " waitForReply:ReplyTimeout");
             state = MasterNodeState.idle;
