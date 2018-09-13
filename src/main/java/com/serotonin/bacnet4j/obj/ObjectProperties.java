@@ -1270,14 +1270,14 @@ public class ObjectProperties {
         add(ObjectType.device, PropertyIdentifier.structuredObjectList, ObjectIdentifier.class, false, 0);
         add(ObjectType.device, PropertyIdentifier.maxApduLengthAccepted, UnsignedInteger.class, true);
         add(ObjectType.device, PropertyIdentifier.segmentationSupported, Segmentation.class, true);
-        add(ObjectType.device, PropertyIdentifier.maxSegmentsAccepted, UnsignedInteger.class, true);
+        add(ObjectType.device, PropertyIdentifier.maxSegmentsAccepted, UnsignedInteger.class, false);
         add(ObjectType.device, PropertyIdentifier.vtClassesSupported, VtClass.class, false, true);
         add(ObjectType.device, PropertyIdentifier.activeVtSessions, VtSession.class, false, true);
         add(ObjectType.device, PropertyIdentifier.localTime, Time.class, false);
         add(ObjectType.device, PropertyIdentifier.localDate, Date.class, false);
         add(ObjectType.device, PropertyIdentifier.utcOffset, SignedInteger.class, false);
         add(ObjectType.device, PropertyIdentifier.daylightSavingsStatus, Boolean.class, false);
-        add(ObjectType.device, PropertyIdentifier.apduSegmentTimeout, UnsignedInteger.class, true);
+        add(ObjectType.device, PropertyIdentifier.apduSegmentTimeout, UnsignedInteger.class, false);
         add(ObjectType.device, PropertyIdentifier.apduTimeout, UnsignedInteger.class, true);
         add(ObjectType.device, PropertyIdentifier.numberOfApduRetries, UnsignedInteger.class, true);
         add(ObjectType.device, PropertyIdentifier.timeSynchronizationRecipients, Recipient.class, false, true);
@@ -1291,8 +1291,8 @@ public class ObjectProperties {
         add(ObjectType.device, PropertyIdentifier.backupPreparationTime, Unsigned16.class, false);
         add(ObjectType.device, PropertyIdentifier.restorePreparationTime, Unsigned16.class, false);
         add(ObjectType.device, PropertyIdentifier.restoreCompletionTime, Unsigned16.class, false);
-        add(ObjectType.device, PropertyIdentifier.backupAndRestoreState, BackupState.class, true);
-        add(ObjectType.device, PropertyIdentifier.activeCovSubscriptions, CovSubscription.class, true, true);
+        add(ObjectType.device, PropertyIdentifier.backupAndRestoreState, BackupState.class, false);
+        add(ObjectType.device, PropertyIdentifier.activeCovSubscriptions, CovSubscription.class, false, true);
         add(ObjectType.device, PropertyIdentifier.lastRestartReason, RestartReason.class, false);
         add(ObjectType.device, PropertyIdentifier.timeOfDeviceRestart, TimeStamp.class, false);
         add(ObjectType.device, PropertyIdentifier.restartNotificationRecipients, Recipient.class, false, true);
