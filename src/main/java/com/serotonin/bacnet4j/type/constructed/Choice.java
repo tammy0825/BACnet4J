@@ -41,6 +41,10 @@ import com.serotonin.bacnet4j.type.constructed.ChoiceOptions.ContextualType;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
+import com.serotonin.bacnet4j.type.primitive.Unsigned16;
+import com.serotonin.bacnet4j.type.primitive.Unsigned32;
+import com.serotonin.bacnet4j.type.primitive.Unsigned8;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Choice extends BaseType {
@@ -107,11 +111,32 @@ public class Choice extends BaseType {
         } else {
             contextId = -1;
             // Decode a primitive
-            final Primitive primitive = read(queue, Primitive.class);
-            // Validate that this primitive is allowed.
+            Primitive primitive = read(queue, Primitive.class);
+	    // Validate that this primitive is allowed.           
             if (!choiceOptions.containsPrimitive(primitive.getClass())) {
-                LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                if (primitive.getClass() == UnsignedInteger.class) {
+                    // Since there is only one application tag for all unsigned types, 
+                    // try to convert in the allowed unsigned.  
+                    UnsignedInteger unsigned = (UnsignedInteger) primitive;
+                    try {
+                        if (choiceOptions.containsPrimitive(Unsigned32.class)) {
+                            primitive = new Unsigned32(unsigned.bigIntegerValue());
+                        } else if (choiceOptions.containsPrimitive(Unsigned16.class)) {
+                            primitive = new Unsigned16(unsigned.bigIntegerValue().intValueExact());
+                        } else if (choiceOptions.containsPrimitive(Unsigned8.class)) {
+                            primitive = new Unsigned8(unsigned.bigIntegerValue().intValueExact());
+                        } else {
+                            LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
+                            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                        }
+                    } catch (IllegalArgumentException | ArithmeticException ex) {
+                        LOG.warn("Decoded a unsigned that is not allowed in this context: {}", ex.getMessage());
+                        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                    }
+                } else {
+                    LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
+                    throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                }
             }
             datum = primitive;
         }
