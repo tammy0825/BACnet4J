@@ -56,6 +56,11 @@ public class ComplexEventTypeNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ComplexEventTypeNotif[ values=" + values + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;

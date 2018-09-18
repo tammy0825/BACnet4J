@@ -73,6 +73,11 @@ public class ChangeOfCharacterStringNotif extends AbstractNotificationParameter 
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfCharacterStringNotif[ changedValue=" + changedValue + ", statusFlags=" + statusFlags + ", alarmValues=" + alarmValues + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

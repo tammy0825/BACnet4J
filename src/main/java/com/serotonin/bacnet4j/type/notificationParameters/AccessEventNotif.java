@@ -101,6 +101,11 @@ public class AccessEventNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "AccessEventNotif[ accessEvent=" + accessEvent + ", statusFlags=" + statusFlags + ", accessEventTag=" + accessEventTag + ", accessEventTime=" + accessEventTime + ", accessCredential=" + accessCredential + ", authenticationFactor=" + authenticationFactor + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

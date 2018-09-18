@@ -81,6 +81,11 @@ public class FloatingLimitNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "FloatingLimitNotif[ referenceValue=" + referenceValue + ", statusFlags=" + statusFlags + ", setpointValue=" + setpointValue + ", errorLimit=" + errorLimit + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
