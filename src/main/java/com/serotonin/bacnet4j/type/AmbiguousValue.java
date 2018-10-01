@@ -141,6 +141,10 @@ public class AmbiguousValue extends Encodable {
 
     @Override
     public String toString() {
+        return "Ambiguous " + StreamUtils.dumpArrayHex(data);
+    }
+
+    public String toPrimitiveString() {
         String s;
         if (Primitive.isPrimitive(data[0])) {
             try {
@@ -149,7 +153,7 @@ public class AmbiguousValue extends Encodable {
                 throw new RuntimeException(e);
             }
         } else {
-            s = StreamUtils.dumpArrayHex(data);
+            return toString();
         }
         return "Ambiguous(" + s + ")";
     }
