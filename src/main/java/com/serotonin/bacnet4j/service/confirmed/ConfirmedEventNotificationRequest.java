@@ -180,7 +180,7 @@ public class ConfirmedEventNotificationRequest extends ConfirmedRequestService {
         writeOptional(queue, eventValues, 12);
     }
 
-    ConfirmedEventNotificationRequest(final ByteQueue queue) throws BACnetException {
+    public ConfirmedEventNotificationRequest(final ByteQueue queue) throws BACnetException {
         processIdentifier = read(queue, UnsignedInteger.class, 0);
         initiatingDeviceIdentifier = read(queue, ObjectIdentifier.class, 1);
         eventObjectIdentifier = read(queue, ObjectIdentifier.class, 2);
