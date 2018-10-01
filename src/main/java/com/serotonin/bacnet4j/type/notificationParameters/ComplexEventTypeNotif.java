@@ -48,7 +48,7 @@ public class ComplexEventTypeNotif extends AbstractNotificationParameter {
     }
 
     public ComplexEventTypeNotif(final ByteQueue queue) throws BACnetException {
-        values = readSequenceOf(queue, PropertyValue.class);
+        values = new SequenceOf(queue, PropertyValue.class, 6);
     }
 
     public SequenceOf<PropertyValue> getValues() {
