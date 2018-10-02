@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -59,6 +60,22 @@ public class OptionalCharacterString extends BaseType {
     }
 
     public CharacterString getCharacterStringValue() {
+        return choice.getDatum();
+    }
+
+    public boolean isCharacterStringValue() {
+        return choice.getDatum() instanceof CharacterString;
+    }
+
+    public boolean isNullValue() {
+        return choice.getDatum() instanceof Null;
+    }
+
+    public Choice getChoice() {
+        return choice;
+    }
+
+    public <T extends Encodable> T getValue() {
         return choice.getDatum();
     }
 

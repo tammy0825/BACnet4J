@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -63,6 +64,22 @@ public class OptionalUnsigned extends BaseType {
     }
 
     public UnsignedInteger getUnsignedIntegerValue() {
+        return choice.getDatum();
+    }
+
+    public boolean isUnsignedIntegerValue() {
+        return choice.getDatum() instanceof UnsignedInteger;
+    }
+
+    public boolean isNullValue() {
+        return choice.getDatum() instanceof Null;
+    }
+
+    public Choice getChoice() {
+        return choice;
+    }
+
+    public <T extends Encodable> T getValue() {
         return choice.getDatum();
     }
 

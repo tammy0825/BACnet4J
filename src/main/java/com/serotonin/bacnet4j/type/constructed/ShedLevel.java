@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -74,6 +75,26 @@ public class ShedLevel extends BaseType {
         return (Real) choice.getDatum();
     }
 
+    public boolean isPercent() {
+        return choice.getContextId() == 0;
+    }
+
+    public boolean isLevel() {
+        return choice.getContextId() == 1;
+    }
+
+    public boolean isAmount() {
+        return choice.getContextId() == 2;
+    }
+
+    public Choice getChoice() {
+        return choice;
+    }
+
+    public <T extends Encodable> T getValue() {
+        return choice.getDatum();
+    }
+    
     public ShedLevel(final ByteQueue queue) throws BACnetException {
         choice = new Choice(queue, choiceOptions);
     }
