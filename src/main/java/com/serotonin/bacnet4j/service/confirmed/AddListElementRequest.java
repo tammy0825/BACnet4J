@@ -50,6 +50,7 @@ import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.ArrayList;
 
 public class AddListElementRequest extends ConfirmedRequestService {
     public static final byte TYPE_ID = 8;
@@ -121,8 +122,9 @@ public class AddListElementRequest extends ConfirmedRequestService {
         if (e instanceof BACnetArray)
             throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, UnsignedInteger.ZERO);
 
-        final SequenceOf<Encodable> origList = (SequenceOf<Encodable>) e;
-        final SequenceOf<Encodable> list = new SequenceOf<>(origList.getValues());
+        //Copy the original sequence
+        final SequenceOf<Encodable> copyList = new SequenceOf<>(new ArrayList(((SequenceOf<Encodable>) e).getValues()));
+        final SequenceOf<Encodable> list = new SequenceOf<>(copyList.getValues());
         for (int i = 0; i < listOfElements.getCount(); i++) {
             final Encodable pr = listOfElements.getBase1(i + 1);
 
@@ -149,10 +151,10 @@ public class AddListElementRequest extends ConfirmedRequestService {
         }
 
         if (array != null) {
-            array.setBase1(propertyArrayIndex.intValue(), origList);
+            array.setBase1(propertyArrayIndex.intValue(), copyList);
             e = array;
         } else {
-            e = origList;
+            e = copyList;
         }
 
         try {
