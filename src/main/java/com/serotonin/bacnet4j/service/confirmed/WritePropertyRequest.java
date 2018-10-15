@@ -106,6 +106,31 @@ public class WritePropertyRequest extends ConfirmedRequestService {
         return null;
     }
 
+    public ObjectIdentifier getObjectIdentifier() {
+        return objectIdentifier;
+    }
+
+    public PropertyIdentifier getPropertyIdentifier() {
+        return propertyIdentifier;
+    }
+
+    public UnsignedInteger getPropertyArrayIndex() {
+        return propertyArrayIndex;
+    }   
+
+    public Encodable getPropertyValue() {
+        return propertyValue;
+    }
+
+    public UnsignedInteger getPriority() {
+        return priority;
+    }
+
+    @Override
+    public String toString() {
+        return "WritePropertyRequest [objectIdentifier=" + objectIdentifier + ", propertyIdentifier=" + propertyIdentifier + ", propertyArrayIndex=" + propertyArrayIndex + ", priority=" + priority + ", propertyValue=" + propertyValue + ']';
+    }  
+    
     @Override
     public int hashCode() {
         final int PRIME = 31;

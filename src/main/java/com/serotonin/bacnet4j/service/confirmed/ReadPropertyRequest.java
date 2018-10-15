@@ -106,6 +106,18 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
         return new ReadPropertyAck(oid, propertyIdentifier, propertyArrayIndex, prop);
     }
 
+    public ObjectIdentifier getObjectIdentifier() {
+        return objectIdentifier;
+    }
+
+    public PropertyIdentifier getPropertyIdentifier() {
+        return propertyIdentifier;
+    }
+
+    public UnsignedInteger getPropertyArrayIndex() {
+        return propertyArrayIndex;
+    }
+    
     @Override
     public String toString() {
         return "ReadPropertyRequest [objectIdentifier=" + objectIdentifier + ", propertyIdentifier="
