@@ -370,14 +370,16 @@ abstract public class Encodable {
             return new AmbiguousValue(queue, contextId);
         }
         // Keep the original queue
-        ByteQueue originalQueue = new ByteQueue(queue.peekAll());
+        ByteQueue originalQueue = (ByteQueue) queue.clone();
 
         // Get the first tagData
         popStart(queue, contextId);
         peekTagData(queue, tagData);
         if (tagData.contextSpecific || !Primitive.isPrimitive(tagData.tagNumber)) {
             // Constructed type or unknown primitive type. Give up and create an ambiguous.
-            return new AmbiguousValue(originalQueue, contextId);
+            queue.clear();
+            queue.push(originalQueue);
+            return new AmbiguousValue(queue, contextId);
         } else {
             // Primtive type
             Primitive primitive = Primitive.createPrimitive(queue);
@@ -395,7 +397,9 @@ abstract public class Encodable {
                 while (queue.size() > 0 && !tagData.isEndTag()) {
                     //If the data is something special, give up and create an ambiguous.
                     if (tagData.contextSpecific || !Primitive.isPrimitive(tagData.tagNumber)) {
-                        return new AmbiguousValue(originalQueue, contextId);
+                        queue.clear();
+                        queue.push(originalQueue);
+                        return new AmbiguousValue(queue, contextId);
                     }
                     seq.add(Primitive.createPrimitive(queue));
                     peekTagData(queue, tagData);
