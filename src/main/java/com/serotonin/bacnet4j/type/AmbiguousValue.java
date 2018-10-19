@@ -141,21 +141,29 @@ public class AmbiguousValue extends Encodable {
 
     @Override
     public String toString() {
-        return "Ambiguous " + StreamUtils.dumpArrayHex(data);
+        if (data != null) {
+            return "Ambiguous " + StreamUtils.dumpArrayHex(data);
+        } else {
+            return "Ambiguous []";
+        }
     }
 
     public String toPrimitiveString() {
-        String s;
-        if (Primitive.isPrimitive(data[0])) {
-            try {
-                s = convertTo(Primitive.class).toString();
-            } catch (final BACnetException e) {
-                throw new RuntimeException(e);
+        if (data != null) {
+            String s;
+            if (Primitive.isPrimitive(data[0])) {
+                try {
+                    s = convertTo(Primitive.class).toString();
+                } catch (final BACnetException e) {
+                    throw new RuntimeException(e);
+                }
+                return s;
+            } else {
+                return toString();
             }
         } else {
-            return toString();
+            return "Ambiguous []";
         }
-        return "Ambiguous(" + s + ")";
     }
 
     private static void copyData(final ByteQueue queue, final int length, final ByteQueue data) {
