@@ -93,4 +93,4 @@ The networking package of this product has been pretty much entirely rewritten t
 License
 =======
 
-This software is licensed under GPL. Commercial licensers can pay an upgrade fee to use this new version (2.x and later) commercially.
+This software is licensed under GPL. Commercial licensers can pay an upgrade fee to use this new version (2.x and later) commercially. Please contact Infinite Automation Systems Inc for more information on licensing: https://infiniteautomation.com/bacnet4j-open-source-bacnet-library/
