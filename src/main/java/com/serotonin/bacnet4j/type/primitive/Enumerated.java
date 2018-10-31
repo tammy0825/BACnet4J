@@ -200,7 +200,10 @@ public class Enumerated extends Primitive {
 
     @Override
     public String toString() {
-        return "Enumerated [smallValue=" + smallValue + ", bigValue=" + bigValue + "]";
+        if (bigValue == null) {
+            return "Enumerated [" + Integer.toString(smallValue) + "]";
+        }
+        return "Enumerated [" + bigValue.toString() + "]";
     }
 
     @Override
