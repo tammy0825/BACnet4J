@@ -52,6 +52,7 @@ import com.serotonin.bacnet4j.apdu.Segmentable;
 import com.serotonin.bacnet4j.apdu.SimpleACK;
 import com.serotonin.bacnet4j.apdu.UnconfirmedRequest;
 import com.serotonin.bacnet4j.enums.MaxSegments;
+import com.serotonin.bacnet4j.exception.BACnetAbortException;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRecoverableException;
@@ -70,8 +71,10 @@ import com.serotonin.bacnet4j.service.unconfirmed.IAmRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
+import com.serotonin.bacnet4j.type.enumerated.AbortReason;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.RejectReason;
 import com.serotonin.bacnet4j.type.enumerated.Segmentation;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
@@ -594,15 +597,13 @@ public class DefaultTransport implements Transport, Runnable {
 
             try {
                 ConfirmedRequestService.checkConfirmedRequestService(servicesSupported, confAPDU.getServiceChoice());
-            } catch (final BACnetErrorException e) {
-                final com.serotonin.bacnet4j.apdu.Error error = new com.serotonin.bacnet4j.apdu.Error(
-                        confAPDU.getInvokeId(), e.getBacnetError());
+            } catch (final BACnetRejectException e) {
                 try {
-                    network.sendAPDU(from, linkService, error, false);
+                    network.sendAPDU(from, linkService, new Reject(confAPDU.getInvokeId(), e.getRejectReason()), false);
                 } catch (final BACnetException e1) {
                     LOG.warn("Error sending error response", e1);
                 }
-                localDevice.getExceptionDispatcher().fireReceivedException(e);
+                LOG.warn("Receiving a confirmed service request that ist not supported or available. TYPE_ID '{}'", confAPDU.getServiceChoice());
                 return;
             }
 
@@ -845,6 +846,8 @@ public class DefaultTransport implements Transport, Runnable {
                         new com.serotonin.bacnet4j.apdu.Error(invokeId, e.getBacnetError()), false);
             } catch (final BACnetRejectException e) {
                 network.sendAPDU(address, linkService, new Reject(invokeId, e.getRejectReason()), false);
+            } catch (final BACnetAbortException e) {
+                network.sendAPDU(address, linkService, new Abort(true, invokeId, e.getAbortReason()), false);
             } catch (final BACnetException e) {
                 LOG.warn("Error handling incoming request", e);
                 final com.serotonin.bacnet4j.apdu.Error error = new com.serotonin.bacnet4j.apdu.Error(
@@ -866,7 +869,7 @@ public class DefaultTransport implements Transport, Runnable {
         } catch (@SuppressWarnings("unused") final NotImplementedException e) {
             LOG.warn("Unsupported confirmed request: invokeId=" + invokeId + ", from=" + from + ", request="
                     + service.getClass().getName());
-            throw new BACnetErrorException(ErrorClass.services, ErrorCode.serviceRequestDenied);
+            throw new BACnetRejectException(RejectReason.unrecognizedService, e);
         } catch (final BACnetErrorException e) {
             throw e;
         } catch (final Exception e) {
@@ -891,12 +894,15 @@ public class DefaultTransport implements Transport, Runnable {
                 final int maxServiceData = request.getMaxApduLengthAccepted().getMaxLengthInt()
                         - ComplexACK.getHeaderSize(true);
                 // Check if the device can accept what we want to send.
-                if (!request.isSegmentedResponseAccepted())
-                    throw new ServiceTooBigException("Response too big to send to device without segmentation");
+                if (!request.isSegmentedResponseAccepted()) {
+                    LOG.warn("Response too big to send to device without segmentation");                   
+                    throw new BACnetAbortException(AbortReason.bufferOverflow);         
+                }
                 final int segmentsRequired = serviceData.size() / maxServiceData + 1;
-                if (segmentsRequired > request.getMaxSegmentsAccepted().getMaxSegments() || segmentsRequired > 128)
-                    throw new ServiceTooBigException("Response too big to send to device; too many segments required");
-
+                if (segmentsRequired > request.getMaxSegmentsAccepted().getMaxSegments() || segmentsRequired > 128) {
+                    LOG.warn("Response too big to send to device; too many segments required");
+                    throw new BACnetAbortException(AbortReason.bufferOverflow); 
+                }
                 LOG.debug("Sending confirmed response as segmented with {} segments", segmentsRequired);
                 // Prepare the segmenting session.
                 final UnackedMessageContext ctx = new UnackedMessageContext(localDevice.getClock(), timeout, retries,

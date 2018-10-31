@@ -24,28 +24,28 @@
  *
  * See www.infiniteautomation.com for commercial license options.
  * 
- * @author Matthew Lohbihler
+ * @author Michel Seiler
  */
 package com.serotonin.bacnet4j.exception;
 
-import com.serotonin.bacnet4j.type.enumerated.RejectReason;
+import com.serotonin.bacnet4j.type.enumerated.AbortReason;
 
-public class BACnetRejectException extends BACnetException {
+public class BACnetAbortException extends BACnetException {
     private static final long serialVersionUID = -1;
 
-    private final RejectReason rejectReason;
+    private final AbortReason abortReason;
 
-    public BACnetRejectException(RejectReason rejectReason) {
-        super(rejectReason.toString());
-        this.rejectReason = rejectReason;
+    public BACnetAbortException(AbortReason abortReason) {
+        super(abortReason.toString());
+        this.abortReason = abortReason;
     }
 
-    public BACnetRejectException(RejectReason rejectReason, Throwable cause) {
-        super(rejectReason.toString(), cause);
-        this.rejectReason = rejectReason;
+    public BACnetAbortException(AbortReason abortReason, Throwable cause) {
+        super(abortReason.toString(), cause);
+        this.abortReason = abortReason;
     }
     
-    public RejectReason getRejectReason() {
-        return rejectReason;
+    public AbortReason getAbortReason() {
+        return abortReason;
     }
 }
