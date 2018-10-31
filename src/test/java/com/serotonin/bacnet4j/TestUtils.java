@@ -18,6 +18,7 @@ import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.ErrorAPDUException;
+import com.serotonin.bacnet4j.exception.RejectAPDUException;
 import com.serotonin.bacnet4j.obj.logBuffer.LogBuffer;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
@@ -25,6 +26,7 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.RejectReason;
 import com.serotonin.bacnet4j.type.error.BaseError;
 import com.serotonin.bacnet4j.type.error.ErrorClassAndCode;
 import com.serotonin.bacnet4j.type.primitive.Time;
@@ -169,11 +171,27 @@ public class TestUtils {
                 assertErrorClassAndCode(eae.getError().getErrorClassAndCode(), errorClass, errorCode);
                 return (T) eae.getApdu().getError();
             }
-            fail("Embedded ErrorAPDUException was expected: " + e.getCause().getClass());
+            fail("Embedded ErrorAPDUException was expected: " + e.getClass());
         }
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public static void assertRejectAPDUException(final BACnetExceptionCommand command,
+            final RejectReason rejectReason) {
+        try {
+            command.call();
+            fail("BACnetException was expected");
+        } catch (final BACnetException e) {
+            if (e instanceof RejectAPDUException) {
+                final RejectAPDUException eae = (RejectAPDUException) e;
+                Assert.assertEquals(rejectReason, eae.getApdu().getRejectReason());
+            } else {
+                fail("RejectAPDUException was expected: " + e.getClass());
+            }            
+        }
+    }
+    
     @FunctionalInterface
     public static interface BACnetExceptionCommand {
         void call() throws BACnetException;
