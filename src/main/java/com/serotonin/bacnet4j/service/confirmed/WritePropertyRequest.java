@@ -78,11 +78,15 @@ public class WritePropertyRequest extends ConfirmedRequestService {
     }
 
     WritePropertyRequest(final ByteQueue queue) throws BACnetException {
-        objectIdentifier = read(queue, ObjectIdentifier.class, 0);
-        propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
-        propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        propertyValue = readANY(queue, objectIdentifier.getObjectType(), propertyIdentifier, propertyArrayIndex, 3);
-        priority = readOptional(queue, UnsignedInteger.class, 4);
+        try {
+            objectIdentifier = read(queue, ObjectIdentifier.class, 0);
+            propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
+            propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
+            propertyValue = readANY(queue, objectIdentifier.getObjectType(), propertyIdentifier, propertyArrayIndex, 3);
+            priority = readOptional(queue, UnsignedInteger.class, 4);
+        } catch (BACnetErrorException ex) {
+            throw new BACnetErrorException(TYPE_ID, ex);
+        }
     }
 
     @Override
