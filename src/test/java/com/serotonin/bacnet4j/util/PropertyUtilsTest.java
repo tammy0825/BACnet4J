@@ -375,7 +375,7 @@ public class PropertyUtilsTest {
                 .add(2, ObjectType.device, 2, PropertyIdentifier.systemStatus, null, DeviceStatus.operational) //
                 .add(2, ObjectType.device, 2, PropertyIdentifier.maxApduLengthAccepted, null, new UnsignedInteger(1476)) //
                 .add(2, ObjectType.device, 2, PropertyIdentifier.vendorName, null,
-                        str("Serotonin Software Technologies, Inc."));
+                        str("Infinite Automation Systems, Inc."));
 
         final DeviceObjectPropertyValues actualValues = PropertyUtils.readProperties(d1, refs, null, 3000);
 
