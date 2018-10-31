@@ -359,8 +359,15 @@ public class IpNetwork extends Network implements Runnable {
         NPDU npdu = null;
         if (function == 0x0) {
             final int result = BACnetUtils.popShort(queue);
-            if (result == 0x30)
+
+           if (result == 0x10)
+                LOG.error("Write-Broadcast-Distrubution-Table failed!");  
+           else if (result == 0x20)
+                LOG.error("Read-Broadcast-Distrubution-Table failed!");
+            else if (result == 0x30)
                 LOG.error("Register-Foreign-Device failed!");
+            else if (result == 0x40)
+                LOG.error("Read-Foreign-Device-Table failed!");
             else if (result == 0x50)
                 LOG.error("Delete-Foreign-Device-Table-Entry failed!");
             else if (result == 0x60)
@@ -782,30 +789,36 @@ public class IpNetwork extends Network implements Runnable {
         final ByteQueue response = new ByteQueue();
         response.push(BVLC_TYPE);
 
-        final long now = getTransport().getLocalDevice().getClock().millis();
-        try {
-            final ByteQueue list = new ByteQueue();
+        if (bbmdEnabled.get()) {
+            final long now = getTransport().getLocalDevice().getClock().millis();
+            try {
+                final ByteQueue list = new ByteQueue();
 
-            for (final FDTEntry e : foreignDeviceTable) {
-                pushISA(list, e.address);
-                list.pushU2B(e.timeToLive);
+                for (final FDTEntry e : foreignDeviceTable) {
+                    pushISA(list, e.address);
+                    list.pushU2B(e.timeToLive);
 
-                int remaining = (int) (e.endTime - now) / 1000;
-                if (remaining < 0)
+                    int remaining = (int) (e.endTime - now) / 1000;
+                    if (remaining < 0) 
                     // Hasn't yet been cleaned up.
-                    remaining = 0;
-                if (remaining > 65535)
-                    remaining = 65535;
+                        remaining = 0;
+                    if (remaining > 65535)
+                        remaining = 65535;
 
-                list.pushU2B(remaining);
+                    list.pushU2B(remaining);
+                }
+
+                // Successfully written.
+                response.push(7); // Read-Foreign-Device-Table-Ack
+                response.pushU2B(4 + list.size()); // Length
+                response.push(list); // List
+            } catch (final Exception e) {
+                LOG.error("FDT read failed", e);
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x40); // NAK
             }
-
-            // Successfully written.
-            response.push(7); // Read-Foreign-Device-Table-Ack
-            response.pushU2B(4 + list.size()); // Length
-            response.push(list); // List
-        } catch (final Exception e) {
-            LOG.error("FDT read failed", e);
+        } else {
             response.push(0); // Result
             response.pushU2B(6); // Length
             response.pushU2B(0x40); // NAK
