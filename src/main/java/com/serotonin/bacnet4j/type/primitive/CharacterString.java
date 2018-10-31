@@ -88,7 +88,7 @@ public class CharacterString extends Primitive {
     // Reading and writing
     //
     public CharacterString(final ByteQueue queue) throws BACnetErrorException {
-        final int length = (int) readTag(queue);
+        final int length = (int) readTag(queue, TYPE_ID);
 
         encoding = queue.pop();
         validateEncoding();

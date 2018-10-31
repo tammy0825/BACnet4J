@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -191,7 +192,7 @@ public class AccessRule extends BaseType {
             super(value);
         }
 
-        public TimeRangeSpecifier(final ByteQueue queue) {
+        public TimeRangeSpecifier(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 
@@ -236,7 +237,7 @@ public class AccessRule extends BaseType {
             super(value);
         }
 
-        public LocationSpecifier(final ByteQueue queue) {
+        public LocationSpecifier(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

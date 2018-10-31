@@ -93,7 +93,7 @@ public class Choice extends BaseType {
             final ContextualType type = choiceOptions.getContextualClass(contextId);
             if (type == null) {
                 LOG.warn("Could not associated choice context tag with class: {}", contextId);
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
             }
 
             if (type.isSequence() && type.getClazz() == AmbiguousValue.class) {
@@ -127,15 +127,15 @@ public class Choice extends BaseType {
                             primitive = new Unsigned8(unsigned.bigIntegerValue().intValueExact());
                         } else {
                             LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
-                            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
                         }
                     } catch (IllegalArgumentException | ArithmeticException ex) {
                         LOG.warn("Decoded a unsigned that is not allowed in this context: {}", ex.getMessage());
-                        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
                     }
                 } else {
                     LOG.warn("Decoded a primitive that is not allowed in this context: {}", primitive.getClass());
-                    throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+                    throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
                 }
             }
             datum = primitive;

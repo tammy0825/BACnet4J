@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
@@ -143,7 +144,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
             super(value);
         }
 
-        public AcknowledgmentFilter(final ByteQueue queue) {
+        public AcknowledgmentFilter(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 
@@ -191,7 +192,7 @@ public class GetEnrollmentSummaryRequest extends ConfirmedRequestService {
             super(value);
         }
 
-        public EventStateFilter(final ByteQueue queue) {
+        public EventStateFilter(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

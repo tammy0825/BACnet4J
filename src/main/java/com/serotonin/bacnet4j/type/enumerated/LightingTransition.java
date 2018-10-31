@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class LightingTransition extends Enumerated {
         super(value);
     }
 
-    public LightingTransition(final ByteQueue queue) {
+    public LightingTransition(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

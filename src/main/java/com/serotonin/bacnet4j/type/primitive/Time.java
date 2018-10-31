@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Time extends Primitive {
@@ -203,8 +204,8 @@ public class Time extends Primitive {
     //
     // Reading and writing
     //
-    public Time(final ByteQueue queue) {
-        readTag(queue);
+    public Time(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
         hour = queue.popU1B();
         minute = queue.popU1B();
         second = queue.popU1B();

@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +39,7 @@ public class ServicesSupported extends BitString {
         super(new boolean[44]);
     }
 
-    public ServicesSupported(final ByteQueue queue) {
+    public ServicesSupported(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

@@ -34,6 +34,7 @@ import java.util.GregorianCalendar;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.DateMatchable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -350,8 +351,8 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
     //
     // Reading and writing
     //
-    public Date(final ByteQueue queue) {
-        readTag(queue);
+    public Date(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
         year = queue.popU1B();
         month = Month.valueOf(queue.pop());
         day = queue.popU1B();

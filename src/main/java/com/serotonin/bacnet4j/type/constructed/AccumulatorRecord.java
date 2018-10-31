@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class AccumulatorRecord extends BaseType {
             super(value);
         }
 
-        public AccumulatorStatus(final ByteQueue queue) {
+        public AccumulatorStatus(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

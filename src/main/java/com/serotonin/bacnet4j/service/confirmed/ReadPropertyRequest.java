@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.service.confirmed;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRejectException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
@@ -41,6 +42,7 @@ import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.enumerated.RejectReason;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -77,9 +79,17 @@ public class ReadPropertyRequest extends ConfirmedRequestService {
     }
 
     ReadPropertyRequest(final ByteQueue queue) throws BACnetException {
-        objectIdentifier = read(queue, ObjectIdentifier.class, 0);
-        propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
-        propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
+        try {
+            objectIdentifier = read(queue, ObjectIdentifier.class, 0);
+            propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
+            propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
+        } catch (BACnetErrorException ex) {
+            // 135-2016 18.9 - Confirmed request PDUs can be rejected. 
+            // In the encodable class different types of errors are thrown. 
+            // To meet the standard, they are converted into a reject exception.
+            // We always use the rejection type "missingRequiredParameter", which covers the 135.1-2013 test standard 13.4.3 and 13.4.4.
+            throw new BACnetRejectException(RejectReason.missingRequiredParameter, ex);
+        }
     }
 
     @Override

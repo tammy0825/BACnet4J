@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,7 +37,7 @@ public class LogStatus extends BitString {
         super(new boolean[] { logDisabled, bufferPurged, logInterrupted });
     }
 
-    public LogStatus(final ByteQueue queue) {
+    public LogStatus(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

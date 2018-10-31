@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +85,7 @@ public class LifeSafetyMode extends Enumerated {
         super(value);
     }
 
-    public LifeSafetyMode(final ByteQueue queue) {
+    public LifeSafetyMode(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
@@ -106,8 +107,8 @@ public class Enumerated extends Primitive {
     //
     // Reading and writing
     //
-    public Enumerated(final ByteQueue queue) {
-        int length = (int) readTag(queue);
+    public Enumerated(final ByteQueue queue) throws BACnetErrorException {
+        int length = (int) readTag(queue, TYPE_ID);
         if (length < 4) {
             while (length > 0)
                 smallValue |= (queue.pop() & 0xff) << --length * 8;
