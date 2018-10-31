@@ -44,7 +44,7 @@ import com.serotonin.bacnet4j.util.sero.SerialPortWrapper;
 public class MasterNode extends MstpNode {
     static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
 
-    private enum MasterNodeState {
+    protected enum MasterNodeState {
         idle, useToken, waitForReply, doneWithToken, passToken, noToken, pollForMaster, answerDataRequest
     }
 
@@ -54,41 +54,41 @@ public class MasterNode extends MstpNode {
      * The MAC address of the node to which This Station passes the token. If the Next
      * Station is unknown, NS shall be equal to TS.
      */
-    private byte nextStation;
+    protected byte nextStation;
 
     /**
      * The MAC address of the node to which This Station last sent a Poll For Master. This is
      * used during token maintenance.
      */
-    private byte pollStation;
+    protected byte pollStation;
 
     /**
      * A counter of transmission retries used for Token and Poll For Master transmission.
      */
-    private int retryCount;
+    protected int retryCount;
 
     /**
      * A Boolean flag set to TRUE by the master machine if this node is the only known master node.
      */
-    private boolean soleMaster;
+    protected boolean soleMaster;
 
     /**
      * The number of tokens received by this node. When this counter reaches the value Npoll, the node
      * polls the address range between TS and NS for additional master nodes. TokenCount is set to one at
      * the end of the polling process.
      */
-    private int tokenCount;
+    protected int tokenCount;
 
-    private int maxMaster = Constants.MAX_MASTER;
+    protected int maxMaster = Constants.MAX_MASTER;
 
-    private int maxInfoFrames = Constants.MAX_INFO_FRAMES;
+    protected int maxInfoFrames = Constants.MAX_INFO_FRAMES;
 
-    private int usageTimeout = Constants.USAGE_TIMEOUT;
+    protected int usageTimeout = Constants.USAGE_TIMEOUT;
 
-    private MasterNodeState state;
+    protected MasterNodeState state;
 
-    private long replyDeadline;
-    private Frame replyFrame;
+    protected long replyDeadline;
+    protected Frame replyFrame;
 
     /**
      * Set to true the first time this node has received a token, indicating that it has joined the network.
@@ -109,7 +109,7 @@ public class MasterNode extends MstpNode {
         validate(retryCount);
     }
 
-    private void validate(final int retryCount) {
+    protected void validate(final int retryCount) {
         final int is = thisStation & 0xff;
         if (is > 127)
             throw new IllegalArgumentException("thisStation cannot be greater than 127");
@@ -215,7 +215,7 @@ public class MasterNode extends MstpNode {
             answerDataRequest();
     }
 
-    private void idle() {
+    protected void idle() {
         if (silence() >= Constants.NO_TOKEN) {
             // LostToken
             //            trace("idle:LostToken");
@@ -239,7 +239,7 @@ public class MasterNode extends MstpNode {
         }
     }
 
-    private void frame() {
+    protected void frame() {
         final FrameType type = frame.getFrameType();
 
         if (type == null) {
@@ -296,7 +296,7 @@ public class MasterNode extends MstpNode {
         }
     }
 
-    private void useToken() {
+    protected void useToken() {
         Frame frameToSend = null;
         synchronized (framesToSend) {
             if (!framesToSend.isEmpty())
@@ -305,9 +305,6 @@ public class MasterNode extends MstpNode {
 
         if (frameToSend == null) {
             // NothingToSend
-            //            debug("useToken:NothingToSend");
-            if (LOG.isDebugEnabled())
-                LOG.debug(thisStation + " useToken:NothingToSend");
             frameCount = maxInfoFrames;
             state = MasterNodeState.doneWithToken;
         } else {
@@ -332,7 +329,7 @@ public class MasterNode extends MstpNode {
         }
     }
 
-    private void waitForReply() {
+    protected void waitForReply() {
         if (silence() > Constants.REPLY_TIMEOUT) {
             // ReplyTimeout - assume that the request has failed
             //            debug("waitForReply:ReplyTimeout");
@@ -604,7 +601,7 @@ public class MasterNode extends MstpNode {
      * The ANSWER_DATA_REQUEST state is entered when a BACnet Data Expecting Reply, a Test_Request, or a proprietary
      * frame that expects a reply is received.
      */
-    private void answerDataRequest() {
+    protected void answerDataRequest() {
         synchronized (this) {
             if (replyFrame != null) {
                 // Reply

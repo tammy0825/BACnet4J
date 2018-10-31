@@ -47,10 +47,33 @@ The dependency information is:
 
 Releases
 ========
+*Version 4.1.7*
+- Add support for Relatime MS/TP linux realtime driver to handle token passing timing
+- Change Vendor ID to 865 Infinite Automation Systems, Inc.
+
+*Version 4.1.6*
+- change http to https in JCenter Bintray repo in pom.xml
+
+*Version 4.1.5*
+- Reduce PropertyUtils.requestPropertiesFromDevice timeout log message to info as this message can be generated quite often
+
+*Version 4.1.4*
+- Fix for wrong loop condition on getting id for local device 
+- Fixes for reading elements of priority array
+
+*Version 3.2.4*
+- Fixing bug in SerialPortWrapper where stop bits and data bits were reversed.
+
+*Version 3.2.3
+- Removed restriction on binding LocalDevice to 0.0.0.0
+- Added code to ensure DefaultTransport thread can't die from a bad expire() call
+- Added code to ServiceFutureImpl to allow using timeouts
+- Using timeouts in DefaultTransport for ServiceFutures
 
 *Version 3.2 release notes*
 - Added BBMD support
 - Much enhanced support for acting as a foreign device
+- Improved test framework
 
 *Version 3.0 release notes*
 - The ANT build system has been replaced with Gradle
@@ -70,4 +93,4 @@ The networking package of this product has been pretty much entirely rewritten t
 License
 =======
 
-This software is licensed under GPL. Commercial licensers can pay an upgrade fee to use this new version (2.x and later) commercially.
+This software is licensed under GPL. Commercial licensers can pay an upgrade fee to use this new version (2.x and later) commercially. Please contact Infinite Automation Systems Inc for more information on licensing: https://infiniteautomation.com/bacnet4j-open-source-bacnet-library/

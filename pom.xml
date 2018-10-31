@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.serotonin</groupId>
     <artifactId>bacnet4j</artifactId>
-    <version>4.1.5-SNAPSHOT</version>
+    <version>4.1.7-SNAPSHOT</version>
     <name>BACnet4j Library</name>
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,7 +80,7 @@
     <repositories>
 	   <repository>
 	      <id>jcenter</id>
-	      <url>http://jcenter.bintray.com </url>
+	      <url>https://jcenter.bintray.com </url>
 	      <snapshots>
 	        <enabled>false</enabled>
 	      </snapshots>
@@ -88,13 +88,35 @@
 	         <enabled>true</enabled>
 	         <checksumPolicy>warn</checksumPolicy>
 	      </releases>
-	   </repository>    
+	   </repository>
+	   <repository>
+	        <releases>
+	            <enabled>false</enabled>
+	        </releases>
+	        <snapshots>
+	            <enabled>true</enabled>
+	        </snapshots>
+	        <id>ias-snapshots</id>
+	        <name>IAS managed dependencies</name>
+			<url>https://maven.mangoautomation.net/repository/ias-snapshot/</url>
+    	</repository>
+		<repository>
+	        <releases>
+	            <enabled>true</enabled>
+	        </releases>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	        <id>ias-releases</id>
+	        <name>IAS managed dependencies</name>
+	        <url>https://maven.mangoautomation.net/repository/ias-release/</url>
+    	</repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>jcenter</id>
             <name>jcenter</name>
-            <url>http://jcenter.bintray.com </url>
+            <url>https://jcenter.bintray.com </url>
         </pluginRepository>
     </pluginRepositories>
     <dependencies>
