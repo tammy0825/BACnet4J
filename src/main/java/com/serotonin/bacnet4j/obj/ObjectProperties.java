@@ -1320,6 +1320,8 @@ public class ObjectProperties {
         add(ObjectType.device, PropertyIdentifier.profileLocation, CharacterString.class, false);
         add(ObjectType.device, PropertyIdentifier.deployedProfileLocation, CharacterString.class, false);
         add(ObjectType.device, PropertyIdentifier.profileName, CharacterString.class, false);
+        add(ObjectType.device, PropertyIdentifier.autoSlaveDiscovery, Boolean.class, false, 0);
+        add(ObjectType.device, PropertyIdentifier.slaveProxyEnable, Boolean.class, false, 0);
 
         // Elevator group - 12.58
         add(ObjectType.elevatorGroup, PropertyIdentifier.objectIdentifier, ObjectIdentifier.class, true);
