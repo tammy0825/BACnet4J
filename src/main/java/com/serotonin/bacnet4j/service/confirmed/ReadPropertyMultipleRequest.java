@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.obj.BACnetObject;
@@ -85,24 +84,20 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
         final List<ReadAccessResult> readAccessResults = new ArrayList<>();
         List<Result> results;
 
-        try {
-            for (final ReadAccessSpecification req : listOfReadAccessSpecs) {
-                results = new ArrayList<>();
-                oid = req.getObjectIdentifier();               
-                //Handling for unitialized device request. See 15.7.2 and standard test 135.1-2013 9.18.1.3
-                if (oid.getObjectType().equals(ObjectType.device) && oid.getInstanceNumber() == ObjectIdentifier.UNINITIALIZED) {
-                    oid = new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber());
-                }                
-                
-                obj = localDevice.getObjectRequired(oid);
-
-                for (final PropertyReference propRef : req.getListOfPropertyReferences())
-                    addProperty(obj, results, propRef.getPropertyIdentifier(), propRef.getPropertyArrayIndex());
-
-                readAccessResults.add(new ReadAccessResult(oid, new SequenceOf<>(results)));
+        for (final ReadAccessSpecification req : listOfReadAccessSpecs) {
+            results = new ArrayList<>();
+            oid = req.getObjectIdentifier();
+            //Handling for unitialized device request. See 15.7.2 and standard test 135.1-2013 9.18.1.3
+            if (oid.getObjectType().equals(ObjectType.device) && oid.getInstanceNumber() == ObjectIdentifier.UNINITIALIZED) {
+                oid = new ObjectIdentifier(ObjectType.device, localDevice.getInstanceNumber());
             }
-        } catch (final BACnetServiceException e) {
-            throw new BACnetErrorException(getChoiceId(), e);
+
+            obj = localDevice.getObject(oid);
+            for (final PropertyReference propRef : req.getListOfPropertyReferences()) {
+                addProperty(obj, results, propRef.getPropertyIdentifier(), propRef.getPropertyArrayIndex());
+            }
+
+            readAccessResults.add(new ReadAccessResult(oid, new SequenceOf<>(results)));
         }
 
         return new ReadPropertyMultipleAck(new SequenceOf<>(readAccessResults));
@@ -151,8 +146,10 @@ public class ReadPropertyMultipleRequest extends ConfirmedRequestService {
     }
 
     private static void addProperty(final BACnetObject obj, final List<Result> results, final PropertyIdentifier pid,
-            final UnsignedInteger pin) {
-        if (pid.intValue() == PropertyIdentifier.all.intValue()) {
+            final UnsignedInteger pin) {      
+        if (obj == null) {
+            results.add(new Result(pid, pin, new ErrorClassAndCode(ErrorClass.object, ErrorCode.unknownObject)));
+        } else if (pid.intValue() == PropertyIdentifier.all.intValue()) {
             for (final ObjectPropertyTypeDefinition def : ObjectProperties
                     .getObjectPropertyTypeDefinitions(obj.getId().getObjectType())) {
                 // Do not add the property list
