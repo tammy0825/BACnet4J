@@ -887,6 +887,10 @@ public class LocalDevice {
         return remoteDeviceCache.getEntities();
     }
 
+    public RemoteEntityCache<Integer, RemoteDevice> getRemoteDeviceCache() {
+        return remoteDeviceCache;
+    }
+
     private void rememberDeviceTimeout(final int instanceNumber) {
         synchronized (timeoutDevices) {
             timeoutDevices.put(instanceNumber, clock.millis() + timeoutDeviceRetention);
