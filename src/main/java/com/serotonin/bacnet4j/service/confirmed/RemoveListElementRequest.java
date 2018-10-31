@@ -37,6 +37,7 @@ import com.serotonin.bacnet4j.obj.ObjectProperties;
 import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.Encodable;
+import static com.serotonin.bacnet4j.type.Encodable.read;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
@@ -51,6 +52,7 @@ import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RemoveListElementRequest extends ConfirmedRequestService {
     public static final byte TYPE_ID = 9;
@@ -83,12 +85,27 @@ public class RemoveListElementRequest extends ConfirmedRequestService {
     }
 
     RemoveListElementRequest(final ByteQueue queue) throws BACnetException {
-        objectIdentifier = read(queue, ObjectIdentifier.class, 0);
-        propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
-        propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        final ObjectPropertyTypeDefinition def = ObjectProperties
-                .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
-        listOfElements = readSequenceOf(queue, def.getPropertyTypeDefinition().getClazz(), 3);
+        int errorIndex = 0;
+        try {
+            objectIdentifier = read(queue, ObjectIdentifier.class, 0);
+            propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
+            propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
+            // We have to encode the values here because we need the correct 
+            // errorIndex to fulfill the standard test 135.1-2013 9.14.2.3
+            final ObjectPropertyTypeDefinition def = ObjectProperties
+                    .getObjectPropertyTypeDefinition(objectIdentifier.getObjectType(), propertyIdentifier);
+            popStart(queue, 3);
+            List<Encodable> values = new ArrayList<>();
+            while (readEnd(queue) != 3) {
+                errorIndex++;
+                values.add(read(queue, def.getPropertyTypeDefinition().getClazz()));
+            }
+            popEnd(queue, 3);
+            listOfElements = new SequenceOf<>(values);
+        } catch (BACnetErrorException ex) {
+            ErrorClassAndCode errorClassAndCode = ex.getBacnetError().getError().getErrorClassAndCode();
+            throw createException(errorClassAndCode.getErrorClass(), errorClassAndCode.getErrorCode(), new UnsignedInteger(errorIndex));
+        }
     }
 
     @SuppressWarnings("unchecked")
