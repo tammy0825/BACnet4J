@@ -30,6 +30,8 @@ package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ServicesSupported extends BitString {
     public ServicesSupported() {
@@ -367,4 +369,31 @@ public class ServicesSupported extends BitString {
     public void setUnconfirmedCovNotificationMultiple(final boolean confirmedCovNotificationMultiple) {
         getValue()[43] = confirmedCovNotificationMultiple;
     }
+
+    @Override
+    public String toString() {
+        try {
+            StringBuilder result = new StringBuilder("ServicesSupported[");
+            Method[] methods = this.getClass().getDeclaredMethods();
+            boolean first = true;
+            for (Method method : methods) {
+                if (method.getReturnType() == boolean.class) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        result.append(", ");
+                    }
+                    result.append(method.getName().substring(2));
+                    result.append('=');
+                    result.append(method.invoke(this));
+                }
+            }
+            result.append(']');
+            return result.toString();
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            //Should never happen
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
+
 }
