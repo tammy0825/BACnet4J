@@ -61,6 +61,10 @@ public class AtomicReadFileAck extends AcknowledgementService {
         this.accessMethod = new Choice(1, recordAccess, choiceOptions);
     }
 
+    public static int getHeaderSize() {
+        return 3;
+    }
+    
     @Override
     public byte getChoiceId() {
         return TYPE_ID;
@@ -145,6 +149,10 @@ public class AtomicReadFileAck extends AcknowledgementService {
             fileData = read(queue, OctetString.class);
         }
 
+        public static int getHeaderSize() {
+            return 5;
+        }
+                
         public SignedInteger getFileStartPosition() {
             return fileStartPosition;
         }

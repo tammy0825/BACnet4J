@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.apdu.ConfirmedRequest;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.service.acknowledgement.CreateObjectAck;
@@ -51,13 +52,40 @@ public class RestoreClient {
     private final LocalDevice localDevice;
     private final int targetDeviceId;
     private final CharacterString password;
-
+    private final int recordsPerRequest;
+    private final int maxOctetsPerRequest;
+    
     public RestoreClient(final LocalDevice localDevice, final int targetDeviceId, final String password) {
         this.localDevice = localDevice;
         this.targetDeviceId = targetDeviceId;
         this.password = password == null ? null : new CharacterString(password);
+        this.recordsPerRequest = 5;
+        this.maxOctetsPerRequest = 128;
     }
 
+    
+    /**
+     * Constructor with communication parameters
+     * @param localDevice
+     * @param targetDeviceId
+     * @param password
+     * @param recordsPerRequest only for record-access relevant. 
+     * Record access files are written out as CRLF-delimited hex representations. 
+     * The choice of the number of records per request is arbitrary 
+     * because we don't know how big a record will be.
+     * @param maxOctetsPerRequest only for stram-access relevant. 
+     * Defines the maximum APDU size that is used. 
+     * The choice of the number of bytes per request 
+     * is based upon the max APDU size of the target.
+     */
+    public RestoreClient(final LocalDevice localDevice, final int targetDeviceId, final String password, int recordsPerRequest, int maxOctetsPerRequest) {
+        this.localDevice = localDevice;
+        this.targetDeviceId = targetDeviceId;
+        this.password = password == null ? null : new CharacterString(password);
+        this.recordsPerRequest = recordsPerRequest;
+        this.maxOctetsPerRequest = maxOctetsPerRequest;
+    }
+        
     /**
      * Start the restore procedure with a default timeout of 30s.
      */
@@ -93,58 +121,66 @@ public class RestoreClient {
                     PropertyIdentifier.restorePreparationTime);
             restorePreparationTimeSeconds = restorePreparationTime.intValue();
         } catch (final BACnetErrorException e) {
-            // Ignore unknown property.
+            // Ignore unknown property to support old devices.
             final ErrorClassAndCode ecac = e.getBacnetError().getError().getErrorClassAndCode();
             if (!ecac.equals(ErrorClass.property, ErrorCode.unknownProperty)) {
                 throw e;
             }
         }
 
-        // 19.1.3.1 - send a start restore request to the target device.
-        LOG.info("Sending start restore request...");
-        localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.startRestore, password)).get();
-
-        // 19.1.3.2
-        if (restorePreparationTimeSeconds > 0) {
-            // Sleep for the given amount of seconds.
-            LOG.info("Waiting for target device to complete restore preparation...");
-            ThreadUtils.sleep(restorePreparationTimeSeconds * 1000);
-        }
-
-        // Poll the backup state of the target, waiting for it to change to something actionable.
-        // It should already be preparingForRestore, and then change to either performingARestore or restoreFailure.
-        final long deadline = localDevice.getClock().millis() + restoreStateChangeTimeout;
-        while (true) {
-            LOG.info("Getting restore state...");
-            final BackupState backupState = RequestUtils.getProperty(localDevice, rd,
-                    PropertyIdentifier.backupAndRestoreState);
-
-            if (backupState.equals(BackupState.preparingForRestore)) {
-                LOG.info("Target is still preparing for restore...");
-                // Waiting for this to change. Pause for a moment.
-                ThreadUtils.sleep(1000);
-            } else if (backupState.equals(BackupState.performingARestore)) {
-                // Ready to perform the restore
-                LOG.info("Target is ready for restore...");
-                break;
-            } else if (backupState.equals(BackupState.restoreFailure)) {
-                throw new BACnetException("Target device reported a restore failure. Aborting restore.");
-            } else {
-                throw new BACnetException("Unexpected backup state reported by target device: " + backupState);
-            }
-
-            if (deadline < localDevice.getClock().millis()) {
-                LOG.info("Timeout waiting for backup state of target to change.");
-                throw new BACnetException("Timeout waiting for backup state of target to change.");
-            }
-        }
-
         try {
+            // 19.1.3.1 - send a start restore request to the target device.
+            LOG.info("Sending start restore request...");
+            localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.startRestore, password)).get();
+
+            // 19.1.3.2
+            if (restorePreparationTimeSeconds > 0) {
+                // Sleep for the given amount of seconds.
+                LOG.info("Waiting for target device to complete restore preparation...");
+                ThreadUtils.sleep(restorePreparationTimeSeconds * 1000);
+            }
+
+            // Poll the backup state of the target, waiting for it to change to something actionable.
+            // It should already be preparingForRestore, and then change to either performingARestore or restoreFailure.
+            final long deadline = localDevice.getClock().millis() + restoreStateChangeTimeout;
+            try {
+                while (true) {
+                    LOG.info("Getting restore state...");
+                    final BackupState backupState = RequestUtils.getProperty(localDevice, rd,
+                            PropertyIdentifier.backupAndRestoreState);
+
+                    if (backupState.equals(BackupState.preparingForRestore)) {
+                        LOG.info("Target is still preparing for restore...");
+                        // Waiting for this to change. Pause for a moment.
+                        ThreadUtils.sleep(1000);
+                    } else if (backupState.equals(BackupState.performingARestore)) {
+                        // Ready to perform the restore
+                        LOG.info("Target is ready for restore...");
+                        break;
+                    } else if (backupState.equals(BackupState.restoreFailure)) {
+                        throw new BACnetException("Target device reported a restore failure. Aborting restore.");
+                    } else {
+                        throw new BACnetException("Unexpected backup state reported by target device: " + backupState);
+                    }
+
+                    if (deadline < localDevice.getClock().millis()) {
+                        LOG.info("Timeout waiting for backup state of target to change.");
+                        throw new BACnetException("Timeout waiting for backup state of target to change.");
+                    }
+                }
+            } catch (final BACnetErrorException e) {
+                // Ignore unknown property to support old devices.
+                final ErrorClassAndCode ecac = e.getBacnetError().getError().getErrorClassAndCode();
+                if (!ecac.equals(ErrorClass.property, ErrorCode.unknownProperty)) {
+                    throw e;
+                }
+            }
+             
             copyFiles(files, rd);
 
             // 19.1.3.4
             localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.endRestore, password));
-        } catch (BACnetException | IOException e) {
+        } catch (BACnetException | IOException | ThreadUtils.UncheckedInterruptedException e) {
             // 19.1.3.4
             localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.abortRestore, password));
             throw e;
@@ -160,6 +196,14 @@ public class RestoreClient {
 
         LOG.info("Target reported {} configuration files", configurationFiles.size());
 
+        // The choice of the number of bytes per request is based upon the max APDU size of the target. 
+        // This parameter is only relevant for streamAccess.
+        int octetsPerRequest = rd.getMaxAPDULengthAccepted() - ConfirmedRequest.getHeaderSize(true) - AtomicWriteFileRequest.getHeaderSize() - AtomicWriteFileRequest.StreamAccess.getHeaderSize();
+        if (octetsPerRequest > maxOctetsPerRequest) {
+            octetsPerRequest = maxOctetsPerRequest;
+        }
+        LOG.debug("With streamAccess, {} octets per Request can be transmitted", octetsPerRequest);
+        
         for (final File file : files) {
             // Find a matching file object.
             final int fileNumber = toFileInstanceNumber(file);
@@ -201,7 +245,7 @@ public class RestoreClient {
                     boolean done = false;
                     while (!done) {
                         final SequenceOf<OctetString> records = new SequenceOf<>();
-                        while (records.size() < 5) {
+                        while (records.size() < recordsPerRequest) {
                             final String line = in.readLine();
                             if (line == null) {
                                 // EOF
@@ -210,7 +254,7 @@ public class RestoreClient {
                             }
                             records.add(new OctetString(ArrayUtils.fromPlainHexString(line)));
                         }
-
+                        
                         if (records.size() > 0) {
                             reqCount++;
                             final AtomicWriteFileRequest req = new AtomicWriteFileRequest(fileOid, new RecordAccess(
@@ -225,7 +269,7 @@ public class RestoreClient {
                 // Empty the existing file by writing a file size of 0.
                 RequestUtils.writeProperty(localDevice, rd, fileOid, PropertyIdentifier.fileSize, UnsignedInteger.ZERO);
 
-                final byte[] buffer = new byte[128];
+                final byte[] buffer = new byte[octetsPerRequest];
                 int currentPosition = 0;
                 try (FileInputStream in = new FileInputStream(file)) {
                     while (true) {

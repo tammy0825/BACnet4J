@@ -90,6 +90,10 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
         write(queue, accessMethod);
     }
 
+    public static int getHeaderSize() {
+        return 7;
+    }
+
     @Override
     public byte getChoiceId() {
         return TYPE_ID;
@@ -218,6 +222,10 @@ public class AtomicWriteFileRequest extends ConfirmedRequestService {
             write(queue, fileData);
         }
 
+        public static int getHeaderSize() {
+            return 5;
+        }
+                
         public SignedInteger getFileStartPosition() {
             return fileStartPosition;
         }
