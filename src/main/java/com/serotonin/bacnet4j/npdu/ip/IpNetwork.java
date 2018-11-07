@@ -58,6 +58,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Use IpNetworkBuilder to create.
@@ -81,6 +82,7 @@ public class IpNetwork extends Network implements Runnable {
     private List<BDTEntry> broadcastDistributionTable = new ArrayList<>();
     final List<FDTEntry> foreignDeviceTable = new CopyOnWriteArrayList<>();
     private ScheduledFuture<?> ftdMaintenance;
+    private final AtomicBoolean bbmdEnabled = new AtomicBoolean(false);
 
     // When acting as a foreign device...
     final Object foreignBBMDLock = new Object();
@@ -357,8 +359,15 @@ public class IpNetwork extends Network implements Runnable {
         NPDU npdu = null;
         if (function == 0x0) {
             final int result = BACnetUtils.popShort(queue);
-            if (result == 0x30)
+
+           if (result == 0x10)
+                LOG.error("Write-Broadcast-Distrubution-Table failed!");  
+           else if (result == 0x20)
+                LOG.error("Read-Broadcast-Distrubution-Table failed!");
+            else if (result == 0x30)
                 LOG.error("Register-Foreign-Device failed!");
+            else if (result == 0x40)
+                LOG.error("Read-Foreign-Device-Table failed!");
             else if (result == 0x50)
                 LOG.error("Delete-Foreign-Device-Table-Entry failed!");
             else if (result == 0x60)
@@ -556,55 +565,62 @@ public class IpNetwork extends Network implements Runnable {
         response.push(0); // Result
         response.pushU2B(6); // Length
 
-        try {
-            final List<BDTEntry> list = new ArrayList<>();
+        if (bbmdEnabled.get()) {
+            try {
+                final List<BDTEntry> list = new ArrayList<>();
 
-            while (queue.size() > 0) {
-                final BDTEntry e = new BDTEntry();
-                e.address = new byte[4];
-                queue.pop(e.address);
-                e.port = queue.popU2B();
-                e.distributionMask = new byte[4];
-                queue.pop(e.distributionMask);
-                list.add(e);
+                while (queue.size() > 0) {
+                    final BDTEntry e = new BDTEntry();
+                    e.address = new byte[4];
+                    queue.pop(e.address);
+                    e.port = queue.popU2B();
+                    e.distributionMask = new byte[4];
+                    queue.pop(e.distributionMask);
+                    list.add(e);
+                }
+
+                // Successfully read. Replace the current BDT.
+                broadcastDistributionTable = list;
+
+                response.pushU2B(0); // Ok
+            } catch (final Exception e) {
+                LOG.error("BDT write failed", e);
+                response.pushU2B(0x10); // NAK
             }
-
-            // Successfully read. Replace the current BDT.
-            broadcastDistributionTable = list;
-
-            response.pushU2B(0); // Ok
-        } catch (final Exception e) {
-            LOG.error("BDT write failed", e);
-            response.pushU2B(0x10); // NAK
+        } else {
+            response.pushU2B(0x10); // NAK  
         }
-
         sendPacket(IpNetworkUtils.getInetSocketAddress(origin), response.popAll());
     }
 
     private void readBDT(final OctetString origin) throws BACnetException {
         final ByteQueue response = new ByteQueue();
         response.push(BVLC_TYPE);
+        if (bbmdEnabled.get()) {
+            try {
+                final ByteQueue list = new ByteQueue();
 
-        try {
-            final ByteQueue list = new ByteQueue();
+                for (final BDTEntry e : broadcastDistributionTable) {
+                    list.push(e.address);
+                    list.pushU2B(e.port);
+                    list.push(e.distributionMask);
+                }
 
-            for (final BDTEntry e : broadcastDistributionTable) {
-                list.push(e.address);
-                list.pushU2B(e.port);
-                list.push(e.distributionMask);
+                // Successfully written.
+                response.push(3); // Read-Broadcast-Distribution-Table-Ack
+                response.pushU2B(4 + list.size()); // Length
+                response.push(list); // List
+            } catch (final Exception e) {
+                LOG.error("BDT read failed", e);
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x20); // NAK
             }
-
-            // Successfully written.
-            response.push(3); // Read-Broadcast-Distribution-Table-Ack
-            response.pushU2B(4 + list.size()); // Length
-            response.push(list); // List
-        } catch (final Exception e) {
-            LOG.error("BDT read failed", e);
-            response.push(0); // Result
-            response.pushU2B(6); // Length
-            response.pushU2B(0x20); // NAK
+        } else {
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x20); // NAK
         }
-
         sendPacket(IpNetworkUtils.getInetSocketAddress(origin), response.popAll());
     }
 
@@ -713,55 +729,59 @@ public class IpNetwork extends Network implements Runnable {
         response.push(0); // Response type
         response.pushU2B(6); // Length
 
-        final int timeToLive = queue.popU2B();
-        if (timeToLive < 1)
-            response.pushU2B(0x30); // NAK
-        else {
-            // Check if the device is already in the list. If so, update its start time. Otherwise, add it.
-            FDTEntry fd = null;
-            synchronized (foreignDeviceTable) {
-                for (final FDTEntry e : foreignDeviceTable) {
-                    if (e.address.equals(origin)) {
-                        fd = e;
-                        break;
+        if (bbmdEnabled.get()) {
+            final int timeToLive = queue.popU2B();
+            if (timeToLive < 1) {
+                response.pushU2B(0x30); // NAK
+            } else {
+                // Check if the device is already in the list. If so, update its start time. Otherwise, add it.
+                FDTEntry fd = null;
+                synchronized (foreignDeviceTable) {
+                    for (final FDTEntry e : foreignDeviceTable) {
+                        if (e.address.equals(origin)) {
+                            fd = e;
+                            break;
+                        }
                     }
-                }
 
-                if (fd == null) {
-                    // Add the FDT entry
-                    fd = new FDTEntry();
-                    fd.address = origin;
-                    foreignDeviceTable.add(fd);
+                    if (fd == null) {
+                        // Add the FDT entry
+                        fd = new FDTEntry();
+                        fd.address = origin;
+                        foreignDeviceTable.add(fd);
 
-                    if (ftdMaintenance == null) {
-                        // Add a job to expire foreign device registrations.
-                        ftdMaintenance = getTransport().getLocalDevice().scheduleAtFixedRate(() -> {
-                            final long now = getTransport().getLocalDevice().getClock().millis();
+                        if (ftdMaintenance == null) {
+                            // Add a job to expire foreign device registrations.
+                            ftdMaintenance = getTransport().getLocalDevice().scheduleAtFixedRate(() -> {
+                                final long now = getTransport().getLocalDevice().getClock().millis();
 
-                            synchronized (foreignDeviceTable) {
-                                final List<FDTEntry> toRemove = new ArrayList<>();
+                                synchronized (foreignDeviceTable) {
+                                    final List<FDTEntry> toRemove = new ArrayList<>();
 
-                                for (final FDTEntry e : foreignDeviceTable) {
-                                    if (e.endTime < now) {
-                                        LOG.debug("Removing expired foreign device: " + e);
-                                        toRemove.add(e);
+                                    for (final FDTEntry e : foreignDeviceTable) {
+                                        if (e.endTime < now) {
+                                            LOG.debug("Removing expired foreign device: " + e);
+                                            toRemove.add(e);
+                                        }
+                                    }
+
+                                    if (!toRemove.isEmpty()) {
+                                        foreignDeviceTable.removeAll(toRemove);
                                     }
                                 }
-
-                                if (!toRemove.isEmpty())
-                                    foreignDeviceTable.removeAll(toRemove);
-                            }
-                        }, 10, 10, TimeUnit.SECONDS);
+                            }, 10, 10, TimeUnit.SECONDS);
+                        }
                     }
                 }
+
+                fd.timeToLive = timeToLive;
+                fd.endTime = getTransport().getLocalDevice().getClock().millis() + (timeToLive + 30) * 1000; // Adds a 30-second grace period, as per J.5.2.3
+
+                response.pushU2B(0); // Success
             }
-
-            fd.timeToLive = timeToLive;
-            fd.endTime = getTransport().getLocalDevice().getClock().millis() + (timeToLive + 30) * 1000; // Adds a 30-second grace period, as per J.5.2.3
-
-            response.pushU2B(0); // Success
+        } else {
+            response.pushU2B(0x30); // NAK
         }
-
         sendPacket(origin, response.popAll());
     }
 
@@ -769,30 +789,36 @@ public class IpNetwork extends Network implements Runnable {
         final ByteQueue response = new ByteQueue();
         response.push(BVLC_TYPE);
 
-        final long now = getTransport().getLocalDevice().getClock().millis();
-        try {
-            final ByteQueue list = new ByteQueue();
+        if (bbmdEnabled.get()) {
+            final long now = getTransport().getLocalDevice().getClock().millis();
+            try {
+                final ByteQueue list = new ByteQueue();
 
-            for (final FDTEntry e : foreignDeviceTable) {
-                pushISA(list, e.address);
-                list.pushU2B(e.timeToLive);
+                for (final FDTEntry e : foreignDeviceTable) {
+                    pushISA(list, e.address);
+                    list.pushU2B(e.timeToLive);
 
-                int remaining = (int) (e.endTime - now) / 1000;
-                if (remaining < 0)
+                    int remaining = (int) (e.endTime - now) / 1000;
+                    if (remaining < 0) 
                     // Hasn't yet been cleaned up.
-                    remaining = 0;
-                if (remaining > 65535)
-                    remaining = 65535;
+                        remaining = 0;
+                    if (remaining > 65535)
+                        remaining = 65535;
 
-                list.pushU2B(remaining);
+                    list.pushU2B(remaining);
+                }
+
+                // Successfully written.
+                response.push(7); // Read-Foreign-Device-Table-Ack
+                response.pushU2B(4 + list.size()); // Length
+                response.push(list); // List
+            } catch (final Exception e) {
+                LOG.error("FDT read failed", e);
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x40); // NAK
             }
-
-            // Successfully written.
-            response.push(7); // Read-Foreign-Device-Table-Ack
-            response.pushU2B(4 + list.size()); // Length
-            response.push(list); // List
-        } catch (final Exception e) {
-            LOG.error("FDT read failed", e);
+        } else {
             response.push(0); // Result
             response.pushU2B(6); // Length
             response.pushU2B(0x40); // NAK
@@ -955,4 +981,12 @@ public class IpNetwork extends Network implements Runnable {
         pushISA(queue, fdtEntry);
         sendPacket(addr, queue.popAll());
     }
+    
+    /**
+     * Enable BBMD support. Allow other device to register as BBMD or foreign device. *
+     */
+    public void enableBBMD() {
+        bbmdEnabled.set(true);
+    }
+
 }

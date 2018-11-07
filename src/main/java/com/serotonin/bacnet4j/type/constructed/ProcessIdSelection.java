@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -72,6 +73,14 @@ public class ProcessIdSelection extends BaseType {
     }
 
     public Unsigned32 getProcessIdentifier() {
+        return choice.getDatum();
+    }
+
+    public Choice getChoice() {
+        return choice;
+    }
+
+    public <T extends Encodable> T getValue() {
         return choice.getDatum();
     }
 

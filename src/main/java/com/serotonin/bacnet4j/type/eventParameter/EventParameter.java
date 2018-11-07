@@ -66,6 +66,10 @@ public class EventParameter extends BaseType {
         choice = new Choice(choiceOptions.getContextId(parameters.getClass(), false), parameters, choiceOptions);
     }
 
+    public EventParameter() {
+        choice = new Choice(choiceOptions.getContextId(Null.instance.getClass(), false), Null.instance, choiceOptions);
+    }
+        
     @Override
     public void write(final ByteQueue queue) {
         write(queue, choice);
@@ -81,5 +85,10 @@ public class EventParameter extends BaseType {
 
     public EventType getEventType() {
         return EventType.forId(choice.getContextId());
+    }
+
+    @Override
+    public String toString() {
+        return "EventParameter[ choice=" + choice + ']';
     }
 }

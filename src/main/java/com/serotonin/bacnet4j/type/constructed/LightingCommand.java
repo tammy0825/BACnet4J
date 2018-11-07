@@ -55,19 +55,19 @@ public class LightingCommand extends BaseType {
     @Override
     public void write(final ByteQueue queue) {
         write(queue, operation, 0);
-        write(queue, targetLevel, 1);
-        write(queue, rampRate, 2);
-        write(queue, stepIncrement, 3);
-        write(queue, fadeTime, 4);
+        writeOptional(queue, targetLevel, 1);
+        writeOptional(queue, rampRate, 2);
+        writeOptional(queue, stepIncrement, 3);
+        writeOptional(queue, fadeTime, 4);
         writeOptional(queue, priority, 5);
     }
 
     public LightingCommand(final ByteQueue queue) throws BACnetException {
         operation = read(queue, LightingOperation.class, 0);
-        targetLevel = read(queue, Real.class, 1);
-        rampRate = read(queue, Real.class, 2);
-        stepIncrement = read(queue, Real.class, 3);
-        fadeTime = read(queue, UnsignedInteger.class, 4);
+        targetLevel = readOptional(queue, Real.class, 1);
+        rampRate = readOptional(queue, Real.class, 2);
+        stepIncrement = readOptional(queue, Real.class, 3);
+        fadeTime = readOptional(queue, UnsignedInteger.class, 4);
         priority = readOptional(queue, UnsignedInteger.class, 5);
     }
 

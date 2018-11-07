@@ -72,7 +72,7 @@ public class RemoteDeviceFinderTest {
         assertEquals(2, discovered61.getInstanceNumber());
 
         // Ensure extended information
-        assertEquals(236, discovered1.getVendorIdentifier());
+        assertEquals(865, discovered1.getVendorIdentifier());
 
         assertEquals(0, d1.getEventHandler().getListenerCount());
         assertEquals(0, d2.getEventHandler().getListenerCount());

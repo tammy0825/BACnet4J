@@ -96,14 +96,14 @@ abstract public class Primitive extends Encodable {
         if (typeId == ObjectIdentifier.TYPE_ID)
             return new ObjectIdentifier(queue);
 
-        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidParameterDataType);
+        throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
     }
 
     public static int getPrimitiveTypeId(final byte firstByte) {
         // Get the first byte. The 4 high-order bits will tell us what the data type is.
-        final byte b = (byte) ((firstByte & 0xff) >> 4);
-        if (b >= Null.TYPE_ID && b <= ObjectIdentifier.TYPE_ID)
-            return b & 0xff;
+        final int typeId = (int) ((firstByte & 0xff) >> 4);
+        if (isPrimitive(typeId))
+            return typeId;
         return -1;
     }
 
@@ -111,6 +111,10 @@ abstract public class Primitive extends Encodable {
         return getPrimitiveTypeId(firstByte) != -1;
     }
 
+    public static boolean isPrimitive(int typeId){
+        return typeId >= Null.TYPE_ID && typeId <= ObjectIdentifier.TYPE_ID;
+    }
+    
     @Override
     public void write(final ByteQueue queue) {
         writeTag(queue, getTypeId(), false, getLength());
@@ -169,16 +173,21 @@ abstract public class Primitive extends Encodable {
         }
     }
 
-    protected long readTag(final ByteQueue queue) {
+    protected long readTag(final ByteQueue queue, byte type_Id) throws BACnetErrorException {
         final byte b = queue.pop();
         int tagNumber = (b & 0xff) >> 4;
-        //        contextSpecific = (b & 8) != 0;
+        boolean contextSpecific = (b & 8) != 0;
         long length = b & 7;
 
         if (tagNumber == 0xf)
             // Extended tag.
             tagNumber = queue.popU1B();
 
+         //if the tagNumber its not contextSpecific, validate the type
+        if (!contextSpecific && tagNumber != type_Id){
+            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);           
+        }       
+        
         if (length == 5) {
             length = queue.popU1B();
             if (length == 254)

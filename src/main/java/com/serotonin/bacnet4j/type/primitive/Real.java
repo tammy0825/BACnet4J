@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -47,8 +48,8 @@ public class Real extends Primitive {
     //
     // Reading and writing
     //
-    public Real(final ByteQueue queue) {
-        readTag(queue);
+    public Real(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
         value = Float.intBitsToFloat(BACnetUtils.popInt(queue));
     }
 

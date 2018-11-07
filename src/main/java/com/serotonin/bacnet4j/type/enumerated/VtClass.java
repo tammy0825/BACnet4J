@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class VtClass extends Enumerated {
         super(value);
     }
 
-    public VtClass(final ByteQueue queue) {
+    public VtClass(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

@@ -99,4 +99,9 @@ public class ChangeOfStatusFlags extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfStatusFlags[ timeDelay=" + timeDelay + ", selectedFlags=" + selectedFlags + ']';
+    }
 }

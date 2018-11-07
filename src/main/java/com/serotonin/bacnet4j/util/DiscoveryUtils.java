@@ -55,6 +55,7 @@ public class DiscoveryUtils {
         addIfMissing(d, properties, PropertyIdentifier.protocolVersion);
         addIfMissing(d, properties, PropertyIdentifier.vendorIdentifier);
         addIfMissing(d, properties, PropertyIdentifier.modelName);
+        addIfMissing(d, properties, PropertyIdentifier.maxSegmentsAccepted);
 
         if (properties.size() > 0) {
             // Only send a request if we have to.

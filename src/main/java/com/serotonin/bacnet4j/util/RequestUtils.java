@@ -177,8 +177,8 @@ public class RequestUtils {
                 callback.progress(1, d.getInstanceNumber(), oid, pid, propertyArrayIndex, ack.getValue());
             return ack.getValue();
         } catch (final AbortAPDUException e) {
-            if (e.getApdu().getAbortReason() == AbortReason.bufferOverflow.intValue()
-                    || e.getApdu().getAbortReason() == AbortReason.segmentationNotSupported.intValue()) {
+            if (e.getApdu().getAbortReason().equals(AbortReason.bufferOverflow)
+                    || e.getApdu().getAbortReason().equals(AbortReason.segmentationNotSupported)) {
                 // The response may be too long to send. If the property is a sequence...
                 if (ObjectProperties.getObjectPropertyTypeDefinition(oid.getObjectType(), pid)
                         .getPropertyTypeDefinition().isCollection()) {

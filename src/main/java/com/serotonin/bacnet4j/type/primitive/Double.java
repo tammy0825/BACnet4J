@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -47,8 +48,8 @@ public class Double extends Primitive {
     //
     // Reading and writing
     //
-    public Double(final ByteQueue queue) {
-        readTag(queue);
+    public Double(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
         value = java.lang.Double.longBitsToDouble(BACnetUtils.popLong(queue));
     }
 

@@ -116,4 +116,9 @@ public class ChangeOfBitString extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfBitString[ timeDelay=" + timeDelay + ", bitMask=" + bitMask + ", listOfBitstringValues=" + listOfBitstringValues + ']';
+    }
 }

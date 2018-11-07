@@ -34,6 +34,7 @@ import java.util.GregorianCalendar;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.DateMatchable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -45,6 +46,8 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
     public static final int UNSPECIFIED_YEAR = 255;
     public static final int UNSPECIFIED_DAY = 255;
     public static final int LAST_DAY_OF_MONTH = 32;
+    public static final int ODD_DAYS = 33;
+    public static final int EVEN_DAYS = 34;
     public static final Date UNSPECIFIED = new Date(-1, Month.UNSPECIFIED, -1, DayOfWeek.UNSPECIFIED);
 
     public static final byte TYPE_ID = 10;
@@ -64,7 +67,7 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
 
         if (day == -1)
             this.day = UNSPECIFIED_DAY;
-        else if ((day < 1 || day > LAST_DAY_OF_MONTH) && day != UNSPECIFIED_DAY)
+        else if ((day < 1 || day > EVEN_DAYS) && day != UNSPECIFIED_DAY)
             throw new BACnetRuntimeException("Invalid day value");
         else
             this.day = day;
@@ -113,6 +116,14 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
         return day == LAST_DAY_OF_MONTH;
     }
 
+    public boolean isOddDays() {
+        return day == ODD_DAYS;
+    }
+
+    public boolean isEvenDays() {
+        return day == EVEN_DAYS;
+    }
+            
     public int getDay() {
         return day;
     }
@@ -135,7 +146,7 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
             return false;
         if (!month.isSpecific())
             return false;
-        if (day == UNSPECIFIED_DAY || day == LAST_DAY_OF_MONTH)
+        if (day == UNSPECIFIED_DAY || day == LAST_DAY_OF_MONTH || day == ODD_DAYS || day == EVEN_DAYS)
             return false;
         return true;
     }
@@ -181,6 +192,20 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
             final GregorianCalendar gc = that.calculateGC();
             final int lastDay = gc.getActualMaximum(Calendar.DATE);
             return lastDay == that.day;
+        }
+        if (day == ODD_DAYS) {
+            final GregorianCalendar gc = that.calculateGC();
+            int day = gc.get(Calendar.DAY_OF_MONTH);
+            if (day % 2 != 0) {
+                return true;
+            }
+        }
+        if (day == EVEN_DAYS) {
+            final GregorianCalendar gc = that.calculateGC();
+            int day = gc.get(Calendar.DAY_OF_MONTH);
+            if (day % 2 == 0) {
+                return true;
+            }
         }
         return day == that.day;
     }
@@ -326,8 +351,8 @@ public class Date extends Primitive implements Comparable<Date>, DateMatchable {
     //
     // Reading and writing
     //
-    public Date(final ByteQueue queue) {
-        readTag(queue);
+    public Date(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
         year = queue.popU1B();
         month = Month.valueOf(queue.pop());
         day = queue.popU1B();

@@ -65,6 +65,11 @@ public class ChangeOfStatusFlagsNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfStatusFlagsNotif[ presentValue=" + presentValue + ", referencedFlags=" + referencedFlags + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

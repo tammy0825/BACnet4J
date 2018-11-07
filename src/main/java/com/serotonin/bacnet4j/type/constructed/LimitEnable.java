@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -36,7 +37,7 @@ public class LimitEnable extends BitString {
         super(new boolean[] { lowLimitEnable, highLimitEnable });
     }
 
-    public LimitEnable(final ByteQueue queue) {
+    public LimitEnable(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 
@@ -46,5 +47,10 @@ public class LimitEnable extends BitString {
 
     public boolean isHighLimitEnable() {
         return getValue()[1];
+    }
+    
+    @Override
+    public String toString() {
+        return "LimitEnable [low-limit-enable=" + isLowLimitEnable() + ", high-limit-enable=" + isHighLimitEnable() + "]";
     }
 }

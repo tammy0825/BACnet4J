@@ -36,6 +36,7 @@ import java.util.Map;
 
 import com.serotonin.bacnet4j.enums.DayOfWeek;
 import com.serotonin.bacnet4j.enums.Month;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.type.DateMatchable;
 import com.serotonin.bacnet4j.type.primitive.Date;
@@ -93,7 +94,7 @@ public class WeekNDay extends OctetString implements DateMatchable {
             super(value);
         }
 
-        public WeekOfMonth(final ByteQueue queue) {
+        public WeekOfMonth(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 
@@ -137,7 +138,7 @@ public class WeekNDay extends OctetString implements DateMatchable {
         return DayOfWeek.valueOf(getBytes()[2]);
     }
 
-    public WeekNDay(final ByteQueue queue) {
+    public WeekNDay(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 
@@ -179,4 +180,10 @@ public class WeekNDay extends OctetString implements DateMatchable {
         final int lastDay = gc.getActualMaximum(Calendar.DATE);
         return day >= lastDay - 6 && day <= lastDay;
     }
+
+    @Override
+    public String toString() {
+        return "WeekNDay [Month=" + getMonth() + ", WeekOfMonth=" + getWeekOfMonth() + ", DayOfWeek=" + getDayOfWeek() + "]";
+    }
+
 }

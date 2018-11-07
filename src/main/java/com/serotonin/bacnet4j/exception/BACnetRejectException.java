@@ -36,9 +36,15 @@ public class BACnetRejectException extends BACnetException {
     private final RejectReason rejectReason;
 
     public BACnetRejectException(RejectReason rejectReason) {
+        super(rejectReason.toString());
         this.rejectReason = rejectReason;
     }
 
+    public BACnetRejectException(RejectReason rejectReason, Throwable cause) {
+        super(rejectReason.toString(), cause);
+        this.rejectReason = rejectReason;
+    }
+    
     public RejectReason getRejectReason() {
         return rejectReason;
     }

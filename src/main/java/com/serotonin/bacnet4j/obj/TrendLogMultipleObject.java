@@ -440,7 +440,7 @@ public class TrendLogMultipleObject extends BACnetObject {
             try {
                 // Do the poll.
                 doPoll();
-                LOG.info("Trigger complete");
+                LOG.debug("Trigger complete");
             } finally {
                 // Set the trigger value back to false.
                 writePropertyInternal(PropertyIdentifier.trigger, Boolean.FALSE);

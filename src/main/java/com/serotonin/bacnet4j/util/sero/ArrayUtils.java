@@ -39,7 +39,7 @@ public class ArrayUtils {
         if (len == 0)
             return "[]";
 
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append('[');
         sb.append(Integer.toHexString(bytes[start] & 0xff));
         for (int i = 1; i < len; i++)
@@ -54,7 +54,7 @@ public class ArrayUtils {
     }
 
     public static String toPlainHexString(final byte[] bytes, final int start, final int len) {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < len; i++) {
             final String s = Integer.toHexString(bytes[start + i] & 0xff);
             if (s.length() < 2)
@@ -80,7 +80,7 @@ public class ArrayUtils {
         if (len == 0)
             return "[]";
 
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append('[');
         sb.append(Integer.toString(bytes[start] & 0xff));
         for (int i = 1; i < len; i++)

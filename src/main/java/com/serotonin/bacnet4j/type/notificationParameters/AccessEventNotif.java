@@ -33,20 +33,21 @@ import com.serotonin.bacnet4j.type.constructed.AuthenticationFactor;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectReference;
 import com.serotonin.bacnet4j.type.constructed.StatusFlags;
 import com.serotonin.bacnet4j.type.constructed.TimeStamp;
+import com.serotonin.bacnet4j.type.enumerated.AccessEvent;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class AccessEventNotif extends AbstractNotificationParameter {
     public static final byte TYPE_ID = 13;
 
-    private final AccessEventNotif accessEvent;
+    private final AccessEvent accessEvent;
     private final StatusFlags statusFlags;
     private final UnsignedInteger accessEventTag;
     private final TimeStamp accessEventTime;
     private final DeviceObjectReference accessCredential;
     private final AuthenticationFactor authenticationFactor;
 
-    public AccessEventNotif(final AccessEventNotif accessEvent, final StatusFlags statusFlags,
+    public AccessEventNotif(final AccessEvent accessEvent, final StatusFlags statusFlags,
             final UnsignedInteger accessEventTag, final TimeStamp accessEventTime,
             final DeviceObjectReference accessCredential, final AuthenticationFactor authenticationFactor) {
         this.accessEvent = accessEvent;
@@ -68,7 +69,7 @@ public class AccessEventNotif extends AbstractNotificationParameter {
     }
 
     public AccessEventNotif(final ByteQueue queue) throws BACnetException {
-        accessEvent = read(queue, AccessEventNotif.class, 0);
+        accessEvent = read(queue, AccessEvent.class, 0);
         statusFlags = read(queue, StatusFlags.class, 1);
         accessEventTag = read(queue, UnsignedInteger.class, 2);
         accessEventTime = read(queue, TimeStamp.class, 3);
@@ -76,7 +77,7 @@ public class AccessEventNotif extends AbstractNotificationParameter {
         authenticationFactor = readOptional(queue, AuthenticationFactor.class, 5);
     }
 
-    public AccessEventNotif getAccessEvent() {
+    public AccessEvent getAccessEvent() {
         return accessEvent;
     }
 
@@ -100,6 +101,11 @@ public class AccessEventNotif extends AbstractNotificationParameter {
         return authenticationFactor;
     }
 
+    @Override
+    public String toString() {
+        return "AccessEventNotif[ accessEvent=" + accessEvent + ", statusFlags=" + statusFlags + ", accessEventTag=" + accessEventTag + ", accessEventTime=" + accessEventTime + ", accessCredential=" + accessCredential + ", authenticationFactor=" + authenticationFactor + ']';
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;

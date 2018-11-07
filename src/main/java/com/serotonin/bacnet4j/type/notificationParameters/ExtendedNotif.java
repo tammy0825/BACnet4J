@@ -32,6 +32,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.DeviceObjectPropertyReference;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -102,9 +103,14 @@ public class ExtendedNotif extends AbstractNotificationParameter {
         }
 
         public Parameter(final ByteQueue queue) throws BACnetException {
-            reference = readOptional(queue, DeviceObjectPropertyReference.class, 0);
-            if (reference == null)
-                primitive = Primitive.createPrimitive(queue);
+            if (queue.peek(0) == 0) {
+                primitive = new Null(queue);
+            } else {
+                reference = readOptional(queue, DeviceObjectPropertyReference.class, 0);
+                if (reference == null) {
+                    primitive = Primitive.createPrimitive(queue);
+                }
+            }
         }
 
         @Override

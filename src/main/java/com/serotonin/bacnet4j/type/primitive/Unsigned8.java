@@ -28,18 +28,33 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.math.BigInteger;
 
 public class Unsigned8 extends UnsignedInteger {
     private static final int MAX = 0xff;
+    private static final BigInteger BIGMAX = BigInteger.valueOf(MAX);
 
     public Unsigned8(final int value) {
         super(value);
-        if (value > MAX)
+        if (value > MAX) {
             throw new IllegalArgumentException("Value cannot be greater than " + MAX);
+        }
     }
 
-    public Unsigned8(final ByteQueue queue) {
+    public Unsigned8(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
+        if (super.isSmallValue()) {
+            if (super.intValue() > MAX) {
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.valueOutOfRange);
+            }
+        } else {
+            if (super.bigIntegerValue().compareTo(BIGMAX) > 0) {
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.valueOutOfRange);
+            }
+        }
     }
 }

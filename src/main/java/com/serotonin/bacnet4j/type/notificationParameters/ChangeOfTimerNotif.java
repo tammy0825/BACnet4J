@@ -101,6 +101,11 @@ public class ChangeOfTimerNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfTimerNotif[ newState=" + newState + ", statusFlags=" + statusFlags + ", updateTime=" + updateTime + ", lastStateChange=" + lastStateChange + ", initialTimeout=" + initialTimeout + ", expirationTime=" + expirationTime + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

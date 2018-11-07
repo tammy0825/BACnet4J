@@ -114,4 +114,9 @@ public class UnsignedRange extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "UnsignedRange[ timeDelay=" + timeDelay + ", lowLimit=" + lowLimit + ", highLimit=" + highLimit + ']';
+    }
 }

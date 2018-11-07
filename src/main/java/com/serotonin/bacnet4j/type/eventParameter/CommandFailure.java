@@ -106,4 +106,9 @@ public class CommandFailure extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "CommandFailure[ timeDelay=" + timeDelay + ", feedbackPropertyReference=" + feedbackPropertyReference + ']';
+    }
 }

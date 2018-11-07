@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Null extends Primitive {
@@ -39,8 +40,8 @@ public class Null extends Primitive {
         // no op
     }
 
-    public Null(final ByteQueue queue) {
-        readTag(queue);
+    public Null(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
     }
 
     @Override

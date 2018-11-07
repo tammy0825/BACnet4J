@@ -48,13 +48,18 @@ public class ComplexEventTypeNotif extends AbstractNotificationParameter {
     }
 
     public ComplexEventTypeNotif(final ByteQueue queue) throws BACnetException {
-        values = readSequenceOf(queue, PropertyValue.class);
+        values = new SequenceOf(queue, PropertyValue.class, 6);
     }
 
     public SequenceOf<PropertyValue> getValues() {
         return values;
     }
 
+    @Override
+    public String toString() {
+        return "ComplexEventTypeNotif[ values=" + values + ']';
+    }
+    
     @Override
     public int hashCode() {
         final int PRIME = 31;

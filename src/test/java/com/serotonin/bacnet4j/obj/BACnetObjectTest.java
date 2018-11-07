@@ -24,8 +24,10 @@ import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Real;
 import com.serotonin.bacnet4j.type.primitive.SignedInteger;
+import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
+import java.math.BigInteger;
 
 public class BACnetObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(BACnetObjectTest.class);
@@ -43,10 +45,9 @@ public class BACnetObjectTest extends AbstractTest {
 
     @Test
     public void definedScalarWithIncorrectType() throws BACnetException {
-        // TODO this should not work.
-        //        TestUtils.assertErrorAPDUException(() -> {
-        RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.description, new Real(0));
-        //        }, ErrorClass.property, ErrorCode.invalidDataType);
+        TestUtils.assertErrorAPDUException(() -> {
+            RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.description, new Real(0));
+        }, ErrorClass.property, ErrorCode.invalidDataType);
         System.out.println(d2.get(PropertyIdentifier.description));
     }
 
@@ -116,7 +117,7 @@ public class BACnetObjectTest extends AbstractTest {
         TestUtils.assertErrorAPDUException(() -> {
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.forId(5678),
                     new SequenceOf<>(new Real(-0.1f), new Real(0), new Real(0.1f)));
-        }, ErrorClass.property, ErrorCode.missingRequiredParameter);
+        }, ErrorClass.property, ErrorCode.datatypeNotSupported);
     }
 
     @Test
@@ -177,5 +178,29 @@ public class BACnetObjectTest extends AbstractTest {
                         new Recipient(new ObjectIdentifier(ObjectType.device, 12)), //
                         new Recipient(new ObjectIdentifier(ObjectType.device, 13))),
                 d2.get(PropertyIdentifier.restartNotificationRecipients));
+    }
+
+    @Test
+    public void definedListWriteIncorrectType() {
+        //Standard test 135.1-2013, 9.22.2.3
+        TestUtils.assertErrorAPDUException(() -> {
+            RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.utcTimeSynchronizationRecipients, new ObjectIdentifier(ObjectType.analogOutput, 1));
+        }, ErrorClass.property, ErrorCode.invalidDataType);
+    }
+
+    @Test
+    public void primitiveWriteIncorrectType() {
+        //Standard test 135.1-2013, 9.22.2.3
+        TestUtils.assertErrorAPDUException(() -> {
+            RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.backupFailureTimeout, new CharacterString("This is the wrong type"));
+        }, ErrorClass.property, ErrorCode.invalidDataType);
+    }
+
+    @Test
+    public void writeOutOfRange() {
+        //Standard test 135.1-2013, 9.22.2.4 - write a Unsigned16 with a value out of range.
+        TestUtils.assertErrorAPDUException(() -> {
+            RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.backupFailureTimeout, new Unsigned32(new BigInteger("4294967295")));
+        }, ErrorClass.property, ErrorCode.valueOutOfRange);
     }
 }

@@ -64,6 +64,11 @@ public class ChangeOfBitStringNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfBitStringNotif[ referencedBitstring=" + referencedBitstring + ", statusFlags=" + statusFlags + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;

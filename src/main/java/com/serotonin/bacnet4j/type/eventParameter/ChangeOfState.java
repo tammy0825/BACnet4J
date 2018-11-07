@@ -101,4 +101,9 @@ public class ChangeOfState extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfState[ timeDelay=" + timeDelay + ", listOfValues=" + listOfValues + ']';
+    }  
 }

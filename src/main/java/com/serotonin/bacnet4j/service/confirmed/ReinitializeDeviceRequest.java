@@ -153,7 +153,7 @@ public class ReinitializeDeviceRequest extends ConfirmedRequestService {
             super(value);
         }
 
-        public ReinitializedStateOfDevice(final ByteQueue queue) {
+        public ReinitializedStateOfDevice(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

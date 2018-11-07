@@ -82,6 +82,11 @@ public class SignedOutOfRangeNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "SignedOutOfRangeNotif[ exceedingValue=" + exceedingValue + ", statusFlags=" + statusFlags + ", deadband=" + deadband + ", exceedingLimit=" + exceedingLimit + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

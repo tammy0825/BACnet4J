@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -163,7 +164,7 @@ public class RouterEntry extends BaseType {
             super(value);
         }
 
-        public RouterEntryStatus(final ByteQueue queue) {
+        public RouterEntryStatus(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

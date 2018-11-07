@@ -138,4 +138,9 @@ public class ChangeOfLifeSafety extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfLifeSafety[ timeDelay=" + timeDelay + ", listOfLifeSafetyAlarmValues=" + listOfLifeSafetyAlarmValues + ", listOfAlarmValues=" + listOfAlarmValues + ", modePropertyReference=" + modePropertyReference + ']';
+    }
 }

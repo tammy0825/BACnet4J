@@ -82,7 +82,9 @@ public class CachePolicies {
                 RemoteEntityCachePolicy.NEVER_EXPIRE);
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.protocolServicesSupported),
                 RemoteEntityCachePolicy.NEVER_EXPIRE);
-
+        propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.maxSegmentsAccepted),
+                RemoteEntityCachePolicy.NEVER_EXPIRE);
+        
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.description),
                 RemoteEntityCachePolicy.EXPIRE_1_DAY);
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.units),
@@ -98,8 +100,6 @@ public class CachePolicies {
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.protocolObjectTypesSupported),
                 RemoteEntityCachePolicy.EXPIRE_1_DAY);
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.objectList),
-                RemoteEntityCachePolicy.EXPIRE_1_DAY);
-        propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.maxSegmentsAccepted),
                 RemoteEntityCachePolicy.EXPIRE_1_DAY);
         propertyPolicies.put(new RemotePropertyIdentifier(null, null, PropertyIdentifier.outputUnits),
                 RemoteEntityCachePolicy.EXPIRE_1_DAY);

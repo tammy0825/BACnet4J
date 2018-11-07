@@ -121,4 +121,9 @@ public class ChangeOfTimer extends AbstractEventParameter {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ChangeOfTimer[ timeDelay=" + timeDelay + ", alarmValues=" + alarmValues + ", updateTimeReference=" + updateTimeReference + ']';
+    }
 }

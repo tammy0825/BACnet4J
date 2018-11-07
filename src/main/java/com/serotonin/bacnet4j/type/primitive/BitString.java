@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.util.Arrays;
 
 import com.serotonin.bacnet4j.util.BACnetUtils;
@@ -112,8 +113,8 @@ public class BitString extends Primitive {
     //
     // Reading and writing
     //
-    public BitString(final ByteQueue queue) {
-        final int length = (int) readTag(queue) - 1;
+    public BitString(final ByteQueue queue) throws BACnetErrorException {
+        final int length = (int) readTag(queue, TYPE_ID) - 1;
         final int remainder = queue.popU1B();
 
         if (length == 0)

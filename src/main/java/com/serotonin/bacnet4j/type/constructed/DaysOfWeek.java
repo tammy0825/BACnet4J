@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.enums.DayOfWeek;
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -41,7 +42,7 @@ public class DaysOfWeek extends BitString {
         super(7, defaultValue);
     }
 
-    public DaysOfWeek(final ByteQueue queue) {
+    public DaysOfWeek(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 
@@ -108,4 +109,9 @@ public class DaysOfWeek extends BitString {
     public void setSunday(final boolean sunday) {
         getValue()[6] = sunday;
     }
+    
+    @Override
+    public String toString() {
+        return "DaysOfWeek [monday=" + isMonday() + ", tuesday=" + isTuesday()+ ", wednesday=" + isWednesday()+ ", thursday=" + isThursday()+ ", friday=" + isFriday() + ", saturday=" + isSaturday()+ ", sunday=" + isSunday()+ "]";
+    }    
 }

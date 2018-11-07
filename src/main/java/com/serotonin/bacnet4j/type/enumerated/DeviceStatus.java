@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class DeviceStatus extends Enumerated {
         super(value);
     }
 
-    public DeviceStatus(final ByteQueue queue) {
+    public DeviceStatus(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.math.BigInteger;
 
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -95,11 +96,15 @@ public class UnsignedInteger extends Primitive {
         return new UnsignedInteger((intValue() + amount) % 0x10000L);
     }
 
+    public boolean isSmallValue() {
+        return bigValue == null;
+    }
+    
     //
     // Reading and writing
     //
-    public UnsignedInteger(final ByteQueue queue) {
-        int length = (int) readTag(queue);
+    public UnsignedInteger(final ByteQueue queue) throws BACnetErrorException {
+        int length = (int) readTag(queue, TYPE_ID);
         if (length < 4) {
             while (length > 0)
                 smallValue |= (queue.pop() & 0xff) << --length * 8;

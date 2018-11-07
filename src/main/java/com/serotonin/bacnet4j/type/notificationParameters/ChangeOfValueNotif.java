@@ -78,6 +78,11 @@ public class ChangeOfValueNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfValueNotif[ newValue=" + newValue + ", statusFlags=" + statusFlags + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;

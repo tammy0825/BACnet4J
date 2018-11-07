@@ -28,6 +28,9 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
+import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
+import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class Boolean extends Primitive {
@@ -58,7 +61,7 @@ public class Boolean extends Primitive {
         return value;
     }
 
-    public Boolean(final ByteQueue queue) {
+    public Boolean(final ByteQueue queue) throws BACnetErrorException {
         final byte b = queue.pop();
         int tagNumber = (b & 0xff) >> 4;
         final boolean contextSpecific = (b & 8) != 0;
@@ -76,10 +79,15 @@ public class Boolean extends Primitive {
                 length = queue.popU4B();
         }
 
-        if (contextSpecific)
+        if (contextSpecific) {
             value = queue.pop() == 1;
-        else
+        } else {
+            //if the tagNumber its not contextSpecific, validate the type
+            if (tagNumber != TYPE_ID) {
+                throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);
+            }
             value = length == 1;
+        }
     }
 
     @Override

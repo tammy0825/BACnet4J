@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.util.Objects;
 
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -74,8 +75,8 @@ public class ObjectIdentifier extends Primitive {
     //
     // Reading and writing
     //
-    public ObjectIdentifier(final ByteQueue queue) {
-        readTag(queue);
+    public ObjectIdentifier(final ByteQueue queue) throws BACnetErrorException {
+        readTag(queue, TYPE_ID);
 
         int objectType = queue.popU1B() << 2;
         final int i = queue.popU1B();

@@ -137,7 +137,7 @@ public class DeviceCommunicationControlRequest extends ConfirmedRequestService {
             super(value);
         }
 
-        public EnableDisable(final ByteQueue queue) {
+        public EnableDisable(final ByteQueue queue) throws BACnetErrorException {
             super(queue);
         }
 

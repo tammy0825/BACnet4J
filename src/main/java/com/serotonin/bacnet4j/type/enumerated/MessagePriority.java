@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class MessagePriority extends Enumerated {
         super(value);
     }
 
-    public MessagePriority(final ByteQueue queue) {
+    public MessagePriority(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

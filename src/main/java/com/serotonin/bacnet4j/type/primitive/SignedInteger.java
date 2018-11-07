@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.math.BigInteger;
 
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -74,9 +75,9 @@ public class SignedInteger extends Primitive {
     //
     // Reading and writing
     //
-    public SignedInteger(final ByteQueue queue) {
+    public SignedInteger(final ByteQueue queue) throws BACnetErrorException {
         // Read the data length value.
-        final int length = (int) readTag(queue);
+        final int length = (int) readTag(queue, TYPE_ID);
 
         final byte[] bytes = new byte[length];
         queue.pop(bytes);

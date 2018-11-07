@@ -65,8 +65,9 @@ public class DateRange extends BaseType implements DateMatchable {
             throw new BACnetRuntimeException("start and end months must both be specific or unspecific");
         if (startDate.getDay() != Date.UNSPECIFIED_DAY && endDate.getDay() == Date.UNSPECIFIED_DAY
                 || startDate.getDay() == Date.UNSPECIFIED_DAY && endDate.getDay() != Date.UNSPECIFIED_DAY)
-            throw new BACnetRuntimeException("start and end day must both be specific or unspecific");
-        if (startDate.getDayOfWeek() != DayOfWeek.UNSPECIFIED || endDate.getDayOfWeek() != DayOfWeek.UNSPECIFIED)
+            throw new BACnetRuntimeException("start and end day must both be specific or unspecific");       
+        if ((startDate.getDay() == Date.UNSPECIFIED_DAY && startDate.getDayOfWeek() != DayOfWeek.UNSPECIFIED) 
+                || (endDate.getDay() == Date.UNSPECIFIED_DAY && endDate.getDayOfWeek() != DayOfWeek.UNSPECIFIED))
             throw new BACnetRuntimeException("day of week ranges are not supported");
     }
 

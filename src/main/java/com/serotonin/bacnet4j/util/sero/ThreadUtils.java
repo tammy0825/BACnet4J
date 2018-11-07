@@ -140,7 +140,7 @@ public class ThreadUtils {
         }
     }
 
-    static class UncheckedInterruptedException extends RuntimeException {
+    public static class UncheckedInterruptedException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
         public UncheckedInterruptedException(Throwable cause) {

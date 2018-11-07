@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.primitive.BitString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -37,7 +38,7 @@ public class EventTransitionBits extends BitString {
         super(new boolean[] { toOffnormal, toFault, toNormal });
     }
 
-    public EventTransitionBits(final ByteQueue queue) {
+    public EventTransitionBits(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 
@@ -59,5 +60,10 @@ public class EventTransitionBits extends BitString {
 
     public boolean contains(final EventState toState) {
         return getValue(toState.getTransitionIndex());
+    }
+
+    @Override
+    public String toString() {
+        return "EventTransitionBits [to-offnormal=" + isToOffnormal() + ", to-fault=" + isToFault() + ", to-normal=" + isToNormal() + "]";
     }
 }

@@ -78,11 +78,15 @@ public class WritePropertyRequest extends ConfirmedRequestService {
     }
 
     WritePropertyRequest(final ByteQueue queue) throws BACnetException {
-        objectIdentifier = read(queue, ObjectIdentifier.class, 0);
-        propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
-        propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
-        propertyValue = readANY(queue, objectIdentifier.getObjectType(), propertyIdentifier, propertyArrayIndex, 3);
-        priority = readOptional(queue, UnsignedInteger.class, 4);
+        try {
+            objectIdentifier = read(queue, ObjectIdentifier.class, 0);
+            propertyIdentifier = read(queue, PropertyIdentifier.class, 1);
+            propertyArrayIndex = readOptional(queue, UnsignedInteger.class, 2);
+            propertyValue = readANY(queue, objectIdentifier.getObjectType(), propertyIdentifier, propertyArrayIndex, 3);
+            priority = readOptional(queue, UnsignedInteger.class, 4);
+        } catch (BACnetErrorException ex) {
+            throw new BACnetErrorException(TYPE_ID, ex);
+        }
     }
 
     @Override
@@ -106,6 +110,31 @@ public class WritePropertyRequest extends ConfirmedRequestService {
         return null;
     }
 
+    public ObjectIdentifier getObjectIdentifier() {
+        return objectIdentifier;
+    }
+
+    public PropertyIdentifier getPropertyIdentifier() {
+        return propertyIdentifier;
+    }
+
+    public UnsignedInteger getPropertyArrayIndex() {
+        return propertyArrayIndex;
+    }   
+
+    public Encodable getPropertyValue() {
+        return propertyValue;
+    }
+
+    public UnsignedInteger getPriority() {
+        return priority;
+    }
+
+    @Override
+    public String toString() {
+        return "WritePropertyRequest [objectIdentifier=" + objectIdentifier + ", propertyIdentifier=" + propertyIdentifier + ", propertyArrayIndex=" + propertyArrayIndex + ", priority=" + priority + ", propertyValue=" + propertyValue + ']';
+    }  
+    
     @Override
     public int hashCode() {
         final int PRIME = 31;

@@ -76,6 +76,11 @@ public class ChangeOfDiscreteValueNotif extends AbstractNotificationParameter {
     }
 
     @Override
+    public String toString() {
+        return "ChangeOfDiscreteValueNotif[ newValue=" + newValue + ", statusFlags=" + statusFlags + ']';
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -210,6 +215,11 @@ public class ChangeOfDiscreteValueNotif extends AbstractNotificationParameter {
 
         public NewValue(final ByteQueue queue) throws BACnetException {
             choice = readChoice(queue, choiceOptions);
+        }
+
+        @Override
+        public String toString() {
+            return "NewValue[ choice=" + choice + ']';
         }
 
         @Override

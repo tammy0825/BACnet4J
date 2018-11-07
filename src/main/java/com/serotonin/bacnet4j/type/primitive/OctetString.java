@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.util.Arrays;
 
 import com.serotonin.bacnet4j.npdu.NetworkUtils;
@@ -50,8 +51,8 @@ public class OctetString extends Primitive {
     //
     // Reading and writing
     //
-    public OctetString(final ByteQueue queue) {
-        final int length = (int) readTag(queue);
+    public OctetString(final ByteQueue queue) throws BACnetErrorException {
+        final int length = (int) readTag(queue, TYPE_ID);
         value = new byte[length];
         queue.pop(value);
     }

@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.enumerated;
 
+import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class ShedState extends Enumerated {
         super(value);
     }
 
-    public ShedState(final ByteQueue queue) {
+    public ShedState(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
     }
 

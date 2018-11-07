@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.apdu.ComplexACK;
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.ErrorAPDUException;
 import com.serotonin.bacnet4j.service.acknowledgement.AtomicReadFileAck;
 import com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest;
 import com.serotonin.bacnet4j.service.confirmed.AtomicReadFileRequest.RecordAccess;
@@ -46,11 +48,38 @@ public class BackupClient {
     private final LocalDevice localDevice;
     private final int targetDeviceId;
     private final CharacterString password;
-
+    private final int recordsPerRequest;
+    private final int maxOctetsPerRequest;
+        
     public BackupClient(final LocalDevice localDevice, final int targetDeviceId, final String password) {
         this.localDevice = localDevice;
         this.targetDeviceId = targetDeviceId;
         this.password = password == null ? null : new CharacterString(password);
+        this.recordsPerRequest = 5;
+        this.maxOctetsPerRequest = 128;
+    }
+
+    /**
+     * Constructor with communication parameters
+     *
+     * @param localDevice
+     * @param targetDeviceId
+     * @param password
+     * @param recordsPerRequest only for record-access relevant. 
+     * Record access files are written out as CRLF-delimited hex representations. 
+     * The choice of the number of records per request is arbitrary 
+     * because we don't know how big a record will be.
+     * @param maxOctetsPerRequest only for stram-access relevant. 
+     * Defines the maximum APDU size that is used. 
+     * The choice of the number of bytes per request 
+     * is based upon the max APDU size of the target.
+     */
+    public BackupClient(final LocalDevice localDevice, final int targetDeviceId, final String password, int recordsPerRequest, int maxOctetsPerRequest) {
+        this.localDevice = localDevice;
+        this.targetDeviceId = targetDeviceId;
+        this.password = password == null ? null : new CharacterString(password);
+        this.recordsPerRequest = recordsPerRequest;
+        this.maxOctetsPerRequest = maxOctetsPerRequest;
     }
 
     /**
@@ -87,53 +116,61 @@ public class BackupClient {
                     PropertyIdentifier.backupPreparationTime);
             backupPreparationTimeSeconds = backupPreparationTime.intValue();
         } catch (final BACnetErrorException e) {
-            // Ignore unknown property.
+            // Ignore unknown property to support old devices.
             final ErrorClassAndCode ecac = e.getBacnetError().getError().getErrorClassAndCode();
             if (!ecac.equals(ErrorClass.property, ErrorCode.unknownProperty)) {
                 throw e;
             }
         }
 
-        // 19.1.2.1 - send a start backup request to the target device.
-        LOG.info("Sending start backup request...");
-        localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.startBackup, password)).get();
-
-        // 19.1.2.2
-        if (backupPreparationTimeSeconds > 0) {
-            // Sleep for the given amount of seconds.
-            LOG.info("Waiting for target device to complete backup preparation...");
-            ThreadUtils.sleep(backupPreparationTimeSeconds * 1000);
-        }
-
-        // Poll the backup state of the target, waiting for it to change to something actionable.
-        // It should already be preparingForBackup, and then change to either performingABackup or backupFailure.
-        final long deadline = localDevice.getClock().millis() + backupStateChangeTimeout;
-        while (true) {
-            LOG.info("Getting backup state...");
-            final BackupState backupState = RequestUtils.getProperty(localDevice, rd,
-                    PropertyIdentifier.backupAndRestoreState);
-
-            if (backupState.equals(BackupState.preparingForBackup)) {
-                LOG.info("Target is still preparing for backup...");
-                // Waiting for this to change. Pause for a moment.
-                ThreadUtils.sleep(1000);
-            } else if (backupState.isOneOf(BackupState.performingABackup)) {
-                // Ready to perform the backup
-                LOG.info("Target is ready for backup...");
-                break;
-            } else if (backupState.isOneOf(BackupState.backupFailure)) {
-                throw new BACnetException("Target device reported a backup failure. Aborting backup.");
-            } else {
-                throw new BACnetException("Unexpected backup state reported by target device: " + backupState);
-            }
-
-            if (deadline < localDevice.getClock().millis()) {
-                LOG.info("Timeout waiting for backup state of target to change.");
-                throw new BACnetException("Timeout waiting for backup state of target to change.");
-            }
-        }
-
         try {
+            // 19.1.2.1 - send a start backup request to the target device.
+            LOG.info("Sending start backup request...");
+            localDevice.send(rd, new ReinitializeDeviceRequest(ReinitializedStateOfDevice.startBackup, password)).get();
+
+            // 19.1.2.2
+            if (backupPreparationTimeSeconds > 0) {
+                // Sleep for the given amount of seconds.
+                LOG.info("Waiting for target device to complete backup preparation...");
+                ThreadUtils.sleep(backupPreparationTimeSeconds * 1000);
+            }
+
+            // Poll the backup state of the target, waiting for it to change to something actionable.
+            // It should already be preparingForBackup, and then change to either performingABackup or backupFailure.
+            final long deadline = localDevice.getClock().millis() + backupStateChangeTimeout;
+            try {
+                while (true) {
+                    LOG.info("Getting backup state...");
+                    final BackupState backupState = RequestUtils.getProperty(localDevice, rd,
+                            PropertyIdentifier.backupAndRestoreState);
+
+                    if (backupState.equals(BackupState.preparingForBackup)) {
+                        LOG.info("Target is still preparing for backup...");
+                        // Waiting for this to change. Pause for a moment.
+                        ThreadUtils.sleep(1000);
+                    } else if (backupState.isOneOf(BackupState.performingABackup)) {
+                        // Ready to perform the backup
+                        LOG.info("Target is ready for backup...");
+                        break;
+                    } else if (backupState.isOneOf(BackupState.backupFailure)) {
+                        throw new BACnetException("Target device reported a backup failure. Aborting backup.");
+                    } else {
+                        throw new BACnetException("Unexpected backup state reported by target device: " + backupState);
+                    }
+
+                    if (deadline < localDevice.getClock().millis()) {
+                        LOG.info("Timeout waiting for backup state of target to change.");
+                        throw new BACnetException("Timeout waiting for backup state of target to change.");
+                    }
+                }
+            } catch (final BACnetErrorException e) {
+                // Ignore unknown property to support old devices.
+                final ErrorClassAndCode ecac = e.getBacnetError().getError().getErrorClassAndCode();
+                if (!ecac.equals(ErrorClass.property, ErrorCode.unknownProperty)) {
+                    throw e;
+                }
+            }
+
             return copyFiles(saveDir, rd);
         } finally {
             // 19.1.2.5
@@ -150,6 +187,14 @@ public class BackupClient {
 
         LOG.info("Target reported {} configuration files", configurationFiles.size());
 
+        // The choice of the number of bytes per request is based upon the max APDU size of the target. 
+        // This parameter is only relevant for streamAccess.
+        int octetsPerRequest = rd.getMaxAPDULengthAccepted() - ComplexACK.getHeaderSize(true) - AtomicReadFileAck.getHeaderSize() - AtomicReadFileAck.StreamAccessAck.getHeaderSize();
+        if (octetsPerRequest > maxOctetsPerRequest) {
+            octetsPerRequest = maxOctetsPerRequest;
+        }
+        LOG.debug("With streamAccess, {} octets per Request can be transmitted", octetsPerRequest);
+
         final List<File> result = new ArrayList<>(configurationFiles.size());
         for (final ObjectIdentifier fileOid : configurationFiles) {
             LOG.info("Retrieving configuration file access method for {}", fileOid);
@@ -161,46 +206,52 @@ public class BackupClient {
 
             LOG.info("Retrieving configuration file contents for {}, and saving to {}", fileOid, localFile);
             int reqCount = 0;
-            if (fileAccessMethod.equals(FileAccessMethod.recordAccess)) {
-                // Record access files are written out as CRLF-delimited hex representations. The choice of the number
-                // of records per request is arbitrary because we don't know how big a record will be.
-                final UnsignedInteger recordsPerRequest = new UnsignedInteger(5);
-                int currentRecord = 0;
-                try (PrintWriter out = new PrintWriter(localFile)) {
-                    while (true) {
-                        reqCount++;
-                        final AtomicReadFileRequest req = new AtomicReadFileRequest(fileOid,
-                                new RecordAccess(new SignedInteger(currentRecord), recordsPerRequest));
-                        final AtomicReadFileAck ack = localDevice.send(rd, req).get();
+            try {
+                if (fileAccessMethod.equals(FileAccessMethod.recordAccess)) {
+                    // Record access files are written out as CRLF-delimited hex representations. The choice of the number
+                    // of records per request is arbitrary because we don't know how big a record will be.
+                    int currentRecord = 0;
+                    try (PrintWriter out = new PrintWriter(localFile)) {
+                        while (true) {
+                            reqCount++;
+                            final AtomicReadFileRequest req = new AtomicReadFileRequest(fileOid,
+                                    new RecordAccess(new SignedInteger(currentRecord), new UnsignedInteger(recordsPerRequest)));
+                            final AtomicReadFileAck ack = localDevice.send(rd, req).get();
+                            boolean firstLine = true;
+                            for (final OctetString record : ack.getRecordAccess().getFileRecordData()) {
+                                out.println(ArrayUtils.toPlainHexString(record.getBytes()));
+                            }
 
-                        for (final OctetString record : ack.getRecordAccess().getFileRecordData()) {
-                            out.println(ArrayUtils.toPlainHexString(record.getBytes()));
+                            if (ack.getEndOfFile().booleanValue()) {
+                                break;
+                            }
+                            currentRecord += ack.getRecordAccess().getReturnedRecordCount().intValue();
                         }
+                    }
+                } else {             
+                    int currentPosition = 0;
+                    try (FileOutputStream out = new FileOutputStream(localFile)) {
+                        while (true) {
+                            reqCount++;
+                            final AtomicReadFileRequest req = new AtomicReadFileRequest(fileOid,
+                                    new StreamAccess(new SignedInteger(currentPosition), new UnsignedInteger(octetsPerRequest)));
+                            final AtomicReadFileAck ack = localDevice.send(rd, req).get();
 
-                        if (ack.getEndOfFile().booleanValue()) {
-                            break;
+                            out.write(ack.getStreamAccess().getFileData().getBytes());
+
+                            if (ack.getEndOfFile().booleanValue()) {
+                                break;
+                            }
+                            currentPosition += ack.getStreamAccess().getFileData().getLength();
                         }
-                        currentRecord += ack.getRecordAccess().getReturnedRecordCount().intValue();
                     }
                 }
-            } else {
-                // The choice of the number of bytes per request should be based upon the max APDU size of the target.
-                final UnsignedInteger octetsPerRequest = new UnsignedInteger(128);
-                int currentPosition = 0;
-                try (FileOutputStream out = new FileOutputStream(localFile)) {
-                    while (true) {
-                        reqCount++;
-                        final AtomicReadFileRequest req = new AtomicReadFileRequest(fileOid,
-                                new StreamAccess(new SignedInteger(currentPosition), octetsPerRequest));
-                        final AtomicReadFileAck ack = localDevice.send(rd, req).get();
-
-                        out.write(ack.getStreamAccess().getFileData().getBytes());
-
-                        if (ack.getEndOfFile().booleanValue()) {
-                            break;
-                        }
-                        currentPosition += ack.getStreamAccess().getFileData().getLength();
-                    }
+            } catch (ErrorAPDUException ex) {
+                if (reqCount == 1 && ex.getError().equals(ErrorClass.services, ErrorCode.invalidFileStartPosition)) {
+                    //Some devices send an error when trying to read an empty file. Continue with the next file.
+                    LOG.info("File '{}' seems to be an empty file.", fileOid.getInstanceNumber());
+                } else {
+                    throw ex;
                 }
             }
             LOG.info("Configuration file retrieved using {} requests", reqCount);
@@ -219,5 +270,5 @@ public class BackupClient {
      */
     protected File createLocalFile(final File saveDir, final RemoteDevice rd, final ObjectIdentifier fileOid) {
         return new File(saveDir, "device-" + targetDeviceId + "-file-" + fileOid.getInstanceNumber());
-    }
+    }    
 }

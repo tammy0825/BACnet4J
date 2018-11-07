@@ -23,38 +23,29 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- *
- * @author Matthew Lohbihler
+ * 
+ * @author Michel Seiler
  */
-package com.serotonin.bacnet4j.type.constructed;
+package com.serotonin.bacnet4j.exception;
 
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
-import com.serotonin.bacnet4j.type.primitive.BitString;
-import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import com.serotonin.bacnet4j.type.enumerated.AbortReason;
 
-public class LogStatus extends BitString {
-    public LogStatus(final boolean logDisabled, final boolean bufferPurged, final boolean logInterrupted) {
-        super(new boolean[] { logDisabled, bufferPurged, logInterrupted });
+public class BACnetAbortException extends BACnetException {
+    private static final long serialVersionUID = -1;
+
+    private final AbortReason abortReason;
+
+    public BACnetAbortException(AbortReason abortReason) {
+        super(abortReason.toString());
+        this.abortReason = abortReason;
     }
 
-    public LogStatus(final ByteQueue queue) throws BACnetErrorException {
-        super(queue);
+    public BACnetAbortException(AbortReason abortReason, Throwable cause) {
+        super(abortReason.toString(), cause);
+        this.abortReason = abortReason;
     }
-
-    public boolean isLogDisabled() {
-        return getValue()[0];
+    
+    public AbortReason getAbortReason() {
+        return abortReason;
     }
-
-    public boolean isBufferPurged() {
-        return getValue()[1];
-    }
-
-    public boolean isLogInterrupted() {
-        return getValue()[2];
-    }
-
-    @Override
-    public String toString() {
-        return "LogStatus [log-disabled=" + isLogDisabled() + ", buffer-purged=" + isBufferPurged() + ", log-interrupted=" + isLogInterrupted() + "]";
-    }   
 }

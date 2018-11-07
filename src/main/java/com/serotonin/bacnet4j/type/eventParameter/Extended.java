@@ -30,6 +30,7 @@ package com.serotonin.bacnet4j.type.eventParameter;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.obj.mixin.event.eventAlgo.EventAlgorithm;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BaseType;
 import com.serotonin.bacnet4j.type.constructed.Choice;
 import com.serotonin.bacnet4j.type.constructed.ChoiceOptions;
@@ -180,6 +181,66 @@ public class Extended extends AbstractEventParameter {
             choice = readChoice(queue, choiceOptions);
         }
 
+        public <T extends Encodable> T getValue() {
+            return choice.getDatum();
+        }
+
+        public boolean isNull() {
+            return choice.getDatum() instanceof Null;
+        }
+
+        public boolean isReal() {
+            return choice.getDatum() instanceof Real;
+        }
+
+        public boolean isUnsigned() {
+            return choice.getDatum() instanceof UnsignedInteger;
+        }
+
+        public boolean isBoolean() {
+            return choice.getDatum() instanceof Boolean;
+        }
+
+        public boolean isInteger() {
+            return choice.getDatum() instanceof SignedInteger;
+        }
+
+        public boolean isDouble() {
+            return choice.getDatum() instanceof Double;
+        }
+
+        public boolean isOctet() {
+            return choice.getDatum() instanceof OctetString;
+        }
+
+        public boolean isCharacterString() {
+            return choice.getDatum() instanceof CharacterString;
+        }
+
+        public boolean isBitString() {
+            return choice.getDatum() instanceof BitString;
+        }
+
+        public boolean isEnum() {
+            return choice.getDatum() instanceof Enumerated;
+        }
+
+        public boolean isDate() {
+            return choice.getDatum() instanceof Date;
+        }
+
+        public boolean isTime() {
+            return choice.getDatum() instanceof Time;
+        }
+
+        public boolean isObjectIdentifier() {
+            return choice.getDatum() instanceof ObjectIdentifier;
+        }
+
+        public boolean isReference() {
+            return choice.getDatum() instanceof DeviceObjectPropertyReference;
+        }
+
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -203,6 +264,11 @@ public class Extended extends AbstractEventParameter {
             } else if (!choice.equals(other.choice))
                 return false;
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return "Parameter[ choice=" + choice + ']';
         }
     }
 
@@ -241,5 +307,10 @@ public class Extended extends AbstractEventParameter {
         } else if (!vendorId.equals(other.vendorId))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Extended[ vendorId=" + vendorId + ", extendedEventType=" + extendedEventType + ", parameters=" + parameters + ']';
     }
 }

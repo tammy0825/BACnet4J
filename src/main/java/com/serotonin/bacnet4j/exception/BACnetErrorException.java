@@ -45,6 +45,11 @@ public class BACnetErrorException extends BACnetException {
         bacnetError = new BACnetError(choice, baseError);
     }
 
+    public BACnetErrorException(final byte choice, final BACnetErrorException cause) {
+        super(cause.getMessage(), cause);
+        bacnetError = new BACnetError(choice, cause.getBacnetError().getError());
+    }
+
     public BACnetErrorException(final byte choice, final ErrorClass errorClass, final ErrorCode errorCode) {
         super(getBaseMessage(errorClass, errorCode, null));
         bacnetError = new BACnetError(choice, new ErrorClassAndCode(errorClass, errorCode));

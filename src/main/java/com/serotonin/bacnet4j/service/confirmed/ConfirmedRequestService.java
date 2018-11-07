@@ -29,19 +29,18 @@
 package com.serotonin.bacnet4j.service.confirmed;
 
 import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRejectException;
 import com.serotonin.bacnet4j.service.Service;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
-import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
-import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
+import com.serotonin.bacnet4j.type.enumerated.RejectReason;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 abstract public class ConfirmedRequestService extends Service {
     public static void checkConfirmedRequestService(final ServicesSupported services, final byte type)
-            throws BACnetErrorException {
+            throws BACnetRejectException {
         if (type == AcknowledgeAlarmRequest.TYPE_ID && services.isAcknowledgeAlarm()) // 0
             return;
         if (type == ConfirmedCovNotificationRequest.TYPE_ID && services.isConfirmedCovNotification()) // 1
@@ -101,72 +100,111 @@ abstract public class ConfirmedRequestService extends Service {
         if (type == ConfirmedCovNotificationMultipleRequest.TYPE_ID && services.isConfirmedCovNotificationMultiple()) // 31
             return;
 
-        throw new BACnetErrorException(ErrorClass.device, ErrorCode.operationalProblem);
+        // 135-2016 18.9 - Confirmed request PDUs can be rejected. So we have to return an RejectException.
+        throw new BACnetRejectException(RejectReason.unrecognizedService);
     }
 
     public static ConfirmedRequestService createConfirmedRequestService(final byte type, final ByteQueue queue)
             throws BACnetException {
 
-        if (type == AcknowledgeAlarmRequest.TYPE_ID) // 0
-            return new AcknowledgeAlarmRequest(queue);
-        if (type == ConfirmedCovNotificationRequest.TYPE_ID) // 1
-            return new ConfirmedCovNotificationRequest(queue);
-        if (type == ConfirmedEventNotificationRequest.TYPE_ID) // 2
-            return new ConfirmedEventNotificationRequest(queue);
-        if (type == GetAlarmSummaryRequest.TYPE_ID) // 3
-            return new GetAlarmSummaryRequest(queue);
-        if (type == GetEnrollmentSummaryRequest.TYPE_ID) // 4
-            return new GetEnrollmentSummaryRequest(queue);
-        if (type == SubscribeCOVRequest.TYPE_ID) // 5
-            return new SubscribeCOVRequest(queue);
-        if (type == AtomicReadFileRequest.TYPE_ID) // 6
-            return new AtomicReadFileRequest(queue);
-        if (type == AtomicWriteFileRequest.TYPE_ID) // 7
-            return new AtomicWriteFileRequest(queue);
-        if (type == AddListElementRequest.TYPE_ID) // 8
-            return new AddListElementRequest(queue);
-        if (type == RemoveListElementRequest.TYPE_ID) // 9
-            return new RemoveListElementRequest(queue);
-        if (type == CreateObjectRequest.TYPE_ID) // 10
-            return new CreateObjectRequest(queue);
-        if (type == DeleteObjectRequest.TYPE_ID) // 11
-            return new DeleteObjectRequest(queue);
-        if (type == ReadPropertyRequest.TYPE_ID) // 12
-            return new ReadPropertyRequest(queue);
-        if (type == ReadPropertyMultipleRequest.TYPE_ID) // 14
-            return new ReadPropertyMultipleRequest(queue);
-        if (type == WritePropertyRequest.TYPE_ID) // 15
-            return new WritePropertyRequest(queue);
-        if (type == WritePropertyMultipleRequest.TYPE_ID) // 16
-            return new WritePropertyMultipleRequest(queue);
-        if (type == DeviceCommunicationControlRequest.TYPE_ID) // 17
-            return new DeviceCommunicationControlRequest(queue);
-        if (type == ConfirmedPrivateTransferRequest.TYPE_ID) // 18
-            return new ConfirmedPrivateTransferRequest(queue);
-        if (type == ConfirmedTextMessageRequest.TYPE_ID) // 19
-            return new ConfirmedTextMessageRequest(queue);
-        if (type == ReinitializeDeviceRequest.TYPE_ID) // 20
-            return new ReinitializeDeviceRequest(queue);
-        if (type == VtOpenRequest.TYPE_ID) // 21
-            return new VtOpenRequest(queue);
-        if (type == VtCloseRequest.TYPE_ID) // 22
-            return new VtCloseRequest(queue);
-        if (type == VtDataRequest.TYPE_ID) // 23
-            return new VtDataRequest(queue);
-        if (type == ReadRangeRequest.TYPE_ID) // 26
-            return new ReadRangeRequest(queue);
-        if (type == LifeSafetyOperationRequest.TYPE_ID) // 27
-            return new LifeSafetyOperationRequest(queue);
-        if (type == SubscribeCOVPropertyRequest.TYPE_ID) // 28
-            return new SubscribeCOVPropertyRequest(queue);
-        if (type == GetEventInformationRequest.TYPE_ID) // 29
-            return new GetEventInformationRequest(queue);
-        if (type == SubscribeCOVPropertyMultipleRequest.TYPE_ID) // 30
-            return new SubscribeCOVPropertyMultipleRequest(queue);
-        if (type == ConfirmedCovNotificationMultipleRequest.TYPE_ID) // 31
-            return new ConfirmedCovNotificationMultipleRequest(queue);
-
-        throw new BACnetErrorException(ErrorClass.device, ErrorCode.serviceRequestDenied);
+            ConfirmedRequestService result;
+            switch (type) {
+                case AcknowledgeAlarmRequest.TYPE_ID: // 0
+                    result = new AcknowledgeAlarmRequest(queue);
+                    break;
+                case ConfirmedCovNotificationRequest.TYPE_ID: // 1
+                    result = new ConfirmedCovNotificationRequest(queue);
+                    break;
+                case ConfirmedEventNotificationRequest.TYPE_ID: // 2
+                    result = new ConfirmedEventNotificationRequest(queue);
+                    break;
+                case GetAlarmSummaryRequest.TYPE_ID: // 3
+                    result = new GetAlarmSummaryRequest(queue);
+                    break;
+                case GetEnrollmentSummaryRequest.TYPE_ID: // 4
+                    result = new GetEnrollmentSummaryRequest(queue);
+                    break;
+                case SubscribeCOVRequest.TYPE_ID: // 5
+                    result = new SubscribeCOVRequest(queue);
+                    break;
+                case AtomicReadFileRequest.TYPE_ID: // 6
+                    result = new AtomicReadFileRequest(queue);
+                    break;
+                case AtomicWriteFileRequest.TYPE_ID: // 7
+                    result = new AtomicWriteFileRequest(queue);
+                    break;
+                case AddListElementRequest.TYPE_ID: // 8
+                    result = new AddListElementRequest(queue);
+                    break;
+                case RemoveListElementRequest.TYPE_ID: // 9
+                    result = new RemoveListElementRequest(queue);
+                    break;
+                case CreateObjectRequest.TYPE_ID: // 10
+                    result = new CreateObjectRequest(queue);
+                    break;
+                case DeleteObjectRequest.TYPE_ID: // 11
+                    result = new DeleteObjectRequest(queue);
+                    break;
+                case ReadPropertyRequest.TYPE_ID: // 12
+                    result = new ReadPropertyRequest(queue);
+                    break;
+                case ReadPropertyMultipleRequest.TYPE_ID: // 14
+                    result = new ReadPropertyMultipleRequest(queue);
+                    break;
+                case WritePropertyRequest.TYPE_ID: // 15
+                    result = new WritePropertyRequest(queue);
+                    break;
+                case WritePropertyMultipleRequest.TYPE_ID: // 16
+                    result = new WritePropertyMultipleRequest(queue);
+                    break;
+                case DeviceCommunicationControlRequest.TYPE_ID: // 17
+                    result = new DeviceCommunicationControlRequest(queue);
+                    break;
+                case ConfirmedPrivateTransferRequest.TYPE_ID: // 18
+                    result = new ConfirmedPrivateTransferRequest(queue);
+                    break;
+                case ConfirmedTextMessageRequest.TYPE_ID: // 19
+                    result = new ConfirmedTextMessageRequest(queue);
+                    break;
+                case ReinitializeDeviceRequest.TYPE_ID: // 20
+                    result = new ReinitializeDeviceRequest(queue);
+                    break;
+                case VtOpenRequest.TYPE_ID: // 21
+                    result = new VtOpenRequest(queue);
+                    break;
+                case VtCloseRequest.TYPE_ID: // 22
+                    result = new VtCloseRequest(queue);
+                    break;
+                case VtDataRequest.TYPE_ID: // 23
+                    result = new VtDataRequest(queue);
+                    break;
+                case ReadRangeRequest.TYPE_ID: // 26
+                    result = new ReadRangeRequest(queue);
+                    break;
+                case LifeSafetyOperationRequest.TYPE_ID: // 27
+                    result = new LifeSafetyOperationRequest(queue);
+                    break;
+                case SubscribeCOVPropertyRequest.TYPE_ID: // 28
+                    result = new SubscribeCOVPropertyRequest(queue);
+                    break;
+                case GetEventInformationRequest.TYPE_ID: // 29
+                    result = new GetEventInformationRequest(queue);
+                    break;
+                case SubscribeCOVPropertyMultipleRequest.TYPE_ID: // 30
+                    result = new SubscribeCOVPropertyMultipleRequest(queue);
+                    break;
+                case ConfirmedCovNotificationMultipleRequest.TYPE_ID: // 31
+                    result = new ConfirmedCovNotificationMultipleRequest(queue);
+                    break;
+                default:
+                    //Standard test 135.1-2013, 9.39.1
+                    throw new BACnetRejectException(RejectReason.unrecognizedService);
+            }
+            // To pass the standard test 135.1-2013 13.4.5 we have to check if too many arguments have been sent.
+            if (queue.size() != 0) {
+                throw new BACnetRejectException(RejectReason.tooManyArguments);
+            }
+            return result;          
     }
 
     abstract public AcknowledgementService handle(LocalDevice localDevice, Address from) throws BACnetException;
