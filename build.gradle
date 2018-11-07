@@ -5,8 +5,8 @@ apply plugin: 'maven-publish'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-group = 'com.serotonin'
-version = '4.1.4'
+group = 'com.infiniteautomation'
+version = '5.0.0'
 
 repositories {
     jcenter()

@@ -41,12 +41,15 @@ The dependency information is:
 <dependency>
     <groupId>com.serotonin</groupId>
     <artifactId>bacnet4j</artifactId>
-    <version>4.0.1</version>
+    <version>5.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
 Releases
 ========
+*Version 5.0.0
+- Fully BTL Certifiable
+
 *Version 4.1.7*
 - Add support for Relatime MS/TP linux realtime driver to handle token passing timing
 - Change Vendor ID to 865 Infinite Automation Systems, Inc.
