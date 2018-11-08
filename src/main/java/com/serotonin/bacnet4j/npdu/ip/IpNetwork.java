@@ -157,7 +157,7 @@ public class IpNetwork extends Network implements Runnable {
         localBindAddress = InetAddrCache.get(localBindAddressStr, port);
 
         if (reuseAddress) {
-            socket = new DatagramSocket();
+            socket = new DatagramSocket(null);
             socket.setReuseAddress(true);
             if (!socket.getReuseAddress())
                 LOG.warn("reuseAddress was set, but not supported by the underlying platform");
