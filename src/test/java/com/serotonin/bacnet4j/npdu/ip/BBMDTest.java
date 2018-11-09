@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,8 @@ public class BBMDTest {
     static final int port = 0xBAC0;
 
     private final WarpClock clock = new WarpClock();
-
+    boolean canRun;
+    
     LDInfo ld11, ld12, ld13;
     LDInfo ld21, ld22, ld23;
     LDInfo ld31, ld32, ld33;
@@ -39,23 +41,20 @@ public class BBMDTest {
     DatagramSocket configurer;
     Broadcaster br1, br2, br3;
 
-    public boolean canRunTest() {
+    @Before
+    public void before() throws Exception {
         //On OSX 127.x.x.x are not localhost addresses
         //Could do this from terminal: ifconfig lo0 alias 127.0.1.1
         try {
             InetSocketAddress addr = new InetSocketAddress("127.0.1.1", 47808);
             try(DatagramSocket socket = new DatagramSocket(addr)){
-                return true;
+                canRun = true;
             }
         }catch(SocketException e) {
-            return false;
+            canRun = false;
         }
-    }
-    
-    @Before
-    public void before() throws Exception {
-        if(!canRunTest())
-            return;
+        Assume.assumeTrue(canRun);
+        
         ld11 = createLocalDevice(1, 1);
         ld12 = createLocalDevice(1, 2);
         ld13 = createLocalDevice(1, 3);
@@ -83,8 +82,10 @@ public class BBMDTest {
 
     @After
     public void after() throws Exception {
-        if(!canRunTest())
+
+        if(!canRun)
             return;
+        
         br1.close();
         br2.close();
         br3.close();
@@ -110,8 +111,7 @@ public class BBMDTest {
 
     @Test
     public void noBBMD() throws Exception {
-        if(!canRunTest())
-            return;
+
         // Send some broadcasts
         ld11.ld.sendLocalBroadcast(ld11.ld.getIAm());
         ld12.ld.sendLocalBroadcast(ld12.ld.getIAm());
@@ -132,8 +132,7 @@ public class BBMDTest {
 
     @Test
     public void bdt() throws Exception {
-        if(!canRunTest())
-            return;
+
         // Write a BDT
         configurer.send(packet(1, "7F000101BAC0FFFFFFFF" + "7F000201BAC0FFFFFFFF", ld11));
 
@@ -152,8 +151,7 @@ public class BBMDTest {
 
     @Test
     public void fdt() throws Exception {
-        if(!canRunTest())
-            return;
+
         final InetSocketAddress target = ld11.network.getLocalBindAddress();
 
         // Set the clock.
@@ -217,8 +215,7 @@ public class BBMDTest {
 
     @Test
     public void broadcasts() throws Exception {
-        if(!canRunTest())
-            return;
+
         // ***** Set up the BBMDs *****
         // 127.0.1.1
         String payload = "7F000101BAC0FFFFFFFF"; // Self

@@ -164,6 +164,12 @@
             <version>[2.7.22,3)</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.8.0-beta2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <issueManagement>
         <url>https://github.com/infiniteautomation/BACnet4J/issues</url>

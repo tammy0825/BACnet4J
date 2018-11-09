@@ -145,8 +145,11 @@ public class IpNetwork extends Network implements Runnable {
         return bytesIn;
     }
 
-    // For testing purposes.
-    DatagramSocket getSocket() {
+    /**
+     * Get the network socket, useful for routing purposes
+     * @return
+     */
+    public DatagramSocket getSocket() {
         return socket;
     }
 
@@ -170,7 +173,7 @@ public class IpNetwork extends Network implements Runnable {
         broadcastMAC = IpNetworkUtils.toOctetString(broadcastAddressStr, port);
         subnetMask = BACnetUtils.dottedStringToBytes(subnetMaskStr);
 
-        thread = new Thread(this, "BACnet4J IP socket listener");
+        thread = new Thread(this, "BACnet4J IP socket listener for " + transport.getLocalDevice().getId());
         thread.start();
     }
 
