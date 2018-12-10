@@ -108,7 +108,7 @@ import lohbihler.warp.WarpUtils;
  */
 public class LocalDevice {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
-    public static final String VERSION = "4.0.0";
+    public static final String VERSION = "5.0.0";
 
     private final Transport transport;
 
