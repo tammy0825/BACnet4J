@@ -381,7 +381,7 @@ public class DefaultTransport implements Transport, Runnable {
                         || segmentationSupported.intValue() == Segmentation.segmentedTransmit.intValue())
                     throw new ServiceTooBigException("Request too big to send to device without segmentation");
                 final int segmentsRequired = serviceData.size() / maxServiceData + 1;
-                if (segmentsRequired > 256)
+                if (segmentsRequired > 255)
                     throw new ServiceTooBigException("Request too big to send to device; too many segments required");
 
                 key = unackedMessages.addClient(address, linkService, ctx);
@@ -901,7 +901,7 @@ public class DefaultTransport implements Transport, Runnable {
                     throw new BACnetAbortException(AbortReason.bufferOverflow);         
                 }
                 final int segmentsRequired = serviceData.size() / maxServiceData + 1;
-                if (segmentsRequired > request.getMaxSegmentsAccepted().getMaxSegments() || segmentsRequired > 256) {
+                if (segmentsRequired > request.getMaxSegmentsAccepted().getMaxSegments() || segmentsRequired > 255) {
                     LOG.warn("Response too big to send to device; too many segments required");
                     throw new BACnetAbortException(AbortReason.bufferOverflow); 
                 }
