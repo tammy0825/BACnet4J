@@ -174,7 +174,7 @@ public class RequestUtils {
             final ReadPropertyAck ack = (ReadPropertyAck) localDevice
                     .send(d, new ReadPropertyRequest(oid, pid, propertyArrayIndex)).get();
             if (callback != null)
-                callback.progress(1, d.getInstanceNumber(), oid, pid, propertyArrayIndex, ack.getValue());
+                callback.progress(1, d.getInstanceNumber(), oid, pid, ack.getPropertyArrayIndex(), ack.getValue());
             return ack.getValue();
         } catch (final AbortAPDUException e) {
             if (e.getApdu().getAbortReason().equals(AbortReason.bufferOverflow)

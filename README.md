@@ -50,6 +50,8 @@ Releases
 *Version 5.0.0*
 - Fully BTL Certifiable
 - Support up to 255 segments when sending a request and response
+- Bugfix to allow setReuseAddress to work correctly when using BACnetIP
+- Bugfix to ensure the propertyArrayIndex is correctly returned when reading via callback in RequestUtils
 
 *Version 4.1.7*
 - Add support for Relatime MS/TP linux realtime driver to handle token passing timing
