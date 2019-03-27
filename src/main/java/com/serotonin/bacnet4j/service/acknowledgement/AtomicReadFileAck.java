@@ -85,10 +85,18 @@ public class AtomicReadFileAck extends AcknowledgementService {
         return endOfFile;
     }
 
+    public boolean isStreamAccess() {
+        return accessMethod.getDatum() instanceof StreamAccessAck;
+    }
+    
     public StreamAccessAck getStreamAccess() {
         return accessMethod.getDatum();
     }
 
+    public boolean isRecordAccess() {
+        return accessMethod.getDatum() instanceof RecordAccessAck;
+    }
+    
     public RecordAccessAck getRecordAccess() {
         return accessMethod.getDatum();
     }
