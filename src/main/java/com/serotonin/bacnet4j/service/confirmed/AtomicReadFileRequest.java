@@ -83,6 +83,26 @@ public class AtomicReadFileRequest extends ConfirmedRequestService {
         this.fileIdentifier = fileIdentifier;
         this.accessMethod = new Choice(1, recordAccess, choiceOptions);
     }
+    
+    public ObjectIdentifier getFileIdentifier() {
+        return this.fileIdentifier;
+    }
+    
+    public boolean isRecordAccess() {
+        return accessMethod.getDatum() instanceof RecordAccess;
+    }
+    
+    public RecordAccess getRecordAccess() {
+        return accessMethod.getDatum();
+    }
+    
+    public boolean isStreamAccess() {
+        return accessMethod.getDatum() instanceof StreamAccess;
+    }
+    
+    public StreamAccess getStreamAccess() {
+        return accessMethod.getDatum();
+    }
 
     @Override
     public void write(final ByteQueue queue) {

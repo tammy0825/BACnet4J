@@ -37,9 +37,27 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 
 public class ChoiceOptions {
-    private final List<Class<? extends Primitive>> primitives = new ArrayList<>();
-    private final Map<Integer, ContextualType> contextual = new HashMap<>();
+    private final List<Class<? extends Primitive>> primitives;
+    private final Map<Integer, ContextualType> contextual;
 
+    public ChoiceOptions() {
+        this.primitives = new ArrayList<>();
+        this.contextual = new HashMap<>();
+    }
+    
+    public ChoiceOptions(List<Class<? extends Primitive>> primitives,  Map<Integer, ContextualType> contextual) {
+        this.primitives = primitives;
+        this.contextual = contextual;
+    }
+    
+    public List<Class<? extends Primitive>> getPrimitives() {
+        return primitives;
+    }
+    
+    public Map<Integer, ContextualType> getContextual() {
+        return contextual;
+    }
+    
     public void addPrimitive(final Class<? extends Primitive> primitive) {
         primitives.add(primitive);
     }

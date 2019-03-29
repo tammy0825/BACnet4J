@@ -146,6 +146,10 @@ public class Choice extends BaseType {
         return contextId;
     }
 
+    public ChoiceOptions getChoiceOptions() {
+        return choiceOptions;
+    }
+    
     @SuppressWarnings("unchecked")
     public <T extends Encodable> T getDatum() {
         return (T) datum;

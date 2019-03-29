@@ -56,7 +56,23 @@ public class HostAddress extends BaseType {
     public HostAddress(final CharacterString name) {
         state = new Choice(2, name, choiceOptions);
     }
+    
+    public boolean isIpAddress() {
+        return this.state.getDatum() instanceof OctetString;
+    }
+    
+    public OctetString getIpAddress() {
+        return this.state.getDatum();
+    }
 
+    public boolean isName() {
+        return this.state.getDatum() instanceof CharacterString;
+    }
+    
+    public CharacterString getName() {
+        return this.state.getDatum();
+    }
+    
     @SuppressWarnings("unchecked")
     public <T extends Encodable> T getAddress() {
         return (T) state.getDatum();

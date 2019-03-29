@@ -22,14 +22,6 @@ public class EncodedValue extends Encodable {
         data = queue.popAll();
     }
 
-    //    public EncodedValue(final ByteQueue queue) {
-    //        final TagData tagData = new TagData();
-    //        peekTagData(queue, tagData);
-    //        final ByteQueue data = new ByteQueue();
-    //        readData(queue, tagData, data);
-    //        this.data = data.popAll();
-    //    }
-
     public EncodedValue(final ByteQueue queue, final int contextId) throws BACnetException {
         popStart(queue, contextId);
 

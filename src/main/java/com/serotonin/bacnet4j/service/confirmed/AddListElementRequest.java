@@ -127,7 +127,7 @@ public class AddListElementRequest extends ConfirmedRequestService {
             throw createException(ErrorClass.services, ErrorCode.propertyIsNotAList, UnsignedInteger.ZERO);
 
         //Copy the original sequence
-        final SequenceOf<Encodable> copyList = new SequenceOf<>(new ArrayList(((SequenceOf<Encodable>) e).getValues()));
+        final SequenceOf<Encodable> copyList = new SequenceOf<>(new ArrayList<>(((SequenceOf<Encodable>) e).getValues()));
         final SequenceOf<Encodable> list = new SequenceOf<>(copyList.getValues());
         for (int i = 0; i < listOfElements.getCount(); i++) {
             final Encodable pr = listOfElements.getBase1(i + 1);
