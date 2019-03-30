@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.type.constructed;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -67,6 +68,10 @@ public class Recipient extends BaseType {
         return choice.getDatum();
     }
 
+    public <T extends Encodable> T getValue() {
+        return choice.getDatum();
+    }
+    
     @Override
     public void write(final ByteQueue queue) {
         write(queue, choice);
