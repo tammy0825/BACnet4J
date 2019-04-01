@@ -50,14 +50,22 @@ public class OptionalBinaryPV extends BaseType {
         this.choice = new Choice(binaryPV, choiceOptions);
     }
 
+    public boolean isNullValue() {
+        return choice.isa(Null.class);
+    }
+    
     public Null getNullValue() {
         return choice.getDatum();
     }
 
+    public boolean isBinaryPVValue() {
+        return choice.isa(BinaryPV.class);
+    }
+    
     public BinaryPV getBinaryPVValue() {
         return choice.getDatum();
     }
-
+    
     @Override
     public void write(final ByteQueue queue) {
         write(queue, choice);

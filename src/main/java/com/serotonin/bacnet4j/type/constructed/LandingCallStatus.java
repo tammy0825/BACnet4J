@@ -76,10 +76,18 @@ public class LandingCallStatus extends BaseType {
         return floorNumber;
     }
 
+    public boolean isDirection() {
+        return command.isa(LiftCarDirection.class);
+    }
+    
     public LiftCarDirection getDirection() {
         return command.getDatum();
     }
 
+    public boolean isDestination() {
+        return command.isa(Unsigned8.class);
+    }
+    
     public Unsigned8 getDestination() {
         return command.getDatum();
     }
