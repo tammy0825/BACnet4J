@@ -131,7 +131,7 @@ public class RequestUtilsTest {
             refs.add(oid, PropertyIdentifier.forId(i));
         }
 
-        final PropertyValues pvs = RequestUtils.readProperties(d, rd, refs, null);
+        final PropertyValues pvs = RequestUtils.readProperties(d, rd, refs, false, null);
         assertEquals(1000, pvs.size());
         assertEquals(9, exceptionCount.get());
 
@@ -177,7 +177,7 @@ public class RequestUtilsTest {
                         new ObjectPropertyReference(ai.getId(), PropertyIdentifier.logDeviceObjectProperty),
                         new ObjectPropertyReference(new ObjectIdentifier(ObjectType.analogOutput, 0),
                                 PropertyIdentifier.presentValue)),
-                listener);
+                false, listener);
 
         // Verify listener updates.
         assertEquals(3, listenerUpdates.size());

@@ -264,7 +264,7 @@ public class EventEnrollmentObject extends BACnetObject {
 
             try {
                 final PropertyValues results = RequestUtils.readProperties(getLocalDevice(), rd,
-                        monitoredPropertyReferences, null);
+                        monitoredPropertyReferences, false, null);
 
                 value = results.getNoErrorCheck(ref.getObjectIdentifier(),
                         new PropertyReference(ref.getPropertyIdentifier(), ref.getPropertyArrayIndex()));

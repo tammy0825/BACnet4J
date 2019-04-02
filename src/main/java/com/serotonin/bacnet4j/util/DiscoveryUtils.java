@@ -59,7 +59,7 @@ public class DiscoveryUtils {
 
         if (properties.size() > 0) {
             // Only send a request if we have to.
-            final PropertyValues values = RequestUtils.readProperties(localDevice, d, properties, null);
+            final PropertyValues values = RequestUtils.readProperties(localDevice, d, properties, false, null);
 
             values.forEach((opr) -> {
                 final Encodable value = values.getNullOnError(oid, opr.getPropertyIdentifier());

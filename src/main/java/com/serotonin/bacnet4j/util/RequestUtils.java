@@ -138,7 +138,7 @@ public class RequestUtils {
 
     private static Map<PropertyIdentifier, Encodable> getProperties(final LocalDevice localDevice, final RemoteDevice d,
             final ReadListener callback, final List<ObjectPropertyReference> refs) throws BACnetException {
-        final List<Pair<ObjectPropertyReference, Encodable>> values = readProperties(localDevice, d, refs, callback);
+        final List<Pair<ObjectPropertyReference, Encodable>> values = readProperties(localDevice, d, refs, false, callback);
 
         final Map<PropertyIdentifier, Encodable> map = new HashMap<>(values.size());
         for (final Pair<ObjectPropertyReference, Encodable> pair : values)
@@ -194,7 +194,7 @@ public class RequestUtils {
                         refs.add(oid, new PropertyReference(pid, new UnsignedInteger(i)));
 
                     // Send the request. Use the method that automatically partitions the request.
-                    final PropertyValues pvs = readProperties(localDevice, d, refs, callback);
+                    final PropertyValues pvs = readProperties(localDevice, d, refs, true, callback);
 
                     // We know that the original request property was a sequence, so create one to store the result.
                     final SequenceOf<Encodable> list = new SequenceOf<>();
@@ -248,13 +248,13 @@ public class RequestUtils {
      * @throws BACnetException
      */
     public static List<Pair<ObjectPropertyReference, Encodable>> readProperties(final LocalDevice localDevice,
-            final RemoteDevice d, final List<ObjectPropertyReference> oprs, final ReadListener callback)
+            final RemoteDevice d, final List<ObjectPropertyReference> oprs, boolean allowNull, final ReadListener callback)
             throws BACnetException {
         final PropertyReferences refs = new PropertyReferences();
         for (final ObjectPropertyReference opr : oprs)
             refs.addIndex(opr.getObjectIdentifier(), opr.getPropertyIdentifier(), opr.getPropertyArrayIndex());
 
-        final PropertyValues pvs = readProperties(localDevice, d, refs, callback);
+        final PropertyValues pvs = readProperties(localDevice, d, refs, allowNull, callback);
 
         // Read the properties in the same order.
         final List<Pair<ObjectPropertyReference, Encodable>> results = new ArrayList<>();
@@ -265,7 +265,7 @@ public class RequestUtils {
     }
 
     public static PropertyValues readProperties(final LocalDevice localDevice, final RemoteDevice d,
-            final PropertyReferences refs, final ReadListener callback) throws BACnetException {
+            final PropertyReferences refs, boolean allowNull, final ReadListener callback) throws BACnetException {
         Map<ObjectIdentifier, List<PropertyReference>> properties;
         final PropertyValues propertyValues = new PropertyValues();
         final ReadListenerUpdater updater = new ReadListenerUpdater(callback, propertyValues, refs.size());
@@ -371,10 +371,17 @@ public class RequestUtils {
                 } catch (final ErrorAPDUException e) {
                     // The error returned may only apply to a single reference. If there is more than one reference in
                     // the partition, send the requests one at a time.
-                    if (partition.size() < 2)
-                        populateWithError(d, properties, updater, e.getError());
-                    else {
-                        sendOneAtATime(localDevice, d, partition, updater);
+                    if (partition.size() < 2) {
+                        if (allowNull && e.getError().equals(ErrorClass.property, ErrorCode.unknownProperty)) {
+                            for (final ObjectIdentifier oid : properties.keySet()) {
+                                for (final PropertyReference ref : properties.get(oid))
+                                    updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(), ref.getPropertyArrayIndex(),
+                                            null);
+                            }   
+                        }else
+                            populateWithError(d, properties, updater, e.getError());
+                    }else {
+                        sendOneAtATime(localDevice, d, partition, allowNull, updater);
                     }
                     partitions.remove(0);
                 } catch (final BACnetException e) {
@@ -386,7 +393,7 @@ public class RequestUtils {
             }
         } else {
             // If it doesn't support read property multiple, send them one at a time.
-            sendOneAtATime(localDevice, d, refs, updater);
+            sendOneAtATime(localDevice, d, refs, allowNull, updater);
         }
 
         return propertyValues;
@@ -403,7 +410,7 @@ public class RequestUtils {
     }
 
     private static void sendOneAtATime(final LocalDevice localDevice, final RemoteDevice d,
-            final PropertyReferences refs, final ReadListenerUpdater updater) throws BACnetException {
+            final PropertyReferences refs, boolean allowNull, final ReadListenerUpdater updater) throws BACnetException {
         LOG.debug("Making property reference requests one at a time");
         List<PropertyReference> refList;
         ReadPropertyRequest request;
@@ -428,6 +435,40 @@ public class RequestUtils {
                 } catch (final ErrorAPDUException e) {
                     updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(),
                             ref.getPropertyArrayIndex(), e.getError());
+                }catch (final AbortAPDUException e) {
+                    if (e.getApdu().getAbortReason().equals(AbortReason.bufferOverflow)
+                            || e.getApdu().getAbortReason().equals(AbortReason.segmentationNotSupported)) {
+                        // The response may be too long to send. If the property is a sequence...
+                        if (ObjectProperties.getObjectPropertyTypeDefinition(oid.getObjectType(), ref.getPropertyIdentifier())
+                                .getPropertyTypeDefinition().isCollection()) {
+                            LOG.info("Received abort exception on sequence request. Sending chunked reference request instead");
+
+                            // ... then try getting it by sending requests for indices. Find out how many there are.
+                            final int len = ((UnsignedInteger) sendReadPropertyAllowNull(localDevice, d, oid, ref.getPropertyIdentifier(),
+                                    UnsignedInteger.ZERO, null)).intValue();
+
+                            // Create a list of individual property references.
+                            final PropertyReferences newRefs = new PropertyReferences();
+                            for (int i = 1; i <= len; i++)
+                                newRefs.add(oid, new PropertyReference(ref.getPropertyIdentifier(), new UnsignedInteger(i)));
+
+                            // Send the request. Use the method that automatically partitions the request.
+                            ReadListener callback = new ReadListener() {
+
+                                @Override
+                                public boolean progress(double progress, int deviceId,
+                                        ObjectIdentifier oid, PropertyIdentifier pid,
+                                        UnsignedInteger pin, Encodable value) {
+                                    updater.increment(deviceId, oid, pid, pin, value, false);
+                                    return updater.cancelled();
+                                }
+                                
+                            };
+                            readProperties(localDevice, d, newRefs, allowNull, callback);
+                        }else
+                            throw e;
+                    }else
+                        throw e;
                 }
 
                 first = false;
@@ -440,19 +481,6 @@ public class RequestUtils {
         }
     }
 
-    //    public static PropertyValues readPresentValues(final LocalDevice localDevice, final RemoteDevice d,
-    //            final RequestListener callback) throws BACnetException {
-    //        return readPresentValues(localDevice, d, d.getObjects(), callback);
-    //    }
-    //
-    //    public static PropertyValues readPresentValues(final LocalDevice localDevice, final RemoteDevice d,
-    //            final List<RemoteObject> objs, final RequestListener callback) throws BACnetException {
-    //        final List<ObjectIdentifier> oids = new ArrayList<>(objs.size());
-    //        for (final RemoteObject o : d.getObjects())
-    //            oids.add(o.getObjectIdentifier());
-    //        return readOidPresentValues(localDevice, d, oids, callback);
-    //    }
-
     public static PropertyValues readOidPresentValues(final LocalDevice localDevice, final RemoteDevice d,
             final List<ObjectIdentifier> oids, final ReadListener callback) throws BACnetException {
         if (oids.size() == 0)
@@ -462,7 +490,7 @@ public class RequestUtils {
         for (final ObjectIdentifier oid : oids)
             refs.add(oid, PropertyIdentifier.presentValue);
 
-        return readProperties(localDevice, d, refs, callback);
+        return readProperties(localDevice, d, refs, false, callback);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -269,7 +269,7 @@ public class PropertyUtils {
             };
 
             // Request the rest of the properties.
-            RequestUtils.readProperties(localDevice, rd, refs, deviceCallback);
+            RequestUtils.readProperties(localDevice, rd, refs, false, deviceCallback);
         } catch (final BACnetTimeoutException ex) {
             throw ex;
         } catch (final BACnetException ex) {
