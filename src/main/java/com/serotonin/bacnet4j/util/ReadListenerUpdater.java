@@ -38,37 +38,25 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 public class ReadListenerUpdater {
     private final ReadListener callback;
     private final PropertyValues propertyValues;
-    private final AtomicInteger max;
+    private final int max;
     private final AtomicInteger current = new AtomicInteger(0);
     private boolean cancelled;
 
     public ReadListenerUpdater(final ReadListener callback, final PropertyValues propertyValues, final int max) {
         this.callback = callback;
         this.propertyValues = propertyValues;
-        this.max = new AtomicInteger(max);
+        this.max = max;
     }
 
     public void increment(final int deviceId, final ObjectIdentifier oid, final PropertyIdentifier pid,
-            final UnsignedInteger pin, final Encodable value, boolean updateCurrent) {
-       
-        final int cur;
-        if(updateCurrent)
-             cur = current.incrementAndGet();
-        else
-            cur = current.get();
-        
-        if (callback != null)
-            cancelled = callback.progress((double) cur / max.get(), deviceId, oid, pid, pin, value);
-        propertyValues.add(oid, pid, pin, value);
-    }
-    
-    public void increment(final int deviceId, final ObjectIdentifier oid, final PropertyIdentifier pid,
             final UnsignedInteger pin, final Encodable value) {
-        increment(deviceId, oid, pid, pin, value, true);
+        final int cur = current.incrementAndGet();
+        if (callback != null)
+            cancelled = callback.progress((double) cur / max, deviceId, oid, pid, pin, value);
+        propertyValues.add(oid, pid, pin, value);
     }
 
     public boolean cancelled() {
         return cancelled;
     }
-    
 }

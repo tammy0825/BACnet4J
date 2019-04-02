@@ -453,18 +453,13 @@ public class RequestUtils {
                                 newRefs.add(oid, new PropertyReference(ref.getPropertyIdentifier(), new UnsignedInteger(i)));
 
                             // Send the request. Use the method that automatically partitions the request.
-                            ReadListener callback = new ReadListener() {
-
-                                @Override
-                                public boolean progress(double progress, int deviceId,
-                                        ObjectIdentifier oid, PropertyIdentifier pid,
-                                        UnsignedInteger pin, Encodable value) {
-                                    updater.increment(deviceId, oid, pid, pin, value, false);
-                                    return updater.cancelled();
-                                }
-                                
-                            };
-                            readProperties(localDevice, d, newRefs, allowNull, callback);
+                            PropertyValues values = readProperties(localDevice, d, newRefs, allowNull, null);
+                            SequenceOf<Encodable> sequence = new SequenceOf<>(values.size());
+                            Map<ObjectIdentifier, List<PropertyReference>> props = newRefs.getProperties();
+                            for(PropertyReference r : props.get(oid)) {
+                                sequence.add(values.getNoErrorCheck(oid, r));
+                            }
+                            updater.increment(d.getInstanceNumber(), oid, ref.getPropertyIdentifier(), null, sequence);
                         }else
                             throw e;
                     }else

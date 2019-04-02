@@ -53,7 +53,7 @@ Releases
 - Bugfix to allow setReuseAddress to work correctly when using BACnetIP
 - Bugfix to ensure the propertyArrayIndex is correctly returned when reading via callback in RequestUtils
 - Change to Maven Eclipse Project
-- Modify RequestUtil.readProperties() to attempt to request sequenced values if they are too large and would cause a segmentationNotSupported response, this can cause the ReadListener to be updated with the same progress while these sequenced values are returned.
+- Modify RequestUtil.readProperties() to attempt to request sequenced values if they are too large and would cause a segmentationNotSupported response
 - Modify RequestUtilsreadProperties() to optionally allow returning null values
 
 *Version 4.1.7*
