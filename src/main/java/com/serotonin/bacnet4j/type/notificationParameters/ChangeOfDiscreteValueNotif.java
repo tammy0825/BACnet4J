@@ -111,7 +111,7 @@ public class ChangeOfDiscreteValueNotif extends AbstractNotificationParameter {
         return true;
     }
 
-    static class NewValue extends BaseType {
+    public static class NewValue extends BaseType {
         private static ChoiceOptions choiceOptions = new ChoiceOptions();
         static {
             choiceOptions.addPrimitive(Boolean.class);
