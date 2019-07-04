@@ -35,7 +35,7 @@ public class ObjectPropertyTypeDefinition {
     private final boolean required;
     private final PropertyTypeDefinition propertyTypeDefinition;
 
-    ObjectPropertyTypeDefinition(final ObjectType objectType, final boolean required,
+    public ObjectPropertyTypeDefinition(final ObjectType objectType, final boolean required,
             final PropertyTypeDefinition propertyTypeDefinition) {
         this.objectType = objectType;
         this.required = required;

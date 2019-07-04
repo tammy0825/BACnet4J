@@ -40,16 +40,16 @@ public class PropertyTypeDefinition {
     private final boolean isArray;
     private final int arrayLength;
 
-    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz) {
+    public PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz) {
         this(propertyIdentifier, clazz, false, false, 0);
     }
 
-    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
+    public PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
             final boolean isList) {
         this(propertyIdentifier, clazz, isList, false, 0);
     }
 
-    PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
+    public PropertyTypeDefinition(final PropertyIdentifier propertyIdentifier, final Class<? extends Encodable> clazz,
             final int arrayLength) {
         this(propertyIdentifier, clazz, false, true, arrayLength);
     }
