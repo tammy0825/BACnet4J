@@ -47,6 +47,9 @@ The dependency information is:
 
 Releases
 ========
+*Version 5.0.1*
+- Fix Door Status values for none=5, closing=6, opening=7, safetyLocked=8 limitedOpened=9
+
 *Version 5.0.0*
 - Fully BTL Certifiable
 - Support up to 255 segments when sending a request and response
