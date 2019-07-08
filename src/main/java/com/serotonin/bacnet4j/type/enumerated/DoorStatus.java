@@ -46,11 +46,11 @@ public class DoorStatus extends Enumerated {
     public static final DoorStatus unknown = new DoorStatus(2);
     public static final DoorStatus doorFault = new DoorStatus(3);
     public static final DoorStatus unused = new DoorStatus(4);
-    public static final DoorStatus none = new DoorStatus(4);
-    public static final DoorStatus closing = new DoorStatus(4);
-    public static final DoorStatus opening = new DoorStatus(4);
-    public static final DoorStatus safetyLocked = new DoorStatus(4);
-    public static final DoorStatus limitedOpened = new DoorStatus(4);
+    public static final DoorStatus none = new DoorStatus(5);
+    public static final DoorStatus closing = new DoorStatus(6);
+    public static final DoorStatus opening = new DoorStatus(7);
+    public static final DoorStatus safetyLocked = new DoorStatus(8);
+    public static final DoorStatus limitedOpened = new DoorStatus(9);
 
     private static final Map<Integer, Enumerated> idMap = new HashMap<>();
     private static final Map<String, Enumerated> nameMap = new HashMap<>();
