@@ -107,20 +107,14 @@ public class IAmRequest extends UnconfirmedRequestService {
         if (d == null) {
             // Populate the object with discovered values, but do so in a different thread.
             localDevice.execute(() -> {
-                LOG.debug("{} received an IAm from {}. Asynchronously creating remote device",
-                        localDevice.getInstanceNumber(), remoteDoi);
-                try {
-                    final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
-                    rd.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
-                    rd.setDeviceProperty(PropertyIdentifier.segmentationSupported, segmentationSupported);
-                    rd.setDeviceProperty(PropertyIdentifier.vendorIdentifier, vendorId);
-                    DiscoveryUtils.getExtendedDeviceInformation(localDevice, rd);
-                    localDevice.getEventHandler().fireIAmReceived(rd);
-                } catch (final BACnetException e) {
-                    LOG.warn("Error in {} while discovering extended device information from {} at {}",
-                            localDevice.getId(), remoteDoi, from, e);
-                }
-            });
+		    LOG.debug("{} received an IAm from {}. Asynchronously creating remote device",
+			      localDevice.getInstanceNumber(), remoteDoi);
+		    final RemoteDevice rd = new RemoteDevice(localDevice, remoteDoi, from);
+		    rd.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
+		    rd.setDeviceProperty(PropertyIdentifier.segmentationSupported, segmentationSupported);
+		    rd.setDeviceProperty(PropertyIdentifier.vendorIdentifier, vendorId);
+		    localDevice.getEventHandler().fireIAmReceived(rd);
+		});
         } else {
             d.setDeviceProperty(PropertyIdentifier.maxApduLengthAccepted, maxAPDULengthAccepted);
             d.setDeviceProperty(PropertyIdentifier.segmentationSupported, segmentationSupported);
