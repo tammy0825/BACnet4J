@@ -14,6 +14,7 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.enums.Month;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.AnalogInputObject;
@@ -460,6 +461,11 @@ public class ReadRangeRequestTest {
         @Override
         public void write(final ByteQueue queue, final int contextId) {
             throw new RuntimeException("not implemented");
+        }
+
+        @Override
+        public void validate() throws BACnetServiceException {
+            //Not necessary
         }
     }
 

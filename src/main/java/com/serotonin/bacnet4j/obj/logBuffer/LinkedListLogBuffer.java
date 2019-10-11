@@ -2,6 +2,8 @@ package com.serotonin.bacnet4j.obj.logBuffer;
 
 import java.util.LinkedList;
 
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
+
 public class LinkedListLogBuffer<T extends ILogRecord> extends LogBuffer<T> {
     private final LinkedList<T> list = new LinkedList<>();
 
@@ -33,5 +35,10 @@ public class LinkedListLogBuffer<T extends ILogRecord> extends LogBuffer<T> {
     @Override
     public String toString() {
         return "LinkedListLogBuffer" + list;
+    }
+
+    @Override
+    public void validate() throws BACnetServiceException {
+        //Unsure of how to validate this
     }
 }

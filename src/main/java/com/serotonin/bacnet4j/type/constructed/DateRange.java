@@ -43,16 +43,17 @@ public class DateRange extends BaseType implements DateMatchable {
     public DateRange(final Date startDate, final Date endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
-        validate();
+        validateInput();
     }
 
     public DateRange(final ByteQueue queue) throws BACnetException {
         startDate = read(queue, Date.class);
         endDate = read(queue, Date.class);
-        validate();
+        validateInput();
     }
 
-    private void validate() {
+    
+    private void validateInput() {
         if (startDate.getYear() != Date.UNSPECIFIED_YEAR && endDate.getYear() == Date.UNSPECIFIED_YEAR
                 || startDate.getYear() == Date.UNSPECIFIED_YEAR && endDate.getYear() != Date.UNSPECIFIED_YEAR)
             throw new BACnetRuntimeException("start and end years must both be specific or unspecific");

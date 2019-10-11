@@ -284,6 +284,7 @@ public class DeviceObject extends BACnetObject {
                 }
             }
         }
+        value.validate();
         return false;
     }
 

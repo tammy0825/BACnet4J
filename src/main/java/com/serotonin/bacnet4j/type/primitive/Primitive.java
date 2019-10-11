@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.primitive;
 
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
@@ -175,18 +176,15 @@ abstract public class Primitive extends Encodable {
 
     protected long readTag(final ByteQueue queue, byte type_Id) throws BACnetErrorException {
         final byte b = queue.pop();
-        int tagNumber = (b & 0xff) >> 4;
-        boolean contextSpecific = (b & 8) != 0;
+        typeId = type_Id;
+        tagNumber = (b & 0xff) >> 4;
+        contextSpecific = (b & 8) != 0;
         long length = b & 7;
 
         if (tagNumber == 0xf)
             // Extended tag.
             tagNumber = queue.popU1B();
-
-         //if the tagNumber its not contextSpecific, validate the type
-        if (!contextSpecific && tagNumber != type_Id){
-            throw new BACnetErrorException(ErrorClass.property, ErrorCode.invalidDataType);           
-        }       
+      
         
         if (length == 5) {
             length = queue.popU1B();
@@ -197,5 +195,16 @@ abstract public class Primitive extends Encodable {
         }
 
         return length;
+    }
+    private int tagNumber;
+    private int typeId;
+    private boolean contextSpecific;
+    
+    @Override
+    public void validate() throws BACnetServiceException {
+        //if the tagNumber its not contextSpecific, validate the type
+       if (!contextSpecific && tagNumber != typeId){
+           throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);           
+       } 
     }
 }

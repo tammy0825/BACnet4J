@@ -28,11 +28,13 @@
  */
 package com.serotonin.bacnet4j.type.primitive;
 
+import java.math.BigInteger;
+
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.enumerated.ErrorClass;
 import com.serotonin.bacnet4j.type.enumerated.ErrorCode;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
-import java.math.BigInteger;
 
 public class Unsigned16 extends UnsignedInteger {
     private static final int MAX = 0xffff;
@@ -46,14 +48,19 @@ public class Unsigned16 extends UnsignedInteger {
 
     public Unsigned16(final ByteQueue queue) throws BACnetErrorException {
         super(queue);
+    }
+    
+    @Override
+    public void validate() throws BACnetServiceException {
+        super.validate();
         if (super.isSmallValue()) {
             if (super.intValue() > MAX) {
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.valueOutOfRange);
+                throw new BACnetServiceException(ErrorClass.property, ErrorCode.valueOutOfRange);
             }
         } else {
             if (super.bigIntegerValue().compareTo(BIGMAX) > 0) {
-                throw new BACnetErrorException(ErrorClass.property, ErrorCode.valueOutOfRange);
+                throw new BACnetServiceException(ErrorClass.property, ErrorCode.valueOutOfRange);
             }
-        }
+        }        
     }
 }
