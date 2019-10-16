@@ -41,12 +41,15 @@ The dependency information is:
 <dependency>
     <groupId>com.serotonin</groupId>
     <artifactId>bacnet4j</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>x.x.x</version>
 </dependency>
 ```
 
 Releases
 ========
+*Version 5.0.2*
+- Relax restriction on reading values that are invalid by only validating values when they are written to our device
+
 *Version 5.0.1*
 - Fix Door Status values for none=5, closing=6, opening=7, safetyLocked=8 limitedOpened=9
 
