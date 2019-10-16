@@ -3,6 +3,7 @@ package com.serotonin.bacnet4j.type;
 import java.util.Arrays;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.StreamUtils;
@@ -117,5 +118,10 @@ public class EncodedValue extends Encodable {
         if (!Arrays.equals(data, other.data))
             return false;
         return true;
+    }
+
+    @Override
+    public void validate() throws BACnetServiceException {
+        //Not necessary
     }
 }

@@ -1,5 +1,9 @@
 package com.serotonin.bacnet4j.obj;
 
+import static org.junit.Assert.fail;
+
+import java.math.BigInteger;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -8,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.NameValue;
@@ -27,7 +32,7 @@ import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
-import java.math.BigInteger;
+import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BACnetObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(BACnetObjectTest.class);
@@ -41,6 +46,7 @@ public class BACnetObjectTest extends AbstractTest {
                         new NameValue("tag2", Null.instance)));
         d2.writePropertyInternal(PropertyIdentifier.forId(6789),
                 new BACnetArray<>(new Real(0), new Real(1), new Real(2)));
+        d2.writePropertyInternal(PropertyIdentifier.protocolVersion, new CharacterString(CharacterString.Encodings.ANSI_X3_4, "hxzy-1.01"));
     }
 
     @Test
@@ -196,6 +202,19 @@ public class BACnetObjectTest extends AbstractTest {
         }, ErrorClass.property, ErrorCode.invalidDataType);
     }
 
+    @Test
+    public void primitiveReadIncorrectType() {
+        //Standard test 135.1-2013, 9.22.2.3 only applies to writes
+        
+        try{
+            //Internally this gets converted to an UnsignedInteger on receipt of the response so I'm not sure how to assert the
+            //  response is correct
+            RequestUtils.readProperty(d1, rd2, d2.getId(), PropertyIdentifier.protocolVersion, null);
+        }catch(Exception e) {
+            fail(e.getMessage());
+        }
+    }
+    
     @Test
     public void writeOutOfRange() {
         //Standard test 135.1-2013, 9.22.2.4 - write a Unsigned16 with a value out of range.

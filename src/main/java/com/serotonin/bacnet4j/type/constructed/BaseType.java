@@ -28,6 +28,7 @@
  */
 package com.serotonin.bacnet4j.type.constructed;
 
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -44,5 +45,10 @@ abstract public class BaseType extends Encodable {
         write(queue);
         // Write an end tag
         writeContextTag(queue, contextId, false);
+    }
+    
+    @Override
+    public void validate() throws BACnetServiceException {
+        //NO Op
     }
 }

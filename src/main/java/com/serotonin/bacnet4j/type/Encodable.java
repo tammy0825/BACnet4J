@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.serotonin.bacnet4j.exception.BACnetErrorException;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.exception.ReflectionException;
 import com.serotonin.bacnet4j.obj.ObjectProperties;
 import com.serotonin.bacnet4j.obj.ObjectPropertyTypeDefinition;
@@ -64,6 +65,12 @@ abstract public class Encodable {
 
     abstract public void write(ByteQueue queue, int contextId);
 
+    /**
+     * Optionally validate the value before it is written into our device
+     * @throws BACnetErrorException
+     */
+    abstract public void validate() throws BACnetServiceException;
+    
     @Override
     public String toString() {
         return "Encodable(" + getClass().getName() + ")";
@@ -534,4 +541,5 @@ abstract public class Encodable {
         else
             type.write(queue, contextId);
     }
+
 }

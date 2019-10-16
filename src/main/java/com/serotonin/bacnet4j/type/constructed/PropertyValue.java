@@ -29,6 +29,7 @@
 package com.serotonin.bacnet4j.type.constructed;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.ThreadLocalObjectTypeStack;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
@@ -65,6 +66,11 @@ public class PropertyValue extends BaseType {
         return propertyIdentifier;
     }
 
+    @Override
+    public void validate() throws BACnetServiceException {
+        this.value.validate();
+    }
+    
     @SuppressWarnings("unchecked")
     public <T extends Encodable> T getValue() {
         return (T) value;

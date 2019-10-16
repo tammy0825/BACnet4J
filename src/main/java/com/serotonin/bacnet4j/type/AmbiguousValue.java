@@ -31,6 +31,7 @@ package com.serotonin.bacnet4j.type;
 import java.util.Arrays;
 
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
@@ -211,5 +212,10 @@ public class AmbiguousValue extends Encodable {
         } catch (@SuppressWarnings("unused") final BACnetException e) {
             return false;
         }
+    }
+
+    @Override
+    public void validate() throws BACnetServiceException {
+        //No way to validate such a thing
     }
 }

@@ -35,7 +35,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
  */
 public class InvalidPropertyValueTest {
 
-    //Uncomment to run test @Test
+    @Test
     public void testParse() {
         
         List<Result> deviceResultList = new ArrayList<>();
@@ -59,9 +59,8 @@ public class InvalidPropertyValueTest {
         mockAck.write(queue);
         
         try {
-            ReadPropertyMultipleAck ack = new ReadPropertyMultipleAck(queue);
+            new ReadPropertyMultipleAck(queue);
         } catch (BACnetException e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
         
