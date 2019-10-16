@@ -39,6 +39,6 @@ public class LinkedListLogBuffer<T extends ILogRecord> extends LogBuffer<T> {
 
     @Override
     public void validate() throws BACnetServiceException {
-        //Unsure of how to validate this
+        //Not written, validation not necessary
     }
 }

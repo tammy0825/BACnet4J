@@ -122,6 +122,6 @@ public class EncodedValue extends Encodable {
 
     @Override
     public void validate() throws BACnetServiceException {
-        //Unsure if this is possible
+        //Not necessary
     }
 }
