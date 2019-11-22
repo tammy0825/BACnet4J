@@ -4,7 +4,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.time.temporal.ChronoField;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
@@ -148,9 +147,10 @@ public class DeviceObjectTest extends AbstractTest {
 
         //
         // Advance the clock to the notification time.
-        clock.plusMillis((1000 - clock.get(ChronoField.MILLI_OF_SECOND)) % 1000);
-        clock.plusSeconds((60 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60);
-        final int minutes = (1445 - clock.get(ChronoField.MINUTE_OF_DAY)) % 240;
+        //clock.plusMillis((1000 - clock.get(ChronoField.MILLI_OF_SECOND)) % 1000);
+        //clock.plusSeconds((60 - clock.get(ChronoField.SECOND_OF_MINUTE)) % 60);
+        //Advance past 4hrs to make sure there is at least 1 change
+        final int minutes = 240; //(1445 - clock.get(ChronoField.MINUTE_OF_DAY)) % 240;
         clock.plus(minutes, MINUTES, 0);
 
         latch.await(1, TimeUnit.SECONDS);
