@@ -1,4 +1,4 @@
-package com.serotonin.bacnet4j.util.sero;
+package com.serotonin.bacnet4j.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

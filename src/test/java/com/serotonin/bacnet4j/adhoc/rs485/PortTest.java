@@ -8,9 +8,9 @@ import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
 import com.serotonin.bacnet4j.npdu.mstp.SlaveNode;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.transport.Transport;
+import com.serotonin.bacnet4j.util.JsscSerialPortInputStream;
+import com.serotonin.bacnet4j.util.JsscSerialPortOutputStream;
 import com.serotonin.bacnet4j.util.RemoteDeviceDiscoverer;
-import com.serotonin.bacnet4j.util.sero.JsscSerialPortInputStream;
-import com.serotonin.bacnet4j.util.sero.JsscSerialPortOutputStream;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
 
 import jssc.SerialPort;
