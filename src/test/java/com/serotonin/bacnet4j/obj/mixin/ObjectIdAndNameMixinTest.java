@@ -3,6 +3,7 @@ package com.serotonin.bacnet4j.obj.mixin;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
@@ -16,6 +17,7 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.util.DiscoveryUtils;
 
 public class ObjectIdAndNameMixinTest {
     private final TestNetworkMap map = new TestNetworkMap();
@@ -27,8 +29,9 @@ public class ObjectIdAndNameMixinTest {
                 new CharacterString("Unique device name"));
 
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 0))).initialize();
-        d2.getRemoteDeviceBlocking(1);
-
+        RemoteDevice rd = d2.getRemoteDeviceBlocking(1);
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd);
+        
         TestUtils.assertBACnetServiceException(() -> {
             d2.getDeviceObject().writeProperty(null,
                     new PropertyValue(PropertyIdentifier.objectName, new CharacterString("Unique device name")));
