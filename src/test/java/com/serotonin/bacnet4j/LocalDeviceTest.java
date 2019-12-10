@@ -29,6 +29,7 @@ import com.serotonin.bacnet4j.obj.DeviceObject;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.util.DiscoveryUtils;
 import com.serotonin.bacnet4j.util.RemoteDeviceFinder.RemoteDeviceFuture;
 
 import lohbihler.warp.WarpClock;
@@ -60,6 +61,9 @@ public class LocalDeviceTest {
     public void deviceCacheSuccess() throws InterruptedException, ExecutionException, BACnetException {
         assertNull(d1.getCachedRemoteDevice(2));
 
+        RemoteDevice rd2 = d1.getRemoteDeviceBlocking(2);
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd2);
+        
         // Ask for device 2 in two different threads.
         final MutableObject<RemoteDevice> rd21 = new MutableObject<>();
         final MutableObject<RemoteDevice> rd22 = new MutableObject<>();
@@ -68,6 +72,7 @@ public class LocalDeviceTest {
                 rd21.setValue(d1.getRemoteDevice(2).get());
             } catch (final BACnetException e) {
                 // Shouldn't happen
+                fail(e.getMessage());
                 e.printStackTrace();
             }
         });
