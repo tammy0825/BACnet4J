@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.AbstractTest;
 import com.serotonin.bacnet4j.TestUtils;
 import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.BACnetArray;
 import com.serotonin.bacnet4j.type.constructed.DateTime;
 import com.serotonin.bacnet4j.type.constructed.NameValue;
@@ -32,7 +31,6 @@ import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import com.serotonin.bacnet4j.type.primitive.Unsigned32;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import com.serotonin.bacnet4j.util.RequestUtils;
-import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
 public class BACnetObjectTest extends AbstractTest {
     static final Logger LOG = LoggerFactory.getLogger(BACnetObjectTest.class);
@@ -50,11 +48,10 @@ public class BACnetObjectTest extends AbstractTest {
     }
 
     @Test
-    public void definedScalarWithIncorrectType() throws BACnetException {
+    public void definedScalarWithIncorrectType() {
         TestUtils.assertErrorAPDUException(() -> {
             RequestUtils.writeProperty(d1, rd2, d2.getId(), PropertyIdentifier.description, new Real(0));
         }, ErrorClass.property, ErrorCode.invalidDataType);
-        System.out.println(d2.get(PropertyIdentifier.description));
     }
 
     @Test
