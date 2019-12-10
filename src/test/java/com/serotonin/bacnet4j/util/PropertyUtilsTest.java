@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.BinaryValueObject;
@@ -359,6 +360,8 @@ public class PropertyUtilsTest {
         actualValues = PropertyUtils.readProperties(d1, refs, null, 3000);
 
         assertEquals(expectedValues, actualValues);
+        RemoteDevice rd6 = d1.getRemoteDeviceBlocking(6);
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd6);
         assertEquals(str("d6"),
                 d1.getCachedRemoteProperty(6, oid(ObjectType.device, 6), PropertyIdentifier.objectName));
         assertEquals(new OctetString(new byte[] { 16 }), d1.getCachedRemoteDevice(6).getAddress().getMacAddress());
