@@ -6,6 +6,7 @@ import org.junit.Before;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.util.DiscoveryUtils;
 
 import lohbihler.warp.WarpClock;
 
@@ -45,6 +46,22 @@ abstract public class AbstractTest {
         rd2 = d1.getRemoteDevice(2).get();
         rd3 = d1.getRemoteDevice(3).get();
 
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd1);
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd2);
+        DiscoveryUtils.getExtendedDeviceInformation(d1, rd3);
+        
+        DiscoveryUtils.getExtendedDeviceInformation(d2, rd1);
+        DiscoveryUtils.getExtendedDeviceInformation(d2, rd2);
+        DiscoveryUtils.getExtendedDeviceInformation(d2, rd3);
+        
+        DiscoveryUtils.getExtendedDeviceInformation(d3, rd1);
+        DiscoveryUtils.getExtendedDeviceInformation(d3, rd2);
+        DiscoveryUtils.getExtendedDeviceInformation(d3, rd3);
+        
+        DiscoveryUtils.getExtendedDeviceInformation(d4, rd1);
+        DiscoveryUtils.getExtendedDeviceInformation(d4, rd2);
+        DiscoveryUtils.getExtendedDeviceInformation(d4, rd3);
+        
         afterInit();
     }
 
