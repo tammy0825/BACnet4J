@@ -49,7 +49,13 @@ Releases
 ========
 *Version 6.0.0-SNAPSHOT*
 - fix DeviceObjectTest.timeSynchronization test to pass
-- IAmRequest no longer automatically gets the extended device information this must now be done by adding an IAmRequest listener or using DiscoveryUtils.getExtendedDeviceInformation(d1, rd);
+- IAmRequest no longer automatically gets the extended device information this must now be done by adding an IAmRequest listener or using DiscoveryUtils.getExtendedDeviceInformation(d1, rd); The extended device info no longer retrieved is:
+    * PropertyIdentifier.protocolServicesSupported
+    * PropertyIdentifier.objectName
+    * PropertyIdentifier.protocolVersion
+    * PropertyIdentifier.vendorIdentifier
+    * PropertyIdentifier.modelName
+    * PropertyIdentifier.maxSegmentsAccepted
 
 *Version 5.0.2*
 - Relax restriction on reading values that are invalid by only validating values when they are written to our device
