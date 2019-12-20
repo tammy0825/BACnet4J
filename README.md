@@ -35,7 +35,15 @@ A public Maven Repository is now available with the latest builds add this to yo
 </repositories>
 ```
 
-The dependency information is:
+The maven coordinates for BACnet4J 5.0+ are
+```xml
+<dependency>
+	<groupId>com.infiniteautomation</groupId>
+    <artifactId>bacnet4j</artifactId>
+    <version>x.x.x</version>
+</dependency>
+```
+The dependency information is BACnet4J pre 5.0 is:
 
 ```xml
 <dependency>
