@@ -37,30 +37,33 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class Address extends BaseType {
     public static final int LOCAL_NETWORK = 0;
     public static final int ALL_NETWORKS = 0xFFFF;
-    public static final Address GLOBAL = new Address(new Unsigned16(ALL_NETWORKS), null);
+    public static final Address GLOBAL = new Address(new Unsigned16(ALL_NETWORKS), null, false);
 
     private final Unsigned16 networkNumber;
     private final OctetString macAddress;
+    //Can this address update a remote device
+    private final boolean hasSourceInfo;
 
     public Address(final byte[] macAddress) {
-        this(new Unsigned16(LOCAL_NETWORK), new OctetString(macAddress));
+        this(new Unsigned16(LOCAL_NETWORK), new OctetString(macAddress), false);
     }
 
-    public Address(final int networkNumber, final byte[] macAddress) {
-        this(new Unsigned16(networkNumber), new OctetString(macAddress));
+    public Address(final int networkNumber, final byte[] macAddress, boolean hasSourceInfo) {
+        this(new Unsigned16(networkNumber), new OctetString(macAddress), hasSourceInfo);
     }
 
     public Address(final OctetString macAddress) {
-        this(new Unsigned16(LOCAL_NETWORK), macAddress);
+        this(new Unsigned16(LOCAL_NETWORK), macAddress, false);
     }
 
-    public Address(final int networkNumber, final OctetString macAddress) {
-        this(new Unsigned16(networkNumber), macAddress);
+    public Address(final int networkNumber, final OctetString macAddress, boolean hasSourceInfo) {
+        this(new Unsigned16(networkNumber), macAddress, hasSourceInfo);
     }
 
-    public Address(final Unsigned16 networkNumber, final OctetString macAddress) {
+    public Address(final Unsigned16 networkNumber, final OctetString macAddress, boolean hasSourceInfo) {
         this.networkNumber = networkNumber;
         this.macAddress = macAddress;
+        this.hasSourceInfo = hasSourceInfo;
     }
 
     @Override
@@ -72,6 +75,7 @@ public class Address extends BaseType {
     public Address(final ByteQueue queue) throws BACnetException {
         networkNumber = read(queue, Unsigned16.class);
         macAddress = read(queue, OctetString.class);
+        hasSourceInfo = false;
     }
 
     public OctetString getMacAddress() {
@@ -84,6 +88,10 @@ public class Address extends BaseType {
 
     public boolean isGlobal() {
         return networkNumber.intValue() == 0xFFFF;
+    }
+
+    public boolean hasSourceInfo() {
+        return this.hasSourceInfo;
     }
 
     //

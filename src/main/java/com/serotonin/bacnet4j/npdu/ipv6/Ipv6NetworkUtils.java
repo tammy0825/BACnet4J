@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.ipv6;
@@ -50,7 +50,7 @@ public class Ipv6NetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, byte[] addr, int port) {
-        return new Address(networkNumber, toOctetString(addr, port));
+        return new Address(networkNumber, toOctetString(addr, port), true);
     }
 
     public static InetSocketAddress getInetSocketAddress(OctetString mac) {

@@ -392,12 +392,12 @@ public class Ipv6Network extends Network implements Runnable {
     //
     @Override
     public Address[] getAllLocalAddresses() {
-        return new Address[] { new Address(getLocalNetworkNumber(), thisVMAC) };
+        return new Address[] { new Address(getLocalNetworkNumber(), thisVMAC, true) };
     }
 
     @Override
     public Address getLoopbackAddress() {
-        return new Address(getLocalNetworkNumber(), thisVMAC);
+        return new Address(getLocalNetworkNumber(), thisVMAC, true);
     }
 
     private void purgePendingAddressResolutions() {

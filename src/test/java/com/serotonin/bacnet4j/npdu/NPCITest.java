@@ -11,7 +11,7 @@ import com.serotonin.bacnet4j.util.sero.ByteQueue;
 public class NPCITest {
     @Test
     public void priorityTest() {
-        NPCI npci = new NPCI(new Address(2, new byte[] { 1 }));
+        NPCI npci = new NPCI(new Address(2, new byte[] { 1 }, true));
         System.out.println(npci.getNetworkPriority());
         npci.priority(NetworkPriority.criticalEquipment);
         System.out.println(npci.getNetworkPriority());
