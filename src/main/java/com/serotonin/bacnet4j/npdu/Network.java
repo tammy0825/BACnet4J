@@ -80,7 +80,7 @@ abstract public class Network {
     abstract public void terminate();
 
     public final Address getLocalBroadcastAddress() {
-        return new Address(localNetworkNumber, getBroadcastMAC());
+        return new Address(localNetworkNumber, getBroadcastMAC(), false);
     }
 
     abstract protected OctetString getBroadcastMAC();
@@ -190,7 +190,7 @@ abstract public class Network {
 
         Address from;
         if (npci.hasSourceInfo())
-            from = new Address(npci.getSourceNetwork(), npci.getSourceAddress());
+            from = new Address(npci.getSourceNetwork(), npci.getSourceAddress(), true);
         else
             from = new Address(linkService);
 

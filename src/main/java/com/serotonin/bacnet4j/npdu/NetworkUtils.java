@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu;
@@ -66,7 +66,7 @@ public class NetworkUtils {
      * MS/TP should be a single digit: "5"
      * IPv4 should a dotted string with port: 192.168.0.5:47808
      * IPv6 should be something like this: [::1]:47808
-     * 
+     *
      * @param s
      * @return
      * @throws BACnetException
@@ -98,6 +98,6 @@ public class NetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, String dottedString) {
-        return new Address(new Unsigned16(networkNumber), toOctetString(dottedString));
+        return new Address(new Unsigned16(networkNumber), toOctetString(dottedString), true);
     }
 }

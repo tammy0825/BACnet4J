@@ -23,7 +23,7 @@
  * without being obliged to provide the source code for any proprietary components.
  *
  * See www.infiniteautomation.com for commercial license options.
- * 
+ *
  * @author Matthew Lohbihler
  */
 package com.serotonin.bacnet4j.npdu.mstp;
@@ -49,7 +49,7 @@ public class MstpNetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, byte station) {
-        return new Address(networkNumber, toOctetString(station));
+        return new Address(networkNumber, toOctetString(station), false);
     }
 
     public static Address toAddress(int station) {
@@ -57,6 +57,6 @@ public class MstpNetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, int station) {
-        return new Address(networkNumber, toOctetString((byte) station));
+        return new Address(networkNumber, toOctetString((byte) station), true);
     }
 }

@@ -176,7 +176,7 @@ public class LocalDevice {
 
     //Callback if other devices have the same id like us
     private Consumer<Address> sameDeviceIdCallback;
-    
+
     /**
      * Useful when objects want to make COV subscriptions, in that it will provide a device-unique id.
      */
@@ -871,7 +871,7 @@ public class LocalDevice {
         if (address == null)
             throw new NullPointerException("addr cannot be null");
         final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
-        if (d != null) {
+        if (d != null && address.hasSourceInfo()) {
             d.setAddress(address);
         }
     }
@@ -1147,15 +1147,15 @@ public class LocalDevice {
     public Address getLocalBroadcastAddress() {
         return transport.getLocalBroadcastAddress();
     }
-    
+
     /**
      * Register a callback if other devices have the same id like us.
-     * @param callback 
+     * @param callback
      */
     public void setSameDeviceIdCallback(Consumer<Address> callback) {
         sameDeviceIdCallback = callback;
     }
-    
+
     /**
      * Notify the callback that we have the same Device id like an other device.
      *
@@ -1169,6 +1169,6 @@ public class LocalDevice {
             });
         }
     }
-    
-    
+
+
 }
