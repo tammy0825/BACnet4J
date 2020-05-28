@@ -871,8 +871,14 @@ public class LocalDevice {
         if (address == null)
             throw new NullPointerException("addr cannot be null");
         final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
-        if (d != null && address.hasSourceInfo()) {
-            d.setAddress(address);
+        if (d != null) {
+            if(address.hasSourceInfo()) {
+                //We can confidently change the network number
+                d.setAddress(address);
+            }else {
+                //We should only change the macAddress
+                d.setAddress(new Address(d.getAddress().getNetworkNumber().intValue(), address.getMacAddress(), false));
+            }
         }
     }
 
