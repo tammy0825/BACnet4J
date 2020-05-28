@@ -41,7 +41,6 @@ public class Address extends BaseType {
 
     private final Unsigned16 networkNumber;
     private final OctetString macAddress;
-    //Can this address update a remote device
     private final boolean hasSourceInfo;
 
     public Address(final byte[] macAddress) {
@@ -90,6 +89,10 @@ public class Address extends BaseType {
         return networkNumber.intValue() == 0xFFFF;
     }
 
+    /**
+     * Can this address update a cached remote device (i.e. was the source specifier flag set in the message)
+     * @return
+     */
     public boolean hasSourceInfo() {
         return this.hasSourceInfo;
     }
