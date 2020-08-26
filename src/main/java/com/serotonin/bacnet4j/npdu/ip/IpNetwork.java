@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +58,7 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Use IpNetworkBuilder to create.
@@ -363,9 +363,9 @@ public class IpNetwork extends Network implements Runnable {
         if (function == 0x0) {
             final int result = BACnetUtils.popShort(queue);
 
-            if (result == 0x10)
-                LOG.error("Write-Broadcast-Distrubution-Table failed!");
-            else if (result == 0x20)
+           if (result == 0x10)
+                LOG.error("Write-Broadcast-Distrubution-Table failed!");  
+           else if (result == 0x20)
                 LOG.error("Read-Broadcast-Distrubution-Table failed!");
             else if (result == 0x30)
                 LOG.error("Register-Foreign-Device failed!");
@@ -465,11 +465,6 @@ public class IpNetwork extends Network implements Runnable {
         }
 
         return InetAddress.getLocalHost();
-    }
-
-    @Override
-    public Address getAddress() {
-        return IpNetworkUtils.toAddress(localBindAddress);
     }
 
     @Override
@@ -596,7 +591,7 @@ public class IpNetwork extends Network implements Runnable {
                 response.pushU2B(0x10); // NAK
             }
         } else {
-            response.pushU2B(0x10); // NAK
+            response.pushU2B(0x10); // NAK  
         }
         sendPacket(IpNetworkUtils.getInetSocketAddress(origin), response.popAll());
     }
@@ -625,9 +620,9 @@ public class IpNetwork extends Network implements Runnable {
                 response.pushU2B(0x20); // NAK
             }
         } else {
-            response.push(0); // Result
-            response.pushU2B(6); // Length
-            response.pushU2B(0x20); // NAK
+                response.push(0); // Result
+                response.pushU2B(6); // Length
+                response.pushU2B(0x20); // NAK
         }
         sendPacket(IpNetworkUtils.getInetSocketAddress(origin), response.popAll());
     }
@@ -807,8 +802,8 @@ public class IpNetwork extends Network implements Runnable {
                     list.pushU2B(e.timeToLive);
 
                     int remaining = (int) (e.endTime - now) / 1000;
-                    if (remaining < 0)
-                        // Hasn't yet been cleaned up.
+                    if (remaining < 0) 
+                    // Hasn't yet been cleaned up.
                         remaining = 0;
                     if (remaining > 65535)
                         remaining = 65535;
@@ -989,7 +984,7 @@ public class IpNetwork extends Network implements Runnable {
         pushISA(queue, fdtEntry);
         sendPacket(addr, queue.popAll());
     }
-
+    
     /**
      * Enable BBMD support. Allow other device to register as BBMD or foreign device. *
      */

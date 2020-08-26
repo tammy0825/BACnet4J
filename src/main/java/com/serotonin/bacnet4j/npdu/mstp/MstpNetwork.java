@@ -103,11 +103,6 @@ public class MstpNetwork extends Network {
     }
 
     @Override
-    public Address getAddress() {
-        return MstpNetworkUtils.toAddress(getLocalNetworkNumber(), node.getThisStation());
-    }
-
-    @Override
     public void sendNPDU(final Address recipient, final OctetString router, final ByteQueue npdu,
             final boolean broadcast, final boolean expectsReply) throws BACnetException {
         final byte[] data = npdu.popAll();

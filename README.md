@@ -56,8 +56,6 @@ The dependency information is BACnet4J pre 5.0 is:
 Releases
 ========
 *Version 6.0.0-SNAPSHOT*
-- Only update a cached device's address if the NPCI data has the source specifier flag set
-- Always send messages with the source specifier set
 - fix DeviceObjectTest.timeSynchronization test to pass
 - IAmRequest no longer automatically gets the extended device information this must now be done by adding an `IAmRequestListener` or using `DiscoveryUtils.getExtendedDeviceInformation(d1, rd);` The extended device info no longer retrieved is:
     * PropertyIdentifier.protocolServicesSupported

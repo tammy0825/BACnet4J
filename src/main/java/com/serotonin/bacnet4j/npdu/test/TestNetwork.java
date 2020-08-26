@@ -211,9 +211,4 @@ public class TestNetwork extends Network implements Runnable {
         Address recipient;
         byte[] data;
     }
-
-    @Override
-    public Address getAddress() {
-        return address;
-    }
 }

@@ -119,11 +119,6 @@ public class Ipv6Network extends Network implements Runnable {
         return MaxApduLength.UP_TO_1476;
     }
 
-    @Override
-    public Address getAddress() {
-        return new Address(getLocalNetworkNumber(), thisVMAC, true);
-    }
-
     public String getMulticastAddress() {
         return multicastAddress;
     }
