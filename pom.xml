@@ -6,7 +6,7 @@
 	<artifactId>bacnet4j</artifactId>
 	<version>6.0.0-SNAPSHOT</version>
 	<name>BACnet4j Library</name>
-	<description>BACnet specificiation implementation in Java supporting IPv4, IPv6, and MS/TP.  This library supports protocol Version 1 Revision 19.</description>
+	<description>BACnet specification implementation in Java supporting IPv4, IPv6, and MS/TP.  This library supports protocol Version 1 Revision 19.</description>
 	<url>https://github.com/infiniteautomation/BACnet4J</url>
 	<licenses>
 		<license>
