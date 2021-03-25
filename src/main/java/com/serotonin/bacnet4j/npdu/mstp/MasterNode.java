@@ -318,7 +318,7 @@ public class MasterNode extends MstpNode {
             } else if (frameToSend.getFrameType().oneOf(FrameType.testRequest, FrameType.bacnetDataExpectingReply)) {
                 // SendAndWait
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("useToken:SendAndWait (" + frameToSend.getDestinationAddress());
+                    LOG.debug("useToken:SendAndWait (" + frameToSend.getDestinationAddress() + ")");
                 }
                 state = MasterNodeState.waitForReply;
             } else
