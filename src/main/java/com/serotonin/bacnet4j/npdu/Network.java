@@ -95,7 +95,7 @@ abstract public class Network {
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI((Address) null);
+            npci = new NPCI(getAllLocalAddresses()[0]);
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException(

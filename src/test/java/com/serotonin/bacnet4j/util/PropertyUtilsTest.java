@@ -3,6 +3,7 @@ package com.serotonin.bacnet4j.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -10,6 +11,8 @@ import org.junit.Test;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
+import com.serotonin.bacnet4j.event.IAmListener;
+import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.test.TestNetwork;
 import com.serotonin.bacnet4j.npdu.test.TestNetworkMap;
 import com.serotonin.bacnet4j.obj.BinaryValueObject;
@@ -40,12 +43,12 @@ public class PropertyUtilsTest {
     @Before
     public void before() throws Exception {
         // Create the local devices
-        d1 = new LocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 20))).initialize();
-        d2 = new LocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 30))).initialize();
-        d3 = new LocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 40))).initialize();
-        d4 = new LocalDevice(4, new DefaultTransport(new TestNetwork(map, 4, 50))).initialize();
-        d5 = new LocalDevice(5, new DefaultTransport(new TestNetwork(map, 5, 60))).initialize();
-        d6 = new LocalDevice(6, new DefaultTransport(new TestNetwork(map, 6, 70))).initialize();
+        d1 = createLocalDevice(1, new DefaultTransport(new TestNetwork(map, 1, 20))).initialize();
+        d2 = createLocalDevice(2, new DefaultTransport(new TestNetwork(map, 2, 30))).initialize();
+        d3 = createLocalDevice(3, new DefaultTransport(new TestNetwork(map, 3, 40))).initialize();
+        d4 = createLocalDevice(4, new DefaultTransport(new TestNetwork(map, 4, 50))).initialize();
+        d5 = createLocalDevice(5, new DefaultTransport(new TestNetwork(map, 5, 60))).initialize();
+        d6 = createLocalDevice(6, new DefaultTransport(new TestNetwork(map, 6, 70))).initialize();
 
         // Set up objects
         addObjects(d2);
@@ -402,4 +405,18 @@ public class PropertyUtilsTest {
 
         assertEquals(expectedValues, actualValues);
     }
+
+    private LocalDevice createLocalDevice(int deviceNumber, DefaultTransport defaultTransport) {
+        LocalDevice localDevice = new LocalDevice(deviceNumber, defaultTransport);
+        IAmListener listener = (RemoteDevice d) -> {
+            try {
+                DiscoveryUtils.getExtendedDeviceInformation(localDevice, d);
+            } catch (BACnetException e) {
+                fail(e.getMessage());
+            }
+        };
+        localDevice.getEventHandler().addListener(listener);
+        return localDevice;
+    }
+
 }
