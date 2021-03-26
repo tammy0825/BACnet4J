@@ -21,7 +21,7 @@ public class PortTest {
     public static void main(final String[] args) throws Exception {
         System.out.println(Arrays.toString(SerialPortList.getPortNames()));
 
-        final SerialPort serialPort = new SerialPort("COM4");
+        final SerialPort serialPort = new SerialPort("/dev/cu.usbserial-A101OGX5");
         boolean b = serialPort.openPort();
         System.out.println(b);
         b = serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
