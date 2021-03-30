@@ -100,12 +100,12 @@ abstract public class Network {
             if (router != null)
                 throw new RuntimeException(
                         "Invalid arguments: router address provided for local recipient " + recipient);
-            npci = new NPCI(null, null, apdu.expectsReply());
+            npci = new NPCI(null, getAllLocalAddresses()[0], apdu.expectsReply());
         } else {
             if (router == null)
                 throw new RuntimeException(
                         "Invalid arguments: router address not provided for remote recipient " + recipient);
-            npci = new NPCI(recipient, null, apdu.expectsReply());
+            npci = new NPCI(recipient, getAllLocalAddresses()[0], apdu.expectsReply());
         }
 
         if (apdu.getNetworkPriority() != null)
@@ -124,15 +124,15 @@ abstract public class Network {
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI(null, null, expectsReply, messageType, 0);
+            npci = new NPCI(null, getAllLocalAddresses()[0], expectsReply, messageType, 0);
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException("Invalid arguments: router address provided for a local recipient");
-            npci = new NPCI(null, null, expectsReply, messageType, 0);
+            npci = new NPCI(null, getAllLocalAddresses()[0], expectsReply, messageType, 0);
         } else {
             if (router == null)
                 throw new RuntimeException("Invalid arguments: router address not provided for a remote recipient");
-            npci = new NPCI(recipient, null, expectsReply, messageType, 0);
+            npci = new NPCI(recipient, getAllLocalAddresses()[0], expectsReply, messageType, 0);
         }
         npci.write(npdu);
 
