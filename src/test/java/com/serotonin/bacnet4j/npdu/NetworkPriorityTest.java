@@ -159,7 +159,7 @@ public class NetworkPriorityTest {
 
             @Override
             public Address[] getAllLocalAddresses() {
-                throw new RuntimeException();
+                return new Address[] {new Address(2, new byte[]{ 1}, true)};
             }
 
             @Override

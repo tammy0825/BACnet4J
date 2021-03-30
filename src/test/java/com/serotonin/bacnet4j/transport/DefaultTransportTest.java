@@ -33,6 +33,7 @@ public class DefaultTransportTest {
     public void criticalSegmentationBug() throws Exception {
         final Network network = mock(Network.class);
         when(network.isThisNetwork(any())).thenReturn(true);
+        when(network.getAllLocalAddresses()).thenReturn(new Address[] {getSourceAddress()});
 
         final LocalDevice localDevice = mock(LocalDevice.class);
         when(localDevice.getClock()).thenReturn(Clock.systemUTC());
@@ -68,10 +69,14 @@ public class DefaultTransportTest {
 
     private static ByteQueue createNPDU(final APDU apdu) {
         final ByteQueue npdu = new ByteQueue();
-        final NPCI npci = new NPCI(null, null, apdu.expectsReply());
+        final NPCI npci = new NPCI(null, getSourceAddress(), apdu.expectsReply());
         npci.write(npdu);
         apdu.write(npdu);
         return npdu;
+    }
+
+    private static Address getSourceAddress() {
+        return new Address(0, new byte[] {2}, true);
     }
 
     // Recreation of this issue: https://github.com/infiniteautomation/BACnet4J/issues/7
@@ -79,6 +84,7 @@ public class DefaultTransportTest {
     public void orderSegmentedMessages() throws Exception {
         final Network network = mock(Network.class);
         when(network.isThisNetwork(any())).thenReturn(true);
+        when(network.getAllLocalAddresses()).thenReturn(new Address[] {getSourceAddress()});
 
         final LocalDevice localDevice = mock(LocalDevice.class);
         when(localDevice.getClock()).thenReturn(Clock.systemUTC());
