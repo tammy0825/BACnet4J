@@ -77,6 +77,7 @@ public class TestNetwork extends Network implements Runnable {
     }
 
     public TestNetwork(final TestNetworkMap map, final Address address, final int sendDelay) {
+        super(0, true);
         this.networkMap = map;
         this.address = address;
         this.sendDelay = sendDelay;
@@ -110,6 +111,11 @@ public class TestNetwork extends Network implements Runnable {
     @Override
     public long getBytesIn() {
         return bytesIn;
+    }
+
+    @Override
+    public Address getPrimaryLocalAddress() {
+        return address;
     }
 
     @Override

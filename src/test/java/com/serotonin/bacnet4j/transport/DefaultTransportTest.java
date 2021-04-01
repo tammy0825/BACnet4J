@@ -69,7 +69,7 @@ public class DefaultTransportTest {
 
     private static ByteQueue createNPDU(final APDU apdu) {
         final ByteQueue npdu = new ByteQueue();
-        final NPCI npci = new NPCI(null, getSourceAddress(), apdu.expectsReply());
+        final NPCI npci = new NPCI(null, null, apdu.expectsReply());
         npci.write(npdu);
         apdu.write(npdu);
         return npdu;

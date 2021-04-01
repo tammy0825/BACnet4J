@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,6 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Use IpNetworkBuilder to create.
@@ -189,6 +189,11 @@ public class IpNetwork extends Network implements Runnable {
     @Override
     protected OctetString getBroadcastMAC() {
         return broadcastMAC;
+    }
+
+    @Override
+    public Address getPrimaryLocalAddress() {
+        return IpNetworkUtils.toAddress(InetAddrCache.get(localBindAddressStr, port));
     }
 
     public Address getBroadcastAddress(final int port) {

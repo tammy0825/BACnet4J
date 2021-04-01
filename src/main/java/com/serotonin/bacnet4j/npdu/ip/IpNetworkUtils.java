@@ -129,7 +129,7 @@ public class IpNetworkUtils {
     /**
      * Convenience constructor for IP addresses remote to this network.
      *
-     * @param network
+     * @param networkNumber
      * @param ipAddress
      * @param port
      */
