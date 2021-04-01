@@ -22,6 +22,10 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.util.DiscoveryUtils;
 
+/**
+ * This example will only work if the underlying implementation of the java DatagramSocket supports receiving
+ *   broadcasts on addresses other than the wildcard address. i.e. Windows
+ */
 public class MultipleLocalDevices {
 
     static final Logger LOG = LoggerFactory.getLogger(MultipleLocalDevices.class);

@@ -30,11 +30,14 @@ package com.serotonin.bacnet4j.npdu.ip;
 
 import static com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils.toIpAddrString;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.util.BACnetUtils;
 
 public class IpNetworkBuilder {
     private String localBindAddress = IpNetwork.DEFAULT_BIND_IP;
+    private String primaryLocalAddress;
     private String broadcastAddress;
     private String subnetMask;
     private int port = IpNetwork.DEFAULT_PORT;
@@ -51,7 +54,7 @@ public class IpNetworkBuilder {
      *
      * @param broadcastAddress
      *            the broadcast address for the network
-     * @param networkPrefix
+     * @param networkPrefixLength
      *            the number of bits in the local subnet.
      * @return this
      */
@@ -69,7 +72,7 @@ public class IpNetworkBuilder {
      *            the address of the local subnet, NOT the subnet mask., e.g. 192.168.0.0. The subnet address is
      *            required because the given local bind address could be the wildcard address, i.e. 0.0.0.0, from
      *            which the broadcast address cannot be calculated.
-     * @param networkPrefix
+     * @param networkPrefixLength
      *            the number of bits in the local subnet.
      * @return this
      */
@@ -97,6 +100,16 @@ public class IpNetworkBuilder {
 
     public IpNetworkBuilder withReuseAddress(final boolean reuseAddress) {
         this.reuseAddress = reuseAddress;
+        return this;
+    }
+
+    /**
+     * Set the source specifier of the NPDU to this address when sending messages
+     * @param primaryLocalAddress
+     * @return
+     */
+    public IpNetworkBuilder withSendSourceSpecifier(final String primaryLocalAddress) {
+        this.primaryLocalAddress = primaryLocalAddress;
         return this;
     }
 
@@ -128,7 +141,10 @@ public class IpNetworkBuilder {
         if (broadcastAddress == null || subnetMask == null) {
             throw new IllegalArgumentException("Either withBroadcast or withSubnet must be called.");
         }
-
-        return new IpNetwork(port, localBindAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
+        if(StringUtils.isEmpty(primaryLocalAddress)) {
+            return new IpNetwork(port, localBindAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
+        }else {
+            return new IpNetwork(port, localBindAddress, primaryLocalAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
+        }
     }
 }

@@ -104,7 +104,7 @@ abstract public class Network {
     /**
      * Get the primary address used for sending messages,
      *   this address must be available to receive messages on
-     *   and an address resolvable by the network. i.e. not 0.0.0.0
+     *   and an address resolvable to send messages to this network. i.e. not 0.0.0.0 or 127.0.0.1
      * @return
      */
     abstract public Address getPrimaryLocalAddress();
