@@ -873,11 +873,20 @@ public class LocalDevice {
         final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
         if (d != null) {
             if(address.hasSourceInfo()) {
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("Updating address with source info, newAddress={}, existingAddress={}", address, d.getAddress());
+                }
                 //We can confidently change the network number
                 d.setAddress(address);
             }else {
-                //We should only change the macAddress
-                d.setAddress(new Address(d.getAddress().getNetworkNumber().intValue(), address.getMacAddress(), false));
+                Address newAddress = new Address(d.getAddress().getNetworkNumber().intValue(), address.getMacAddress(), false);
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("Not updating address without source info, newAddress={}, existingAddress={}", address, d.getAddress());
+                }
+                //TODO REVIEW This address can be from the source of the socket message
+                // and may not be what we really want to update here.  We want a way to track
+                //
+                //d.setAddress(newAddress);
             }
         }
     }
