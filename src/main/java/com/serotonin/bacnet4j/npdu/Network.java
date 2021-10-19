@@ -189,10 +189,14 @@ abstract public class Network {
         }
 
         Address from;
-        if (npci.hasSourceInfo())
+        if (npci.hasSourceInfo()) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Received source information in message network={}, address={}", npci.getSourceNetwork(), npci.getSourceAddress());
+            }
             from = new Address(npci.getSourceNetwork(), npci.getSourceAddress(), true);
-        else
+        }else {
             from = new Address(linkService);
+        }
 
         OctetString ls = linkService;
         if (isThisNetwork(from)) {
