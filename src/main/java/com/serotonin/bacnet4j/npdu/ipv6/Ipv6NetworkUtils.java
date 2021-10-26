@@ -50,7 +50,7 @@ public class Ipv6NetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, byte[] addr, int port) {
-        return new Address(networkNumber, toOctetString(addr, port), true);
+        return new Address(networkNumber, toOctetString(addr, port));
     }
 
     public static InetSocketAddress getInetSocketAddress(OctetString mac) {

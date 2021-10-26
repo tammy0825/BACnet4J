@@ -22,41 +22,37 @@
  * included to allow you to distribute a combined work that includes BAcnet4J
  * without being obliged to provide the source code for any proprietary components.
  *
- * See www.infiniteautomation.com for commercial license options.
+ * See www.radixiot.com for commercial license options.
  *
- * @author Matthew Lohbihler
+ * @author Terry Packer
  */
-package com.serotonin.bacnet4j.npdu.mstp;
+package com.serotonin.bacnet4j.type.constructed;
 
-import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import com.serotonin.bacnet4j.type.primitive.Unsigned16;
 
-public class MstpNetworkUtils {
-    public static OctetString toOctetString(byte station) {
-        return new OctetString(new byte[] { station });
+/**
+ * Marker class to indicate that the address was received
+ *  in the NPDU as the 'Source Address'
+ */
+public class NetworkSourceAddress extends Address {
+
+    public NetworkSourceAddress(int sourceNetwork, byte[] sourceAddress) {
+        super(sourceNetwork, sourceAddress);
     }
 
-    public static byte getMstpAddress(OctetString mac) {
-        return mac.getBytes()[0];
+    @Override
+    public String toString() {
+        return super.toString();
     }
 
-    public static String toString(OctetString mac) {
-        return Integer.toString(getMstpAddress(mac) & 0xff);
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
-    public static Address toAddress(byte station) {
-        return new Address(toOctetString(station));
-    }
-
-    public static Address toAddress(int networkNumber, byte station) {
-        return new Address(networkNumber, toOctetString(station));
-    }
-
-    public static Address toAddress(int station) {
-        return new Address(toOctetString((byte) station));
-    }
-
-    public static Address toAddress(int networkNumber, int station) {
-        return new Address(networkNumber, toOctetString((byte) station));
+    @Override
+    public boolean equals(final Object obj) {
+        return super.equals(obj);
     }
 }

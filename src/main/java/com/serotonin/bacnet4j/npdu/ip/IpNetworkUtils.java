@@ -129,16 +129,17 @@ public class IpNetworkUtils {
     /**
      * Convenience constructor for IP addresses remote to this network.
      *
-     * @param network
+     * @param networkNumber
      * @param ipAddress
      * @param port
+     * @return
      */
     public static Address toAddress(final int networkNumber, final byte[] ipAddress, final int port) {
         final byte[] ipMacAddress = new byte[ipAddress.length + 2];
         System.arraycopy(ipAddress, 0, ipMacAddress, 0, ipAddress.length);
         ipMacAddress[ipAddress.length] = (byte) (port >> 8);
         ipMacAddress[ipAddress.length + 1] = (byte) port;
-        return new Address(networkNumber, new OctetString(ipMacAddress), true);
+        return new Address(networkNumber, new OctetString(ipMacAddress));
     }
 
     public static Address toAddress(final String host, final int port) {

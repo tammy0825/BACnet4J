@@ -46,7 +46,7 @@ public class DefaultTransportTest {
         transport.setSegTimeout(50);
         transport.initialize();
 
-        final Address from = new Address(0, new byte[] { 1 }, true);
+        final Address from = new Address(0, new byte[] { 1 });
 
         // Add an incoming message that is the start of segmentation
         addIncomingSegmentedMessage(true, 3, 0, from, transport, null);
@@ -92,7 +92,7 @@ public class DefaultTransportTest {
         transport.setLocalDevice(localDevice);
         transport.initialize();
 
-        final Address from = new Address(0, new byte[] { 1 }, true);
+        final Address from = new Address(0, new byte[] { 1 });
 
         final ConfirmedRequestService service = mock(ConfirmedRequestService.class);
 

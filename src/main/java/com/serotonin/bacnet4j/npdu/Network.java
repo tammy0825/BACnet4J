@@ -36,6 +36,7 @@ import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.NetworkSourceAddress;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -73,6 +74,15 @@ abstract public class Network {
 
     abstract public MaxApduLength getMaxApduLength();
 
+    /**
+     * Override as desired if you want to set the Source Address in outgoing messages
+     *  in the NPDU
+     * @return
+     */
+    public Address getSourceAddress(final APDU apdu) {
+        return null;
+    }
+
     public void initialize(final Transport transport) throws Exception {
         this.transport = transport;
     }
@@ -80,7 +90,7 @@ abstract public class Network {
     abstract public void terminate();
 
     public final Address getLocalBroadcastAddress() {
-        return new Address(localNetworkNumber, getBroadcastMAC(), false);
+        return new Address(localNetworkNumber, getBroadcastMAC());
     }
 
     abstract protected OctetString getBroadcastMAC();
@@ -95,17 +105,17 @@ abstract public class Network {
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI((Address) null);
+            npci = new NPCI(getSourceAddress(apdu));
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException(
                         "Invalid arguments: router address provided for local recipient " + recipient);
-            npci = new NPCI(null, null, apdu.expectsReply());
+            npci = new NPCI(null, getSourceAddress(apdu), apdu.expectsReply());
         } else {
             if (router == null)
                 throw new RuntimeException(
                         "Invalid arguments: router address not provided for remote recipient " + recipient);
-            npci = new NPCI(recipient, null, apdu.expectsReply());
+            npci = new NPCI(recipient, getSourceAddress(apdu), apdu.expectsReply());
         }
 
         if (apdu.getNetworkPriority() != null)
@@ -193,7 +203,7 @@ abstract public class Network {
             if(LOG.isDebugEnabled()) {
                 LOG.debug("Received source information in message network={}, address={}", npci.getSourceNetwork(), npci.getSourceAddress());
             }
-            from = new Address(npci.getSourceNetwork(), npci.getSourceAddress(), true);
+            from = new NetworkSourceAddress(npci.getSourceNetwork(), npci.getSourceAddress());
         }else {
             from = new Address(linkService);
         }

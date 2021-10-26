@@ -168,7 +168,7 @@ public class NetworkPriorityTest {
             }
         };
 
-        network.sendAPDU(new Address(2, new byte[] { 2 }, true), new OctetString(new byte[] { 5 }), apdu, false);
+        network.sendAPDU(new Address(2, new byte[] { 2 }), new OctetString(new byte[] { 5 }), apdu, false);
 
         queue.pop();
         final byte control = queue.pop();
