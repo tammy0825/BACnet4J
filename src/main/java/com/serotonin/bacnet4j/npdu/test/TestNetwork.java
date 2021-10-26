@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.serotonin.bacnet4j.apdu.APDU;
 import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.MessageValidationException;
@@ -42,6 +43,7 @@ import com.serotonin.bacnet4j.npdu.Network;
 import com.serotonin.bacnet4j.npdu.NetworkIdentifier;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.NetworkSourceAddress;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 import com.serotonin.bacnet4j.util.sero.ThreadUtils;
@@ -73,7 +75,7 @@ public class TestNetwork extends Network implements Runnable {
     private long bytesIn;
 
     public TestNetwork(final TestNetworkMap map, final int address, final int sendDelay) {
-        this(map, new Address(new byte[] { (byte) address }), sendDelay);
+        this(map, new NetworkSourceAddress(Address.LOCAL_NETWORK, new byte[] { (byte) address }), sendDelay);
     }
 
     public TestNetwork(final TestNetworkMap map, final Address address, final int sendDelay) {
@@ -156,6 +158,11 @@ public class TestNetwork extends Network implements Runnable {
 
     @Override
     public Address getLoopbackAddress() {
+        return address;
+    }
+
+    @Override
+    public Address getSourceAddress(final APDU apdu) {
         return address;
     }
 

@@ -96,8 +96,4 @@ public class NetworkUtils {
             throw new RuntimeException("Error parsing '" + s + "'", e);
         }
     }
-
-    public static Address toAddress(int networkNumber, String dottedString) {
-        return new Address(new Unsigned16(networkNumber), toOctetString(dottedString), true);
-    }
 }

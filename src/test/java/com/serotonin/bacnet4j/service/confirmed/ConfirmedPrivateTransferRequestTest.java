@@ -42,7 +42,7 @@ public class ConfirmedPrivateTransferRequestTest extends AbstractTest {
                     final UnsignedInteger serviceNumber, final EncodedValue serviceParameters, final boolean confirmed)
                     throws BACnetErrorException {
                 assertEquals(d1, localDevice);
-                assertEquals(TestNetworkUtils.toAddress(2), from);
+                assertEquals(TestNetworkUtils.toSourceAddress(2), from);
                 assertEquals(new UnsignedInteger(236), vendorId);
                 assertEquals(new UnsignedInteger(12), serviceNumber);
                 assertEquals(null, serviceParameters);
@@ -72,7 +72,7 @@ public class ConfirmedPrivateTransferRequestTest extends AbstractTest {
                     final UnsignedInteger serviceNumber, final EncodedValue serviceParameters, final boolean confirmed)
                     throws BACnetErrorException {
                 assertEquals(d1, localDevice);
-                assertEquals(TestNetworkUtils.toAddress(2), from);
+                assertEquals(TestNetworkUtils.toSourceAddress(2), from);
                 assertEquals(new UnsignedInteger(236), vendorId);
                 assertEquals(new UnsignedInteger(13), serviceNumber);
                 assertEquals(parameters, serviceParameters);

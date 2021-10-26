@@ -36,6 +36,7 @@ import com.serotonin.bacnet4j.enums.MaxApduLength;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.NetworkSourceAddress;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
@@ -44,25 +45,13 @@ abstract public class Network {
 
     private final int localNetworkNumber;
     private Transport transport;
-    //Can this network provide a reliable source specifier in its messages
-    private final boolean sendSourceSpecifier;
 
     public Network() {
-        this(0, false);
+        this(0);
     }
 
     public Network(final int localNetworkNumber) {
-        this(localNetworkNumber, false);
-    }
-
-    /**
-     *
-     * @param localNetworkNumber
-     * @param sendSourceSpecifier - should messages be sent with the NPDU source specifier set?
-     */
-    public Network(final int localNetworkNumber, final boolean sendSourceSpecifier) {
         this.localNetworkNumber = localNetworkNumber;
-        this.sendSourceSpecifier = sendSourceSpecifier;
     }
 
     public int getLocalNetworkNumber() {
@@ -85,6 +74,15 @@ abstract public class Network {
 
     abstract public MaxApduLength getMaxApduLength();
 
+    /**
+     * Override as desired if you want to set the Source Address in outgoing messages
+     *  in the NPDU
+     * @return
+     */
+    public Address getSourceAddress(final APDU apdu) {
+        return null;
+    }
+
     public void initialize(final Transport transport) throws Exception {
         this.transport = transport;
     }
@@ -92,7 +90,7 @@ abstract public class Network {
     abstract public void terminate();
 
     public final Address getLocalBroadcastAddress() {
-        return new Address(localNetworkNumber, getBroadcastMAC(), false);
+        return new Address(localNetworkNumber, getBroadcastMAC());
     }
 
     abstract protected OctetString getBroadcastMAC();
@@ -101,35 +99,23 @@ abstract public class Network {
 
     abstract public Address getLoopbackAddress();
 
-    /**
-     * Get the primary address used for sending messages,
-     *   this address must be available to receive messages on
-     *   and an address resolvable to send messages to this network. i.e. not 0.0.0.0 or 127.0.0.1
-     * @return
-     */
-    abstract public Address getPrimaryLocalAddress();
-
-    public final Address getSourceAddress() {
-        return sendSourceSpecifier ? getPrimaryLocalAddress() : null;
-    }
-
     public final void sendAPDU(final Address recipient, final OctetString router, final APDU apdu,
             final boolean broadcast) throws BACnetException {
         final ByteQueue npdu = new ByteQueue();
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI(getSourceAddress());
+            npci = new NPCI((Address) null);
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException(
                         "Invalid arguments: router address provided for local recipient " + recipient);
-            npci = new NPCI(null, getSourceAddress(), apdu.expectsReply());
+            npci = new NPCI(null, null, apdu.expectsReply());
         } else {
             if (router == null)
                 throw new RuntimeException(
                         "Invalid arguments: router address not provided for remote recipient " + recipient);
-            npci = new NPCI(recipient, getSourceAddress(), apdu.expectsReply());
+            npci = new NPCI(recipient, null, apdu.expectsReply());
         }
 
         if (apdu.getNetworkPriority() != null)
@@ -148,15 +134,15 @@ abstract public class Network {
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI(null, getSourceAddress(), expectsReply, messageType, 0);
+            npci = new NPCI(null, null, expectsReply, messageType, 0);
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException("Invalid arguments: router address provided for a local recipient");
-            npci = new NPCI(null, getSourceAddress(), expectsReply, messageType, 0);
+            npci = new NPCI(null, null, expectsReply, messageType, 0);
         } else {
             if (router == null)
                 throw new RuntimeException("Invalid arguments: router address not provided for a remote recipient");
-            npci = new NPCI(recipient, getSourceAddress(), expectsReply, messageType, 0);
+            npci = new NPCI(recipient, null, expectsReply, messageType, 0);
         }
         npci.write(npdu);
 
@@ -213,10 +199,12 @@ abstract public class Network {
         }
 
         Address from;
-        if (npci.hasSourceInfo())
-            from = new Address(npci.getSourceNetwork(), npci.getSourceAddress(), true);
-        else
+        if (npci.hasSourceInfo()) {
+            LOG.debug("Received source information in message network={}, address={}", npci.getSourceNetwork(), npci.getSourceAddress());
+            from = new NetworkSourceAddress(npci.getSourceNetwork(), npci.getSourceAddress());
+        }else {
             from = new Address(linkService);
+        }
 
         OctetString ls = linkService;
         if (isThisNetwork(from)) {

@@ -80,6 +80,7 @@ import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.Transport;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.NetworkSourceAddress;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.Recipient;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
@@ -108,7 +109,7 @@ import lohbihler.warp.WarpUtils;
  */
 public class LocalDevice {
     static final Logger LOG = LoggerFactory.getLogger(LocalDevice.class);
-    public static final String VERSION = "5.0.0";
+    public static final String VERSION = "6.0.0";
 
     private final Transport transport;
 
@@ -365,7 +366,7 @@ public class LocalDevice {
         //
         // Send restart notifications.
 
-        // The defaulting of the list of recipients is done here because sometimes the network has to be initialized
+        // The defaulting of the list of receipients is done here because sometimes the network has to be initialized
         // before the local broadcast address is known.
         SequenceOf<Recipient> restartNotificationRecipients = getPersistence().loadSequenceOf(
                 deviceObject.getPersistenceKey(PropertyIdentifier.restartNotificationRecipients), Recipient.class);
@@ -869,10 +870,21 @@ public class LocalDevice {
      */
     public void updateRemoteDevice(final int instanceNumber, final Address address) {
         if (address == null)
-            throw new NullPointerException("addr cannot be null");
+            throw new NullPointerException("address cannot be null");
         final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
-        if (d != null && address.hasSourceInfo()) {
-            d.setAddress(address);
+        if (d != null) {
+            if(address instanceof NetworkSourceAddress) {
+                LOG.debug("Updating address with source info, newAddress={}, existingAddress={}", address, d.getAddress());
+                //We can confidently change the network number
+                d.setAddress(address);
+            }else {
+                Address newAddress = new Address(d.getAddress().getNetworkNumber().intValue(), address.getMacAddress());
+                LOG.debug("Not updating address without source info, newAddress={}, existingAddress={}", address, d.getAddress());
+                //This address can be from the source of the socket message (link service)
+                // and may not be what we really want to update here.  It was decided in 5.0.0
+                // to track incoming addresses via the NetworkSourceAddress class
+                // and not blindly set the remote devices new address here
+            }
         }
     }
 

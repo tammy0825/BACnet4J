@@ -132,6 +132,7 @@ public class IpNetworkUtils {
      * @param networkNumber
      * @param ipAddress
      * @param port
+     * @return
      */
     public static Address toAddress(final int networkNumber, final byte[] ipAddress, final int port) {
         final byte[] ipMacAddress = new byte[ipAddress.length + 2];
