@@ -870,7 +870,7 @@ public class LocalDevice {
      */
     public void updateRemoteDevice(final int instanceNumber, final Address address) {
         if (address == null)
-            throw new NullPointerException("addr cannot be null");
+            throw new NullPointerException("address cannot be null");
         final RemoteDevice d = getCachedRemoteDevice(instanceNumber);
         if (d != null) {
             if(address instanceof NetworkSourceAddress) {
@@ -880,10 +880,10 @@ public class LocalDevice {
             }else {
                 Address newAddress = new Address(d.getAddress().getNetworkNumber().intValue(), address.getMacAddress());
                 LOG.debug("Not updating address without source info, newAddress={}, existingAddress={}", address, d.getAddress());
-                //TODO REVIEW This address can be from the source of the socket message
-                // and may not be what we really want to update here.  We want a way to track
-                //
-                //d.setAddress(newAddress);
+                //This address can be from the source of the socket message (link service)
+                // and may not be what we really want to update here.  It was decided in 5.0.0
+                // to track incoming addresses via the NetworkSourceAddress class
+                // and not blindly set the remote devices new address here
             }
         }
     }

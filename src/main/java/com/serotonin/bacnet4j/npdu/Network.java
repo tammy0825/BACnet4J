@@ -200,9 +200,7 @@ abstract public class Network {
 
         Address from;
         if (npci.hasSourceInfo()) {
-            if(LOG.isDebugEnabled()) {
-                LOG.debug("Received source information in message network={}, address={}", npci.getSourceNetwork(), npci.getSourceAddress());
-            }
+            LOG.debug("Received source information in message network={}, address={}", npci.getSourceNetwork(), npci.getSourceAddress());
             from = new NetworkSourceAddress(npci.getSourceNetwork(), npci.getSourceAddress());
         }else {
             from = new Address(linkService);
