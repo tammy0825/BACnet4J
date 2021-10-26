@@ -37,7 +37,6 @@ import com.serotonin.bacnet4j.util.BACnetUtils;
 
 public class IpNetworkBuilder {
     private String localBindAddress = IpNetwork.DEFAULT_BIND_IP;
-    private String primaryLocalAddress;
     private String broadcastAddress;
     private String subnetMask;
     private int port = IpNetwork.DEFAULT_PORT;
@@ -103,16 +102,6 @@ public class IpNetworkBuilder {
         return this;
     }
 
-    /**
-     * Set the source specifier of the NPDU to this address when sending messages
-     * @param primaryLocalAddress
-     * @return
-     */
-    public IpNetworkBuilder withSendSourceSpecifier(final String primaryLocalAddress) {
-        this.primaryLocalAddress = primaryLocalAddress;
-        return this;
-    }
-
     public String getLocalBindAddress() {
         return localBindAddress;
     }
@@ -141,10 +130,6 @@ public class IpNetworkBuilder {
         if (broadcastAddress == null || subnetMask == null) {
             throw new IllegalArgumentException("Either withBroadcast or withSubnet must be called.");
         }
-        if(StringUtils.isEmpty(primaryLocalAddress)) {
-            return new IpNetwork(port, localBindAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
-        }else {
-            return new IpNetwork(port, localBindAddress, primaryLocalAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
-        }
+        return new IpNetwork(port, localBindAddress, broadcastAddress, subnetMask, localNetworkNumber, reuseAddress);
     }
 }

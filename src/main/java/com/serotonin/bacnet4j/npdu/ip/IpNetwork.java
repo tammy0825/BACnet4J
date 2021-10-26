@@ -74,7 +74,6 @@ public class IpNetwork extends Network implements Runnable {
 
     private final int port;
     private final String localBindAddressStr;
-    private final String primaryLocalAddress;
     private final String broadcastAddressStr;
     private final String subnetMaskStr;
     private final boolean reuseAddress;
@@ -109,21 +108,6 @@ public class IpNetwork extends Network implements Runnable {
         super(localNetworkNumber);
         this.port = port;
         this.localBindAddressStr = localBindAddress;
-        this.primaryLocalAddress = null;
-        this.broadcastAddressStr = broadcastAddress;
-        this.subnetMaskStr = subnetMask;
-        this.reuseAddress = reuseAddress;
-    }
-
-    /**
-     * Use an IpNetworkBuilder to create instances.
-     */
-    IpNetwork(final int port, final String localBindAddress, String primaryLocalAddress, final String broadcastAddress, final String subnetMask,
-              final int localNetworkNumber, final boolean reuseAddress) {
-        super(localNetworkNumber, true);
-        this.port = port;
-        this.localBindAddressStr = localBindAddress;
-        this.primaryLocalAddress = primaryLocalAddress;
         this.broadcastAddressStr = broadcastAddress;
         this.subnetMaskStr = subnetMask;
         this.reuseAddress = reuseAddress;
@@ -205,11 +189,6 @@ public class IpNetwork extends Network implements Runnable {
     @Override
     protected OctetString getBroadcastMAC() {
         return broadcastMAC;
-    }
-
-    @Override
-    public Address getPrimaryLocalAddress() {
-        return IpNetworkUtils.toAddress(InetAddrCache.get(primaryLocalAddress, port));
     }
 
     public Address getBroadcastAddress(final int port) {

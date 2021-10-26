@@ -105,17 +105,17 @@ abstract public class Network {
 
         NPCI npci;
         if (recipient.isGlobal())
-            npci = new NPCI((Address) null);
+            npci = new NPCI(getSourceAddress(apdu));
         else if (isThisNetwork(recipient)) {
             if (router != null)
                 throw new RuntimeException(
                         "Invalid arguments: router address provided for local recipient " + recipient);
-            npci = new NPCI(null, null, apdu.expectsReply());
+            npci = new NPCI(null, getSourceAddress(apdu), apdu.expectsReply());
         } else {
             if (router == null)
                 throw new RuntimeException(
                         "Invalid arguments: router address not provided for remote recipient " + recipient);
-            npci = new NPCI(recipient, null, apdu.expectsReply());
+            npci = new NPCI(recipient, getSourceAddress(apdu), apdu.expectsReply());
         }
 
         if (apdu.getNetworkPriority() != null)

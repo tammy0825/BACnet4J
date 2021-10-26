@@ -139,7 +139,7 @@ public class IpNetworkUtils {
         System.arraycopy(ipAddress, 0, ipMacAddress, 0, ipAddress.length);
         ipMacAddress[ipAddress.length] = (byte) (port >> 8);
         ipMacAddress[ipAddress.length + 1] = (byte) port;
-        return new Address(networkNumber, new OctetString(ipMacAddress), true);
+        return new Address(networkNumber, new OctetString(ipMacAddress));
     }
 
     public static Address toAddress(final String host, final int port) {

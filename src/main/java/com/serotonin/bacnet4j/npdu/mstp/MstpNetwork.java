@@ -93,11 +93,6 @@ public class MstpNetwork extends Network {
     }
 
     @Override
-    public Address getPrimaryLocalAddress() {
-        return MstpNetworkUtils.toAddress(getLocalNetworkNumber(), node.getThisStation());
-    }
-
-    @Override
     public long getBytesOut() {
         return node.getBytesOut();
     }

@@ -159,7 +159,7 @@ public class NetworkPriorityTest {
 
             @Override
             public Address[] getAllLocalAddresses() {
-                return new Address[] {new Address(2, new byte[]{ 1}, true)};
+                return new Address[] {new Address(2, new byte[]{ 1})};
             }
 
             @Override
@@ -167,13 +167,9 @@ public class NetworkPriorityTest {
                 throw new RuntimeException();
             }
 
-            @Override
-            public Address getPrimaryLocalAddress() {
-                return new Address(2, new byte[]{ 1}, true);
-            }
         };
 
-        network.sendAPDU(new Address(2, new byte[] { 2 }, true), new OctetString(new byte[] { 5 }), apdu, false);
+        network.sendAPDU(new Address(2, new byte[] { 2 }), new OctetString(new byte[] { 5 }), apdu, false);
 
         queue.pop();
         final byte control = queue.pop();

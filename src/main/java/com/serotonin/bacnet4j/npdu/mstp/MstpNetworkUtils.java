@@ -49,7 +49,7 @@ public class MstpNetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, byte station) {
-        return new Address(networkNumber, toOctetString(station), true);
+        return new Address(networkNumber, toOctetString(station));
     }
 
     public static Address toAddress(int station) {
@@ -57,6 +57,6 @@ public class MstpNetworkUtils {
     }
 
     public static Address toAddress(int networkNumber, int station) {
-        return new Address(networkNumber, toOctetString((byte) station), true);
+        return new Address(networkNumber, toOctetString((byte) station));
     }
 }

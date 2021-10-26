@@ -31,6 +31,7 @@ import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import com.serotonin.bacnet4j.type.constructed.NetworkSourceAddress;
 import com.serotonin.bacnet4j.type.constructed.PropertyReference;
 import com.serotonin.bacnet4j.type.constructed.PropertyValue;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
@@ -81,7 +82,7 @@ public class MessagingTest {
         });
         d1.initialize();
 
-        final Address a2 = new Address(new byte[] { 2 });
+        final Address a2 = new NetworkSourceAddress(Address.LOCAL_NETWORK, new byte[] { 2 });
         final TestNetwork network2 = new TestNetwork(map, a2, 200);
         final LocalDevice d2 = new LocalDevice(2, new DefaultTransport(network2));
         d2.initialize();
