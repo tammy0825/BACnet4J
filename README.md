@@ -65,6 +65,7 @@ Releases
     * PropertyIdentifier.modelName
     * PropertyIdentifier.maxSegmentsAccepted
 - Only update a cached device's address if the NPCI data has the source specifier flag set
+- Allow overriding the ScheduledExecutorService used by the LocalDevice
 
 *Version 5.0.2*
 - Relax restriction on reading values that are invalid by only validating values when they are written to our device

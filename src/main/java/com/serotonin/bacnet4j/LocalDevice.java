@@ -313,7 +313,7 @@ public class LocalDevice {
     public synchronized LocalDevice initialize(final RestartReason lastRestartReason) throws Exception {
         deviceObject.writePropertyInternal(PropertyIdentifier.lastRestartReason, lastRestartReason);
 
-        timer = new WarpScheduledExecutorService(clock);
+        timer = createScheduledExecutorService();
         transport.initialize();
         initialized = true;
 
@@ -390,6 +390,15 @@ public class LocalDevice {
         }
 
         return this;
+    }
+
+    /**
+     * Create a ScheduledExecutorService for use by the local device
+     * @return
+     * @see java.util.concurrent.ScheduledExecutorService
+     */
+    protected ScheduledExecutorService createScheduledExecutorService() {
+        return new WarpScheduledExecutorService(clock);
     }
 
     public synchronized void terminate() {
