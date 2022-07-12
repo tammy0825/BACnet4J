@@ -395,7 +395,8 @@ public class TrendLogObject extends BACnetObject {
 
     @Override
     protected void terminateImpl() {
-        super.terminate();
+        // when remove local trendLog, it will cause StackOverFlowError
+//        super.terminate();
         cancelFuture(startTimeFuture);
         cancelFuture(stopTimeFuture);
         cancelFuture(pollingFuture);
