@@ -28,15 +28,6 @@
  */
 package com.serotonin.bacnet4j.obj;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Objects;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.ResponseConsumer;
@@ -77,6 +68,14 @@ import com.serotonin.bacnet4j.type.primitive.Date;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Objects;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * TODO
@@ -90,13 +89,13 @@ public class ScheduleObject extends BACnetObject {
     // CreateObject constructor
     public static ScheduleObject create(final LocalDevice localDevice, final int instanceNumber)
             throws BACnetServiceException {
-        return new ScheduleObject(localDevice, instanceNumber, ObjectType.schedule.toString() + " " + instanceNumber,
+        return new ScheduleObject(localDevice, instanceNumber, ObjectType.schedule + " " + instanceNumber,
                 new DateRange(Date.UNSPECIFIED, Date.UNSPECIFIED),
                 new BACnetArray<>(7, new DailySchedule(new SequenceOf<>())), new SequenceOf<>(), BinaryPV.inactive,
                 new SequenceOf<>(), 12, false);
     }
 
-    private ScheduledFuture<?> presentValueRefersher;
+    private ScheduledFuture<?> presentValueRefresher;
 
     /**
      * A proprietary mechanism to periodically write the present value to all property references in case of power
@@ -105,10 +104,10 @@ public class ScheduleObject extends BACnetObject {
     private ScheduledFuture<?> periodicWriter;
 
     public ScheduleObject(final LocalDevice localDevice, final int instanceNumber, final String name,
-            final DateRange effectivePeriod, final BACnetArray<DailySchedule> weeklySchedule,
-            final SequenceOf<SpecialEvent> exceptionSchedule, final Primitive scheduleDefault,
-            final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
-            final int priorityForWriting, final boolean outOfService) throws BACnetServiceException {
+                          final DateRange effectivePeriod, final BACnetArray<DailySchedule> weeklySchedule,
+                          final SequenceOf<SpecialEvent> exceptionSchedule, final Primitive scheduleDefault,
+                          final SequenceOf<DeviceObjectPropertyReference> listOfObjectPropertyReferences,
+                          final int priorityForWriting, final boolean outOfService) throws BACnetServiceException {
         super(localDevice, ObjectType.schedule, instanceNumber, name);
 
         if (effectivePeriod == null)
@@ -152,7 +151,7 @@ public class ScheduleObject extends BACnetObject {
     }
 
     public void supportIntrinsicReporting(final int notificationClass, final EventTransitionBits eventEnable,
-            final NotifyType notifyType) {
+                                          final NotifyType notifyType) {
         // Prepare the object with all of the properties that intrinsic reporting will need.
         // User-defined properties
         writePropertyInternal(PropertyIdentifier.notificationClass, new UnsignedInteger(notificationClass));
@@ -216,10 +215,8 @@ public class ScheduleObject extends BACnetObject {
     /**
      * Starts the internal periodic writer.
      *
-     * @param delay
-     *            the delay before the first execution, in milliseconds.
-     * @param period
-     *            the period between executions, in milliseconds.
+     * @param delay  the delay before the first execution, in milliseconds.
+     * @param period the period between executions, in milliseconds.
      */
     public void startPeriodicWriter(final long delay, final long period) {
         if (delay < 0)
@@ -228,7 +225,7 @@ public class ScheduleObject extends BACnetObject {
             throw new IllegalArgumentException("period cannot be < 1");
 
         cancelPeriodicWriter();
-        periodicWriter = getLocalDevice().scheduleAtFixedRate(() -> forceWrites(), delay, period,
+        periodicWriter = getLocalDevice().scheduleAtFixedRate(this::forceWrites, delay, period,
                 TimeUnit.MILLISECONDS);
         LOG.debug("Periodic writer started");
     }
@@ -243,7 +240,7 @@ public class ScheduleObject extends BACnetObject {
         cancelPeriodicWriter();
     }
 
-    synchronized public void forceWrites() {
+    public synchronized void forceWrites() {
         doWrites(get(PropertyIdentifier.presentValue));
     }
 
@@ -265,7 +262,7 @@ public class ScheduleObject extends BACnetObject {
 
         @Override
         protected void afterWriteProperty(final PropertyIdentifier pid, final Encodable oldValue,
-                final Encodable newValue) {
+                                          final Encodable newValue) {
             if (Objects.equals(newValue, oldValue))
                 return;
 
@@ -278,9 +275,9 @@ public class ScheduleObject extends BACnetObject {
     }
 
     private void cancelRefresher() {
-        if (presentValueRefersher != null) {
-            presentValueRefersher.cancel(false);
-            presentValueRefersher = null;
+        if (presentValueRefresher != null) {
+            presentValueRefresher.cancel(false);
+            presentValueRefresher = null;
         }
     }
 
@@ -355,10 +352,9 @@ public class ScheduleObject extends BACnetObject {
         }
 
         writePropertyInternal(PropertyIdentifier.presentValue, newValue);
-
         final java.util.Date nextRuntime = new java.util.Date(nextCheck);
-        presentValueRefersher = getLocalDevice().schedule(() -> updatePresentValue(), nextRuntime.getTime(),
-                TimeUnit.MILLISECONDS);
+        final long diff = nextRuntime.getTime() - now.getGC().getTimeInMillis();
+        presentValueRefresher = getLocalDevice().schedule(this::updatePresentValue, diff, TimeUnit.MILLISECONDS);
         LOG.debug("Timer scheduled to run at {}", nextRuntime);
     }
 
